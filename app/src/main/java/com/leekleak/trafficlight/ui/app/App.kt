@@ -35,9 +35,7 @@ fun App() {
                 backgroundPermission.value = hasBackgroundPermission(context)
                 usagePermission.value = hasUsageStatsPermission(context)
 
-                if (notificationPermission.value && backgroundPermission.value && usagePermission.value) {
-                    UsageService.startService(context)
-                }
+                UsageService.startService(context)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

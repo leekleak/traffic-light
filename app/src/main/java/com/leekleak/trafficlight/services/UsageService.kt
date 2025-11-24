@@ -14,6 +14,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.os.IBinder
 import android.util.Log
+import androidx.collection.LruCache
 import androidx.compose.ui.graphics.NativeCanvas
 import androidx.compose.ui.unit.Density
 import androidx.core.app.NotificationCompat
@@ -29,6 +30,7 @@ import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.clipAndPad
+import com.leekleak.trafficlight.util.hasAllPermissions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -62,6 +64,7 @@ class UsageService : Service(), KoinComponent {
             .setContentTitle("Traffic Light")
             .setOngoing(true)
             .setSilent(true)
+            .setLocalOnly(true)
             .setOnlyAlertOnce(true)
             .setWhen(Long.MAX_VALUE) // Keep above other notifications
             .setShowWhen(false) // Hide timestamp
@@ -156,7 +159,7 @@ class UsageService : Service(), KoinComponent {
                         this,
                         NOTIFICATION_ID,
                         it,
-                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MANIFEST
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
                     )
                 }
             } catch (_: Exception) {
@@ -191,6 +194,7 @@ class UsageService : Service(), KoinComponent {
 
                 if (updateCounter == 10) {
                     updateDatabase()
+                    updateCounter = 0
                 } else {
                     updateCounter++
                 }
@@ -223,15 +227,19 @@ class UsageService : Service(), KoinComponent {
     }
 
     var lastSnapshot: TrafficSnapshot = TrafficSnapshot(-1)
+    var lastTitle: String = ""
     private suspend fun updateNotification(trafficSnapshot: TrafficSnapshot) {
         lastSnapshot = trafficSnapshot.copy()
 
         val title = getString(R.string.speed, formatter.format(trafficSnapshot.totalSpeed, 2, true))
+
+        if (lastTitle == title) return // If the title is the same, so is the icon.
+        else lastTitle = title
+
         val spacing = 18
         val messageShort =
             getString(R.string.wi_fi, formatter.format(todayUsage.totalWifi, 2)).clipAndPad(spacing) +
-            getString(R.string.mobile, formatter.format(todayUsage.totalCellular, 2)) +
-                    " cache: ${cachedIcons.size}"
+            getString(R.string.mobile, formatter.format(todayUsage.totalCellular, 2))
 
         notification = notificationBuilder
             .setSmallIcon(createIcon(trafficSnapshot))
@@ -250,9 +258,9 @@ class UsageService : Service(), KoinComponent {
         }
     }
 
-    private var cachedIcons: MutableMap<String, IconCompat> = mutableMapOf()
+    private var cachedIcons = LruCache<String, IconCompat>(50)
     var bitmap: Bitmap? = null
-    suspend fun createIcon(snapshot: TrafficSnapshot): IconCompat {
+    suspend fun createIcon(snapshot: TrafficSnapshot): IconCompat = withContext(Dispatchers.Default) {
         val density = Density(this@UsageService)
         val multiplier = 24 * density.density / 96f * if (bigIcon) 2f else 1f
         val height = (96 * multiplier).toInt()
@@ -266,40 +274,46 @@ class UsageService : Service(), KoinComponent {
 
         val iconTag = "$speed$unit$height"
 
-        if (cachedIcons.containsKey(iconTag)) {
-            return cachedIcons.getValue(iconTag)
+        cachedIcons[iconTag]?.let { return@withContext it }
+
+        if (bitmap == null || bitmap!!.height != height) {
+            bitmap = createBitmap(height, height, Bitmap.Config.ALPHA_8)
+        } else {
+            bitmap?.eraseColor(Color.TRANSPARENT)
         }
 
-        return withContext(Dispatchers.Default) {
-            if (bitmap == null || bitmap!!.height != height) {
-                bitmap = createBitmap(height, height, Bitmap.Config.ALPHA_8)
-            } else {
-                bitmap?.eraseColor(Color.TRANSPARENT)
-            }
+        val canvas = NativeCanvas(bitmap!!)
 
-            val canvas = NativeCanvas(bitmap!!)
+        paint.apply {
+            textSize = 72f * multiplier
+            letterSpacing = -0.05f * multiplier
+        }
+        canvas.drawText(speed, 48f * multiplier, 56f * multiplier, paint)
 
-            paint.apply {
-                textSize = 72f * multiplier
-                letterSpacing = -0.05f * multiplier
-            }
-            canvas.drawText(speed, 48f * multiplier, 56f * multiplier, paint)
+        paint.apply {
+            textSize = 46f * multiplier
+            letterSpacing = 0f * multiplier
+        }
+        canvas.drawText(unit, 48f * multiplier, 96f * multiplier, paint)
 
-            paint.apply {
-                textSize = 46f * multiplier
-                letterSpacing = 0f * multiplier
-            }
-            canvas.drawText(unit, 48f * multiplier, 96f * multiplier, paint)
-
-            // Don't cache numbers with many digits as they appear much more often and are unlikely
-            // to be worth the cost of creating a new bitmap
-            if (speed.count(Char::isDigit) < 3) {
-                cachedIcons[iconTag] =
-                    IconCompat.createWithBitmap(bitmap!!.copy(Bitmap.Config.ALPHA_8, false))
-                return@withContext cachedIcons[iconTag]!!
-            } else {
-                return@withContext IconCompat.createWithBitmap(bitmap!!)
-            }
+        /**
+         * Don't cache numbers with many digits as they appear much more often and are unlikely
+         * to be worth the cost of creating a new bitmap
+         *
+         * Mostly there to avoid re-rendering common values like 0KB/s, <1KB/s or other small values
+         * caused by many background processes.
+         *
+         * Making caching more aggressive is probably a bad idea as duplicating bitmaps is quite
+         * expensive and not worth it if the value appears once a day.
+          */
+        if (speed.count(Char::isDigit) == 1) {
+            cachedIcons.put(
+                iconTag,
+                IconCompat.createWithBitmap(bitmap!!.copy(Bitmap.Config.ALPHA_8, false)),
+            )
+            return@withContext cachedIcons[iconTag]!!
+        } else {
+            return@withContext IconCompat.createWithBitmap(bitmap!!)
         }
     }
 
@@ -322,7 +336,7 @@ class UsageService : Service(), KoinComponent {
         }
 
         fun startService(context: Context) {
-            if (!isInstanceCreated()) {
+            if (!isInstanceCreated() && hasAllPermissions(context)) {
                 val intent = Intent(context, UsageService::class.java)
                 context.startService(intent)
                 Log.i("UsageService", "Started service")
