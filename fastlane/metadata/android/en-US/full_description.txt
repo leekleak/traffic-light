@@ -1,1 +1,10 @@
-<p>Traffic Light is an open-source tool inspired by <i>Internet Speed Meter</i> with an incredibly satisfying and expressive UI.</p>
+<p>Traffic Light is an open-source tool to track your network speed and data usage inspired by Internet Speed Meter.</p>
+<h2>Why?</h2>
+<ul>
+<li>Free and open source</li>
+<li>Uses few <a href="https://github.com/leekleak/traffic-light/wiki/Permission-Comparison">permissions</a></li>
+<li>Uses <a href="https://github.com/leekleak/traffic-light/wiki/Battery-Usage">less battery</a></li>
+<li>No tracking</li>
+<li>Beautiful UI</li>
+<li>Incredibly small app size</li>
+</ul>
