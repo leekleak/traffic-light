@@ -5,7 +5,7 @@ Traffic Light is an open-source tool to track your network speed and data usage 
 
 ## Why?
 - Free and open source
-- Uses few [permissions](https://github.com/leekleak/traffic-light/wiki/Permission-Comparison)
+- Uses [fewer permissions](https://github.com/leekleak/traffic-light/wiki/Permissions)
 - Uses [less battery](https://github.com/leekleak/traffic-light/wiki/Battery-Usage)
 - No tracking
 - Beautiful UI
