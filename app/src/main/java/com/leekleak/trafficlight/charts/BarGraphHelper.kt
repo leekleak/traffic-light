@@ -236,18 +236,20 @@ internal class BarGraphHelper(
     internal fun drawBars(cornerRadius: CornerRadius, color1: Color, color2: Color, widths: List<Animatable<Float, *>>) {
         scope.run {
             metrics.rectList.forEachIndexed { i, bar ->
-                val path = Path().apply {
-                    addRoundRect(
-                        RoundRect(
-                            rect = bar.rect.copy(
-                                left = bar.rect.left + widths[i].value,
-                                right = bar.rect.right - widths[i].value,
-                            ),
-                            cornerRadius = cornerRadius
+                if (bar.rect.height > 3) {
+                    val path = Path().apply {
+                        addRoundRect(
+                            RoundRect(
+                                rect = bar.rect.copy(
+                                    left = bar.rect.left + widths[i].value,
+                                    right = bar.rect.right - widths[i].value,
+                                ),
+                                cornerRadius = cornerRadius
+                            )
                         )
-                    )
+                    }
+                    drawPath(path, if (bar.type == NetworkType.Wifi) color1 else color2)
                 }
-                drawPath(path, if (bar.type == NetworkType.Wifi) color1 else color2)
             }
         }
     }
