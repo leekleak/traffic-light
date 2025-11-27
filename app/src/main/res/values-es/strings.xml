@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Traffic Light</string>
+    <string name="today">Hoy</string>
+    <string name="this_week">Esta semana</string>
+    <string name="history">Historial</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="cellular">Celular</string>
+    <string name="grant">Conceder</string>
+    <string name="permissions">Permisos</string>
+    <string name="speed">Velocidad: %1$s</string>
+    <string name="settings">Configuración</string>
+    <string name="notification_permission">Notificaciones</string>
+    <string name="notification_permission_description">La autorización de notificaciones es necesaria para que el icono de velocidad de red en la barra de estado funcione.</string>
+    <string name="battery_optimization">Optimización de la batería</string>
+    <string name="battery_optimization_description">Debe desactivarse para evitar que el teléfono elimine el servicio en segundo plano después de un tiempo.</string>
+    <string name="usage_statistics">Estadísticas de Uso</string>
+    <string name="usage_statistics_description">La manera menos problemática de obtener datos de uso de la red en Android.</string>
+    <string name="notifications">Notificacioń</string>
+    <string name="screen_off_update">Actualizar mientras la pantalla este apagada</string>
+    <string name="screen_off_update_description">Permite el seguimiento en la pantalla siempre encendida (AOD), pero afecta a la batería.</string>
+    <string name="oversample_icon">Sobremuestrar icono</string>
+    <string name="oversample_icon_description">Renderiza el icono a mayor resolución si se ve borroso.</string>
+    <string name="wi_fi">Wi-Fi: %1$s</string>
+    <string name="mobile">Datos Móviles: %1$s</string>
+    <string name="clear_history">Limpiar Historial</string>
+    <string name="clear_history_description">Puede ayudar a resolver problemas de la base de datos.</string>
+    <string name="about">Acerca de</string>
+    <string name="speed_in_bits">Mostrar la velocidad en bits</string>
+    <string name="github_description">Da seguimiento al desarrollo o reporta problemas.</string>
+    <string name="version">Versión %1$s</string>
+    <string name="force_fallback">Forzar método alternativo de seguimiento</string>
+    <string name="force_fallback_description">Útil cuando se usa una ROM con errores o conexión por ethernet</string>
+    <string name="fallback_unsupported">Método alternativo no disponible</string>
+    <plurals name="days">
+        <item quantity="one">%d día</item>
+        <item quantity="other">%d dias</item>
+    </plurals>
+</resources>
