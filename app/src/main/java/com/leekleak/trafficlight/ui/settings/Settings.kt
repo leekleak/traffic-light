@@ -104,7 +104,7 @@ fun Settings(
             Preference(
                 title = stringResource(R.string.version, BuildConfig.VERSION_NAME),
                 icon = painterResource(R.drawable.version),
-                onClick = {},
+                onClick = { viewModel.openAppSettings(activity) },
             )
         }
     }

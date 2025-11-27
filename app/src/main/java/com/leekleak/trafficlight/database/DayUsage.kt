@@ -130,12 +130,12 @@ data class TrafficSnapshot (
     }
 
     private fun fallbackUpdateSnapshot() {
-        val mobileUp = if (mobileTxFile.exists()) mobileTxFile.readText().trim().toLong() else 0
-        val mobileDown = if (mobileRxFile.exists()) mobileRxFile.readText().trim().toLong() else 0
-        val wifiUp = if (wifiTxFile.exists()) wifiTxFile.readText().trim().toLong() else 0 +
-                     if (ethTxFile.exists()) ethTxFile.readText().trim().toLong() else 0
-        val wifiDown = if (wifiRxFile.exists()) wifiRxFile.readText().trim().toLong() else 0 +
-                       if (ethRxFile.exists()) ethRxFile.readText().trim().toLong() else 0
+        val mobileUp = if (mobileTxFile.canRead()) mobileTxFile.readText().trim().toLong() else 0
+        val mobileDown = if (mobileRxFile.canRead()) mobileRxFile.readText().trim().toLong() else 0
+        val wifiUp = if (wifiTxFile.canRead()) wifiTxFile.readText().trim().toLong() else 0 +
+                     if (ethTxFile.canRead()) ethTxFile.readText().trim().toLong() else 0
+        val wifiDown = if (wifiRxFile.canRead()) wifiRxFile.readText().trim().toLong() else 0 +
+                       if (ethRxFile.canRead()) ethRxFile.readText().trim().toLong() else 0
         currentUp = mobileUp + wifiUp
         currentDown = mobileDown + wifiDown
         currentMobile = mobileUp + mobileDown
@@ -149,7 +149,6 @@ data class TrafficSnapshot (
         private val wifiTxFile: File by lazy { File("/sys/class/net/wlan0/statistics/tx_bytes") }
         private val ethRxFile: File by lazy { File("/sys/class/net/eth0/statistics/rx_bytes") }
         private val ethTxFile: File by lazy { File("/sys/class/net/eth0/statistics/tx_bytes") }
-
-        fun doesFallbackWork(): Boolean = mobileTxFile.canRead()
+        fun doesFallbackWork(): Boolean = mobileRxFile.canRead() || wifiRxFile.canRead() || ethRxFile.canRead()
     }
 }
