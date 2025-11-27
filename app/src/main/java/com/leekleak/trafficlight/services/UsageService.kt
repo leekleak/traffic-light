@@ -13,7 +13,6 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Paint
 import android.os.IBinder
-import android.util.Log
 import androidx.collection.LruCache
 import androidx.compose.ui.graphics.NativeCanvas
 import androidx.compose.ui.unit.Density
@@ -44,6 +43,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import timber.log.Timber
 import java.time.LocalDate
 
 class UsageService : Service(), KoinComponent {
@@ -159,7 +159,7 @@ class UsageService : Service(), KoinComponent {
                     )
                 }
             } catch (_: Exception) {
-                Log.e("Traffic Light", "Failed to start foreground service")
+                Timber.e("Failed to start foreground service")
             }
         }
         return START_STICKY
@@ -337,7 +337,7 @@ class UsageService : Service(), KoinComponent {
             if (!isInstanceCreated() && hasAllPermissions(context)) {
                 val intent = Intent(context, UsageService::class.java)
                 context.startService(intent)
-                Log.i("UsageService", "Started service")
+                Timber.i("Started service")
             }
         }
 

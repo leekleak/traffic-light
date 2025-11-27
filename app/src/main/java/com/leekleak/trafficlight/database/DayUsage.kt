@@ -1,13 +1,13 @@
 package com.leekleak.trafficlight.database
 
 import android.net.TrafficStats
-import android.util.Log
 import com.leekleak.trafficlight.model.PreferenceRepo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import timber.log.Timber
 import java.io.File
 import java.time.LocalDate
 
@@ -104,7 +104,7 @@ data class TrafficSnapshot (
                 try {
                     fallbackUpdateSnapshot()
                 } catch (e: Exception) {
-                    Log.e("Traffic Light", "Fallback unsupported: $e")
+                    Timber.e("Fallback unsupported: $e")
                     preferenceRepo.setForceFallback(false)
                     useFallback = false
                 }

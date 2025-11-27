@@ -3,12 +3,12 @@ package com.leekleak.trafficlight.database
 import android.app.usage.NetworkStatsManager
 import android.content.Context
 import android.content.Context.NETWORK_STATS_SERVICE
-import android.util.Log
 import com.leekleak.trafficlight.util.NetworkType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import timber.log.Timber
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -53,7 +53,7 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
 
         for (i in 1..10000) {
             if (suspiciousHours.size == 31 * 24) {
-                Log.i("leekleak", "Reached maximum amount of empty hours")
+                Timber.i("Reached maximum amount of empty hours")
                 break
             }
 

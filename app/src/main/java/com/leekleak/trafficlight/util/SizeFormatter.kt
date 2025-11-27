@@ -2,7 +2,6 @@ package com.leekleak.trafficlight.util
 
 import java.math.RoundingMode
 import kotlin.math.ceil
-import kotlin.math.max
 import kotlin.math.pow
 
 enum class DataSizeUnit {
