@@ -82,8 +82,8 @@ class UsageService : Service(), KoinComponent {
         }
     }
 
-    var bigIcon = false
-    var aodMode = false
+    private var bigIcon = false
+    private var aodMode = false
 
     private val formatter by lazy { SizeFormatter() }
 
@@ -165,7 +165,7 @@ class UsageService : Service(), KoinComponent {
         return START_STICKY
     }
 
-    fun startJob() {
+    private fun startJob() {
         job = serviceScope.launch {
             val trafficSnapshot = TrafficSnapshot()
             trafficSnapshot.updateSnapshot()
@@ -227,7 +227,7 @@ class UsageService : Service(), KoinComponent {
         todayUsage.categorizeUsage()
     }
 
-    var lastTitle: String = ""
+    private var lastTitle: String = ""
     private suspend fun updateNotification(trafficSnapshot: TrafficSnapshot) {
         val title = getString(R.string.speed, formatter.format(trafficSnapshot.totalSpeed, 2, true))
 
@@ -257,7 +257,7 @@ class UsageService : Service(), KoinComponent {
     }
 
     private var cachedIcons = LruCache<String, IconCompat>(50)
-    var bitmap: Bitmap? = null
+    private var bitmap: Bitmap? = null
     suspend fun createIcon(snapshot: TrafficSnapshot): IconCompat = withContext(Dispatchers.Default) {
         val density = Density(this@UsageService)
         val multiplier = 24 * density.density / 96f * if (bigIcon) 2f else 1f

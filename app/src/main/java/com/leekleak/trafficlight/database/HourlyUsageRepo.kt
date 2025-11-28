@@ -16,11 +16,7 @@ import java.time.temporal.ChronoUnit
 
 class HourlyUsageRepo(context: Context) : KoinComponent {
     private val dao: HourlyUsageDao by inject()
-    private var networkStatsManager: NetworkStatsManager? = null
-
-    init {
-        networkStatsManager = context.getSystemService(NETWORK_STATS_SERVICE) as NetworkStatsManager?
-    }
+    private var networkStatsManager: NetworkStatsManager = context.getSystemService(NETWORK_STATS_SERVICE) as NetworkStatsManager
 
     fun getDBSize(): Flow<Int> = dao.getDBSize()
 
