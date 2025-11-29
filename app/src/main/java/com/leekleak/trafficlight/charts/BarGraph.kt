@@ -66,6 +66,8 @@ private fun BarGraphImpl(
     val vibrationEffectMedium = VibrationEffect.createOneShot(40, 100)
     val vibrationEffectWeak = VibrationEffect.createOneShot(40,50)
 
+    val backgroundColor = GraphTheme.backgroundColor
+
     val primaryColor = GraphTheme.primaryColor
     val secondaryColor = GraphTheme.secondaryColor
     val onPrimaryColor = GraphTheme.onPrimaryColor
@@ -138,6 +140,7 @@ private fun BarGraphImpl(
 
     Canvas(
         modifier = Modifier
+            .background(backgroundColor)
             .padding(top = 24.dp, bottom = 14.dp, start = 20.dp, end = 20.dp)
             .height(170.dp)
             .fillMaxWidth()

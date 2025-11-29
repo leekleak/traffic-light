@@ -74,7 +74,7 @@ private fun CategoryTitleSmallText(text: String) {
         modifier = Modifier.padding(8.dp),
         text = text,
         style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.secondary
+        color = MaterialTheme.colorScheme.tertiary
     )
 }
 

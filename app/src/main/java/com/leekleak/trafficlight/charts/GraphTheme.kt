@@ -40,8 +40,8 @@ object GraphTheme {
     val secondaryColor @Composable get() = MaterialTheme.colorScheme.tertiary
     val onPrimaryColor @Composable get() = MaterialTheme.colorScheme.onPrimary
     val onSecondaryColor @Composable get() = MaterialTheme.colorScheme.onTertiary
-    val backgroundColor @Composable get() = MaterialTheme.colorScheme.background
-    val gridColor @Composable get() = MaterialTheme.colorScheme.onBackground
+    val backgroundColor @Composable get() = MaterialTheme.colorScheme.surface
+    val gridColor @Composable get() = MaterialTheme.colorScheme.onSurface
 
     @Composable
     fun wifiShape() = remember { wifiShapes.random() }.toPath()
