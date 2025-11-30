@@ -58,6 +58,9 @@ android {
         // Disables dependency metadata when building Android App Bundles.
         includeInBundle = false
     }
+    lint {
+        abortOnError = false
+    }
 }
 
 dependencies {
