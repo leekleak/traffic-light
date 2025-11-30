@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">Traffic Light</string>
+    <string name="today">Bugün</string>
+    <string name="this_week">Bu Hafta</string>
+    <string name="history">Geçmiş</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="cellular">Hücresel</string>
+    <string name="grant">İzin ver</string>
+    <string name="permissions">İzinler</string>
+    <string name="speed">Hız: %1$s</string>
+    <string name="settings">Ayarlar</string>
+    <string name="notification_permission">Bildirimler</string>
+    <string name="notification_permission_description">İnternet hız simgesinin durum çubuğunda gözükmesi için bildirim izni gereklidir.</string>
+    <string name="battery_optimization">Pil optimizasyonu</string>
+    <string name="battery_optimization_description">Telefonun arka plan servislerini bir süre sonra kapatmasını önlemek için pil optimizasyonu kapatılmalıdır.</string>
+    <string name="usage_statistics">Kullanım İstatistikleri</string>
+    <string name="usage_statistics_description">Android'de toplu ağ kullanım verilerini almanın en az hata içeren yolu.</string>
+    <string name="notifications">Bildirim</string>
+    <string name="screen_off_update">Ekran kapandığında güncelle</string>
+    <string name="screen_off_update_description">Always-on-Display'de takibe olanak sağlar ama pil tüketimini arttırır.</string>
+    <string name="oversample_icon">Simge Ölçeğini Arttır</string>
+    <string name="oversample_icon_description">Eğer simge bulanıksa daha yüksek bir ölçekte çiz.</string>
+    <string name="wi_fi">Wi-Fi: %1$s</string>
+    <string name="mobile">Mobil: %1$s</string>
+    <string name="clear_history">Geçmişi Yeniden Oluştur</string>
+    <string name="clear_history_description">Veritabanı sorunlarını düzeltebilir.</string>
+    <string name="about">Hakkında</string>
+    <string name="speed_in_bits">Hızı bit olarak göster</string>
+    <string name="github" translatable="false">Github</string>
+    <string name="github_description">Gelişmeleri takip edin veya sorun bildirin.</string>
+    <string name="version">Sürüm %1$s</string>
+    <string name="force_fallback">Yedek (fallback) hız takibini zorla</string>
+    <string name="force_fallback_description">Hatalı ROM veya ethernet kullanırken yardımcı olur</string>
+    <string name="fallback_unsupported">Yedek (fallback) desteklenmiyor</string>
+    <string name="ui">Arayüz</string>
+    <string name="improve_contrast">Karşıtlığı arttır</string>
+    <string name="limited_mode">Kısıtlı Mod</string>
+    <string name="limited_mode_description">Ne yazık ki işletim sisteminiz uzun süreli veri takibini desteklemiyor.</string>
+    <string name="days">%1$d Gün</string>
+</resources>
