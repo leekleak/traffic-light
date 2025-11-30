@@ -1,0 +1,15 @@
+Enchantments:
+- Added a fallback mode to retrieve network speeds on devices with buggy ROMs
+- Added data usage interpolation to improve the accuracy of collected data
+
+UI & Accessibility:
+- Added a custom color scheme to improve contrast
+- Added an option to further improve contrast
+- Increased the size of the charts for better visibility
+- Various minor UI tweaks
+
+Translations:
+- New language: Spanish
+- New language: Turkish
+- Improved clarity of existing text
+- Existing translations updated
