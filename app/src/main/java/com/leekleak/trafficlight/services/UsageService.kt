@@ -188,7 +188,7 @@ class UsageService : Service(), KoinComponent {
                 }
 
                 if (!limitedMode) {
-                    if (updateCounter == 5) {
+                    if (updateCounter == DATA_UPDATE_FREQ) {
                         updateDatabase()
                         updateCounter = 0
                     } else {
@@ -209,15 +209,21 @@ class UsageService : Service(), KoinComponent {
         if (todayUsage.date != LocalDate.now()) {
             todayUsage = hourlyUsageRepo.calculateDayUsage(LocalDate.now())
         } else {
+            val stampLast = (System.currentTimeMillis() - DATA_UPDATE_FREQ * 1000) / 3_600_000 * 3_600_000
             val stamp = System.currentTimeMillis() / 3_600_000 * 3_600_000
             val stampNow = System.currentTimeMillis()
 
-            todayUsage = todayUsage.copy(
-                hours = todayUsage.hours.apply {
-                    this[stamp] = hourlyUsageRepo.calculateHourData(stamp, stampNow)
-                }
-            ).also { it.categorizeUsage() }
+            if (stampLast != stamp) updateTodayUsage(stampLast, stamp)
+            updateTodayUsage(stamp, stampNow)
         }
+    }
+
+    private fun updateTodayUsage(stamp: Long, stampNow: Long) {
+        todayUsage = todayUsage.copy(
+            hours = todayUsage.hours.apply {
+                this[stamp] = hourlyUsageRepo.calculateHourData(stamp, stampNow)
+            }
+        ).also { it.categorizeUsage() }
     }
 
     private fun interpolateDatabase(trafficSnapshot: TrafficSnapshot) {
@@ -319,6 +325,7 @@ class UsageService : Service(), KoinComponent {
     companion object {
         const val NOTIFICATION_ID = 228
         const val NOTIFICATION_CHANNEL_ID = "PersistentNotification"
+        const val DATA_UPDATE_FREQ = 5
 
         private val _todayUsageFlow = MutableStateFlow(DayUsage())
         val todayUsageFlow = _todayUsageFlow.asStateFlow()
