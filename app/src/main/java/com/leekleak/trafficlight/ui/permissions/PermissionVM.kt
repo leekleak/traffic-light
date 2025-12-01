@@ -28,6 +28,11 @@ class PermissionVM : ViewModel(), KoinComponent {
     }
 
     fun allowUsage(activity: Activity) {
-        activity.startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+        activity.startActivity(
+            Intent(
+                Settings.ACTION_USAGE_ACCESS_SETTINGS,
+                "package:${activity.packageName}".toUri()
+            )
+        )
     }
 }
