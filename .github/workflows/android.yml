@@ -26,8 +26,13 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
+    - name: Upload APK Debug
+      uses: actions/upload-artifact@v5
       with:
-        name: trafficlight-app
+        name: trafficlight-debug
         path: app/build/outputs/apk/debug/*.apk
+    - name: Upload APK Release
+      uses: actions/upload-artifact@v5
+      with:
+        name: trafficlight-release
+        path: app/build/outputs/apk/release/*.apk
