@@ -28,11 +28,19 @@ class PermissionVM : ViewModel(), KoinComponent {
     }
 
     fun allowUsage(activity: Activity) {
-        activity.startActivity(
-            Intent(
-                Settings.ACTION_USAGE_ACCESS_SETTINGS,
-                "package:${activity.packageName}".toUri()
+        try {
+            activity.startActivity(
+                Intent(
+                    Settings.ACTION_USAGE_ACCESS_SETTINGS,
+                    "package:${activity.packageName}".toUri()
+                )
             )
-        )
+        }catch (e: Exception){// some device do not have separate usage access settings interface
+            activity.startActivity(
+                Intent(
+                    Settings.ACTION_USAGE_ACCESS_SETTINGS
+                )
+            )
+        }
     }
 }
