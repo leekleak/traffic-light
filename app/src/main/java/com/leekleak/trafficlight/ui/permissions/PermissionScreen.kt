@@ -117,7 +117,7 @@ fun PermissionCard(
             Icon(icon, "Icon")
             Text(modifier = Modifier.fillMaxWidth(), fontWeight = FontWeight.Bold, text = title)
         }
-        Text(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp), text = description)
+        Text(modifier = Modifier.fillMaxWidth(), text = description)
         Button(enabled = enabled, onClick = onClick) { Text(stringResource(R.string.grant)) }
     }
 }
