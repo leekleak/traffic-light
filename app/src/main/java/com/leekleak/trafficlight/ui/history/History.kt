@@ -84,7 +84,9 @@ fun Dashboard(viewModel: HistoryVM, paddingValues: PaddingValues) {
         contentPadding = paddingValues
     ) {
         categoryTitle(R.string.history)
-        categoryTitleSmall(LocalDate.now().month.getName(TextStyle.FULL_STANDALONE))
+        if (LocalDate.now().dayOfMonth != 1) {
+            categoryTitleSmall(LocalDate.now().month.getName(TextStyle.FULL_STANDALONE))
+        }
         if (duration.toDays().toInt() > 0) {
             for (index in 0..<duration.toDays().toInt()) {
                 val day = LocalDate.now().minusDays(index.toLong())
