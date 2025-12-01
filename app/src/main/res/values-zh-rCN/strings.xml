@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Traffic Light</string>
+    <string name="today">今天</string>
+    <string name="this_week">本周</string>
+    <string name="history">历史</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="cellular">流量</string>
+    <string name="battery_optimization_description">禁用电池优化，防止手机杀掉后台服务</string>
+    <string name="usage_statistics">使用统计</string>
+    <string name="speed">网速: %1$s</string>
+    <string name="settings">设置</string>
+    <string name="notification_permission">通知</string>
+    <string name="grant">授权</string>
+    <string name="permissions">权限</string>
+    <string name="notification_permission_description">用于在状态栏实时显示网速</string>
+    <string name="battery_optimization">电池优化</string>
+    <string name="usage_statistics_description">在 Android 系统上获取流量使用数据最好的方式</string>
+    <string name="notifications">通知</string>
+    <string name="screen_off_update">熄屏更新</string>
+    <string name="screen_off_update_description">允许在熄屏显示时跟踪，但会增加耗电</string>
+    <string name="oversample_icon">高清图标</string>
+    <string name="oversample_icon_description">用更高的分辨率绘制通知图标</string>
+    <string name="mobile">流量: %1$s</string>
+    <string name="clear_history">重建历史记录</string>
+    <string name="clear_history_description">有助于修复数据库问题</string>
+    <string name="about">关于</string>
+    <string name="speed_in_bits">网速使用 bit 单位</string>
+    <string name="github_description">反馈问题 | 查看动态</string>
+    <string name="version">版本 %1$s</string>
+    <string name="force_fallback">开启备用网速监测</string>
+    <string name="force_fallback_description">适用于有问题的系统或有线连接</string>
+    <string name="fallback_unsupported">不支持</string>
+    <string name="wi_fi">Wi-Fi: %1$s</string>
+    <plurals name="days">
+        <item quantity="other">%d 天</item>
+    </plurals>
+    <string name="ui">用户界面</string>
+    <string name="improve_contrast">高对比度</string>
+    <string name="days">%1$d 天</string>
+    <string name="dynamic_color">动态颜色</string>
+    <string name="limited_mode">功能受限</string>
+    <string name="limited_mode_description">无法从您的设备获取流量累计使用情况数据。</string>
+</resources>
