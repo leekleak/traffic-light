@@ -10,7 +10,6 @@ kotlin = "2.2.21"
 kotlinxSerializationJson = "1.9.0"
 ksp = "2.2.20-2.0.4"
 lifecycle = "2.10.0"
-roomVersion = "2.8.4"
 koin-bom = "4.1.1"
 material3 = "1.5.0-alpha09"
 
@@ -33,11 +32,6 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 # Lifecycle
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
-
-# Room
-androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomVersion" }
-androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomVersion" }
-androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomVersion" }
 
 # Koin
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }

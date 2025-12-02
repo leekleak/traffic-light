@@ -47,7 +47,6 @@ import com.leekleak.trafficlight.ui.history.dayUsageToBarData
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.categoryTitle
-import com.leekleak.trafficlight.util.toTimestamp
 
 @Composable
 fun Overview(
@@ -56,13 +55,7 @@ fun Overview(
     val viewModel: OverviewVM = viewModel()
 
     val todayUsage by viewModel.todayUsage.collectAsState(DayUsage())
-    val today = todayUsage.date
-    val weekStart = today.minusDays(today.dayOfWeek.value - 1L)
-    val weeklyUsage by viewModel.weekUsage(
-        weekStart.toTimestamp(),
-        today.toTimestamp(),
-        todayUsage
-    ).collectAsState(listOf())
+    val weeklyUsage = viewModel.weekUsage()
 
     LazyColumn(
         modifier = Modifier.background(MaterialTheme.colorScheme.surface).fillMaxSize(),

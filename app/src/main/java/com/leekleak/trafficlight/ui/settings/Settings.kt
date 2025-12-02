@@ -109,21 +109,6 @@ fun Settings(
             )
         }
 
-        categoryTitleSmall(R.string.history)
-        item {
-            val dbSize by viewModel.hourlyUsageRepo.getDBSize().collectAsState(0)
-            Preference(
-                title = stringResource(R.string.clear_history),
-                summary = stringResource(R.string.clear_history_description),
-                icon = painterResource(R.drawable.clear_history),
-                enabled = !limitedMode,
-                onClick = { viewModel.clearDB() },
-                controls = {
-                    Text(stringResource(R.string.days, dbSize / 24))
-                }
-            )
-        }
-
         categoryTitleSmall(R.string.ui)
         item {
             val dynamicColor by viewModel.preferenceRepo.dynamicColor.collectAsState(false)

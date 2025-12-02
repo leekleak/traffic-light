@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.time.DayOfWeek
 import java.time.Instant
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.Month
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -46,8 +46,7 @@ fun padHour(time: Int): String {
     return ""
 }
 
-fun LocalDate.toTimestamp(): Long =
-    atStartOfDay().toInstant(currentTimezone()).toEpochMilli()
+fun LocalDateTime.toTimestamp(): Long = toInstant(currentTimezone()).toEpochMilli()
 
 fun DayOfWeek.getName(style: TextStyle) =
     this.getDisplayName(style, Locale.getDefault()).replaceFirstChar(Char::titlecase)

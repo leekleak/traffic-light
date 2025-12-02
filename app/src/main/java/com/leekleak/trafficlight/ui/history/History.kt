@@ -24,7 +24,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -229,9 +228,14 @@ fun dayUsageToBarData(hours: List<HourUsage>): List<BarData> {
     for (i in 0..22 step 2) {
         data.add(BarData(padHour(i), 0.0, 0.0))
     }
-    for (i in 0..<hours.size) {
-        val hour = i / 2
-        data[hour] += BarData(padHour(hour * 2), hours[i].totalCellular.toDouble(), hours[i].totalWifi.toDouble())
+    if (hours.isNotEmpty()) {
+        for (i in 0..<12) {
+            data[i] = BarData(
+                padHour(i * 2),
+                hours[i].totalCellular.toDouble(),
+                hours[i].totalWifi.toDouble()
+            )
+        }
     }
     return data
 }

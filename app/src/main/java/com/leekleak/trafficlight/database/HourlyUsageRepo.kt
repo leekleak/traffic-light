@@ -5,111 +5,36 @@ import android.content.Context
 import android.content.Context.NETWORK_STATS_SERVICE
 import com.leekleak.trafficlight.services.UsageService
 import com.leekleak.trafficlight.util.NetworkType
-import com.leekleak.trafficlight.util.currentTimezone
+import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import timber.log.Timber
-import java.time.Instant
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 class HourlyUsageRepo(context: Context) : KoinComponent {
-    private val dao: HourlyUsageDao by inject()
     private var networkStatsManager: NetworkStatsManager = context.getSystemService(NETWORK_STATS_SERVICE) as NetworkStatsManager
 
-    fun getDBSize(): Flow<Int> = dao.getDBSize()
-
-    fun limitedMode(): Flow<Boolean> = combine(
-        getDBSize(),
-        UsageService.todayUsageFlow
-    ) { size, today ->
-        size == 0 && today.totalCellular + today.totalWifi == 0L
-    }
-
-    fun getUsage(startStamp: Long, endStamp: Long): Flow<List<HourUsage>> =
-        dao.getUsageFlow(startStamp, endStamp)
-
-    fun getLastDayWithData(): Flow<LocalDate> = dao.getLastUsage().map { hourUsage ->
-        hourUsage?.let {
-            Instant.ofEpochMilli(it.timestamp)
-                .atZone(currentTimezone())
-                .toLocalDate()
-        } ?: LocalDate.now()
-    }
-
-    fun getMaxCombinedUsage(): Flow<Long> = dao.getMaxCombinedUsage()
-
-    fun clearDB() {
-        if (!populating) dao.clear()
-    }
-
-    var populating = false
-    fun populateDb() {
-        if (populating) return
-        populating = true
-
-        val suspiciousHours = mutableListOf<HourUsage>()
-        val date = LocalDate.now().atStartOfDay()
-        val dayStamp = date.truncatedTo(ChronoUnit.DAYS).toInstant(currentTimezone()).toEpochMilli()
-
-        for (i in 1..10000) {
-            if (suspiciousHours.size == 31 * 24) {
-                Timber.i("Reached maximum amount of empty hours")
-                break
-            }
-
-            val hour = 3_600_000L
-            val currentStamp = dayStamp - (i * hour)
-            val hourData = calculateHourData(currentStamp, currentStamp + hour)
-
-            if (
-                dao.hourUsageExists(currentStamp) &&
-                dao.getUsage(currentStamp, currentStamp + hour).first() == hourData.toHourUsage(currentStamp)
-            )  {
-                break
-            }
-
-            suspiciousHours.add(HourUsage(currentStamp,hourData.wifi, hourData.cellular))
-            if (hourData.total != 0L) {
-                for (hour in suspiciousHours) {
-                    if (dao.hourUsageExists(hour.timestamp)) {
-                        dao.updateHourUsage(hour)
-                    } else {
-                        dao.addHourUsage(hour)
-                    }
-                }
-                suspiciousHours.clear()
-            }
-        }
-        populating = false
+    fun limitedMode(): Flow<Boolean> = UsageService.todayUsageFlow.map {
+        // Check whether there's any usage over the past month
+        calculateHourData(System.currentTimeMillis() - 2_592_000_000L, System.currentTimeMillis()).total == 0L
     }
 
     fun calculateDayUsage(date: LocalDate): DayUsage {
-        val dayStamp = date.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toInstant(currentTimezone()).toEpochMilli()
+        val dayStamp = date.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
         val hours: MutableMap<Long, HourData> = mutableMapOf()
 
-        for (k in 0..23) {
-            val globalHour = dayStamp + k * 3_600_000L
-            hours[globalHour] = calculateHourData(globalHour, globalHour + 3_600_000L)
+        for (k in 0..11) {
+            val globalHour = dayStamp + k * 3_600_000L * 2
+            hours[k * 2L] = calculateHourData(globalHour, globalHour + 3_600_000L * 2)
         }
 
         return DayUsage(date, hours).also { it.categorizeUsage() }
     }
 
     fun calculateDayUsageBasic(date: LocalDate): DayUsage {
-        val dayStamp = date.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toInstant(currentTimezone()).toEpochMilli()
-        val hours: MutableMap<Long, HourData> = mutableMapOf()
-
+        val dayStamp = date.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
         val stats = calculateHourData(dayStamp, dayStamp + 3_600_000L * 24)
-
-/*        for (k in 0..23) {
-            val globalHour = dayStamp + k * 3_600_000L
-            hours[globalHour] = calculateHourData(globalHour, globalHour + 3_600_000L)
-        }*/
-
         return DayUsage(date, mutableMapOf(), stats.wifi, stats.cellular)
     }
 

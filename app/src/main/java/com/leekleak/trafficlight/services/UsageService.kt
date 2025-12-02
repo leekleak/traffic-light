@@ -29,8 +29,8 @@ import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.clipAndPad
-import com.leekleak.trafficlight.util.currentTimezone
 import com.leekleak.trafficlight.util.hasAllPermissions
+import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -46,6 +46,7 @@ import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+import kotlin.apply
 
 class UsageService : Service(), KoinComponent {
     private val serviceScope = CoroutineScope(Dispatchers.IO)
@@ -109,7 +110,7 @@ class UsageService : Service(), KoinComponent {
             preferenceRepo.speedBits.collect { formatter.asBits = it }
         }
         serviceScope.launch {
-            hourlyUsageRepo.getDBSize().collect { limitedMode = it == 0 }
+            hourlyUsageRepo.limitedMode().collect { limitedMode = it }
         }
     }
 
@@ -195,7 +196,7 @@ class UsageService : Service(), KoinComponent {
                         updateDatabase()
                         updateCounter = 0
                     } else {
-                        interpolateDatabase(trafficSnapshot)
+                        //interpolateDatabase(trafficSnapshot)
                         updateCounter++
                     }
                 }
@@ -214,8 +215,10 @@ class UsageService : Service(), KoinComponent {
         } else {
             val time = LocalDateTime.now()
 
-            val stampNow = time.toInstant(currentTimezone()).toEpochMilli()
-            val stampHourStart = time.truncatedTo(ChronoUnit.HOURS).toInstant(currentTimezone()).toEpochMilli()
+            val stampNow = time.toTimestamp()
+            var hour = time.truncatedTo(ChronoUnit.HOURS)
+            if (hour.hour % 2 == 1) hour = hour.minusHours(1)
+            val stampHourStart = hour.toTimestamp()
 
             val newHour = (stampNow - stampHourStart) < (DATA_UPDATE_FREQ * 1000)
 
@@ -237,7 +240,7 @@ class UsageService : Service(), KoinComponent {
     }
 
     private fun interpolateDatabase(trafficSnapshot: TrafficSnapshot) {
-        val stamp = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).toInstant(currentTimezone()).toEpochMilli()
+        val stamp = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).toTimestamp()
         todayUsage.hours[stamp]?.add(trafficSnapshot.speedToHourData()) ?: run {
             todayUsage.hours[stamp] = trafficSnapshot.speedToHourData()
         }

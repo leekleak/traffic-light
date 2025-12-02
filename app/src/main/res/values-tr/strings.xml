@@ -22,8 +22,6 @@
     <string name="oversample_icon_description">Eğer simge bulanıksa daha yüksek bir ölçekte çiz.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Mobil: %1$s</string>
-    <string name="clear_history">Geçmişi Yeniden Oluştur</string>
-    <string name="clear_history_description">Veritabanı sorunlarını düzeltebilir.</string>
     <string name="about">Hakkında</string>
     <string name="speed_in_bits">Hızı bit olarak göster</string>
     <string name="github_description">Gelişmeleri takip edin veya sorun bildirin.</string>
@@ -35,5 +33,4 @@
     <string name="improve_contrast">Karşıtlığı arttır</string>
     <string name="limited_mode">Kısıtlı Mod</string>
     <string name="limited_mode_description">Ne yazık ki işletim sisteminiz uzun süreli veri takibini desteklemiyor.</string>
-    <string name="days">%1$d Gün</string>
 </resources>

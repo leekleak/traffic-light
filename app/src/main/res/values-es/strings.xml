@@ -23,8 +23,6 @@
     <string name="oversample_icon_description">Renderiza el icono a mayor resolución si se ve borroso.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Datos Móviles: %1$s</string>
-    <string name="clear_history">Limpiar Historial</string>
-    <string name="clear_history_description">Puede ayudar a resolver problemas de la base de datos.</string>
     <string name="about">Acerca de</string>
     <string name="speed_in_bits">Mostrar la velocidad en bits</string>
     <string name="github_description">Da seguimiento al desarrollo o reporta problemas.</string>

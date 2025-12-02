@@ -22,8 +22,6 @@
     <string name="oversample_icon_description">Render the icon at a larger resolution if it\'s blurry.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Mobile: %1$s</string>
-    <string name="clear_history">Repopulate History</string>
-    <string name="clear_history_description">May help fix database issues.</string>
     <string name="about">About</string>
     <string name="speed_in_bits">Show speed in bits</string>
     <string name="github" translatable="false">Github</string>
@@ -36,6 +34,5 @@
     <string name="improve_contrast">Improve contrast</string>
     <string name="limited_mode">Limited Mode</string>
     <string name="limited_mode_description">Unfortunately your operating system does not support long term data tracking.</string>
-    <string name="days">Days: %1$d</string>
     <string name="dynamic_color">Dynamic Color</string>
 </resources>
