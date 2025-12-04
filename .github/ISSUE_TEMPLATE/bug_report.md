@@ -28,5 +28,5 @@ If the issue is a crash, please provide logs.
  - App Version:
 
 
-[ ] This bug is present in the latest GitHub release.
-[ ] I have looked through all open and recently closed issues and can verify that none cover this bug.
+- [ ] This bug is present in the latest GitHub release.
+- [ ] I have looked through all open and recently closed issues and can verify that none cover this bug.
