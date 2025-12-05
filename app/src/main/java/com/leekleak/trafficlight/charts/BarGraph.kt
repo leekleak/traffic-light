@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.util.px
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -95,7 +98,18 @@ private fun BarGraphImpl(
 
     val wifiAnimation = remember { Animatable(0f) }
     val cellularAnimation = remember { Animatable(0f) }
-    val barAnimation = remember { List(yAxisData.size * 2) {Animatable(0f)} }
+    val barAnimationSqueeze = remember { List(yAxisData.size * 2) { Animatable(0f) } }
+    val barAnimation = remember { List(yAxisData.size) { Animatable(0f) } }
+    LaunchedEffect(yAxisData) {
+        for (i in 0..<barAnimation.size) {
+            launch(Dispatchers.IO) {
+                if (yAxisData[i].second + yAxisData[i].first != 0.0) {
+                    delay(100)
+                    barAnimation[i].animateTo(1f)
+                }
+            }
+        }
+    }
 
     var wifiOffset: Offset = Offset.Zero
     var cellularOffset: Offset = Offset.Zero
@@ -150,7 +164,7 @@ private fun BarGraphImpl(
                         legendAnimator(offset, wifiOffset, wifiAnimation, wifiLegendStrength)
                         legendAnimator(offset, cellularOffset, cellularAnimation, cellularLegendStrength)
                         for (i in 0..<barOffset.size) {
-                            barAnimator(offset, barOffset[i], barAnimation[i])
+                            barAnimator(offset, barOffset[i], barAnimationSqueeze[i])
                         }
                     }
                 }
@@ -160,7 +174,8 @@ private fun BarGraphImpl(
             scope = this,
             yAxisData = yAxisData,
             xAxisData = xAxisData,
-            finalGridPoint = finalGridPoint
+            finalGridPoint = finalGridPoint,
+            stretch = barAnimation
         )
 
         barOffset.clear()
@@ -194,7 +209,7 @@ private fun BarGraphImpl(
         )
 
         barGraphHelper.drawTextLabelsOverXAndYAxis(gridColor, centerLabels)
-        barGraphHelper.drawBars(cornerRadius, primaryColor, secondaryColor, barAnimation)
+        barGraphHelper.drawBars(cornerRadius, primaryColor, secondaryColor, barAnimationSqueeze)
     }
 }
 

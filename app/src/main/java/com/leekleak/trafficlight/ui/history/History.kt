@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -49,6 +50,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.model.BarData
+import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HourUsage
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.SizeFormatter
@@ -66,6 +68,9 @@ fun History(paddingValues: PaddingValues) {
 
     var selected by remember { mutableIntStateOf(-1) }
     val visibleSizes = remember { mutableStateMapOf<Int, Long>(-1 to 0) }
+    val maximum by remember { derivedStateOf {
+        if (visibleSizes.values.max() > 2) visibleSizes.values.max() else Long.MAX_VALUE
+    } }
 
     LazyColumn(
         modifier = Modifier.background(MaterialTheme.colorScheme.surface).fillMaxSize(),
@@ -82,7 +87,7 @@ fun History(paddingValues: PaddingValues) {
             }
             item {
                 Box(Modifier.padding(bottom = 6.dp)) {
-                    HistoryItem(viewModel, visibleSizes, index + 1, selected) { i: Int ->
+                    HistoryItem(viewModel, visibleSizes, index + 1, selected, maximum) { i: Int ->
                         selected = i
                         haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                     }
@@ -98,28 +103,21 @@ fun HistoryItem(
     visibleSizes: SnapshotStateMap<Int, Long>,
     i: Int,
     selected: Int,
+    maximum: Long,
     onClick: (i: Int) -> Unit
 ) {
     val date = LocalDate.now().minusDays(i.toLong())
-    val usageBasic = viewModel.dayUsageBasic(date)
+    val usageBasic by viewModel.dayUsageBasic(date).collectAsState(DayUsage(totalWifi = 1, totalCellular = 1))
     val totalWifi = usageBasic.totalWifi
     val totalCellular = usageBasic.totalCellular
 
-    DisposableEffect(Unit) {
+    DisposableEffect(totalWifi, totalCellular) {
         visibleSizes[i] = totalWifi + totalCellular
         onDispose { visibleSizes.remove(i) }
     }
 
-    val maximum by remember(visibleSizes) {
-        derivedStateOf { visibleSizes.maxOf { it.value } }
-    }
-
     Column (Modifier.card()) {
-        Box (
-            modifier = Modifier
-                .clip(MaterialTheme.shapes.large)
-                .clickable { onClick(if (selected != i) i else -1) },
-        ) {
+        Box (Modifier.clickable { onClick(if (selected != i) i else -1) }) {
             Row(
                 modifier = Modifier.padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically,

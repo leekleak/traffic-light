@@ -49,7 +49,8 @@ internal class BarGraphHelper(
     private val scope: DrawScope,
     private val yAxisData: List<Pair<Double, Double>>,
     private val xAxisData: List<String>,
-    private val finalGridPoint: String
+    private val finalGridPoint: String,
+    private val stretch: List<Animatable<Float, *>>
 ) {
     private var sizeFormatter = SizeFormatter()
     internal val metrics = scope.buildMetrics()
@@ -73,31 +74,40 @@ internal class BarGraphHelper(
         rectList.clear()
         for (i in 0 until maxPointsSize - 1) {
             val padding = 0.5.dp.toPx()
-            val x = xItemSpacing * i + padding
+            val x = xItemSpacing * i
             val yOffset1 = yAxisData[i].first.toFloat() / verticalStep
             val yOffset2 = yAxisData[i].second.toFloat() / verticalStep
-            val yOffsetTotal = (yAxisData[i].first.toFloat() + yAxisData[i].second.toFloat()) / verticalStep
-            val y1 = gridHeight - yOffset1
-            val y2 = gridHeight - yOffsetTotal
 
-            rectList.add(
-                Bar (
-                    rect = Rect(
-                        offset = Offset(x, y1 + padding),
-                        size = Size(xItemSpacing - padding * 2, yOffset1 - padding)
-                    ),
-                    type = NetworkType.Cellular
+            val barStretch = stretch[i].value
+            val height1 = if (-yOffset1 * barStretch < -3) -yOffset1 * barStretch else 0f
+            val height2 = if (-yOffset2 * barStretch < -3) -yOffset2 * barStretch else 0f
+
+            if (height1 != 0f) {
+                rectList.add(
+                    Bar(
+                        rect = Rect(
+                            top = gridHeight + height1 + padding,
+                            left = x + padding,
+                            right = x + xItemSpacing - padding,
+                            bottom = gridHeight - padding
+                        ),
+                        type = NetworkType.Cellular
+                    )
                 )
-            )
-            rectList.add(
-                Bar (
-                    rect = Rect(
-                        offset = Offset(x, y2),
-                        size = Size(xItemSpacing - padding * 2, yOffset2)
-                    ),
-                    type = NetworkType.Wifi
+            }
+            if (height2 != 0f) {
+                rectList.add(
+                    Bar(
+                        rect = Rect(
+                            top = gridHeight + height1 + height2,
+                            left = x + padding,
+                            right = x + xItemSpacing - padding,
+                            bottom = gridHeight + height1 - padding
+                        ),
+                        type = NetworkType.Wifi
+                    )
                 )
-            )
+            }
         }
 
         val offsetLeft = gridWidth + 8.dp.toPx()
@@ -236,20 +246,18 @@ internal class BarGraphHelper(
     internal fun drawBars(cornerRadius: CornerRadius, color1: Color, color2: Color, widths: List<Animatable<Float, *>>) {
         scope.run {
             metrics.rectList.forEachIndexed { i, bar ->
-                if (bar.rect.height > 3) {
-                    val path = Path().apply {
-                        addRoundRect(
-                            RoundRect(
-                                rect = bar.rect.copy(
-                                    left = bar.rect.left + widths[i].value,
-                                    right = bar.rect.right - widths[i].value,
-                                ),
-                                cornerRadius = cornerRadius
-                            )
+                val path = Path().apply {
+                    addRoundRect(
+                        RoundRect(
+                            rect = bar.rect.copy(
+                                left = bar.rect.left + widths[i].value,
+                                right = bar.rect.right - widths[i].value,
+                            ),
+                            cornerRadius = cornerRadius
                         )
-                    }
-                    drawPath(path, if (bar.type == NetworkType.Wifi) color1 else color2)
+                    )
                 }
+                drawPath(path, if (bar.type == NetworkType.Wifi) color1 else color2)
             }
         }
     }

@@ -55,7 +55,7 @@ fun Overview(
     val viewModel: OverviewVM = viewModel()
 
     val todayUsage by viewModel.todayUsage.collectAsState(DayUsage())
-    val weeklyUsage = viewModel.weekUsage()
+    val weeklyUsage by viewModel.weekUsage().collectAsState(listOf())
 
     LazyColumn(
         modifier = Modifier.background(MaterialTheme.colorScheme.surface).fillMaxSize(),
