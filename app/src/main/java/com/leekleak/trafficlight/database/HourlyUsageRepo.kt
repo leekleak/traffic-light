@@ -6,7 +6,10 @@ import android.content.Context.NETWORK_STATS_SERVICE
 import com.leekleak.trafficlight.services.UsageService
 import com.leekleak.trafficlight.util.NetworkType
 import com.leekleak.trafficlight.util.toTimestamp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import org.koin.core.component.KoinComponent
 import java.time.LocalDate
@@ -31,6 +34,17 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
 
         return DayUsage(date, hours).also { it.categorizeUsage() }
     }
+
+    fun calculateDayUsageFlow(date: LocalDate): Flow<DayUsage> = flow {
+        val dayStamp = date.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
+        val hours: MutableMap<Long, HourData> = mutableMapOf()
+
+        for (k in 0..11) {
+            val globalHour = dayStamp + k * 3_600_000L * 2
+            hours[k * 2L] = calculateHourData(globalHour, globalHour + 3_600_000L * 2)
+        }
+        emit(DayUsage(date, hours).also { it.categorizeUsage() })
+    }.flowOn(Dispatchers.Default)
 
     fun calculateDayUsageBasic(date: LocalDate): DayUsage {
         val dayStamp = date.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()

@@ -17,8 +17,8 @@ class HistoryVM: ViewModel(), KoinComponent {
     val preferenceRepo: PreferenceRepo by inject()
     private val hourlyUsageRepo: HourlyUsageRepo by inject()
 
-    fun dayUsage(date: LocalDate): DayUsage =
-        hourlyUsageRepo.calculateDayUsage(date)
+    fun dayUsage(date: LocalDate): Flow<DayUsage> =
+        hourlyUsageRepo.calculateDayUsageFlow(date)
 
     fun dayUsageBasic(date: LocalDate): Flow<DayUsage> = flow {
         emit(hourlyUsageRepo.calculateDayUsageBasic(date))

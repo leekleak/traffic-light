@@ -51,7 +51,6 @@ import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.DayUsage
-import com.leekleak.trafficlight.database.HourUsage
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.categoryTitle
@@ -183,9 +182,9 @@ fun HistoryItem(
             enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
             exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
         ) {
-            val usage = viewModel.dayUsage(date).hours.map { it.value }
+            val usage by viewModel.dayUsage(date).collectAsState(DayUsage())
             Box(modifier = Modifier.padding(4.dp)) {
-                BarGraph(dayUsageToBarData(usage.map { it.toHourUsage() }))
+                BarGraph(dayUsageToBarData(usage))
             }
         }
     }
@@ -221,17 +220,20 @@ fun DataBadge (
     }
 }
 
-fun dayUsageToBarData(hours: List<HourUsage>): List<BarData> {
+fun dayUsageToBarData(usage: DayUsage): List<BarData> {
     val data: MutableList<BarData> = mutableListOf()
+    val hours = usage.hours
     for (i in 0..22 step 2) {
         data.add(BarData(padHour(i), 0.0, 0.0))
     }
+
     if (hours.isNotEmpty()) {
-        for (i in 0..<12) {
-            data[i] = BarData(
-                padHour(i * 2),
-                hours[i].totalCellular.toDouble(),
-                hours[i].totalWifi.toDouble()
+        for (i in hours.entries) {
+            val ii = i.key.toInt() / 2
+            data[ii] = BarData(
+                padHour(ii * 2),
+                i.value.cellular.toDouble(),
+                i.value.wifi.toDouble()
             )
         }
     }

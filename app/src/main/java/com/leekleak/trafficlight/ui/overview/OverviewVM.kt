@@ -30,8 +30,6 @@ class OverviewVM : ViewModel(), KoinComponent {
         }
         val now = LocalDate.now()
 
-        emit(data.toList())
-
         for (i in 0..<now.dayOfWeek.value) {
             val usage = hourlyUsageRepo.calculateDayUsageBasic(now.minusDays(i.toLong()))
 
@@ -40,7 +38,7 @@ class OverviewVM : ViewModel(), KoinComponent {
                 usage.totalCellular.toDouble(),
                 usage.totalWifi.toDouble()
             )
-            emit(data.toList())
         }
+        emit(data.toList())
     }.flowOn(Dispatchers.IO)
 }

@@ -64,7 +64,7 @@ fun Overview(
     ) {
         overviewTab(
             label = R.string.today,
-            data = dayUsageToBarData(todayUsage.hours.map { (_, value) -> value.toHourUsage() }),
+            data = dayUsageToBarData(todayUsage),
         )
 
         if (weeklyUsage.isNotEmpty()) {
