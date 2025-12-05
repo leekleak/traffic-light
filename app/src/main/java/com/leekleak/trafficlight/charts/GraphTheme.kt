@@ -20,7 +20,6 @@ import androidx.compose.material3.MaterialShapes.Companion.Square
 import androidx.compose.material3.MaterialShapes.Companion.Sunny
 import androidx.compose.material3.MaterialShapes.Companion.VerySunny
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.toPath
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.CornerRadius
@@ -44,10 +43,10 @@ object GraphTheme {
     val gridColor @Composable get() = MaterialTheme.colorScheme.onSurface
 
     @Composable
-    fun wifiShape() = remember { wifiShapes.random() }.toPath()
+    fun wifiShape() = remember { wifiShapes.random() }
 
     @Composable
-    fun cellularShape() = remember { cellularShapes.random() }.toPath()
+    fun cellularShape() = remember { cellularShapes.random() }
 
     @Composable
     fun wifiIcon() = painterResource(R.drawable.wifi)

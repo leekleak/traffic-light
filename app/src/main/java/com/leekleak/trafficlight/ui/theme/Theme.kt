@@ -3,6 +3,8 @@ package com.leekleak.trafficlight.ui.theme
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.darkColorScheme
@@ -16,55 +18,76 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.leekleak.trafficlight.R
 
 @Composable
 fun Theme(
     content: @Composable () -> Unit
 ) {
     val viewModel: ThemeVM = viewModel()
-    val context = LocalContext.current
+    val theme by viewModel.preferenceRepo.theme.collectAsState(Theme.AutoMaterial)
 
-    val darkTheme: Boolean = isSystemInDarkTheme()
-    val dynamicColor by viewModel.preferenceRepo.dynamicColor.collectAsState(false)
-
-    MaterialTheme (
-        colorScheme =
-            if (Build.VERSION.SDK_INT >= 31) {
-                if (dynamicColor) {
-                    if (darkTheme) dynamicDarkColorScheme(context)
-                    else dynamicLightColorScheme(context)
-                } else {
-                    if (darkTheme) darkScheme
-                    else lightScheme
-                }
-            } else {
-                lightScheme
-            }
-    ) { content() }
+    MaterialTheme (theme.getColors()) { content() }
 }
+
+enum class Theme {
+    AutoMaterial,
+    LightMaterial,
+    DarkMaterial,
+    Auto,
+    Light,
+    Dark;
+
+    @Composable
+    fun getColors(): ColorScheme {
+        val context = LocalContext.current
+        val darkTheme = isSystemInDarkTheme()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            return when (this) {
+                AutoMaterial -> colorScheme
+                LightMaterial -> colorScheme
+                DarkMaterial -> colorScheme
+                Auto -> if (darkTheme) darkScheme else lightScheme
+                Light -> lightScheme
+                Dark -> darkScheme
+            }
+        }
+
+        return when (this) {
+            AutoMaterial -> if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            LightMaterial -> dynamicLightColorScheme(context)
+            DarkMaterial -> dynamicDarkColorScheme(context)
+            Auto -> if (darkTheme) darkScheme else lightScheme
+            Light -> lightScheme
+            Dark -> darkScheme
+        }
+    }
+
+    @Composable
+    fun getName(): String {
+        return when (this) {
+            AutoMaterial, Auto -> stringResource(R.string.auto)
+            LightMaterial, Light -> stringResource(R.string.light)
+            DarkMaterial, Dark -> stringResource(R.string.dark)
+        }
+    }
+}
+
 
 @Composable
 fun Modifier.card(): Modifier {
-    val viewModel: ThemeVM = viewModel()
-    val improveContrast by viewModel.preferenceRepo.improveContrast.collectAsState(true)
-    return this.run {
-            if (improveContrast) this.shadow(2.dp, MaterialTheme.shapes.large)
-            else this
-        }
+    return this.shadow(1.dp, MaterialTheme.shapes.large)
         .clip(MaterialTheme.shapes.large)
         .background(colorScheme.surfaceContainer)
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun Modifier.navBarShadow(): Modifier {
-    val viewModel: ThemeVM = viewModel()
-    val improveContrast by viewModel.preferenceRepo.improveContrast.collectAsState(true)
-    return this.run {
-        if (improveContrast) this.shadow(4.dp, MaterialTheme.shapes.extraLarge)
-        else this
-    }
+    return this.shadow(2.dp, MaterialTheme.shapes.extraLargeIncreased)
 }
 
 private val lightScheme = lightColorScheme(

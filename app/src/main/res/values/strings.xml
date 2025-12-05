@@ -34,5 +34,7 @@
     <string name="improve_contrast">Improve contrast</string>
     <string name="limited_mode">Limited Mode</string>
     <string name="limited_mode_description">Unfortunately your operating system does not support long term data tracking.</string>
-    <string name="dynamic_color">Dynamic Color</string>
+    <string name="auto">Auto</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
 </resources>

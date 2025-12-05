@@ -69,7 +69,7 @@ fun LazyListScope.categoryTitleSmall(text: Int) = item { CategoryTitleSmallText(
 fun LazyListScope.categoryTitleSmall(text: String) = item { CategoryTitleSmallText(text) }
 
 @Composable
-private fun CategoryTitleSmallText(text: String) {
+fun CategoryTitleSmallText(text: String) {
     Text(
         modifier = Modifier.padding(8.dp),
         text = text,

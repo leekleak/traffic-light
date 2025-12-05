@@ -6,7 +6,9 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.leekleak.trafficlight.ui.theme.Theme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -33,17 +35,14 @@ class PreferenceRepo (
     val forceFallback: Flow<Boolean> = context.dataStore.data.map { it[FORCE_FALLBACK] ?: false }
     fun setForceFallback(value: Boolean) = scope.launch { context.dataStore.edit { it[FORCE_FALLBACK] = value } }
 
-    val improveContrast: Flow<Boolean> = context.dataStore.data.map { it[IMPROVE_CONTRAST] ?: true }
-    fun setImproveContrast(value: Boolean) = scope.launch { context.dataStore.edit { it[IMPROVE_CONTRAST] = value } }
+    val theme: Flow<Theme> = context.dataStore.data.map { Theme.valueOf(it[THEME] ?: Theme.AutoMaterial.name ) }
+    fun setTheme(value: Theme) = scope.launch { context.dataStore.edit { it[THEME] = value.name } }
 
-    val dynamicColor: Flow<Boolean> = context.dataStore.data.map { it[DYNAMIC_COLOR] ?: true }
-    fun setDynamicColor(value: Boolean) = scope.launch { context.dataStore.edit { it[DYNAMIC_COLOR] = value } }
     private companion object {
         val MODE_AOD = booleanPreferencesKey("mode_aod")
         val BIG_ICON = booleanPreferencesKey("big_icon")
         val SPEED_BITS = booleanPreferencesKey("speed_bits")
         val FORCE_FALLBACK = booleanPreferencesKey("force_fallback")
-        val IMPROVE_CONTRAST = booleanPreferencesKey("improve_contrast")
-        val DYNAMIC_COLOR = booleanPreferencesKey("dynamic_color")
+        val THEME = stringPreferencesKey("theme")
     }
 }

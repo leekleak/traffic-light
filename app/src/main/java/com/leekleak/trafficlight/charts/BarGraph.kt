@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.toPath
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableIntState
@@ -78,8 +79,8 @@ private fun BarGraphImpl(
     val gridColor = GraphTheme.gridColor
     val cornerRadius = GraphTheme.cornerRadius
 
-    val shapeWifi = GraphTheme.wifiShape()
-    val shapeCellular = GraphTheme.cellularShape()
+    val shapeWifi = GraphTheme.wifiShape().toPath()
+    val shapeCellular = GraphTheme.cellularShape().toPath()
     val iconWifi = GraphTheme.wifiIcon()
     val iconCellular = GraphTheme.cellularIcon()
     val legendSize = 32.dp.px

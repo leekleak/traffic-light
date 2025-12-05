@@ -1,13 +1,16 @@
 package com.leekleak.trafficlight.ui.settings
 
-import android.os.Build
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +26,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.TrafficSnapshot
+import com.leekleak.trafficlight.ui.theme.Theme
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
@@ -111,25 +115,21 @@ fun Settings(
 
         categoryTitleSmall(R.string.ui)
         item {
-            val dynamicColor by viewModel.preferenceRepo.dynamicColor.collectAsState(false)
-            SwitchPreference (
-                title = stringResource(R.string.dynamic_color),
-                icon = painterResource(R.drawable.theme),
-                value = dynamicColor && Build.VERSION.SDK_INT >= 31,
-                enabled = Build.VERSION.SDK_INT >= 31,
-                onValueChanged = { viewModel.preferenceRepo.setDynamicColor(it) },
-            )
+            val theme by viewModel.preferenceRepo.theme.collectAsState(Theme.AutoMaterial)
+            val scroll = rememberScrollState()
+            Row(
+                modifier = Modifier
+                    .padding(vertical = 4.dp)
+                    .card()
+                    .horizontalScroll(scroll)
+                    .fillMaxWidth()
+                    .padding(start = 8.dp, end = 8.dp, bottom = 8.dp, top = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ThemePreferenceContainer(theme, true) { viewModel.preferenceRepo.setTheme(it) }
+                ThemePreferenceContainer(theme, false) { viewModel.preferenceRepo.setTheme(it) }
+            }
         }
-        item {
-            val improveContrast by viewModel.preferenceRepo.improveContrast.collectAsState(false)
-            SwitchPreference (
-                title = stringResource(R.string.improve_contrast),
-                icon = painterResource(R.drawable.contrast),
-                value = improveContrast,
-                onValueChanged = { viewModel.preferenceRepo.setImproveContrast(it) },
-            )
-        }
-
         categoryTitleSmall(R.string.about)
         item {
             Preference(
