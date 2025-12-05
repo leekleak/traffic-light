@@ -18,7 +18,7 @@
     <string name="usage_statistics_description">Reikalinga istorinių duomenų rinkimui.</string>
     <string name="notifications">Pranešimas</string>
     <string name="screen_off_update">Atnaujinti išjungus ekraną</string>
-    <string name="screen_off_update_description">Leidžia sekti duomenų naudojimą \"AOD\" režime</string>
+    <string name="screen_off_update_description">Leidžia sekti duomenų naudojimą \"AOD\" režime.</string>
     <string name="oversample_icon">Paaštrinti ikoną</string>
     <string name="oversample_icon_description">Padeda išspręsti išsiliejusią ikoną.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
