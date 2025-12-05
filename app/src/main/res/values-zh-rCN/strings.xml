@@ -32,6 +32,7 @@
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="ui">用户界面</string>
     <string name="improve_contrast">高对比度</string>
+    <string name="dynamic_color">动态颜色</string>
     <string name="limited_mode">功能受限</string>
     <string name="limited_mode_description">无法从您的设备获取流量累计使用情况数据。</string>
 </resources>
