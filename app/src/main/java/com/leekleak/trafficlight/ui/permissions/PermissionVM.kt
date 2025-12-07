@@ -35,12 +35,21 @@ class PermissionVM : ViewModel(), KoinComponent {
                     "package:${activity.packageName}".toUri()
                 )
             )
-        }catch (e: Exception){// some device do not have separate usage access settings interface
+        }catch (_: Exception){// some device do not have separate usage access settings interface
             activity.startActivity(
                 Intent(
                     Settings.ACTION_USAGE_ACCESS_SETTINGS
                 )
             )
         }
+    }
+
+    fun openUsageHelp(activity: Activity?) {
+        activity?.startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                "https://github.com/leekleak/traffic-light/wiki/Troubleshooting#usage-data-access-denied".toUri()
+            )
+        )
     }
 }

@@ -40,4 +40,5 @@
     <string name="expressive_fonts">Expressive Fonts</string>
     <string name="material_theme" translatable="false">Material You</string>
     <string name="default_theme">Default</string>
+    <string name="help">Help</string>
 </resources>

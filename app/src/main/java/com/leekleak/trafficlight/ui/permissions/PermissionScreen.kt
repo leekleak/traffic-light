@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -90,7 +91,11 @@ fun Permissions(
                         icon = painterResource(R.drawable.usage),
                         enabled = !usagePermission,
                         onClick = { activity?.let { viewModel.allowUsage(it) } }
-                    )
+                    ) {
+                        OutlinedButton(onClick = {viewModel.openUsageHelp(activity)}) {
+                            Text(stringResource(R.string.help))
+                        }
+                    }
                 }
             }
         }
@@ -103,7 +108,8 @@ fun PermissionCard(
     description: String,
     icon: Painter,
     enabled: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    extraButton: @Composable (() -> Unit)? = null
 ) {
     Column (modifier = Modifier
         .card()
@@ -118,6 +124,9 @@ fun PermissionCard(
             Text(modifier = Modifier.fillMaxWidth(), fontWeight = FontWeight.Bold, text = title)
         }
         Text(modifier = Modifier.fillMaxWidth(), text = description)
-        Button(enabled = enabled, onClick = onClick) { Text(stringResource(R.string.grant)) }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            extraButton?.invoke()
+            Button(enabled = enabled, onClick = onClick) { Text(stringResource(R.string.grant)) }
+        }
     }
 }
