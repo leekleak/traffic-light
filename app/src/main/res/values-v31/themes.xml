@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.TrafficLight" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowSplashScreenAnimationDuration">300</item>
+        <item name="android:windowSplashScreenBackground">@color/icon_bg_simple</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/icon_animator</item>
+    </style>
+</resources>
