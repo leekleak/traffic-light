@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Светофор</string>
+    <string name="today">Сегодня</string>
+    <string name="this_week">На этой неделе</string>
+    <string name="history">История</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="notification_permission">Уведомления</string>
+    <string name="notification_permission_description">Требуется для отображения скорости сети в разделе уведомлений.</string>
+    <string name="battery_optimization">Оптимизация батареи</string>
+    <string name="battery_optimization_description">Отключение оптимизации батареи позволят приложению работать в фоновом режиме без прерываний.</string>
+    <string name="usage_statistics">Статистика использования</string>
+    <string name="usage_statistics_description">Самый стабильный способ получения данных использовании сети на платформе Android.</string>
+    <string name="notifications">Уведомление</string>
+    <string name="permissions">Разрешения</string>
+    <string name="speed">Скорость: %1$s</string>
+    <string name="settings">Настройки</string>
+    <string name="wi_fi">Wi-Fi: %1$s</string>
+    <string name="mobile">Сотовая связь: %1$s</string>
+    <string name="about">О приложении</string>
+    <string name="speed_in_bits">Показывать скорость в битах</string>
+    <string name="github_description">Разработка приложения, обратная связь.</string>
+    <string name="version">Версия %1$s</string>
+    <string name="light">Светлая</string>
+    <string name="dark">Темная</string>
+    <string name="cellular">Сотовая связь</string>
+    <string name="grant">Разрешить</string>
+    <string name="screen_off_update">Обновлять когда экран выключен</string>
+    <string name="screen_off_update_description">Показывает скорость в уведомлениях при постоянно включенном (Always On) экране. Повышает использование батареи.</string>
+    <string name="oversample_icon">Передискретизация иконки</string>
+    <string name="oversample_icon_description">Отображает иконку в большем качестве если она размытая.</string>
+    <string name="force_fallback">Использовать резервный метод отслеживания скорости</string>
+    <string name="force_fallback_description">Полезно при использовании неисправной ОС или интернета</string>
+    <string name="fallback_unsupported">Резервный вариант не поддерживается</string>
+    <string name="ui">Интерфейс</string>
+    <string name="improve_contrast">Улучшить контраст</string>
+    <string name="limited_mode">Ограниченный Режим</string>
+    <string name="limited_mode_description">К сожалению, ваша операционная система не поддерживает долгосрочное отслеживание данных.</string>
+    <string name="auto">Автоматически</string>
+</resources>
