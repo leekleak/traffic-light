@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_launcher_foreground" >
+    <target
+        android:name="Red"
+        android:animation="@animator/red" />
+    <target
+        android:name="Green"
+        android:animation="@animator/green" />
+</animated-vector>
