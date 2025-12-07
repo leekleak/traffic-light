@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">إشارة المرور</string>
+    <string name="today">اليوم</string>
+    <string name="this_week">هذا الأسبوع</string>
+    <string name="history">التأريخ</string>
+    <string name="wifi">واي فاي</string>
+    <string name="cellular">خلوي</string>
+    <string name="grant">منح</string>
+    <string name="permissions">الأذونات</string>
+    <string name="speed">السرعة: %1$s</string>
+    <string name="settings">الإعدادات</string>
+    <string name="notification_permission">الإشعارات</string>
+    <string name="notification_permission_description">إذن الإشعار مطلوب حتى يعمل رمز سرعة الشبكة في شريط الحالة.</string>
+    <string name="battery_optimization">تحسين البطارية</string>
+    <string name="battery_optimization_description">يجب تعطيله لمنع الهاتف من إنهاء الخدمة الخلفية بعد فترة.</string>
+    <string name="usage_statistics">إحصائيات الاستخدام</string>
+    <string name="usage_statistics_description">أقل طريقة خالية من الأعطال للحصول على بيانات استخدام الشبكة المجمعة على نظام أندرويد.</string>
+    <string name="notifications">إشعار</string>
+    <string name="screen_off_update">حدّث عند إيقاف الشاشة</string>
+    <string name="screen_off_update_description">يسمح بالتتبع على عرض دائم (AOD)، لكنه يؤثر على عمر البطارية.</string>
+    <string name="oversample_icon">أيقونة العينة الزائدة</string>
+    <string name="oversample_icon_description">صيّر الأيقونة بدقة أعلى إذا كانت غير واضحة.</string>
+    <string name="wi_fi">واي فاي: %1$s</string>
+    <string name="mobile">جوال: %1$s</string>
+    <string name="about">عن</string>
+    <string name="speed_in_bits">أظهر السرعة بالبت</string>
+    <string name="github_description">تتبع التطور أو الإبلاغ عن المشكلات.</string>
+    <string name="version">الإصدار: %1$s</string>
+    <string name="force_fallback">اجبر تتبع سرعة الاحتياطي</string>
+    <string name="force_fallback_description">مفيد عند استخدام نظام تشغيل معطوب أو شبكة إيثرنت</string>
+    <string name="fallback_unsupported">الاحتياطي غير مدعوم</string>
+    <string name="ui">الواجهة</string>
+    <string name="improve_contrast">تحسين التباين</string>
+    <string name="limited_mode">الوضع المحدود</string>
+    <string name="limited_mode_description">لسوء الحظ، نظام تشغيلك لا يدعم تتبع البيانات على المدى الطويل.</string>
+    <string name="auto">تلقائي</string>
+    <string name="light">فاتح</string>
+    <string name="dark">داكن</string>
+</resources>
