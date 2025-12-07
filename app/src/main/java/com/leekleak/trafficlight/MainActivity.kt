@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
 
     private fun createNotificationChannel() {
         val name = "Traffic Light Service"
-        val importance = NotificationManager.IMPORTANCE_LOW
+        val importance = NotificationManager.IMPORTANCE_HIGH
         val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID, name, importance).apply {
             setShowBadge(false)
         }

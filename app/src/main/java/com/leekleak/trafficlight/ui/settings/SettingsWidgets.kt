@@ -40,7 +40,9 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.GraphTheme
 import com.leekleak.trafficlight.ui.theme.Theme
 import com.leekleak.trafficlight.ui.theme.card
@@ -168,14 +170,7 @@ fun ThemePreferenceContainer(currentTheme: Theme, material: Boolean, onThemeChan
                 ) { onThemeChanged(themeLight) }
                 ThemePreference(themeDark, themeDark == currentTheme) { onThemeChanged(themeDark) }
             }
-
-            SwitchPreference(
-                title = themeAuto.getName(),
-                value = themeAuto == currentTheme,
-                onValueChanged = {
-                    onThemeChanged(if (it) themeAuto else themeLight)
-                }
-            )
+            ThemeAutoPreference(themeAuto, themeAuto == currentTheme) { onThemeChanged(themeAuto) }
         }
     }
 }
@@ -222,7 +217,7 @@ fun ThemePreference(theme: Theme, enabled: Boolean, onClick: () -> Unit) {
     ) {
         Box(
             modifier = Modifier
-                .padding(top = 4.dp, bottom = 12.dp)
+                .padding(4.dp)
                 .size(120.dp, 70.dp)
                 .drawBehind {
                     rotate(-rotation.value) {
@@ -255,9 +250,95 @@ fun ThemePreference(theme: Theme, enabled: Boolean, onClick: () -> Unit) {
                 .padding(12.dp)
                 .fillMaxWidth(),
         )
-        Text(
-            text = theme.getName(),
-            style = MaterialTheme.typography.titleMedium,
-        )
+        Row (
+            Modifier.padding(vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(if (theme.isDark()) R.drawable.dark else R.drawable.light),
+                contentDescription = null
+            )
+            Text(
+                text = theme.getName(),
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun ThemeAutoPreference(theme: Theme, enabled: Boolean, onClick: () -> Unit) {
+    val scheme = theme.getColors()
+    val radiusSmall = 12.dp.px
+    val radiusBig = 38.dp.px
+    val cornerRadius = remember { Animatable(radiusSmall) }
+    val rotation = remember { Animatable(0f) }
+
+    val shape1 = GraphTheme.wifiShape().toPath()
+    val shape2 = GraphTheme.cellularShape().toPath()
+    val iconScaleSmall = 42.dp.px
+    val iconScaleBig = 48.dp.px
+    val iconScale = remember { Animatable(iconScaleSmall) }
+
+    val scope = rememberCoroutineScope()
+    val haptic = LocalHapticFeedback.current
+
+    LaunchedEffect(enabled) {
+        if (enabled) {
+            launch { cornerRadius.animateTo(radiusBig) }
+            launch { rotation.animateTo(-5f) }
+            launch { iconScale.animateTo(iconScaleBig) }
+        } else {
+            launch { cornerRadius.animateTo(radiusSmall) }
+            launch { rotation.animateTo(-15f) }
+            launch { iconScale.animateTo(iconScaleSmall) }
+        }
+    }
+    Box(
+        modifier = Modifier
+            .card()
+            .clickable(onClick = {
+                scope.launch { haptic.performHapticFeedback(HapticFeedbackType.ToggleOn) }
+                onClick()
+            })
+            .background (if (enabled) colorScheme.surfaceVariant else colorScheme.surfaceContainer)
+            .padding(4.dp)
+            .drawBehind {
+                val x = size.width / 7f
+                val y = size.height / 2f
+                translate (x*1, y) {
+                    rotate (rotation.value * 2f) {
+                        scale(iconScale.value, Offset(0.5f, 0.5f)) {
+                            drawPath(shape1, scheme.primary)
+                        }
+                    }
+                }
+                translate (x*6, y) {
+                    rotate (-rotation.value * 2f) {
+                        scale(iconScale.value, Offset(0.5f, 0.5f)) {
+                            drawPath(shape2, scheme.tertiary)
+                        }
+                    }
+                }
+            }
+            .padding(12.dp)
+            .fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.magic),
+                contentDescription = null,
+            )
+            Text(
+                text = theme.getName(),
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
     }
 }
