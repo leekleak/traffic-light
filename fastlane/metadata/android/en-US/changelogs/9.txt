@@ -1,0 +1,18 @@
+Meta:
+- Added Weblate support. All translations are welcome.
+
+Enchantments:
+- Significantly improved app performance and fluidity
+- Added a new theme picker
+- Added an option to disable expressive fonts
+- Removed the option "Improve contrast". A toned down version of it is now on for everyone by default.
+- Added a splash screen animation
+- Added a link to help users struggling to set up usage permissions.
+- Various minor UI improvements
+
+Bugfixes:
+- Fix notification being deprioritized by the system.
+
+Translations:
+- New language: Arabic
+- New language: Russian
