@@ -23,6 +23,9 @@ class PreferenceRepo (
     private val scope = CoroutineScope(Job() + Dispatchers.Default)
     val data get() = context.dataStore.data
 
+    val notification: Flow<Boolean> = context.dataStore.data.map { it[NOTIFICATION] ?: false }
+    fun setNotification(value: Boolean) = scope.launch { context.dataStore.edit { it[NOTIFICATION] = value } }
+
     val modeAOD: Flow<Boolean> = context.dataStore.data.map { it[MODE_AOD] ?: false }
     fun setModeAOD(value: Boolean) = scope.launch { context.dataStore.edit { it[MODE_AOD] = value } }
 
@@ -42,6 +45,7 @@ class PreferenceRepo (
     fun setExpressiveFonts(value: Boolean) = scope.launch { context.dataStore.edit { it[EXPRESSIVE_FONTS] = value} }
 
     private companion object {
+        val NOTIFICATION = booleanPreferencesKey("notification")
         val MODE_AOD = booleanPreferencesKey("mode_aod")
         val BIG_ICON = booleanPreferencesKey("big_icon")
         val SPEED_BITS = booleanPreferencesKey("speed_bits")

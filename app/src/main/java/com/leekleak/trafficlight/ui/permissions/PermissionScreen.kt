@@ -22,6 +22,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
@@ -31,22 +33,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.WideScreenWrapper
 import com.leekleak.trafficlight.util.categoryTitle
+import org.koin.compose.koinInject
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun Permissions(
-    notifPermission: Boolean,
-    backgroundPermission: Boolean,
-    usagePermission: Boolean
-) {
+fun Permissions() {
     val viewModel: PermissionVM = viewModel()
+    val permissionManager: PermissionManager = koinInject()
     val activity = LocalActivity.current
 
     val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+
+    val notifPermission by permissionManager.notificationPermissionFlow.collectAsState(false)
+    val backgroundPermission by permissionManager.backgroundPermissionFlow.collectAsState(false)
+    val usagePermission by permissionManager.usagePermissionFlow.collectAsState(false)
 
     val paddingValues =
         PaddingValues(

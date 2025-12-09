@@ -1,6 +1,7 @@
 package com.leekleak.trafficlight.ui.settings
 
 import androidx.activity.compose.LocalActivity
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -69,48 +70,60 @@ fun Settings(
         categoryTitle(R.string.settings)
         categoryTitleSmall(R.string.notifications)
         item {
-            val modeAOD by viewModel.preferenceRepo.modeAOD.collectAsState(false)
+            val notification by viewModel.preferenceRepo.notification.collectAsState(false)
             SwitchPreference(
                 title = stringResource(R.string.screen_off_update),
                 summary = stringResource(R.string.screen_off_update_description),
                 icon = painterResource(R.drawable.aod),
-                value = modeAOD,
-                onValueChanged = { viewModel.preferenceRepo.setModeAOD(it) }
+                value = notification,
+                onValueChanged = { viewModel.setNotifications(it, activity) }
             )
-        }
-        item {
-            val bigIcon by viewModel.preferenceRepo.bigIcon.collectAsState(false)
-            SwitchPreference(
-                title = stringResource(R.string.oversample_icon),
-                summary = stringResource(R.string.oversample_icon_description),
-                icon = painterResource(R.drawable.oversample),
-                value = bigIcon,
-                onValueChanged = { viewModel.preferenceRepo.setBigIcon(it) }
-            )
-        }
-        item {
-            val speedBits by viewModel.preferenceRepo.speedBits.collectAsState(false)
-            SwitchPreference(
-                title = stringResource(R.string.speed_in_bits),
-                summary = null,
-                icon = painterResource(R.drawable.speed),
-                value = speedBits,
-                onValueChanged = { viewModel.preferenceRepo.setSpeedBits(it) }
-            )
-        }
-        item {
-            val forceFallback by viewModel.preferenceRepo.forceFallback.collectAsState(false)
-            val doesFallbackWork = remember { TrafficSnapshot.doesFallbackWork() }
-            SwitchPreference(
-                title = stringResource(R.string.force_fallback),
-                summary = if (doesFallbackWork) stringResource(R.string.force_fallback_description) else stringResource(
-                    R.string.fallback_unsupported
-                ),
-                icon = painterResource(R.drawable.fallback),
-                value = forceFallback,
-                enabled = doesFallbackWork,
-                onValueChanged = { viewModel.preferenceRepo.setForceFallback(it) }
-            )
+
+
+            AnimatedVisibility(notification) {
+                val modeAOD by viewModel.preferenceRepo.modeAOD.collectAsState(false)
+                SwitchPreference(
+                    title = stringResource(R.string.screen_off_update),
+                    summary = stringResource(R.string.screen_off_update_description),
+                    icon = painterResource(R.drawable.aod),
+                    value = modeAOD,
+                    onValueChanged = { viewModel.preferenceRepo.setModeAOD(it) }
+                )
+            }
+            AnimatedVisibility(notification) {
+                val bigIcon by viewModel.preferenceRepo.bigIcon.collectAsState(false)
+                SwitchPreference(
+                    title = stringResource(R.string.oversample_icon),
+                    summary = stringResource(R.string.oversample_icon_description),
+                    icon = painterResource(R.drawable.oversample),
+                    value = bigIcon,
+                    onValueChanged = { viewModel.preferenceRepo.setBigIcon(it) }
+                )
+            }
+            AnimatedVisibility(notification) {
+                val speedBits by viewModel.preferenceRepo.speedBits.collectAsState(false)
+                SwitchPreference(
+                    title = stringResource(R.string.speed_in_bits),
+                    summary = null,
+                    icon = painterResource(R.drawable.speed),
+                    value = speedBits,
+                    onValueChanged = { viewModel.preferenceRepo.setSpeedBits(it) }
+                )
+            }
+            AnimatedVisibility(notification) {
+                val forceFallback by viewModel.preferenceRepo.forceFallback.collectAsState(false)
+                val doesFallbackWork = remember { TrafficSnapshot.doesFallbackWork() }
+                SwitchPreference(
+                    title = stringResource(R.string.force_fallback),
+                    summary = if (doesFallbackWork) stringResource(R.string.force_fallback_description) else stringResource(
+                        R.string.fallback_unsupported
+                    ),
+                    icon = painterResource(R.drawable.fallback),
+                    value = forceFallback,
+                    enabled = doesFallbackWork,
+                    onValueChanged = { viewModel.preferenceRepo.setForceFallback(it) }
+                )
+            }
         }
 
         categoryTitleSmall(R.string.ui)

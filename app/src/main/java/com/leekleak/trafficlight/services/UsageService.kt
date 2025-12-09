@@ -30,7 +30,6 @@ import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.clipAndPad
 import com.leekleak.trafficlight.util.currentTimezone
-import com.leekleak.trafficlight.util.hasAllPermissions
 import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -339,7 +338,7 @@ class UsageService : Service(), KoinComponent {
         }
     }
 
-    companion object {
+    companion object : KoinComponent {
         const val NOTIFICATION_ID = 228
         const val NOTIFICATION_CHANNEL_ID = "PersistentNotification"
         const val DATA_UPDATE_FREQ = 5
@@ -359,7 +358,8 @@ class UsageService : Service(), KoinComponent {
         }
 
         fun startService(context: Context) {
-            if (!isInstanceCreated() && hasAllPermissions(context)) {
+            val permissionManager: PermissionManager by inject()
+            if (!isInstanceCreated() && permissionManager.hasAllPermissions()) {
                 val intent = Intent(context, UsageService::class.java)
                 context.startService(intent)
                 Timber.i("Started service")
