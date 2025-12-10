@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Traffic Light</string>
+    <string name="today">Aujourd\'hui</string>
+    <string name="this_week">Cette Semaine</string>
+    <string name="history">Historique</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="permissions">Permissions</string>
+    <string name="settings">Réglages</string>
+    <string name="notification_permission">Notifications</string>
+    <string name="notification_permission_description">La permission de notification est nécessaire pour que l\'icône de vitesse du réseau dans la barre de status fonctionne.</string>
+    <string name="battery_optimization">Optimisation de la batterie</string>
+    <string name="usage_statistics">Statistiques d\'utilisation</string>
+    <string name="screen_off_update">Mettre à jour quand l\'écran est éteint</string>
+    <string name="light">Clair</string>
+    <string name="dark">Sombre</string>
+    <string name="help">Aide</string>
+    <string name="cellular">Données mobiles</string>
+    <string name="screen_off_update_description">Autoriser le suivi sur l\'AOD, mais impacte la batterie.</string>
+    <string name="oversample_icon_description">Afficher l\'icone en plus haute résolution si elle est floue.</string>
+    <string name="about">A propos</string>
+    <string name="speed_in_bits">Afficher la vitesse en bits</string>
+    <string name="github_description">Suivre le développement ou signaler des problèmes.</string>
+    <string name="fallback_unsupported">Secours non supporté</string>
+    <string name="ui">Interface</string>
+    <string name="improve_contrast">Améliorer le contraste</string>
+    <string name="limited_mode">Mode limité</string>
+    <string name="auto">Auto</string>
+    <string name="default_theme">Defaut</string>
+    <string name="speed">Vitesse:%1$s</string>
+    <string name="battery_optimization_description">Doit être désactivé pour empêcher le téléphone de tuer le service en arrière plan après un certain temps.</string>
+    <string name="notifications">Notification</string>
+    <string name="wi_fi">Wi-Fi:%1$s</string>
+    <string name="force_fallback">Forcer le suivi de vitesse de secours</string>
+    <string name="limited_mode_description">Malheuresement votre système d\'exploitation ne supporte pas le suivi de données sur le long terme.</string>
+    <string name="expressive_fonts">Polices expressives</string>
+    <string name="version">Version %1$s</string>
+</resources>

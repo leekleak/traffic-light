@@ -37,4 +37,7 @@
     <string name="auto">Auto</string>
     <string name="light">Šviesi</string>
     <string name="dark">Tamsi</string>
+    <string name="expressive_fonts">Išraiškingi šriftai</string>
+    <string name="default_theme">Pagrindinė</string>
+    <string name="help">Pagalba</string>
 </resources>
