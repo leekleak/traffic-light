@@ -93,10 +93,10 @@ fun NavigationManager() {
         if (usageMode != UsageMode.Unlimited) backStack.add(Settings) else backStack.add(Overview)
     }
 
-    val vibrantColors = FloatingToolbarDefaults.standardFloatingToolbarColors()
+    val toolbarVisible = usageMode == UsageMode.Unlimited && showBottomBar
     val toolbarOffset =
         FloatingToolbarDefaults.ContainerSize +
-        FloatingToolbarDefaults.ContentPadding.calculateBottomPadding() * 2
+        FloatingToolbarDefaults.ScreenOffset
 
     val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -106,7 +106,7 @@ fun NavigationManager() {
             start = 16.dp,
             end = 16.dp,
             top = topPadding,
-            bottom = bottomPadding + toolbarOffset
+            bottom = bottomPadding + if (toolbarVisible) toolbarOffset else 8.dp
         )
 
     Scaffold(
@@ -119,14 +119,13 @@ fun NavigationManager() {
                 contentAlignment = Alignment.Center
             ) {
                 AnimatedVisibility(
-                    visible = usageMode == UsageMode.Unlimited && showBottomBar,
+                    visible = toolbarVisible,
                     enter = slideInVertically {it} + fadeIn(),
                     exit = slideOutVertically {it} + fadeOut()
                 ) {
                     HorizontalFloatingToolbar(
                         modifier = Modifier.navBarShadow(),
                         expanded = true,
-                        colors = vibrantColors,
                         content = {
                             NavigationButton(backStack, Overview, R.drawable.overview)
                             NavigationButton(backStack, History, R.drawable.history)
