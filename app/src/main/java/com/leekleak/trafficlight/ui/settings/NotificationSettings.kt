@@ -2,6 +2,7 @@ package com.leekleak.trafficlight.ui.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -21,7 +22,9 @@ fun NotificationSettings(paddingValues: PaddingValues) {
     val viewModel: SettingsVM = viewModel()
 
     LazyColumn(
-        Modifier.background(MaterialTheme.colorScheme.surface),
+        Modifier
+            .background(MaterialTheme.colorScheme.surface)
+            .fillMaxSize(),
         contentPadding = paddingValues
     ) {
         categoryTitle(R.string.notifications)
