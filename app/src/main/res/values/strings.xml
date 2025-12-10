@@ -14,7 +14,7 @@
     <string name="battery_optimization">Battery optimization</string>
     <string name="battery_optimization_description">Must be disabled to stop the phone killing the background service after a while.</string>
     <string name="usage_statistics">Usage Statistics</string>
-    <string name="usage_statistics_description">The least buggy way to get aggregated network usage data on Android.</string>
+    <string name="usage_statistics_description">Required for long-term data usage tracking.</string>
     <string name="notifications">Notification</string>
     <string name="screen_off_update">Update when screen is off</string>
     <string name="screen_off_update_description">Allows tracking on the AOD, but impacts battery.</string>
@@ -41,4 +41,7 @@
     <string name="material_theme" translatable="false">Material You</string>
     <string name="default_theme">Default</string>
     <string name="help">Help</string>
+    <string name="advanced_settings">Advanced Settings</string>
+    <string name="notification_description">Track network speed in the status bar.</string>
+    <string name="missing_permissions">Missing Permissions</string>
 </resources>

@@ -8,22 +8,34 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.ui.theme.Theme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import kotlin.getValue
 
 class PreferenceRepo (
     private val context: Context
-) {
+): KoinComponent {
+    val permissionManager: PermissionManager by inject()
     val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
     private val scope = CoroutineScope(Job() + Dispatchers.Default)
     val data get() = context.dataStore.data
 
-    val notification: Flow<Boolean> = context.dataStore.data.map { it[NOTIFICATION] ?: false }
+    val notification: Flow<Boolean> = combine(
+        context.dataStore.data,
+        permissionManager.notificationPermissionFlow
+    ) { settings, permission ->
+        return@combine (settings[NOTIFICATION] ?: false) && permission
+    }
+
     fun setNotification(value: Boolean) = scope.launch { context.dataStore.edit { it[NOTIFICATION] = value } }
 
     val modeAOD: Flow<Boolean> = context.dataStore.data.map { it[MODE_AOD] ?: false }

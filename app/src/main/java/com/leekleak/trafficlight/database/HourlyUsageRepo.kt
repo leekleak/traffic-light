@@ -3,7 +3,7 @@ package com.leekleak.trafficlight.database
 import android.app.usage.NetworkStatsManager
 import android.content.Context
 import android.content.Context.NETWORK_STATS_SERVICE
-import com.leekleak.trafficlight.services.UsageService
+import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.util.NetworkType
 import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.Dispatchers
@@ -12,15 +12,26 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
+enum class UsageMode {
+    Unlimited,
+    NoPermission,
+    Limited
+}
+
 class HourlyUsageRepo(context: Context) : KoinComponent {
     private var networkStatsManager: NetworkStatsManager = context.getSystemService(NETWORK_STATS_SERVICE) as NetworkStatsManager
+    private val permissionManager: PermissionManager by inject()
 
-    fun limitedMode(): Flow<Boolean> = UsageService.todayUsageFlow.map {
-        // Check whether there's any usage over the past month
-        calculateHourData(System.currentTimeMillis() - 2_592_000_000L, System.currentTimeMillis()).total == 0L
+    fun usageModeFlow(): Flow<UsageMode> = permissionManager.usagePermissionFlow.map {
+        val millis = System.currentTimeMillis()
+
+        if (!it) UsageMode.NoPermission
+        else if (calculateHourData(millis - 2_592_000_000L, millis).total == 0L) UsageMode.Limited
+        else UsageMode.Unlimited
     }
 
     fun calculateDayUsage(date: LocalDate): DayUsage {

@@ -51,12 +51,14 @@ import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.DayUsage
+import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.util.getName
 import com.leekleak.trafficlight.util.padHour
+import org.koin.compose.koinInject
 import java.time.LocalDate
 import java.time.format.TextStyle
 
@@ -242,8 +244,8 @@ fun dayUsageToBarData(usage: DayUsage): List<BarData> {
 
 @Composable
 fun classyFont(): FontFamily? {
-    val viewModel: HistoryVM = viewModel()
-    val expressiveFonts by viewModel.preferenceRepo.expressiveFonts.collectAsState(true)
+    val preferenceRepo: PreferenceRepo = koinInject()
+    val expressiveFonts by preferenceRepo.expressiveFonts.collectAsState(true)
 
     return if (expressiveFonts) {
         FontFamily(

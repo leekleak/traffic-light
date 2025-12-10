@@ -1,47 +1,67 @@
 package com.leekleak.trafficlight.services
 
 import android.Manifest.permission.POST_NOTIFICATIONS
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.AppOpsManager
 import android.content.Context
 import android.content.Context.POWER_SERVICE
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.PowerManager
 import android.os.Process.myUid
-import kotlinx.coroutines.flow.Flow
+import android.provider.Settings
+import androidx.core.net.toUri
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 
 class PermissionManager(
     private val context: Context
 ) {
-
-    fun hasAllPermissions(): Boolean {
-        return  backgroundPermission &&
-                usagePermission &&
-                notificationPermission
-    }
-
     private val _backgroundPermission = MutableStateFlow(false)
-    val backgroundPermission: Boolean get() = _backgroundPermission.value
     val backgroundPermissionFlow = _backgroundPermission.asStateFlow()
 
     private val _usagePermission = MutableStateFlow(false)
-    val usagePermission: Boolean get() = _usagePermission.value
     val usagePermissionFlow = _usagePermission.asStateFlow()
 
     private val _notificationPermission = MutableStateFlow(false)
-    val notificationPermission: Boolean get() = _notificationPermission.value
     val notificationPermissionFlow = _notificationPermission.asStateFlow()
 
+    @SuppressLint("BatteryLife")
+    fun askBackgroundPermission(activity: Activity?) {
+        activity?.startActivity(
+            Intent(
+                Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                "package:${activity.packageName}".toUri()
+            )
+        )
+    }
 
-    val hasAllPermissions: Flow<Boolean> = combine(
-        backgroundPermissionFlow,
-        usagePermissionFlow,
-        notificationPermissionFlow
-    ) { background, usage, notification ->
-        background && usage && notification
+    fun askUsagePermission(activity: Activity?) {
+        try {
+            activity?.startActivity(
+                Intent(
+                    Settings.ACTION_USAGE_ACCESS_SETTINGS,
+                    "package:${activity.packageName}".toUri()
+                )
+            )
+        } catch (_: Exception){ // some device do not have separate usage access settings interface
+            activity?.startActivity(
+                Intent(
+                    Settings.ACTION_USAGE_ACCESS_SETTINGS
+                )
+            )
+        }
+    }
+
+    fun openUsagePermissionHelp(activity: Activity?) {
+        activity?.startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                "https://github.com/leekleak/traffic-light/wiki/Troubleshooting#usage-data-access-denied".toUri()
+            )
+        )
     }
 
     fun update() {

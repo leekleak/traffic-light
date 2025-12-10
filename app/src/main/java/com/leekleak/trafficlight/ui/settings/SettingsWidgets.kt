@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
@@ -42,6 +43,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.GraphTheme
@@ -339,6 +341,45 @@ fun ThemeAutoPreference(theme: Theme, enabled: Boolean, onClick: () -> Unit) {
             Text(
                 text = theme.getName(),
                 style = MaterialTheme.typography.titleMedium,
+            )
+        }
+    }
+}
+
+@Composable
+fun PermissionCard(
+    title: String,
+    description: String,
+    icon: Painter,
+    onClick: () -> Unit,
+    extraButton: @Composable (() -> Unit)? = null
+) {
+    Row (modifier = Modifier
+        .card()
+        .padding(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.End
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(icon, "Icon")
+                Text(modifier = Modifier.fillMaxWidth(), fontWeight = FontWeight.Bold, text = title)
+            }
+            Text(modifier = Modifier.fillMaxWidth(), text = description)
+        }
+        extraButton?.invoke()
+        FloatingActionButton (
+            onClick = onClick
+        ) {
+            Icon(
+                painterResource(R.drawable.grant),
+                contentDescription = stringResource(R.string.grant),
             )
         }
     }
