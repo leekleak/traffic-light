@@ -27,9 +27,9 @@
     <string name="speed_in_bits">أظهر السرعة بالبت</string>
     <string name="github_description">تتبع التطور أو الإبلاغ عن المشكلات.</string>
     <string name="version">الإصدار: %1$s</string>
-    <string name="force_fallback">اجبر تتبع سرعة الاحتياطي</string>
+    <string name="force_fallback">اجبر تتبع سرعة الخيار البديل</string>
     <string name="force_fallback_description">مفيد عند استخدام نظام تشغيل معطوب أو شبكة إيثرنت</string>
-    <string name="fallback_unsupported">الاحتياطي غير مدعوم</string>
+    <string name="fallback_unsupported">الخيار البديل غير مدعوم</string>
     <string name="ui">الواجهة</string>
     <string name="improve_contrast">تحسين التباين</string>
     <string name="limited_mode">الوضع المحدود</string>
@@ -37,4 +37,7 @@
     <string name="auto">تلقائي</string>
     <string name="light">فاتح</string>
     <string name="dark">داكن</string>
+    <string name="expressive_fonts">خطوط تعبيرية</string>
+    <string name="default_theme">افتراضي</string>
+    <string name="help">مساعدة</string>
 </resources>
