@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -43,10 +44,16 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.DayUsage
+import com.leekleak.trafficlight.database.HourlyUsageRepo
+import com.leekleak.trafficlight.model.PreferenceRepo
+import com.leekleak.trafficlight.services.UsageService
 import com.leekleak.trafficlight.ui.history.dayUsageToBarData
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.categoryTitle
+import kotlinx.coroutines.delay
+import org.koin.compose.koinInject
+import java.time.LocalDate
 
 @Composable
 fun Overview(
@@ -56,6 +63,23 @@ fun Overview(
 
     val todayUsage by viewModel.todayUsage.collectAsState(DayUsage())
     val weeklyUsage by viewModel.weekUsage().collectAsState(listOf())
+
+    /**
+     * Generally the notification service is responsible for updating daily usage,
+     * however some people may prefer to use the app exclusively for historical data tracking
+     * so if the notification is disabled the app should still periodically update the usage.
+     */
+    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
+    val preferenceRepo: PreferenceRepo = koinInject()
+    val notification by preferenceRepo.notification.collectAsState(true)
+    LaunchedEffect(notification) {
+        if (!notification) {
+            while (true) {
+                UsageService.todayUsage = hourlyUsageRepo.calculateDayUsage(LocalDate.now())
+                delay(5000)
+            }
+        }
+    }
 
     LazyColumn(
         modifier = Modifier.background(MaterialTheme.colorScheme.surface).fillMaxSize(),

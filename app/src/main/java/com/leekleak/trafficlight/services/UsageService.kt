@@ -142,9 +142,9 @@ class UsageService : Service(), KoinComponent {
         if (job == null) {
             startJob()
 
-            try {
-            todayUsage = hourlyUsageRepo.calculateDayUsage(LocalDate.now())
-            } catch (_: Exception) {}
+            if (!limitedMode) {
+                todayUsage = hourlyUsageRepo.calculateDayUsage(LocalDate.now())
+            }
             notificationBuilder
                 .setContentIntent(
                     PendingIntent.getActivity(
