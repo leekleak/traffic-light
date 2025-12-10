@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -63,6 +64,9 @@ import kotlinx.serialization.Serializable
 /**
  * Main screens
  */
+
+@Serializable
+data object Blank : NavKey
 @Serializable
 data object Overview : NavKey
 @Serializable
@@ -70,7 +74,7 @@ data object History : NavKey
 @Serializable
 data object Settings : NavKey
 
-val mainScreens = listOf(Overview, History, Settings)
+val mainScreens = listOf(Blank, Overview, History, Settings)
 
 /**
  * Settings
@@ -85,7 +89,7 @@ fun NavigationManager() {
     val viewModel: NavigationManagerVM = viewModel()
     val usageMode by viewModel.hourlyUsageRepo.usageModeFlow().collectAsState(UsageMode.Unlimited)
 
-    val backStack = rememberNavBackStack(Settings)
+    val backStack = rememberNavBackStack(Blank)
     var showBottomBar by remember { mutableStateOf(false) }
 
     LaunchedEffect(backStack.last()) {
@@ -93,8 +97,9 @@ fun NavigationManager() {
     }
 
     LaunchedEffect(usageMode) {
-        backStack.clear()
-        if (usageMode != UsageMode.Unlimited) backStack.add(Settings) else backStack.add(Overview)
+        backStack.clear().also {
+            if (usageMode != UsageMode.Unlimited) backStack.add(Settings) else backStack.add(Overview)
+        }
     }
 
     val toolbarVisible = usageMode == UsageMode.Unlimited && showBottomBar
@@ -104,7 +109,6 @@ fun NavigationManager() {
 
     val topPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-
     val paddingValues =
         PaddingValues(
             start = 16.dp,
@@ -145,6 +149,7 @@ fun NavigationManager() {
                 backStack = backStack,
                 onBack = { backStack.removeLastOrNull() },
                 entryProvider = entryProvider {
+                    entry<Blank> { Box(modifier = Modifier.fillMaxSize())}
                     entry<Overview> { Overview(paddingValues) }
                     entry<History> { History(paddingValues) }
                     entry<Settings> { Settings(paddingValues, backStack) }
