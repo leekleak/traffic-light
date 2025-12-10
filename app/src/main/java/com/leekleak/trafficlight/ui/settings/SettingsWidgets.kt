@@ -34,9 +34,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.copy
 import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -167,10 +167,7 @@ fun ThemePreferenceContainer(currentTheme: Theme, material: Boolean, onThemeChan
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                ThemePreference(
-                    themeLight,
-                    themeLight == currentTheme
-                ) { onThemeChanged(themeLight) }
+                ThemePreference(themeLight, themeLight == currentTheme) { onThemeChanged(themeLight) }
                 ThemePreference(themeDark, themeDark == currentTheme) { onThemeChanged(themeDark) }
             }
             ThemeAutoPreference(themeAuto, themeAuto == currentTheme) { onThemeChanged(themeAuto) }
@@ -192,6 +189,24 @@ fun ThemePreference(theme: Theme, enabled: Boolean, onClick: () -> Unit) {
     val iconScaleSmall = 42.dp.px
     val iconScaleBig = 48.dp.px
     val iconScale = remember { Animatable(iconScaleSmall) }
+
+    val shape1Transformed = remember(iconScale.value, rotation.value) {
+        val matrix = Matrix().apply {
+            translate(-rotation.value, rotation.value)
+            scale(iconScale.value, iconScale.value)
+            translate(-0.5f, -0.5f)
+        }
+        shape1.copy().apply { transform(matrix) }
+    }
+
+    val shape2Transformed = remember(iconScale.value, rotation.value) {
+        val matrix = Matrix().apply {
+            translate(rotation.value, -rotation.value)
+            scale(iconScale.value, iconScale.value)
+            translate(-0.5f, -0.5f)
+        }
+        shape2.copy().apply { transform(matrix) }
+    }
 
     val scope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
@@ -233,20 +248,12 @@ fun ThemePreference(theme: Theme, enabled: Boolean, onClick: () -> Unit) {
                     val y = size.height / 2f
                     translate(x * 2, y) {
                         rotate(rotation.value * 2f) {
-                            translate(-rotation.value, rotation.value) {
-                                scale(iconScale.value, Offset(0.5f, 0.5f)) {
-                                    drawPath(shape1, scheme.primary)
-                                }
-                            }
+                            drawPath(shape1Transformed, scheme.primary)
                         }
                     }
                     translate(x * 5, y) {
                         rotate(-rotation.value * 2f) {
-                            translate(rotation.value, -rotation.value) {
-                                scale(iconScale.value, Offset(0.5f, 0.5f)) {
-                                    drawPath(shape2, scheme.tertiary)
-                                }
-                            }
+                            drawPath(shape2Transformed, scheme.tertiary)
                         }
                     }
                 }
@@ -285,6 +292,22 @@ fun ThemeAutoPreference(theme: Theme, enabled: Boolean, onClick: () -> Unit) {
     val iconScaleBig = 48.dp.px
     val iconScale = remember { Animatable(iconScaleSmall) }
 
+    val shape1Transformed = remember(iconScale.value, rotation.value) {
+        val matrix = Matrix().apply {
+            scale(iconScale.value, iconScale.value)
+            translate(-0.5f, -0.5f)
+        }
+        shape1.copy().apply { transform(matrix) }
+    }
+
+    val shape2Transformed = remember(iconScale.value, rotation.value) {
+        val matrix = Matrix().apply {
+            scale(iconScale.value, iconScale.value)
+            translate(-0.5f, -0.5f)
+        }
+        shape2.copy().apply { transform(matrix) }
+    }
+
     val scope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
 
@@ -313,16 +336,12 @@ fun ThemeAutoPreference(theme: Theme, enabled: Boolean, onClick: () -> Unit) {
                 val y = size.height / 2f
                 translate(x * 1, y) {
                     rotate(rotation.value * 2f) {
-                        scale(iconScale.value, Offset(0.5f, 0.5f)) {
-                            drawPath(shape1, scheme.primary)
-                        }
+                        drawPath(shape1Transformed, scheme.primary)
                     }
                 }
                 translate(x * 6, y) {
                     rotate(-rotation.value * 2f) {
-                        scale(iconScale.value, Offset(0.5f, 0.5f)) {
-                            drawPath(shape2, scheme.tertiary)
-                        }
+                        drawPath(shape2Transformed, scheme.tertiary)
                     }
                 }
             }
