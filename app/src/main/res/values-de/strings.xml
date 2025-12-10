@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Traffic Light</string>
+    <string name="today">Heute</string>
+    <string name="this_week">Diese Woche</string>
+    <string name="history">Verlauf</string>
+    <string name="wifi">WLAN</string>
+    <string name="cellular">Mobilfunk</string>
+    <string name="grant">Erlauben</string>
+    <string name="permissions">Berechtigungen</string>
+    <string name="speed">Geschwindigkeit: %1$s</string>
+    <string name="settings">Einstellungen</string>
+    <string name="notification_permission">Benachrichtigungen</string>
+    <string name="notification_permission_description">Die Benachrichtigungsberechtigung ist erforderlich, damit das Symbol für die Netzwerkgeschwindigkeit in der Statusleiste funktioniert.</string>
+    <string name="battery_optimization">Batterieoptimierung</string>
+    <string name="battery_optimization_description">Muss deaktiviert werden, damit das Telefon den Hintergrunddienst nicht nach einer Weile beendet.</string>
+    <string name="usage_statistics">Nutzungs-Statistiken</string>
+    <string name="usage_statistics_description">Die fehlerfreieste Methode, um zusammengefasste Netzwerknutzungsdaten auf Android zu erhalten.</string>
+    <string name="notifications">Benachrichtigung</string>
+    <string name="screen_off_update">Aktualisieren wenn Bildschirm aus ist</string>
+    <string name="screen_off_update_description">Ermöglicht die Nachverfolgung auf dem AOD, beeinträchtigt jedoch die Akkuleistung.</string>
+    <string name="oversample_icon">Überabtastungssymbol</string>
+    <string name="oversample_icon_description">Das Symbol mit einer höheren Auflösung rendern, wenn es unscharf ist.</string>
+    <string name="wi_fi">WLAN: %1$s</string>
+    <string name="mobile">Mobilfunk: %1$s</string>
+    <string name="about">Über</string>
+    <string name="speed_in_bits">Geschwindigkeit in Bits anzeigen</string>
+    <string name="github_description">Entwicklungen verfolgen oder Probleme melden.</string>
+    <string name="version">Version: %1$s</string>
+    <string name="force_fallback">Erzwungene Rückfallgeschwindigkeit verfolgen</string>
+    <string name="force_fallback_description">Hilfreich bei Verwendung eines fehlerhaften ROMs oder Ethernet</string>
+    <string name="fallback_unsupported">Fallback wird nicht unterstützt</string>
+    <string name="ui">Oberfläche</string>
+    <string name="improve_contrast">Kontrast verbessern</string>
+    <string name="limited_mode">Begrenzter Modus</string>
+    <string name="limited_mode_description">Leider unterstützt Ihr Betriebssystem keine langfristige Datenverfolgung.</string>
+    <string name="auto">Auto</string>
+    <string name="light">Hell</string>
+    <string name="dark">Dunkel</string>
+    <string name="expressive_fonts">Ausdrucksstarke Schriftarten</string>
+    <string name="default_theme">Standard</string>
+    <string name="help">Hilfe</string>
+</resources>
