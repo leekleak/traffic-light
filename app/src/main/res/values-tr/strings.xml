@@ -15,7 +15,7 @@
     <string name="battery_optimization">Pil optimizasyonu</string>
     <string name="battery_optimization_description">Telefonun arka plan servislerini bir süre sonra kapatmasını önlemek için pil optimizasyonu kapatılmalıdır.</string>
     <string name="usage_statistics">Kullanım İstatistikleri</string>
-    <string name="usage_statistics_description">Android\'de toplu ağ kullanım verilerini almanın en az hata içeren yolu.</string>
+    <string name="usage_statistics_description">Uzun vadeli veri kullanım takibi için gereklidir.</string>
     <string name="notifications">Bildirim</string>
     <string name="screen_off_update">Ekran kapandığında güncelle</string>
     <string name="screen_off_update_description">Always-on-Display\'de takibe olanak sağlar ama pil tüketimini arttırır.</string>
@@ -34,4 +34,13 @@
     <string name="improve_contrast">Karşıtlığı arttır</string>
     <string name="limited_mode">Kısıtlı Mod</string>
     <string name="limited_mode_description">Ne yazık ki işletim sisteminiz uzun süreli veri takibini desteklemiyor.</string>
+    <string name="auto">Otomatik</string>
+    <string name="light">Aydınlık</string>
+    <string name="dark">Karanlık</string>
+    <string name="expressive_fonts">İfadeci Yazı Tipleri</string>
+    <string name="default_theme">Varsayılan</string>
+    <string name="help">Yardım</string>
+    <string name="advanced_settings">Gelişmiş Ayarlar</string>
+    <string name="notification_description">Durum çubuğunda ağ hızını takip edin.</string>
+    <string name="missing_permissions">Eksik İzinler</string>
 </resources>
