@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Traffic Light</string>
+    <string name="today">Astăzi</string>
+    <string name="this_week">Săptămâna asta</string>
+    <string name="history">Istoric</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="cellular">Celulară</string>
+    <string name="grant">Permite</string>
+    <string name="permissions">Permisiuni</string>
+    <string name="speed">Viteză: %1$s</string>
+    <string name="settings">Configurări</string>
+    <string name="notification_permission">Notificări</string>
+    <string name="notification_permission_description">Permisiunea Notificări este necesară pentru ca pictograma de viteză a rețelei din bara de stare să funcționeze.</string>
+    <string name="battery_optimization">Optimizare baterie</string>
+    <string name="battery_optimization_description">Trebuie dezactivat pentru a opri telefonul să închidă serviciul de fundal.</string>
+    <string name="usage_statistics">Statistici Utilizare</string>
+    <string name="usage_statistics_description">Necesar pentru urmărirea utilizării datelor pe termen lung.</string>
+    <string name="notifications">Configurări Notificare</string>
+    <string name="screen_off_update">Actualizează când ecranul este oprit</string>
+    <string name="screen_off_update_description">Permite urmărirea pe Always On Display, dar folosește multă energie.</string>
+    <string name="wi_fi">Wi-Fi: %1$s</string>
+    <string name="mobile">Date mobile: %1$s</string>
+    <string name="about">Despre</string>
+    <string name="speed_in_bits">Arată viteza în biți</string>
+    <string name="github_description">Urmărește dezvoltarea sau raportează erori.</string>
+    <string name="version">Versiunea %1$s</string>
+    <string name="ui">Interfață</string>
+    <string name="improve_contrast">Îmbunătățește contrastul</string>
+    <string name="limited_mode">Mod Limitat</string>
+    <string name="auto">Automat</string>
+    <string name="light">Luminos</string>
+    <string name="dark">Întunecat</string>
+    <string name="expressive_fonts">Fonturi Expresive</string>
+    <string name="default_theme">Implicit</string>
+    <string name="help">Ajutor</string>
+    <string name="advanced_settings">Configurări Avansate</string>
+    <string name="missing_permissions">Permisiuni Lipsă</string>
+    <string name="oversample_icon">Eșantionare suplimentară iconiță</string>
+    <string name="oversample_icon_description">Randează iconița la o rezoluție mai mare dacă este blurată.</string>
+    <string name="force_fallback">Forțează fallback pentru urmărirea vitezei</string>
+    <string name="force_fallback_description">Util când folosești un ROM cu erori sau o conexiune prin cablu (ethernet)</string>
+    <string name="fallback_unsupported">Fallback nesuportat</string>
+    <string name="limited_mode_description">Sistemul de operare nu suportă urmărirea datelor pe termen lung.</string>
+    <string name="notification_description">Vezi viteza rețelei în bara de stare.</string>
+</resources>

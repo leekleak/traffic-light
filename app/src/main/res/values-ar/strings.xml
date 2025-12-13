@@ -15,10 +15,10 @@
     <string name="battery_optimization">تحسين البطارية</string>
     <string name="battery_optimization_description">يجب تعطيله لمنع الهاتف من إنهاء الخدمة الخلفية بعد فترة.</string>
     <string name="usage_statistics">إحصائيات الاستخدام</string>
-    <string name="usage_statistics_description">أقل طريقة خالية من الأعطال للحصول على بيانات استخدام الشبكة المجمعة على نظام أندرويد.</string>
+    <string name="usage_statistics_description">مطلوب لتتبع استخدام البيانات على المدى الطويل.</string>
     <string name="notifications">إشعار</string>
     <string name="screen_off_update">حدّث عند إيقاف الشاشة</string>
-    <string name="screen_off_update_description">يسمح بالتتبع على عرض دائم (AOD)، لكنه يؤثر على عمر البطارية.</string>
+    <string name="screen_off_update_description">يسمح بتتبع الاستخدام على عرض دائم (AOD)، لكنه يؤثر على عمر البطارية.</string>
     <string name="oversample_icon">أيقونة العينة الزائدة</string>
     <string name="oversample_icon_description">صيّر الأيقونة بدقة أعلى إذا كانت غير واضحة.</string>
     <string name="wi_fi">واي فاي: %1$s</string>
@@ -40,4 +40,7 @@
     <string name="expressive_fonts">خطوط تعبيرية</string>
     <string name="default_theme">افتراضي</string>
     <string name="help">مساعدة</string>
+    <string name="advanced_settings">إعدادات متقدمة</string>
+    <string name="notification_description">تتبع سرعة الشبكة في شريط الحالة.</string>
+    <string name="missing_permissions">أذونات مفقودة</string>
 </resources>
