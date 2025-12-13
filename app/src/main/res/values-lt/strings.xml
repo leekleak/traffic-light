@@ -40,4 +40,7 @@
     <string name="expressive_fonts">Išraiškingi šriftai</string>
     <string name="default_theme">Pagrindinė</string>
     <string name="help">Pagalba</string>
+    <string name="advanced_settings">Papildomi nustatymai</string>
+    <string name="notification_description">Rodo interneto greitį pranešimų juostoje.</string>
+    <string name="missing_permissions">Trūksta leidimų</string>
 </resources>
