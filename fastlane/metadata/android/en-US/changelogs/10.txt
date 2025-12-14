@@ -2,7 +2,7 @@ Hopefully no large regressions so I can celebrate Christmas in peace :D
 
 Enchantments:
 - Reworked permissions to be much more modular. You can now only grant the permissions that are required for your use cases.
-- Added basic support for tracking network usage by.
+- Added basic support for tracking specific app network usage
 - Further simplified settings
 - Various UI improvements
 
