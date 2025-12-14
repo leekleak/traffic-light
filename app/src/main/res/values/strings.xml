@@ -45,4 +45,5 @@
     <string name="advanced_settings">Advanced Settings</string>
     <string name="notification_description">Track network speed in the status bar.</string>
     <string name="missing_permissions">Missing Permissions</string>
+    <string name="app_usage">App Usage</string>
 </resources>
