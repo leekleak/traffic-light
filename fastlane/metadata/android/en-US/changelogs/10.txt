@@ -1,0 +1,15 @@
+Hopefully no large regressions so I can celebrate Christmas in peace :D
+
+Enchantments:
+- Reworked permissions to be much more modular. You can now only grant the permissions that are required for your use cases.
+- Added basic support for tracking network usage by.
+- Further simplified settings
+- Various UI improvements
+
+Bugfixes:
+- Fix blurry theme selector on older Android versions
+
+Translations:
+- New language: French
+- New language: German
+- New language: Romanian
