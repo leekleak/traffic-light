@@ -1,5 +1,7 @@
 package com.leekleak.trafficlight.database
 
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.Icon
 import android.net.TrafficStats
 import com.leekleak.trafficlight.model.PreferenceRepo
 import kotlinx.coroutines.CoroutineScope
@@ -22,6 +24,14 @@ data class DayUsage(
         totalCellular = hours.map { it.value.cellular }.sum()
     }
 }
+
+data class AppUsage(
+    val usage: DayUsage,
+    val uid: Int,
+    val name: String,
+    val icon: Int,
+    val drawable: Drawable?
+)
 
 data class HourData(
     var upload: Long = 0,

@@ -1,6 +1,7 @@
 package com.leekleak.trafficlight.ui.history
 
 import androidx.lifecycle.ViewModel
+import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import kotlinx.coroutines.Dispatchers
@@ -19,5 +20,9 @@ class HistoryVM: ViewModel(), KoinComponent {
 
     fun dayUsageBasic(date: LocalDate): Flow<DayUsage> = flow {
         emit(hourlyUsageRepo.calculateDayUsageBasic(date))
+    }.flowOn(Dispatchers.IO)
+
+    fun getAllAppUsage(date: LocalDate): Flow<List<AppUsage>> = flow {
+        emit(hourlyUsageRepo.getAllAppUsage(date))
     }.flowOn(Dispatchers.IO)
 }

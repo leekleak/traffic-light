@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -46,12 +47,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.model.PreferenceRepo
+import com.leekleak.trafficlight.ui.navigation.AppDataUsage
+import com.leekleak.trafficlight.ui.navigation.NavigationManager
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.categoryTitle
@@ -63,7 +68,7 @@ import java.time.LocalDate
 import java.time.format.TextStyle
 
 @Composable
-fun History(paddingValues: PaddingValues) {
+fun History(paddingValues: PaddingValues, backStack: NavBackStack<NavKey>) {
     val viewModel: HistoryVM = viewModel()
     val haptic = LocalHapticFeedback.current
 
@@ -74,8 +79,12 @@ fun History(paddingValues: PaddingValues) {
     } }
 
     LazyColumn(
-        modifier = Modifier.background(MaterialTheme.colorScheme.surface).fillMaxSize(),
-        contentPadding = paddingValues
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.surface)
+            .fillMaxSize(),
+        contentPadding = paddingValues,
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+
     ) {
         categoryTitle(R.string.history)
         if (LocalDate.now().dayOfMonth != 1) {
@@ -87,12 +96,20 @@ fun History(paddingValues: PaddingValues) {
                 categoryTitleSmall(day.month.minus(1L).getName(TextStyle.FULL_STANDALONE))
             }
             item {
-                Box(Modifier.padding(bottom = 6.dp)) {
-                    HistoryItem(viewModel, visibleSizes, index + 1, selected, maximum) { i: Int ->
+                HistoryItem(
+                    viewModel,
+                    visibleSizes,
+                    index + 1,
+                    selected,
+                    maximum,
+                    onClick = { i: Int ->
                         selected = i
                         haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                    },
+                    onAppUsageOpen = {
+                        backStack.add(AppDataUsage(it))
                     }
-                }
+                )
             }
         }
     }
@@ -105,7 +122,8 @@ fun HistoryItem(
     i: Int,
     selected: Int,
     maximum: Long,
-    onClick: (i: Int) -> Unit
+    onClick: (i: Int) -> Unit,
+    onAppUsageOpen: (d: LocalDate) -> Unit
 ) {
     val date = LocalDate.now().minusDays(i.toLong())
     val usageBasic by viewModel.dayUsageBasic(date).collectAsState(DayUsage(totalWifi = 1, totalCellular = 1))
@@ -185,8 +203,11 @@ fun HistoryItem(
             exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
         ) {
             val usage by viewModel.dayUsage(date).collectAsState(DayUsage())
-            Box(modifier = Modifier.padding(4.dp)) {
+            Column (modifier = Modifier.padding(4.dp)) {
                 BarGraph(dayUsageToBarData(usage))
+                Button(onClick = { onAppUsageOpen(date) }) {
+                    Text(text = stringResource(R.string.app_usage))
+                }
             }
         }
     }
