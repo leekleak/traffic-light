@@ -43,9 +43,6 @@
             android:enabled="true"
             android:exported="false">
         </service>
-        <receiver android:name=".services.DismissListener"
-            android:exported="false">
-        </receiver>
         <receiver android:name=".services.AutoStarter"
             android:exported="true">
             <intent-filter>

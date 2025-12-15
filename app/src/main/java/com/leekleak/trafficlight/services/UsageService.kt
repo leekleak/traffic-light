@@ -124,20 +124,6 @@ class UsageService : Service(), KoinComponent {
         serviceScope.cancel()
     }
 
-    private fun onDismissedIntent(context: Context): PendingIntent? {
-        val intent = Intent(context, DismissListener::class.java)
-        intent.putExtra("com.leekleak.trafficlight.notificationId", NOTIFICATION_ID)
-
-        val pendingIntent =
-            PendingIntent.getBroadcast(
-                context.applicationContext,
-                NOTIFICATION_ID,
-                intent,
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            )
-        return pendingIntent
-    }
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (job == null) {
             startJob()
@@ -152,9 +138,6 @@ class UsageService : Service(), KoinComponent {
                             Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
                         }, PendingIntent.FLAG_IMMUTABLE
                     )
-                )
-                .setDeleteIntent(
-                    onDismissedIntent(this)
                 )
 
             try {
