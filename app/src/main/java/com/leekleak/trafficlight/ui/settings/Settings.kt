@@ -5,6 +5,7 @@ import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -26,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -49,6 +51,7 @@ import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.CategoryTitleSmallText
 import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
+import com.leekleak.trafficlight.util.px
 import kotlinx.coroutines.launch
 
 @Composable
@@ -168,8 +171,13 @@ fun Settings(
         categoryTitleSmall(R.string.ui)
         item {
             val theme by viewModel.preferenceRepo.theme.collectAsState(Theme.AutoMaterial)
-            val scroll = rememberScrollState()
-            Row(
+            val scroll = rememberScrollState(0)
+
+            val panelWidth = 272.dp.px.toInt() // Just a guess lol. Calculate the actual size if I ever add more themes
+            LaunchedEffect(theme) {
+                scroll.animateScrollTo(panelWidth * (theme.ordinal / 3), tween())
+            }
+            Row (
                 modifier = Modifier
                     .padding(vertical = 4.dp)
                     .card()
