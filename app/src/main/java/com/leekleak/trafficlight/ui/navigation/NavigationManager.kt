@@ -52,7 +52,6 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.UsageMode
-import com.leekleak.trafficlight.ui.history.AppDataUsage
 import com.leekleak.trafficlight.ui.history.History
 import com.leekleak.trafficlight.ui.overview.Overview
 import com.leekleak.trafficlight.ui.settings.NotificationSettings
@@ -60,9 +59,7 @@ import com.leekleak.trafficlight.ui.settings.Settings
 import com.leekleak.trafficlight.ui.theme.navBarShadow
 import com.leekleak.trafficlight.util.WideScreenWrapper
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import java.time.LocalDate
 
 /**
  * Main screens
@@ -78,12 +75,6 @@ data object History : NavKey
 data object Settings : NavKey
 
 val mainScreens = listOf(Blank, Overview, History, Settings)
-
-/**
- * History
- */
-@Serializable
-data class AppDataUsage(val date: @Contextual LocalDate) : NavKey
 
 /**
  * Settings
@@ -160,12 +151,9 @@ fun NavigationManager() {
                 entryProvider = entryProvider {
                     entry<Blank> { Box(modifier = Modifier.fillMaxSize())}
                     entry<Overview> { Overview(paddingValues) }
-                    entry<History> { History(paddingValues, backStack) }
+                    entry<History> { History(paddingValues) }
                     entry<Settings> { Settings(paddingValues, backStack) }
 
-                    entry<AppDataUsage> {
-                        AppDataUsage(it.date, paddingValues)
-                    }
                     entry<NotificationSettings> { NotificationSettings(paddingValues) }
                 },
                 transitionSpec = {
