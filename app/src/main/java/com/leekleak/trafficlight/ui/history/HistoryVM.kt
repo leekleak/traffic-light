@@ -15,14 +15,7 @@ import java.time.LocalDate
 class HistoryVM: ViewModel(), KoinComponent {
     val hourlyUsageRepo: HourlyUsageRepo by inject()
 
-    fun dayUsage(date: LocalDate): Flow<DayUsage> =
-        hourlyUsageRepo.singleDayUsageFlow(date)
-
-    fun dayUsageBasic(date: LocalDate): Flow<DayUsage> = flow {
-        emit(hourlyUsageRepo.calculateDayUsageBasic(date))
-    }.flowOn(Dispatchers.IO)
-
-    fun getAllAppUsage(date: LocalDate): Flow<List<AppUsage>> = flow {
-        emit(hourlyUsageRepo.getAllAppUsage(date))
+    fun getAllAppUsage(startDate: LocalDate, endDate: LocalDate = startDate): Flow<List<AppUsage>> = flow {
+        emit(hourlyUsageRepo.getAllAppUsage(startDate, endDate))
     }.flowOn(Dispatchers.IO)
 }

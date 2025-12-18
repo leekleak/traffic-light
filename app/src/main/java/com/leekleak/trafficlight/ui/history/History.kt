@@ -90,11 +90,29 @@ fun History(paddingValues: PaddingValues) {
 
     var timespan by remember { mutableStateOf(TimeSpan.Day) }
     var appDay by remember { mutableStateOf( LocalDate.now()) }
-    LaunchedEffect(pagerState.currentPage) {
-        appDay = startDate.minusDays(pagerState.currentPage.toLong())
+    var appDay2 by remember { mutableStateOf( LocalDate.now()) }
+    LaunchedEffect(pagerState.currentPage, timespan) {
+        when (timespan) {
+            TimeSpan.Day -> {
+                appDay = startDate.minusDays(pagerState.currentPage * timespan.getDays())
+                appDay2 = appDay
+            }
+            TimeSpan.Week -> {
+                appDay = startDate
+                    .minusDays(startDate.dayOfWeek.value.toLong())
+                    .minusDays(pagerState.currentPage * timespan.getDays())
+                appDay2 = appDay
+                    .plusDays(7)
+                    .minusDays(timespan.getDays())
+            }
+            TimeSpan.Month -> {
+                appDay = startDate.minusDays(pagerState.currentPage * timespan.getDays())
+                appDay2 = appDay.minusDays(timespan.getDays())
+            }
+        }
     }
 
-    val appList by remember(appDay) { viewModel.getAllAppUsage(appDay) }.collectAsState(initial = listOf())
+    val appList by remember(appDay, appDay2) { viewModel.getAllAppUsage(appDay, appDay2) }.collectAsState(initial = listOf())
     val appMaximum = appList.maxOfOrNull { it.usage.totalWifi + it.usage.totalCellular } ?: 0
     var appSelected by remember { mutableIntStateOf(-1) }
 

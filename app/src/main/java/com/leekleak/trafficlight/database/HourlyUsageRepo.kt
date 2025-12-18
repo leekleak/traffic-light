@@ -65,10 +65,11 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
     }.flowOn(Dispatchers.IO)
 
 
-    fun calculateDayUsageBasic(date: LocalDate, uid: Int? = null): DayUsage {
-        val dayStamp = date.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
-        val stats = calculateHourData(dayStamp, dayStamp + 3_600_000L * 24, uid)
-        return DayUsage(date, mutableMapOf(), stats.wifi, stats.cellular)
+    fun calculateDayUsageBasic(startDate: LocalDate, endDate: LocalDate = startDate, uid: Int? = null): DayUsage {
+        val startStamp = startDate.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
+        val endStamp = endDate.plusDays(1).atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
+        val stats = calculateHourData(startStamp, endStamp, uid)
+        return DayUsage(startDate, mutableMapOf(), stats.wifi, stats.cellular)
     }
 
     fun calculateHourData(startTime: Long, endTime: Long, uid: Int? = null): HourData {
@@ -112,10 +113,10 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
         return hourData
     }
 
-    suspend fun getAllAppUsage(date: LocalDate): List<AppUsage> = coroutineScope {
+    suspend fun getAllAppUsage(startDate: LocalDate, endDate: LocalDate = startDate): List<AppUsage> = coroutineScope {
         val jobs = appDatabase.suspiciousApps.map { app ->
             async(Dispatchers.IO) {
-                val dayUsage = calculateDayUsageBasic(date, app.uid)
+                val dayUsage = calculateDayUsageBasic(startDate, endDate, app.uid)
                 return@async AppUsage(
                     usage = dayUsage,
                     uid = app.uid,
@@ -135,13 +136,17 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
 
     fun daysUsage(startDate: LocalDate, endDate: LocalDate): Flow<List<BarData>> = flow {
         val data: MutableList<BarData> = mutableListOf()
-        for (i in startDate.toEpochDay()..endDate.toEpochDay()) {
+        val range = startDate.toEpochDay()..endDate.toEpochDay()
+        val rangeSize = endDate.toEpochDay() - startDate.toEpochDay()
+
+        for (i in range) {
             val now = LocalDate.ofEpochDay(i)
             val usage = calculateDayUsageBasic(now)
 
             data.add(
                 BarData(
-                    "",
+                    if (rangeSize == 7L) now.dayOfWeek.getName(TextStyle.SHORT_STANDALONE)
+                    else "",
                     usage.totalCellular.toDouble(),
                     usage.totalWifi.toDouble()
                 )
