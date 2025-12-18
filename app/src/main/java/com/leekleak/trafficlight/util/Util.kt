@@ -1,5 +1,6 @@
 package com.leekleak.trafficlight.util
 
+import android.R
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -54,19 +55,19 @@ fun DayOfWeek.getName(style: TextStyle) =
 fun Month.getName(style: TextStyle) =
     this.getDisplayName(style, Locale.getDefault()).replaceFirstChar(Char::titlecase)
 
-fun LazyListScope.categoryTitle(text: Int) {
-    item {
-        Text(
-            modifier = Modifier.padding(8.dp),
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            text = stringResource(text)
-        )
-    }
+fun LazyListScope.categoryTitle(text: Int) = item { CategoryTitleText(stringResource(text)) }
+
+@Composable
+fun CategoryTitleText(text: String) {
+    Text(
+        modifier = Modifier.padding(8.dp),
+        fontSize = 24.sp,
+        fontWeight = FontWeight.Bold,
+        text = text
+    )
 }
 
 fun LazyListScope.categoryTitleSmall(text: Int) = item { CategoryTitleSmallText(stringResource(text)) }
-fun LazyListScope.categoryTitleSmall(text: String) = item { CategoryTitleSmallText(text) }
 
 @Composable
 fun CategoryTitleSmallText(text: String) {

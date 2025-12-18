@@ -13,10 +13,10 @@ import org.koin.core.component.inject
 import java.time.LocalDate
 
 class HistoryVM: ViewModel(), KoinComponent {
-    private val hourlyUsageRepo: HourlyUsageRepo by inject()
+    val hourlyUsageRepo: HourlyUsageRepo by inject()
 
     fun dayUsage(date: LocalDate): Flow<DayUsage> =
-        hourlyUsageRepo.calculateDayUsageFlow(date)
+        hourlyUsageRepo.singleDayUsageFlow(date)
 
     fun dayUsageBasic(date: LocalDate): Flow<DayUsage> = flow {
         emit(hourlyUsageRepo.calculateDayUsageBasic(date))

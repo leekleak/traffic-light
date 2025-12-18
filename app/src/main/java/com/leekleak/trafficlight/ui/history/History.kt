@@ -18,6 +18,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -25,11 +28,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateMap
@@ -37,7 +42,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -52,16 +56,16 @@ import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.LineGraph
-import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.DayUsage
+import com.leekleak.trafficlight.database.HourlyUsageRepo.Companion.dayUsageToBarData
 import com.leekleak.trafficlight.model.PreferenceRepo
-import com.leekleak.trafficlight.ui.navigation.AppDataUsage
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.categoryTitle
-import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.util.getName
-import com.leekleak.trafficlight.util.padHour
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -77,6 +81,20 @@ fun History(paddingValues: PaddingValues, backStack: NavBackStack<NavKey>) {
         if (visibleSizes.values.max() > 2) visibleSizes.values.max() else Long.MAX_VALUE
     } }
 
+    val startDate = LocalDate.now()
+    val endDate = LocalDate.now()
+
+    val pagerState = rememberPagerState { 10 }
+
+    var appDay by remember { mutableStateOf( LocalDate.now()) }
+    LaunchedEffect(pagerState.currentPage) {
+        appDay = startDate.minusDays(pagerState.currentPage.toLong())
+    }
+
+    val appList by remember(appDay) { viewModel.getAllAppUsage(appDay) }.collectAsState(initial = listOf())
+    val appMaximum = appList.maxOfOrNull { it.usage.totalWifi + it.usage.totalCellular } ?: 0
+    var appSelected by remember { mutableIntStateOf(-1) }
+
     LazyColumn(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surface)
@@ -86,30 +104,29 @@ fun History(paddingValues: PaddingValues, backStack: NavBackStack<NavKey>) {
 
     ) {
         categoryTitle(R.string.history)
-        if (LocalDate.now().dayOfMonth != 1) {
-            categoryTitleSmall(LocalDate.now().month.getName(TextStyle.FULL_STANDALONE))
-        }
-        for (index in 0..90) {
-            val day = LocalDate.now().minusDays(index.toLong())
-            if (day.dayOfMonth == 1) {
-                categoryTitleSmall(day.month.minus(1L).getName(TextStyle.FULL_STANDALONE))
-            }
-            item {
-                HistoryItem(
-                    viewModel,
-                    visibleSizes,
-                    index + 1,
-                    selected,
-                    maximum,
-                    onClick = { i: Int ->
-                        selected = i
-                        haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-                    },
-                    onAppUsageOpen = {
-                        backStack.add(AppDataUsage(it))
+        item {
+            HorizontalPager(pagerState) { page ->
+                val date = startDate.minusDays(page.toLong())
+                val usageFlow = remember(date) {
+                    if (startDate == endDate) {
+                        viewModel.hourlyUsageRepo.singleDayUsageFlowBar(date)
+                    } else {
+                        viewModel.hourlyUsageRepo.daysUsage(date, date)
                     }
-                )
+                }
+
+                val usage by usageFlow.collectAsState(listOf())
+                Column {
+                    Text(date.toString())
+                    if (usage.isNotEmpty()) {
+                        BarGraph(usage)
+                    }
+                }
             }
+        }
+        categoryTitle(R.string.app_usage)
+        itemsIndexed(appList) { index, item ->
+            AppItem(item, index, appSelected, appMaximum) { appSelected = it }
         }
     }
 }
@@ -251,26 +268,6 @@ fun DataBadge (
             )
         }
     }
-}
-
-fun dayUsageToBarData(usage: DayUsage): List<BarData> {
-    val data: MutableList<BarData> = mutableListOf()
-    val hours = usage.hours
-    for (i in 0..22 step 2) {
-        data.add(BarData(padHour(i), 0.0, 0.0))
-    }
-
-    if (hours.isNotEmpty()) {
-        for (i in hours.entries) {
-            val ii = i.key.toInt() / 2
-            data[ii] = BarData(
-                padHour(ii * 2),
-                i.value.cellular.toDouble(),
-                i.value.wifi.toDouble()
-            )
-        }
-    }
-    return data
 }
 
 @Composable
