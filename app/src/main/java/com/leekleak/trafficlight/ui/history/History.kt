@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -31,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,20 +58,37 @@ import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.px
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import java.time.LocalDate
 import kotlin.math.roundToInt
+
+enum class TimeSpan {
+    Day,
+    Week,
+    Month;
+
+    fun getDays(): Long {
+        return when (this) {
+            Day -> 0
+            Week -> 7
+            Month -> 30
+        }
+    }
+}
 
 @Composable
 fun History(paddingValues: PaddingValues) {
     val viewModel: HistoryVM = viewModel()
     val haptic = LocalHapticFeedback.current
+    val scope = rememberCoroutineScope()
 
     val startDate = LocalDate.now()
     val endDate = LocalDate.now()
 
     val pagerState = rememberPagerState { 10 }
 
+    var timespan by remember { mutableStateOf(TimeSpan.Day) }
     var appDay by remember { mutableStateOf( LocalDate.now()) }
     LaunchedEffect(pagerState.currentPage) {
         appDay = startDate.minusDays(pagerState.currentPage.toLong())
@@ -89,22 +108,41 @@ fun History(paddingValues: PaddingValues) {
     ) {
         categoryTitle(R.string.history)
         item {
-            HorizontalPager(pagerState) { page ->
-                val date = startDate.minusDays(page.toLong())
-                val usageFlow = remember(date) {
-                    if (startDate == endDate) {
+            Row {
+                Button(
+                    onClick = {
+                        timespan = if (timespan == TimeSpan.Day) TimeSpan.Week else TimeSpan.Month
+                        scope.launch {
+                            pagerState.scrollToPage(0)
+                        }
+                    }
+                ) { Text("Back") }
+                AnimatedContent(appDay) {
+                    Text(it.toString())
+                }
+            }
+        }
+        item {
+            HorizontalPager(
+                modifier = Modifier
+                    .card()
+                    .padding(6.dp),
+                state = pagerState,
+                reverseLayout = true
+            ) { page ->
+                val date = startDate.minusDays(page * timespan.getDays())
+                val date2 = date.minusDays(timespan.getDays())
+                val usageFlow = remember(date, timespan) {
+                    if (date == date2) {
                         viewModel.hourlyUsageRepo.singleDayUsageFlowBar(date)
                     } else {
-                        viewModel.hourlyUsageRepo.daysUsage(date, date)
+                        viewModel.hourlyUsageRepo.daysUsage(date2, date)
                     }
                 }
 
                 val usage by usageFlow.collectAsState(listOf())
-                Column {
-                    Text(date.toString())
-                    if (usage.isNotEmpty()) {
-                        BarGraph(usage)
-                    }
+                if (usage.isNotEmpty()) {
+                    BarGraph(usage)
                 }
             }
         }

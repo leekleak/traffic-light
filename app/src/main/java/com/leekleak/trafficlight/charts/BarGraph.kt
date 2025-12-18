@@ -99,8 +99,8 @@ private fun BarGraphImpl(
 
     val wifiAnimation = remember { Animatable(0f) }
     val cellularAnimation = remember { Animatable(0f) }
-    val barAnimationSqueeze = remember { List(yAxisData.size * 2) { Animatable(0f) } }
-    val barAnimation = remember { List(yAxisData.size) { Animatable(0f) } }
+    val barAnimationSqueeze = remember(yAxisData.size) { List(yAxisData.size * 2) { Animatable(0f) } }
+    val barAnimation = remember(yAxisData.size) { List(yAxisData.size) { Animatable(0f) } }
     LaunchedEffect(yAxisData) {
         for (i in 0..<barAnimation.size) {
             launch(Dispatchers.IO) {
