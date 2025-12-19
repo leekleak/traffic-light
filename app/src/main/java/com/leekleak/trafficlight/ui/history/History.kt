@@ -53,6 +53,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.database.AppUsage
+import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.SizeFormatter
@@ -79,7 +80,7 @@ enum class TimeSpan {
 
 @Composable
 fun History(paddingValues: PaddingValues) {
-    val viewModel: HistoryVM = viewModel()
+    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
 
@@ -107,7 +108,7 @@ fun History(paddingValues: PaddingValues) {
         }
     }
 
-    val appList by remember(appDay, appDay2) { viewModel.getAllAppUsage(appDay, appDay2) }.collectAsState(initial = listOf())
+    val appList by remember(appDay, appDay2) { hourlyUsageRepo.getAllAppUsage(appDay, appDay2) }.collectAsState(initial = listOf())
     val appMaximum = appList.maxOfOrNull { it.usage.totalWifi + it.usage.totalCellular } ?: 0
     var appSelected by remember { mutableIntStateOf(-1) }
 
@@ -147,9 +148,9 @@ fun History(paddingValues: PaddingValues) {
             ) { page ->
                 val usageFlow = remember(appDay, appDay2, timespan) {
                     if (appDay == appDay2) {
-                        viewModel.hourlyUsageRepo.singleDayUsageFlowBar(appDay)
+                        hourlyUsageRepo.singleDayUsageFlowBar(appDay)
                     } else {
-                        viewModel.hourlyUsageRepo.daysUsage(appDay, appDay2)
+                        hourlyUsageRepo.daysUsage(appDay, appDay2)
                     }
                 }
 

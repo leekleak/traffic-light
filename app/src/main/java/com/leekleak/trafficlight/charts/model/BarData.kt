@@ -1,9 +1,9 @@
 package com.leekleak.trafficlight.charts.model
 
 data class BarData(
-    val x: String,
-    val y1: Double,
-    val y2: Double
+    val x: String = "",
+    val y1: Double = 0.0,
+    val y2: Double = 0.0
 ) {
     operator fun plus(other: BarData): BarData {
         return this.copy(

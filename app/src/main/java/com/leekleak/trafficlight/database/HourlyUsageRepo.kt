@@ -14,10 +14,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.time.DayOfWeek
@@ -113,26 +116,30 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
         return hourData
     }
 
-    suspend fun getAllAppUsage(startDate: LocalDate, endDate: LocalDate = startDate): List<AppUsage> = coroutineScope {
-        val jobs = appDatabase.suspiciousApps.map { app ->
-            async(Dispatchers.IO) {
-                val dayUsage = calculateDayUsageBasic(startDate, endDate, app.uid)
-                return@async AppUsage(
-                    usage = dayUsage,
-                    uid = app.uid,
-                    name = appDatabase.getLabel(app),
-                    icon = app.icon,
-                    drawable = appDatabase.getIcon(app),
-                    appInfo = app
-                )
+    fun getAllAppUsage(startDate: LocalDate, endDate: LocalDate = startDate): Flow<List<AppUsage>> =
+        flow {
+            coroutineScope {
+                val jobs = appDatabase.suspiciousApps.map { app ->
+                    async(Dispatchers.IO) {
+                        val dayUsage = calculateDayUsageBasic(startDate, endDate, app.uid)
+                        return@async AppUsage(
+                            usage = dayUsage,
+                            uid = app.uid,
+                            name = appDatabase.getLabel(app),
+                            icon = app.icon,
+                            drawable = appDatabase.getIcon(app),
+                            appInfo = app
+                        )
+                    }
+                }
+
+
+                val list = jobs.awaitAll().toMutableList()
+                list.removeAll { it.usage.totalCellular + it.usage.totalWifi == 0L }
+                list.sortByDescending { it.usage.totalCellular + it.usage.totalWifi }
+                emit(list.toList())
             }
         }
-
-        val list = jobs.awaitAll().toMutableList()
-        list.removeAll { it.usage.totalCellular + it.usage.totalWifi == 0L }
-        list.sortByDescending { it.usage.totalCellular + it.usage.totalWifi }
-        return@coroutineScope list.map { it }
-    }
 
     fun daysUsage(startDate: LocalDate, endDate: LocalDate): Flow<List<BarData>> = flow {
         val data: MutableList<BarData> = mutableListOf()
@@ -141,16 +148,22 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
 
         for (i in range) {
             val now = LocalDate.ofEpochDay(i)
-            val usage = calculateDayUsageBasic(now)
-
             data.add(
                 BarData(
                     if (rangeSize == 7L) now.dayOfWeek.getName(TextStyle.SHORT_STANDALONE)
                     else if (rangeSize != 0L && now.dayOfWeek.value == 1) now.dayOfMonth.toString()
                     else "",
-                    usage.totalCellular.toDouble(),
-                    usage.totalWifi.toDouble()
+
                 )
+            )
+        }
+        emit(data.toList())
+        for (i in 0..data.size) {
+            val now = LocalDate.ofEpochDay(i + startDate.toEpochDay())
+            val usage = calculateDayUsageBasic(now)
+            data[i] = data[i].copy(
+                y1 = usage.totalCellular.toDouble(),
+                y2 = usage.totalWifi.toDouble()
             )
         }
         emit(data.toList())
