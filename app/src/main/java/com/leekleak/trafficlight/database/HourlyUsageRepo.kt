@@ -136,7 +136,7 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
 
     fun daysUsage(startDate: LocalDate, endDate: LocalDate): Flow<List<BarData>> = flow {
         val data: MutableList<BarData> = mutableListOf()
-        val range = startDate.toEpochDay()..endDate.toEpochDay()
+        val range = startDate.toEpochDay()..<endDate.toEpochDay()
         val rangeSize = endDate.toEpochDay() - startDate.toEpochDay()
 
         for (i in range) {
@@ -146,6 +146,7 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
             data.add(
                 BarData(
                     if (rangeSize == 7L) now.dayOfWeek.getName(TextStyle.SHORT_STANDALONE)
+                    else if (rangeSize != 0L && now.dayOfWeek.value == 1) now.dayOfMonth.toString()
                     else "",
                     usage.totalCellular.toDouble(),
                     usage.totalWifi.toDouble()

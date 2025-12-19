@@ -84,7 +84,6 @@ fun History(paddingValues: PaddingValues) {
     val scope = rememberCoroutineScope()
 
     val startDate = LocalDate.now()
-    val endDate = LocalDate.now()
 
     val pagerState = rememberPagerState { 10 }
 
@@ -94,20 +93,16 @@ fun History(paddingValues: PaddingValues) {
     LaunchedEffect(pagerState.currentPage, timespan) {
         when (timespan) {
             TimeSpan.Day -> {
-                appDay = startDate.minusDays(pagerState.currentPage * timespan.getDays())
+                appDay = startDate.minusDays(pagerState.currentPage.toLong())
                 appDay2 = appDay
             }
             TimeSpan.Week -> {
-                appDay = startDate
-                    .minusDays(startDate.dayOfWeek.value.toLong())
-                    .minusDays(pagerState.currentPage * timespan.getDays())
-                appDay2 = appDay
-                    .plusDays(7)
-                    .minusDays(timespan.getDays())
+                appDay = startDate.minusDays(startDate.dayOfWeek.value.toLong()-1).minusWeeks(pagerState.currentPage.toLong())
+                appDay2 = appDay.plusWeeks(1)
             }
             TimeSpan.Month -> {
-                appDay = startDate.minusDays(pagerState.currentPage * timespan.getDays())
-                appDay2 = appDay.minusDays(timespan.getDays())
+                appDay = startDate.minusDays(startDate.dayOfMonth.toLong()-1).minusMonths(pagerState.currentPage.toLong())
+                appDay2 = appDay.plusMonths(1)
             }
         }
     }
@@ -144,23 +139,27 @@ fun History(paddingValues: PaddingValues) {
             HorizontalPager(
                 modifier = Modifier
                     .card()
-                    .padding(6.dp),
+                    .padding(6.dp)
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.background),
                 state = pagerState,
                 reverseLayout = true
             ) { page ->
-                val date = startDate.minusDays(page * timespan.getDays())
-                val date2 = date.minusDays(timespan.getDays())
-                val usageFlow = remember(date, timespan) {
-                    if (date == date2) {
-                        viewModel.hourlyUsageRepo.singleDayUsageFlowBar(date)
+                val usageFlow = remember(appDay, appDay2, timespan) {
+                    if (appDay == appDay2) {
+                        viewModel.hourlyUsageRepo.singleDayUsageFlowBar(appDay)
                     } else {
-                        viewModel.hourlyUsageRepo.daysUsage(date2, date)
+                        viewModel.hourlyUsageRepo.daysUsage(appDay, appDay2)
                     }
                 }
 
                 val usage by usageFlow.collectAsState(listOf())
                 if (usage.isNotEmpty()) {
-                    BarGraph(usage)
+                    BarGraph(
+                        data = usage,
+                        finalGridPoint = if (timespan == TimeSpan.Day) "24" else "",
+                        centerLabels = timespan != TimeSpan.Day
+                    )
                 }
             }
         }
