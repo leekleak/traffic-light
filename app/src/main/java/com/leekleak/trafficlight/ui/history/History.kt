@@ -142,7 +142,7 @@ fun History(paddingValues: PaddingValues) {
                     }
                 }
 
-                val usage: List<BarData> by usageFlow.collectAsState(List(timespan.getDays(), { BarData() }))
+                val usage: List<BarData> by usageFlow.collectAsState(List(timespan.getDays()) { BarData() })
                 if (usage.isNotEmpty()) {
                     BarGraph(
                         data = usage,
@@ -153,10 +153,12 @@ fun History(paddingValues: PaddingValues) {
             }
         }
         categoryTitle(R.string.app_usage)
-        itemsIndexed(appList) { index, item ->
-            AppItem(item, index, appSelected, appMaximum) {
-                appSelected = it
-                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+        itemsIndexed(appList, { _, item -> item.name}) { index, item ->
+            Box(Modifier.animateItem()) {
+                AppItem(item, index, appSelected, appMaximum) {
+                    appSelected = it
+                    haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                }
             }
         }
     }

@@ -153,12 +153,11 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
                     if (rangeSize == 7L) now.dayOfWeek.getName(TextStyle.SHORT_STANDALONE)
                     else if (rangeSize != 0L && now.dayOfWeek.value == 1) now.dayOfMonth.toString()
                     else "",
-
                 )
             )
         }
         emit(data.toList())
-        for (i in 0..data.size) {
+        for (i in 0..<data.size) {
             val now = LocalDate.ofEpochDay(i + startDate.toEpochDay())
             val usage = calculateDayUsageBasic(now)
             data[i] = data[i].copy(
