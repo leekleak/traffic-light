@@ -40,7 +40,8 @@ import kotlinx.coroutines.launch
 fun BarGraph(
     data: List<BarData>,
     finalGridPoint: String = "24",
-    centerLabels: Boolean = false
+    centerLabels: Boolean = false,
+    onClick: (i: Int) -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -51,7 +52,8 @@ fun BarGraph(
             xAxisData = data.map { it.x },
             yAxisData = data.map { Pair(it.y1, it.y2) },
             finalGridPoint = finalGridPoint,
-            centerLabels = centerLabels
+            centerLabels = centerLabels,
+            onClick = onClick
         )
     }
 }
@@ -62,7 +64,8 @@ private fun BarGraphImpl(
     xAxisData: List<String>,
     yAxisData: List<Pair<Double, Double>>,
     finalGridPoint: String,
-    centerLabels: Boolean
+    centerLabels: Boolean,
+    onClick: (i: Int) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val vibrator = LocalContext.current.getSystemService(Vibrator::class.java)
@@ -132,13 +135,14 @@ private fun BarGraphImpl(
         }
     }
 
-    fun CoroutineScope.barAnimator(clickOffset: Offset, bar: Bar, animation: Animatable<Float, *>) {
+    fun CoroutineScope.barAnimator(clickOffset: Offset, bar: Bar, i: Int, animation: Animatable<Float, *>) {
         if (
             (clickOffset - bar.rect.topLeft).x in (0f..bar.rect.size.width) &&
             (clickOffset - bar.rect.topLeft).y in (0f..bar.rect.size.height)
         ) {
             vibrator.vibrate(vibrationEffectWeak)
             launch {
+                onClick(i)
                 animation.animateTo(
                     targetValue = 8f,
                     animationSpec = tween(150)
@@ -162,7 +166,7 @@ private fun BarGraphImpl(
                         legendAnimator(offset, wifiOffset, wifiAnimation, wifiLegendStrength)
                         legendAnimator(offset, cellularOffset, cellularAnimation, cellularLegendStrength)
                         for (i in 0..<barOffset.size) {
-                            barAnimator(offset, barOffset[i], barAnimationSqueeze[i])
+                            barAnimator(offset, barOffset[i], i, barAnimationSqueeze[i])
                         }
                     }
                 }

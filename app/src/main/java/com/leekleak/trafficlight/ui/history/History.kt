@@ -55,6 +55,9 @@ import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.model.PreferenceRepo
+import com.leekleak.trafficlight.ui.history.TimeSpan.Day
+import com.leekleak.trafficlight.ui.history.TimeSpan.Month
+import com.leekleak.trafficlight.ui.history.TimeSpan.Week
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.categoryTitle
@@ -86,7 +89,7 @@ fun History(paddingValues: PaddingValues) {
 
     val pagerState = rememberPagerState { 10 }
 
-    var timespan by remember { mutableStateOf(TimeSpan.Day) }
+    var timespan by remember { mutableStateOf(Day) }
     var appDay by remember { mutableStateOf( LocalDate.now()) }
     var appDay2 by remember { mutableStateOf( LocalDate.now()) }
     LaunchedEffect(pagerState.currentPage, timespan) {
@@ -112,7 +115,7 @@ fun History(paddingValues: PaddingValues) {
             Row {
                 Button(
                     onClick = {
-                        timespan = if (timespan == TimeSpan.Day) TimeSpan.Week else TimeSpan.Month
+                        timespan = if (timespan == Day) Week else Month
                         scope.launch {
                             pagerState.scrollToPage(0)
                         }
@@ -146,9 +149,15 @@ fun History(paddingValues: PaddingValues) {
                 if (usage.isNotEmpty()) {
                     BarGraph(
                         data = usage,
-                        finalGridPoint = if (timespan == TimeSpan.Day) "24" else "",
-                        centerLabels = timespan != TimeSpan.Day
-                    )
+                        finalGridPoint = if (timespan == Day) "24" else "",
+                        centerLabels = timespan != Day
+                    ) { index ->
+                        when (timespan) {
+                            Day -> return@BarGraph
+                            Week -> timespan = Day
+                            Month -> Week
+                        }
+                    }
                 }
             }
         }
@@ -167,15 +176,15 @@ fun History(paddingValues: PaddingValues) {
 fun getDatesForTimespan(span: TimeSpan, page: Long): Pair<LocalDate, LocalDate> {
     val now = LocalDate.now()
     val pair = when (span) {
-        TimeSpan.Day -> {
+        Day -> {
             val base = now.minusDays(page)
             Pair(base, base)
         }
-        TimeSpan.Week -> {
+        Week -> {
             val base = now.minusDays(now.dayOfWeek.value.toLong()-1).minusWeeks(page)
             Pair(base, base.plusWeeks(1))
         }
-        TimeSpan.Month -> {
+        Month -> {
             val base = now.minusDays(now.dayOfMonth.toLong()-1).minusMonths(page)
             Pair(base, base.plusMonths(1))
         }
