@@ -48,10 +48,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.LineGraph
+import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.model.PreferenceRepo
@@ -69,7 +69,7 @@ enum class TimeSpan {
     Week,
     Month;
 
-    fun getDays(): Long {
+    fun getDays(): Int {
         return when (this) {
             Day -> 0
             Week -> 7
@@ -84,28 +84,15 @@ fun History(paddingValues: PaddingValues) {
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
 
-    val startDate = LocalDate.now()
-
     val pagerState = rememberPagerState { 10 }
 
     var timespan by remember { mutableStateOf(TimeSpan.Day) }
     var appDay by remember { mutableStateOf( LocalDate.now()) }
     var appDay2 by remember { mutableStateOf( LocalDate.now()) }
     LaunchedEffect(pagerState.currentPage, timespan) {
-        when (timespan) {
-            TimeSpan.Day -> {
-                appDay = startDate.minusDays(pagerState.currentPage.toLong())
-                appDay2 = appDay
-            }
-            TimeSpan.Week -> {
-                appDay = startDate.minusDays(startDate.dayOfWeek.value.toLong()-1).minusWeeks(pagerState.currentPage.toLong())
-                appDay2 = appDay.plusWeeks(1)
-            }
-            TimeSpan.Month -> {
-                appDay = startDate.minusDays(startDate.dayOfMonth.toLong()-1).minusMonths(pagerState.currentPage.toLong())
-                appDay2 = appDay.plusMonths(1)
-            }
-        }
+        val days = getDatesForTimespan(timespan, pagerState.currentPage.toLong())
+        appDay = days.first
+        appDay2 = days.second
     }
 
     val appList by remember(appDay, appDay2) { hourlyUsageRepo.getAllAppUsage(appDay, appDay2) }.collectAsState(initial = listOf())
@@ -146,15 +133,16 @@ fun History(paddingValues: PaddingValues) {
                 state = pagerState,
                 reverseLayout = true
             ) { page ->
-                val usageFlow = remember(appDay, appDay2, timespan) {
-                    if (appDay == appDay2) {
-                        hourlyUsageRepo.singleDayUsageFlowBar(appDay)
+                val usageFlow = remember(timespan) {
+                    val days = getDatesForTimespan(timespan, page.toLong())
+                    if (days.first == days.second) {
+                        hourlyUsageRepo.singleDayUsageFlowBar(days.first)
                     } else {
-                        hourlyUsageRepo.daysUsage(appDay, appDay2)
+                        hourlyUsageRepo.daysUsage(days.first, days.second)
                     }
                 }
 
-                val usage by usageFlow.collectAsState(listOf())
+                val usage: List<BarData> by usageFlow.collectAsState(List(timespan.getDays(), { BarData() }))
                 if (usage.isNotEmpty()) {
                     BarGraph(
                         data = usage,
@@ -172,6 +160,25 @@ fun History(paddingValues: PaddingValues) {
             }
         }
     }
+}
+
+fun getDatesForTimespan(span: TimeSpan, page: Long): Pair<LocalDate, LocalDate> {
+    val now = LocalDate.now()
+    val pair = when (span) {
+        TimeSpan.Day -> {
+            val base = now.minusDays(page)
+            Pair(base, base)
+        }
+        TimeSpan.Week -> {
+            val base = now.minusDays(now.dayOfWeek.value.toLong()-1).minusWeeks(page)
+            Pair(base, base.plusWeeks(1))
+        }
+        TimeSpan.Month -> {
+            val base = now.minusDays(now.dayOfMonth.toLong()-1).minusMonths(page)
+            Pair(base, base.plusMonths(1))
+        }
+    }
+    return pair
 }
 
 @Composable
