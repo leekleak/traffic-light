@@ -137,7 +137,7 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
                 val list = jobs.awaitAll().toMutableList()
                 list.removeAll { it.usage.totalCellular + it.usage.totalWifi == 0L }
                 list.sortByDescending { it.usage.totalCellular + it.usage.totalWifi }
-                emit(list.toList())
+                emit(list.distinctBy { it.uid }.toList())
             }
         }
 

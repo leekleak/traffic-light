@@ -18,7 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Button
@@ -65,6 +65,7 @@ import com.leekleak.trafficlight.util.px
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import kotlin.math.roundToInt
 
 enum class TimeSpan {
@@ -79,6 +80,15 @@ enum class TimeSpan {
             Month -> 30
         }
     }
+
+    // Is it fine to hard-code this? No. Can I be bothered to calculate this procedurally? No.
+    fun getPages(): Int {
+        return when (this) {
+            Day -> 96
+            Week -> 14
+            Month -> 4
+        }
+    }
 }
 
 @Composable
@@ -87,11 +97,12 @@ fun History(paddingValues: PaddingValues) {
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
 
-    val pagerState = rememberPagerState { 10 }
-
     var timespan by remember { mutableStateOf(Day) }
     var appDay by remember { mutableStateOf( LocalDate.now()) }
     var appDay2 by remember { mutableStateOf( LocalDate.now()) }
+
+    val pagerState = rememberPagerState { timespan.getPages() }
+
     LaunchedEffect(pagerState.currentPage, timespan) {
         val days = getDatesForTimespan(timespan, pagerState.currentPage.toLong())
         appDay = days.first
@@ -136,8 +147,8 @@ fun History(paddingValues: PaddingValues) {
                 state = pagerState,
                 reverseLayout = true
             ) { page ->
+                val days = remember(timespan) { getDatesForTimespan(timespan, page.toLong()) }
                 val usageFlow = remember(timespan) {
-                    val days = getDatesForTimespan(timespan, page.toLong())
                     if (days.first == days.second) {
                         hourlyUsageRepo.singleDayUsageFlowBar(days.first)
                     } else {
@@ -146,26 +157,38 @@ fun History(paddingValues: PaddingValues) {
                 }
 
                 val usage: List<BarData> by usageFlow.collectAsState(List(timespan.getDays()) { BarData() })
-                if (usage.isNotEmpty()) {
-                    BarGraph(
-                        data = usage,
-                        finalGridPoint = if (timespan == Day) "24" else "",
-                        centerLabels = timespan != Day
-                    ) { index ->
-                        when (timespan) {
-                            Day -> return@BarGraph
-                            Week -> timespan = Day
-                            Month -> Week
+                BarGraph(
+                    data = usage,
+                    finalGridPoint = if (timespan == Day) "24" else "",
+                    centerLabels = timespan != Day
+                ) { index ->
+                    when (timespan) {
+                        Day -> return@BarGraph
+                        Week -> {
+                            timespan = Day
+                            val n = ChronoUnit.DAYS.between(
+                                days.first.plusDays(index.toLong()),
+                                LocalDate.now()
+                            ).toInt()
+                            scope.launch { pagerState.scrollToPage(n) }
+                        }
+                        Month -> {
+                            timespan = Week
+                            val n = ChronoUnit.DAYS.between(
+                                days.first.plusDays(index.toLong()),
+                                LocalDate.now()
+                            ).toInt()
+                            scope.launch { pagerState.scrollToPage(n/7) }
                         }
                     }
                 }
             }
         }
         categoryTitle(R.string.app_usage)
-        itemsIndexed(appList, { _, item -> item.name}) { index, item ->
+        items(appList, { it.name }) { item ->
             Box(Modifier.animateItem()) {
-                AppItem(item, index, appSelected, appMaximum) {
-                    appSelected = it
+                AppItem(item, item.uid == appSelected, appMaximum) {
+                    appSelected = if (appSelected != item.uid) item.uid else -1
                     haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                 }
             }
@@ -195,16 +218,15 @@ fun getDatesForTimespan(span: TimeSpan, page: Long): Pair<LocalDate, LocalDate> 
 @Composable
 fun AppItem(
     appUsage: AppUsage,
-    i: Int,
-    selected: Int,
+    selected: Boolean,
     maximum: Long,
-    onClick: (i: Int) -> Unit,
+    onClick: () -> Unit,
 ) {
     val totalWifi = appUsage.usage.totalWifi
     val totalCellular = appUsage.usage.totalCellular
 
     Column (Modifier.card()) {
-        Column (Modifier.clickable { onClick(if (selected != i) i else -1) }) {
+        Column (Modifier.clickable { onClick() }) {
             Row(
                 modifier = Modifier.padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -214,7 +236,7 @@ fun AppItem(
                 val bitmap = appUsage.drawable?.toBitmap(width, width)
                 bitmap?.let { Image(bitmap = it.asImageBitmap(), contentDescription = null) }
 
-                AnimatedContent(selected == i) { selected ->
+                AnimatedContent(selected) { selected ->
                     if (!selected) {
                         LineGraph(
                             maximum = maximum,
@@ -249,7 +271,7 @@ fun AppItem(
 
             }
             AnimatedVisibility (
-                visible = selected == i,
+                visible = selected,
                 enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
                 exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
             ) {
