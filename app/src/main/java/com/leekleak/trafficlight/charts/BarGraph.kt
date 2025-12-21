@@ -41,6 +41,7 @@ fun BarGraph(
     data: List<BarData>,
     finalGridPoint: String = "24",
     centerLabels: Boolean = false,
+    fit: Boolean = true, // Fit graph to its width, otherwise make it scrollable
     onClick: (i: Int) -> Unit = {}
 ) {
     Box(

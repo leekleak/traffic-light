@@ -208,8 +208,8 @@ fun getDatesForTimespan(span: TimeSpan, page: Long): Pair<LocalDate, LocalDate> 
             Pair(base, base.plusWeeks(1))
         }
         Month -> {
-            val base = now.minusDays(now.dayOfMonth.toLong()-1).minusMonths(page)
-            Pair(base, base.plusMonths(1))
+            val base = now.minusDays(Day.getPages().toLong())
+            Pair(base, now)
         }
     }
     return pair
