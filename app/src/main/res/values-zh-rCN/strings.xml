@@ -15,7 +15,7 @@
     <string name="permissions">权限</string>
     <string name="notification_permission_description">用于在状态栏实时显示网速</string>
     <string name="battery_optimization">电池优化</string>
-    <string name="usage_statistics_description">在 Android 系统上获取流量使用数据最好的方式</string>
+    <string name="usage_statistics_description">用于分析历史网络使用情况</string>
     <string name="notifications">通知</string>
     <string name="screen_off_update">熄屏更新</string>
     <string name="screen_off_update_description">允许在熄屏显示时跟踪，但会增加耗电</string>
@@ -34,4 +34,14 @@
     <string name="improve_contrast">高对比度</string>
     <string name="limited_mode">功能受限</string>
     <string name="limited_mode_description">无法从您的设备获取流量累计使用情况数据。</string>
+    <string name="auto">自动</string>
+    <string name="light">浅色</string>
+    <string name="dark">深色</string>
+    <string name="expressive_fonts">视效增强字体</string>
+    <string name="default_theme">默认</string>
+    <string name="help">帮助</string>
+    <string name="advanced_settings">高级设置</string>
+    <string name="notification_description">在状态栏显示网速</string>
+    <string name="missing_permissions">缺少权限</string>
+    <string name="app_usage">应用使用情况</string>
 </resources>

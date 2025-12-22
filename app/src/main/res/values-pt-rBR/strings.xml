@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Semáforo</string>
+    <string name="today">Hoje</string>
+    <string name="this_week">Esta Semana</string>
+    <string name="history">Histórico</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="cellular">Dados móveis</string>
+    <string name="grant">Conceder</string>
+    <string name="permissions">Permissões</string>
+    <string name="speed">Velocidade: %1$s</string>
+    <string name="settings">Configurações</string>
+    <string name="notification_permission">Notificações</string>
+    <string name="notification_permission_description">A permissão de notificação é necessária para que o ícone de velocidade de internet na barra de status funcione.</string>
+    <string name="battery_optimization">Otimização de bateria</string>
+    <string name="battery_optimization_description">Deve ser desativada para evitar que o telefone encerre o serviço em segundo plano após um tempo.</string>
+    <string name="usage_statistics">Estatísticas de uso</string>
+    <string name="usage_statistics_description">Necessário para o monitoramento do uso de dados a longo prazo.</string>
+    <string name="notifications">Notificação</string>
+    <string name="screen_off_update">Atualizar quando a tela estiver desligada</string>
+    <string name="screen_off_update_description">Permite acompanhar o uso no AOD, mas tem impactos na bateria.</string>
+    <string name="oversample_icon">Melhorar a nitidez do ícone</string>
+    <string name="oversample_icon_description">Renderiza o ícone com uma resolução maior se ele estiver embaçado.</string>
+    <string name="wi_fi">Wi-Fi: %1$s</string>
+    <string name="mobile">Dados móveis: %1$s</string>
+    <string name="about">Sobre</string>
+    <string name="speed_in_bits">Mostrar a velocidade em bits</string>
+    <string name="github_description">Acompanhe o desenvolvimento ou relate problemas.</string>
+    <string name="version">Versão %1$s</string>
+    <string name="force_fallback">Forçar acompanhamento de velocidade alternativo</string>
+    <string name="force_fallback_description">Útil ao usar uma ROM instável ou conexão via ethernet</string>
+    <string name="fallback_unsupported">Método não suportado</string>
+    <string name="ui">Interface</string>
+    <string name="improve_contrast">Melhorar o contraste</string>
+    <string name="limited_mode">Modo Limitado</string>
+    <string name="limited_mode_description">Infelizmente, seu sistema não suporta o acompanhamento de dados a longo prazo.</string>
+    <string name="auto">Automático</string>
+    <string name="light">Claro</string>
+    <string name="dark">Escuro</string>
+    <string name="expressive_fonts">Fontes Expressivas</string>
+    <string name="default_theme">Tema padrão</string>
+    <string name="help">Ajuda</string>
+    <string name="advanced_settings">Configurações Avançadas</string>
+    <string name="notification_description">Ver a velocidade da rede na barra de status.</string>
+    <string name="missing_permissions">Permissões não concedidas</string>
+    <string name="app_usage">Acesso aos dados de uso</string>
+</resources>

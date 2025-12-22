@@ -15,7 +15,7 @@
     <string name="battery_optimization">Optimización de la batería</string>
     <string name="battery_optimization_description">Debe desactivarse para evitar que el teléfono elimine el servicio en segundo plano después de un tiempo.</string>
     <string name="usage_statistics">Estadísticas de Uso</string>
-    <string name="usage_statistics_description">La manera menos problemática de obtener datos de uso de la red en Android.</string>
+    <string name="usage_statistics_description">Necesario para el seguimiento de datos a largo plazo.</string>
     <string name="notifications">Notificacioń</string>
     <string name="screen_off_update">Actualizar mientras la pantalla este apagada</string>
     <string name="screen_off_update_description">Permite el seguimiento en la pantalla siempre encendida (AOD), pero afecta a la batería.</string>
@@ -30,4 +30,18 @@
     <string name="force_fallback">Forzar método alternativo de seguimiento</string>
     <string name="force_fallback_description">Útil cuando se usa una ROM con errores o conexión por ethernet</string>
     <string name="fallback_unsupported">Método alternativo no disponible</string>
+    <string name="ui">Interfaz</string>
+    <string name="improve_contrast">Mejorar el contraste</string>
+    <string name="limited_mode">Modo Limitado</string>
+    <string name="limited_mode_description">Lamentablemente, tu sistema operativo no es compatible con el seguimiento de datos a largo plazo.</string>
+    <string name="auto">Automático</string>
+    <string name="light">Claro</string>
+    <string name="dark">Oscuro</string>
+    <string name="expressive_fonts">Fuentes expresivas</string>
+    <string name="default_theme">Predeterminado</string>
+    <string name="help">Ayuda</string>
+    <string name="advanced_settings">Configuraciones Avanzadas</string>
+    <string name="notification_description">Ver velocidad de red en la barra de estado.</string>
+    <string name="missing_permissions">Permisos Faltantes</string>
+    <string name="app_usage">Acceso a Datos de Uso</string>
 </resources>
