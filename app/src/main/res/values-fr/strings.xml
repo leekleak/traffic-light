@@ -35,4 +35,6 @@
     <string name="limited_mode_description">Malheuresement votre système d\'exploitation ne supporte pas le suivi de données sur le long terme.</string>
     <string name="expressive_fonts">Polices expressives</string>
     <string name="version">Version %1$s</string>
+    <string name="app_usage">Utilisation des applications</string>
+    <string name="missing_permissions">Permissions manquantes</string>
 </resources>

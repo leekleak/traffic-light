@@ -43,4 +43,5 @@
     <string name="advanced_settings">Papildomi nustatymai</string>
     <string name="notification_description">Rodo interneto greitį pranešimų juostoje.</string>
     <string name="missing_permissions">Trūksta leidimų</string>
+    <string name="app_usage">Programėlių duomenys</string>
 </resources>

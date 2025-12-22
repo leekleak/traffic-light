@@ -1,0 +1,8 @@
+Enchantments:
+- Minor UI tweaks
+
+Bugfixes:
+- Fixed notification not reappearing after being dismissed
+
+Translations:
+- New language: Portuguese (Brazil)
