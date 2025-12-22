@@ -41,6 +41,7 @@
     <string name="default_theme">Standard</string>
     <string name="help">Hilfe</string>
     <string name="advanced_settings">Erweiterte Einstellungen</string>
-    <string name="notification_description">Überwacht die Netzwerkgeschwindigkeit in der Statusleiste</string>
+    <string name="notification_description">Überwacht die Netzwerkgeschwindigkeit in der Statusleiste.</string>
     <string name="missing_permissions">Fehlende Berechtigungen</string>
+    <string name="app_usage">App-Nutzung</string>
 </resources>
