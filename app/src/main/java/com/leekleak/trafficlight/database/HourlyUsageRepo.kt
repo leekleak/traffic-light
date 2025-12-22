@@ -14,13 +14,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.time.DayOfWeek
@@ -58,15 +55,6 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
 
         return DayUsage(date, hours).also { it.categorizeUsage() }
     }
-
-    fun singleDayUsageFlow(date: LocalDate): Flow<DayUsage> = flow {
-        emit(singleDayUsage(date))
-    }.flowOn(Dispatchers.IO)
-
-    fun singleDayUsageFlowBar(date: LocalDate): Flow<List<BarData>> = flow {
-        emit(dayUsageToBarData(singleDayUsage(date)))
-    }.flowOn(Dispatchers.IO)
-
 
     fun calculateDayUsageBasic(startDate: LocalDate, endDate: LocalDate = startDate, uid: Int? = null): DayUsage {
         val startStamp = startDate.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
@@ -144,17 +132,10 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
     fun daysUsage(startDate: LocalDate, endDate: LocalDate): Flow<List<BarData>> = flow {
         val data: MutableList<BarData> = mutableListOf()
         val range = startDate.toEpochDay()..<endDate.toEpochDay()
-        val rangeSize = endDate.toEpochDay() - startDate.toEpochDay()
 
         for (i in range) {
             val now = LocalDate.ofEpochDay(i)
-            data.add(
-                BarData(
-                    if (rangeSize == 7L) now.dayOfWeek.getName(TextStyle.SHORT_STANDALONE)
-                    else if (rangeSize != 0L && now.dayOfWeek.value == 1) now.dayOfMonth.toString()
-                    else "",
-                )
-            )
+            data.add(BarData(now.dayOfMonth.toString()))
         }
         emit(data.toList())
         for (i in 0..<data.size) {
