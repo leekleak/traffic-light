@@ -28,7 +28,7 @@ import com.leekleak.trafficlight.util.NetworkType
 import com.leekleak.trafficlight.util.SizeFormatter
 import kotlin.math.max
 
-internal data class BarGraphMetrics(
+internal data class ScrollableBarGraphMetrics(
     val gridHeight: Float,
     val gridWidth: Float,
     val xItemSpacing: Float,
@@ -39,41 +39,35 @@ internal data class BarGraphMetrics(
     val cellularIconOffset: Offset,
 )
 
-data class Bar (
-    val rect: Rect,
-    val type: NetworkType
-)
-
-internal class BarGraphHelper(
+internal class ScrollableBarGraphHelper(
     private val scope: DrawScope,
     private val yAxisData: List<Pair<Double, Double>>,
     private val xAxisData: List<String>,
     private val finalGridPoint: String,
-    private val stretch: List<Animatable<Float, *>>
+    private val stretch: List<Animatable<Float, *>>,
+    private val xOffset: Int = 0,
 ) {
     private var sizeFormatter = SizeFormatter()
     internal val metrics = scope.buildMetrics()
 
-    private fun DrawScope.buildMetrics(): BarGraphMetrics {
+    private fun DrawScope.buildMetrics(): ScrollableBarGraphMetrics {
         val yAxisPadding: Dp = 36.dp
         val paddingBottom: Dp = 20.dp
 
         val gridHeight = size.height - paddingBottom.toPx()
         val gridWidth = size.width - yAxisPadding.toPx()
 
-        val maxPointsSize = yAxisData.size + 1
-
         val rectList = mutableListOf<Bar>()
 
         val absMaxY = max(DataSize(getAbsoluteMax(yAxisData)).getComparisonValue().getBitValue(), 1024)
         val verticalStep = absMaxY / gridHeight
 
-        val xItemSpacing = gridWidth / yAxisData.size
+        val xItemSpacing = 30.dp.toPx()
 
         rectList.clear()
         for (i in 0 until yAxisData.size) {
             val padding = 0.5.dp.toPx()
-            val x = xItemSpacing * i
+            val x = xItemSpacing * i + xOffset
             val yOffset1 = yAxisData[i].first.toFloat() / verticalStep
             val yOffset2 = yAxisData[i].second.toFloat() / verticalStep
 
@@ -116,7 +110,7 @@ internal class BarGraphHelper(
         val wifiIconOffset = Offset(offsetLeft, offsetTop1)
         val cellularIconOffset = Offset(offsetLeft, offsetTop2)
 
-        return BarGraphMetrics(
+        return ScrollableBarGraphMetrics(
             gridHeight = gridHeight,
             gridWidth = gridWidth,
             xItemSpacing = xItemSpacing,
@@ -143,15 +137,15 @@ internal class BarGraphHelper(
             )
 
             drawLine(
-                start = Offset(0f, metrics.gridHeight),
-                end = Offset(metrics.gridWidth, metrics.gridHeight),
+                start = Offset(0f + xOffset, metrics.gridHeight),
+                end = Offset(metrics.xItemSpacing * yAxisData.size + xOffset, metrics.gridHeight),
                 color = color,
                 alpha = 0.5f,
                 strokeWidth = 1.dp.toPx(),
             )
 
             for (i in 0 until yAxisData.size) {
-                val x = metrics.xItemSpacing * i
+                val x = metrics.xItemSpacing * i + xOffset
                 val yStart = metrics.gridHeight + if (i % 3 == 0) 12 else 6
                 val yEnd = metrics.gridHeight - if (i % 3 == 0) 12 else 6
                 drawLine(
@@ -213,13 +207,13 @@ internal class BarGraphHelper(
                 val xPos = metrics.xItemSpacing * (i + if (centerLabels) 0.5f else 0f)
                 drawContext.canvas.nativeCanvas.drawText(
                     xAxisData[i],
-                    xPos,
+                    xPos + xOffset,
                     size.height,
                     paint
                 )
             }
 
-            val xPos = metrics.xItemSpacing * yAxisData.size
+            val xPos = metrics.xItemSpacing * yAxisData.size + xOffset
             drawContext.canvas.nativeCanvas.drawText(finalGridPoint, xPos, size.height, paint)
 
             drawLine(

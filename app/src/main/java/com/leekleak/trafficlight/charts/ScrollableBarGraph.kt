@@ -8,7 +8,10 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,13 +22,17 @@ import androidx.compose.material3.toPath
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.leekleak.trafficlight.charts.model.BarData
@@ -34,38 +41,36 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.max
 
 
 @Composable
-fun BarGraph(
+fun ScrollableBarGraph(
     data: List<BarData>,
     finalGridPoint: String = "24",
     centerLabels: Boolean = false,
-    onClick: (i: Int) -> Unit = {}
 ) {
     Box(
         modifier = Modifier
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.background)
     ) {
-        BarGraphImpl(
+        ScrollableBarGraphImpl(
             xAxisData = data.map { it.x },
             yAxisData = data.map { Pair(it.y1, it.y2) },
             finalGridPoint = finalGridPoint,
             centerLabels = centerLabels,
-            onClick = onClick
         )
     }
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun BarGraphImpl(
+private fun ScrollableBarGraphImpl(
     xAxisData: List<String>,
     yAxisData: List<Pair<Double, Double>>,
     finalGridPoint: String,
     centerLabels: Boolean,
-    onClick: (i: Int) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val vibrator = LocalContext.current.getSystemService(Vibrator::class.java)
@@ -142,7 +147,6 @@ private fun BarGraphImpl(
         ) {
             vibrator.vibrate(vibrationEffectWeak)
             launch {
-                onClick(i)
                 animation.animateTo(
                     targetValue = 8f,
                     animationSpec = tween(150)
@@ -155,11 +159,23 @@ private fun BarGraphImpl(
         }
     }
 
+    val barWidth = 30.dp.px
+    var canvasWidth by remember { mutableFloatStateOf(0f) }
+    val offset = remember { Animatable(0f) }
+    val scrollableState = rememberScrollableState { delta ->
+        val totalOffset = (offset.value + delta).coerceIn(-barWidth * yAxisData.size + canvasWidth, 0f)
+        scope.launch {
+            offset.snapTo(totalOffset)
+        }
+        delta
+    }
+
     Canvas(
         modifier = Modifier
             .padding(top = 24.dp, bottom = 14.dp, start = 20.dp, end = 20.dp)
             .height(170.dp)
             .fillMaxWidth()
+            .scrollable(scrollableState, Orientation.Horizontal)
             .pointerInput(true) {
                 detectTapGestures { offset ->
                     scope.launch {
@@ -171,13 +187,17 @@ private fun BarGraphImpl(
                     }
                 }
             }
+            .onSizeChanged { size ->
+                canvasWidth = size.width.toFloat()
+            }
     ) {
-        val barGraphHelper = BarGraphHelper(
+        val barGraphHelper = ScrollableBarGraphHelper(
             scope = this,
             yAxisData = yAxisData,
             xAxisData = xAxisData,
             finalGridPoint = finalGridPoint,
-            stretch = barAnimation
+            stretch = barAnimation,
+            xOffset = offset.value.toInt(),
         )
 
         barOffset.clear()
@@ -187,28 +207,6 @@ private fun BarGraphImpl(
         cellularOffset = barGraphHelper.metrics.cellularIconOffset
 
         barGraphHelper.drawGrid(gridColor)
-
-        barGraphHelper.drawLegend(
-            barGraphHelper.metrics.cellularIconOffset.copy(
-                y = barGraphHelper.metrics.cellularIconOffset.y + cellularLegendOffset.value
-            ),
-            secondaryColor,
-            shapeCellular,
-            iconCellular,
-            onSecondaryColor,
-            cellularAnimation.value,
-        )
-
-        barGraphHelper.drawLegend(
-            barGraphHelper.metrics.wifiIconOffset.copy(
-                y = barGraphHelper.metrics.wifiIconOffset.y + wifiLegendOffset.value
-            ),
-            primaryColor,
-            shapeWifi,
-            iconWifi,
-            onPrimaryColor,
-            wifiAnimation.value,
-        )
 
         barGraphHelper.drawTextLabelsOverXAndYAxis(gridColor, centerLabels)
         barGraphHelper.drawBars(cornerRadius, primaryColor, secondaryColor, barAnimationSqueeze)
