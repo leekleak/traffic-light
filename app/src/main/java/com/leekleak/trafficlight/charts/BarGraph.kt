@@ -1,7 +1,5 @@
 package com.leekleak.trafficlight.charts
 
-import android.os.VibrationEffect
-import android.os.Vibrator
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.animateFloatAsState
@@ -25,8 +23,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.util.px
@@ -68,10 +67,7 @@ private fun BarGraphImpl(
     onClick: (i: Int) -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    val vibrator = LocalContext.current.getSystemService(Vibrator::class.java)
-    val vibrationEffectStrong = VibrationEffect.createOneShot(80, 200)
-    val vibrationEffectMedium = VibrationEffect.createOneShot(40, 100)
-    val vibrationEffectWeak = VibrationEffect.createOneShot(40,50)
+    val haptic = LocalHapticFeedback.current
 
     val primaryColor = GraphTheme.primaryColor
     val secondaryColor = GraphTheme.secondaryColor
@@ -124,9 +120,9 @@ private fun BarGraphImpl(
             legendStrength.intValue != 0
         ) {
             legendStrength.intValue -= 1
-            vibrator.vibrate(
-                if (legendStrength.intValue == 0) vibrationEffectStrong
-                else vibrationEffectMedium
+            haptic.performHapticFeedback(
+                if (legendStrength.intValue == 0) HapticFeedbackType.LongPress
+                else HapticFeedbackType.ContextClick
             )
             animation.animateTo(
                 targetValue = if (animation.targetValue == 15f) 0f else 15f,
@@ -140,7 +136,7 @@ private fun BarGraphImpl(
             (clickOffset - bar.rect.topLeft).x in (0f..bar.rect.size.width) &&
             (clickOffset - bar.rect.topLeft).y in (0f..bar.rect.size.height)
         ) {
-            vibrator.vibrate(vibrationEffectWeak)
+            haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
             launch {
                 onClick(i)
                 animation.animateTo(

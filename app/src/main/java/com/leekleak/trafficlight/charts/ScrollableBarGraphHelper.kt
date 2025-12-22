@@ -6,19 +6,11 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.copy
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -27,17 +19,6 @@ import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.NetworkType
 import com.leekleak.trafficlight.util.SizeFormatter
 import kotlin.math.max
-
-internal data class ScrollableBarGraphMetrics(
-    val gridHeight: Float,
-    val gridWidth: Float,
-    val xItemSpacing: Float,
-    val yAxisData: List<Pair<Double, Double>>,
-    val xAxisData: List<String>,
-    val rectList: List<Bar>,
-    val wifiIconOffset: Offset,
-    val cellularIconOffset: Offset,
-)
 
 internal class ScrollableBarGraphHelper(
     private val scope: DrawScope,
@@ -50,7 +31,7 @@ internal class ScrollableBarGraphHelper(
     private var sizeFormatter = SizeFormatter()
     internal val metrics = scope.buildMetrics()
 
-    private fun DrawScope.buildMetrics(): ScrollableBarGraphMetrics {
+    private fun DrawScope.buildMetrics(): BarGraphMetrics {
         val yAxisPadding: Dp = 36.dp
         val paddingBottom: Dp = 20.dp
 
@@ -110,7 +91,7 @@ internal class ScrollableBarGraphHelper(
         val wifiIconOffset = Offset(offsetLeft, offsetTop1)
         val cellularIconOffset = Offset(offsetLeft, offsetTop2)
 
-        return ScrollableBarGraphMetrics(
+        return BarGraphMetrics(
             gridHeight = gridHeight,
             gridWidth = gridWidth,
             xItemSpacing = xItemSpacing,
@@ -155,42 +136,6 @@ internal class ScrollableBarGraphHelper(
                     alpha = 0.5f,
                     strokeWidth = 1.dp.toPx(),
                 )
-            }
-        }
-    }
-
-    internal fun drawLegend(
-        offset: Offset,
-        color: Color,
-        background: Path,
-        icon: Painter,
-        iconColor: Color,
-        rotation: Float,
-    ) {
-        scope.run {
-            val backgroundCenter = Offset(18.dp.toPx(), 18.dp.toPx())
-            val iconSize = Size(24.dp.toPx(), 24.dp.toPx())
-            val iconOffset = Offset(6.dp.toPx(), 6.dp.toPx())
-            val matrix = Matrix().apply { scale(36.dp.toPx(), 36.dp.toPx()) }
-
-            translate (offset.x, offset.y) {
-                rotate(rotation, backgroundCenter) {
-                    drawPath(
-                        path = background.copy().apply { transform(matrix) },
-                        color = color,
-                        style = Fill,
-                    )
-
-                    translate (iconOffset.x, iconOffset.y) {
-                        with(icon) {
-                            draw(
-                                size = iconSize,
-                                alpha = 1.0f,
-                                colorFilter = ColorFilter.tint(iconColor)
-                            )
-                        }
-                    }
-                }
             }
         }
     }

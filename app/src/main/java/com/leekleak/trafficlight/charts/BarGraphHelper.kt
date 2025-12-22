@@ -61,8 +61,6 @@ internal class BarGraphHelper(
         val gridHeight = size.height - paddingBottom.toPx()
         val gridWidth = size.width - yAxisPadding.toPx()
 
-        val maxPointsSize = yAxisData.size + 1
-
         val rectList = mutableListOf<Bar>()
 
         val absMaxY = max(DataSize(getAbsoluteMax(yAxisData)).getComparisonValue().getBitValue(), 1024)
