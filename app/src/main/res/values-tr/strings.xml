@@ -43,4 +43,5 @@
     <string name="advanced_settings">Gelişmiş Ayarlar</string>
     <string name="notification_description">Durum çubuğunda ağ hızını takip edin.</string>
     <string name="missing_permissions">Eksik İzinler</string>
+    <string name="app_usage">Uygulama Kullanımı</string>
 </resources>
