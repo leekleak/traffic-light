@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Traffic Light</string>
+    <string name="app_name">Semafor</string>
     <string name="today">Astăzi</string>
-    <string name="this_week">Săptămâna asta</string>
+    <string name="this_week">Săptămâna aceasta</string>
     <string name="history">Istoric</string>
     <string name="wifi">Wi-Fi</string>
     <string name="cellular">Celulară</string>
@@ -16,7 +16,7 @@
     <string name="battery_optimization_description">Trebuie dezactivat pentru a opri telefonul să închidă serviciul de fundal.</string>
     <string name="usage_statistics">Statistici Utilizare</string>
     <string name="usage_statistics_description">Necesar pentru urmărirea utilizării datelor pe termen lung.</string>
-    <string name="notifications">Configurări Notificare</string>
+    <string name="notifications">Notificare</string>
     <string name="screen_off_update">Actualizează când ecranul este oprit</string>
     <string name="screen_off_update_description">Permite urmărirea pe Always On Display, dar folosește multă energie.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
@@ -43,4 +43,5 @@
     <string name="fallback_unsupported">Fallback nesuportat</string>
     <string name="limited_mode_description">Sistemul de operare nu suportă urmărirea datelor pe termen lung.</string>
     <string name="notification_description">Vezi viteza rețelei în bara de stare.</string>
+    <string name="app_usage">Utilizate aplicație</string>
 </resources>
