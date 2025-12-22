@@ -6,32 +6,57 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.NetworkType
 import com.leekleak.trafficlight.util.SizeFormatter
-import kotlin.math.max
+import com.leekleak.trafficlight.util.getName
+import java.time.LocalDate
+import java.time.format.TextStyle
+
+internal data class ScrollableBarGraphMetrics(
+    val gridHeight: Float,
+    val gridWidth: Float,
+    val xItemSpacing: Float,
+    val yAxisData: List<Pair<Double, Double>>,
+    val xAxisData: List<LocalDate>,
+    val rectList: List<Bar>
+)
 
 internal class ScrollableBarGraphHelper(
     private val scope: DrawScope,
     private val yAxisData: List<Pair<Double, Double>>,
-    private val xAxisData: List<String>,
-    private val finalGridPoint: String,
+    private val xAxisData: List<LocalDate>,
     private val stretch: List<Animatable<Float, *>>,
     private val xOffset: Int = 0,
+    private val maximum: Animatable<Float, *>,
+    val onBarVisibilityChanged: (i: Int, visible: Boolean) -> Unit,
+    val onMaximumChange: (maximum: Long) -> Unit
 ) {
     private var sizeFormatter = SizeFormatter()
     internal val metrics = scope.buildMetrics()
 
-    private fun DrawScope.buildMetrics(): BarGraphMetrics {
+    private fun DrawScope.textPaint(color: Color): Paint {
+        return Paint().apply {
+            this.color = color.toArgb()
+            alpha = 255/2
+            textAlign = Paint.Align.CENTER
+            textSize = 12.sp.toPx()
+        }
+    }
+    private fun DrawScope.buildMetrics(): ScrollableBarGraphMetrics {
         val yAxisPadding: Dp = 36.dp
         val paddingBottom: Dp = 20.dp
 
@@ -39,11 +64,25 @@ internal class ScrollableBarGraphHelper(
         val gridWidth = size.width - yAxisPadding.toPx()
 
         val rectList = mutableListOf<Bar>()
-
-        val absMaxY = max(DataSize(getAbsoluteMax(yAxisData)).getComparisonValue().getBitValue(), 1024)
-        val verticalStep = absMaxY / gridHeight
-
         val xItemSpacing = 30.dp.toPx()
+
+        val visibleIndices = mutableListOf<Int>()
+
+        for (i in 0 until yAxisData.size) {
+            val x1 = xItemSpacing * i + xOffset
+            val x2 = x1 + xItemSpacing
+            val error = 32.dp.toPx()
+
+            if (x1 in (-error)..(size.width+error) || x2 in (-error)..(size.width+error)) {
+                visibleIndices.add(i)
+                if (stretch[i].value == 0f) onBarVisibilityChanged(i, true)
+            } else if (stretch[i].value == 1f) onBarVisibilityChanged(i, false)
+        }
+
+        val absMaxY = visibleIndices.maxOf { yAxisData[it].first + yAxisData[it].second }.toLong()
+        if (maximum.targetValue.toLong() != absMaxY && absMaxY != 0L) { onMaximumChange(absMaxY) }
+
+        val verticalStep = maximum.value / gridHeight
 
         rectList.clear()
         for (i in 0 until yAxisData.size) {
@@ -84,37 +123,29 @@ internal class ScrollableBarGraphHelper(
             }
         }
 
-        val offsetLeft = gridWidth + 8.dp.toPx()
-        val offsetTop2 = gridHeight - 36.dp.toPx()
-        val offsetTop1 = gridHeight - 78.dp.toPx()
-
-        val wifiIconOffset = Offset(offsetLeft, offsetTop1)
-        val cellularIconOffset = Offset(offsetLeft, offsetTop2)
-
-        return BarGraphMetrics(
+        return ScrollableBarGraphMetrics(
             gridHeight = gridHeight,
             gridWidth = gridWidth,
             xItemSpacing = xItemSpacing,
             yAxisData = yAxisData,
             xAxisData = xAxisData,
             rectList = rectList,
-            wifiIconOffset = wifiIconOffset,
-            cellularIconOffset = cellularIconOffset
         )
     }
 
     /**
      * Drawing Grid lines behind the graph on x and y axis
      */
-    internal fun drawGrid(color: Color) {
+    internal fun drawGrid(color: Color, background: Color, textMeasurer: TextMeasurer) {
         scope.run {
+            val padding = 24.dp.toPx()
             drawLine(
-                start = Offset(0f, 0f),
+                start = Offset(-padding, 0f),
                 end = Offset(metrics.gridWidth, 0f),
                 color = color,
                 alpha = 0.5f,
                 strokeWidth = 1.dp.toPx(),
-                pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), -xOffset.toFloat())
             )
 
             drawLine(
@@ -137,29 +168,73 @@ internal class ScrollableBarGraphHelper(
                     strokeWidth = 1.dp.toPx(),
                 )
             }
+
+            drawTextLabelsOverXAndYAxis(color, background, textMeasurer)
+
+            val brush1 = Brush.horizontalGradient(listOf(background, Color.Transparent), -padding, 0f)
+            drawRect(brush1, Offset(-padding, -padding), Size(padding, size.height + 2 * padding))
+
+            val brush2 = Brush.horizontalGradient(listOf(Color.Transparent, background), size.width, size.width + padding)
+            drawRect(brush2, Offset(size.width, -padding), Size(padding, size.height + 2 * padding))
+
+            //Drawing text labels over the y- axis
+            val dataSize = DataSize(maximum.value)
+            drawContext.canvas.nativeCanvas.drawText(
+                sizeFormatter.format(dataSize.getComparisonValue().getBitValue(), 0, false),
+                metrics.gridWidth + 4.sp.toPx(),
+                0f + 4.sp.toPx(),
+                textPaint(color).apply { textAlign = Paint.Align.LEFT }
+            )
         }
     }
 
-    internal fun drawTextLabelsOverXAndYAxis(color: Color, centerLabels: Boolean) {
+    internal fun drawTextLabelsOverXAndYAxis(color: Color, background: Color, textMeasurer: TextMeasurer) {
         scope.run {
-            val paint = Paint().apply {
-                this.color = color.toArgb()
-                alpha = 255/2
-                textAlign = Paint.Align.CENTER
-                textSize = 12.sp.toPx()
-            }
+            val monthPadding = 4.dp.toPx().toLong()
             for (i in 0 until yAxisData.size) {
-                val xPos = metrics.xItemSpacing * (i + if (centerLabels) 0.5f else 0f)
+                val xTopLabel = metrics.xItemSpacing * i
+                val xBottomLabel = metrics.xItemSpacing * (i + 0.5f)
                 drawContext.canvas.nativeCanvas.drawText(
-                    xAxisData[i],
-                    xPos + xOffset,
+                    xAxisData[i].dayOfMonth.toString(),
+                    xBottomLabel + xOffset,
                     size.height,
-                    paint
+                    textPaint(color)
                 )
+                if (xAxisData[i].dayOfMonth == 1 || i == 0) {
+                    val text = xAxisData[i].month.getName(TextStyle.FULL_STANDALONE)
+                    val result = textMeasurer.measure(text)
+                    val yOffset = (-result.size.height).toFloat() + 8.dp.toPx()
+
+                    val backgroundOffset = Offset(xTopLabel + xOffset - monthPadding, yOffset)
+                    val backgroundSize = Size(result.size.width + 2 * monthPadding.toFloat(), result.size.height.toFloat())
+                    val backgroundBrush = Brush.verticalGradient(
+                        0.6f to background, 1f to Color.Transparent,
+                        startY = yOffset,
+                        endY = yOffset + backgroundSize.height
+                    )
+                    drawRect(backgroundBrush, backgroundOffset, backgroundSize)
+
+                    val overlapRatio = -(xTopLabel + xOffset - metrics.gridWidth) / result.size.width
+                    val textOffset = Offset(xTopLabel + xOffset, yOffset)
+                    if (overlapRatio in 0f..1f) {
+                        val colorArray = mutableListOf(0f to color)
+                        colorArray.add(overlapRatio - 0.1f to color)
+                        colorArray.add(overlapRatio to background)
+                        val textBrush = Brush.horizontalGradient(
+                            0f to color, overlapRatio - 0.1f to color, overlapRatio to background,
+                            startX = 0f,
+                            endX = result.size.width.toFloat(),
+                        )
+                        drawText(result, textBrush, textOffset)
+                    }
+                    else {
+                        val color = if (overlapRatio > 1f) color else background
+                        drawText(result, color, textOffset)
+                    }
+                }
             }
 
             val xPos = metrics.xItemSpacing * yAxisData.size + xOffset
-            drawContext.canvas.nativeCanvas.drawText(finalGridPoint, xPos, size.height, paint)
 
             drawLine(
                 start = Offset(xPos, metrics.gridHeight + 12),
@@ -167,16 +242,6 @@ internal class ScrollableBarGraphHelper(
                 color = color,
                 alpha = 0.5f,
                 strokeWidth = 1.dp.toPx(),
-            )
-
-            //Drawing text labels over the y- axis
-            val dataSize = DataSize(getAbsoluteMax(yAxisData))
-
-            drawContext.canvas.nativeCanvas.drawText(
-                sizeFormatter.format(dataSize.getComparisonValue().getBitValue(), 0, false),
-                metrics.gridWidth + 4.sp.toPx(),
-                0f + 4.sp.toPx(),
-                paint.apply { textAlign = Paint.Align.LEFT }
             )
         }
     }
@@ -197,10 +262,5 @@ internal class ScrollableBarGraphHelper(
                 drawPath(path, if (bar.type == NetworkType.Wifi) color1 else color2)
             }
         }
-    }
-    internal fun getAbsoluteMax(list: List<Pair<Number, Number>>): Float {
-        return list.maxOfOrNull {
-            it.first.toFloat() + it.second.toFloat()
-        } ?: 0F
     }
 }

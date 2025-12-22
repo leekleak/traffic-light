@@ -47,6 +47,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.ScrollableBarGraph
 import com.leekleak.trafficlight.charts.model.BarData
+import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.model.PreferenceRepo
@@ -97,12 +98,8 @@ fun History(paddingValues: PaddingValues) {
                     .clip(MaterialTheme.shapes.medium)
                     .background(MaterialTheme.colorScheme.background),
             ) {
-                val usage: List<BarData> by usageFlow.collectAsState(List(MAX_DAYS) { BarData() })
-                ScrollableBarGraph(
-                    data = usage,
-                    finalGridPoint = "",
-                    centerLabels = true
-                )
+                val usage: List<ScrollableBarData> by usageFlow.collectAsState(List(MAX_DAYS) { ScrollableBarData(LocalDate.now()) })
+                ScrollableBarGraph(usage)
             }
         }
         categoryTitle(R.string.app_usage)

@@ -5,6 +5,7 @@ import android.app.usage.NetworkStatsManager
 import android.content.Context
 import android.content.Context.NETWORK_STATS_SERVICE
 import com.leekleak.trafficlight.charts.model.BarData
+import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.model.AppDatabase
 import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.util.getName
@@ -129,13 +130,13 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
             }
         }
 
-    fun daysUsage(startDate: LocalDate, endDate: LocalDate): Flow<List<BarData>> = flow {
-        val data: MutableList<BarData> = mutableListOf()
+    fun daysUsage(startDate: LocalDate, endDate: LocalDate): Flow<List<ScrollableBarData>> = flow {
+        val data: MutableList<ScrollableBarData> = mutableListOf()
         val range = startDate.toEpochDay()..<endDate.toEpochDay()
 
         for (i in range) {
             val now = LocalDate.ofEpochDay(i)
-            data.add(BarData(now.dayOfMonth.toString()))
+            data.add(ScrollableBarData(now))
         }
         emit(data.toList())
         for (i in 0..<data.size) {
