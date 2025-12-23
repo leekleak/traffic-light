@@ -27,7 +27,8 @@ import java.util.Locale
 
 enum class NetworkType {
     Cellular,
-    Wifi
+    Wifi,
+    Selector
 }
 
 fun String.clipAndPad(length: Int): String {
