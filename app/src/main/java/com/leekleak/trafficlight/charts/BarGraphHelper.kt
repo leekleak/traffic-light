@@ -135,7 +135,6 @@ internal class BarGraphHelper(
                 start = Offset(0f, 0f),
                 end = Offset(metrics.gridWidth, 0f),
                 color = color,
-                alpha = 0.5f,
                 strokeWidth = 1.dp.toPx(),
                 pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
             )
@@ -144,7 +143,6 @@ internal class BarGraphHelper(
                 start = Offset(0f, metrics.gridHeight),
                 end = Offset(metrics.gridWidth, metrics.gridHeight),
                 color = color,
-                alpha = 0.5f,
                 strokeWidth = 1.dp.toPx(),
             )
 
@@ -156,7 +154,6 @@ internal class BarGraphHelper(
                     start = Offset(x, yStart),
                     end = Offset(x, yEnd),
                     color = color,
-                    alpha = 0.5f,
                     strokeWidth = 1.dp.toPx(),
                 )
             }
@@ -189,7 +186,6 @@ internal class BarGraphHelper(
                         with(icon) {
                             draw(
                                 size = iconSize,
-                                alpha = 1.0f,
                                 colorFilter = ColorFilter.tint(iconColor)
                             )
                         }
@@ -203,7 +199,6 @@ internal class BarGraphHelper(
         scope.run {
             val paint = Paint().apply {
                 this.color = color.toArgb()
-                alpha = 255/2
                 textAlign = Paint.Align.CENTER
                 textSize = 12.sp.toPx()
             }

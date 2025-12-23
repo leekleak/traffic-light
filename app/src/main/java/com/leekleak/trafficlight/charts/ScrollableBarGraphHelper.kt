@@ -6,7 +6,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -58,7 +57,6 @@ internal class ScrollableBarGraphHelper(
     private fun DrawScope.textPaint(color: Color): Paint {
         return Paint().apply {
             this.color = color.toArgb()
-            alpha = 255/2
             textAlign = Paint.Align.CENTER
             textSize = 12.sp.toPx()
         }
@@ -131,7 +129,7 @@ internal class ScrollableBarGraphHelper(
                 rectList.add(
                     Bar(
                         rect = Rect(
-                            top = gridHeight + height1 + height2,
+                            top = gridHeight + height1 + height2 + 2 * padding,
                             left = x + padding,
                             right = x + xItemSpacing - padding,
                             bottom = gridHeight + height1 - padding
@@ -162,7 +160,6 @@ internal class ScrollableBarGraphHelper(
                 start = Offset(0f, 0f),
                 end = Offset(metrics.gridWidth, 0f),
                 color = color,
-                alpha = 0.5f,
                 strokeWidth = 1.dp.toPx(),
                 pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), -xOffset.toFloat())
             )
@@ -171,7 +168,6 @@ internal class ScrollableBarGraphHelper(
                 start = Offset(0f + xOffset, metrics.gridHeight),
                 end = Offset(metrics.xItemSpacing * yAxisData.size + xOffset, metrics.gridHeight),
                 color = color,
-                alpha = 0.5f,
                 strokeWidth = 1.dp.toPx(),
             )
 
@@ -183,7 +179,6 @@ internal class ScrollableBarGraphHelper(
                     start = Offset(x, yStart),
                     end = Offset(x, yEnd),
                     color = color,
-                    alpha = 0.5f,
                     strokeWidth = 1.dp.toPx(),
                 )
             }
@@ -232,14 +227,13 @@ internal class ScrollableBarGraphHelper(
                 lastVisibility = metrics.monthList[i].visible
                 lastOffset = xOffset - 6 * monthPadding
 
-                val backgroundOffset = Offset(xOffset - monthPadding, yOffset)
-                val backgroundSize = Size(result.size.width + 2 * monthPadding.toFloat(), result.size.height.toFloat())
-                val backgroundBrush = Brush.verticalGradient(
-                    0.6f to background, 1f to Color.Transparent,
-                    startY = yOffset,
-                    endY = yOffset + backgroundSize.height
+                drawLine(
+                    start = Offset(xOffset - monthPadding, 0f),
+                    end = Offset(xOffset + monthPadding + result.size.width, 0f),
+                    color = background,
+                    alpha = 1f,
+                    strokeWidth = 1.5.dp.toPx(),
                 )
-                drawRect(backgroundBrush, backgroundOffset, backgroundSize)
 
                 val overlapRatio = -(xOffset - metrics.gridWidth) / result.size.width
                 val textOffset = Offset(xOffset, yOffset)
