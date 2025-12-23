@@ -32,7 +32,14 @@ internal data class ScrollableBarGraphMetrics(
     val xItemSpacing: Float,
     val yAxisData: List<Pair<Double, Double>>,
     val xAxisData: List<LocalDate>,
-    val rectList: List<Bar>
+    val rectList: List<Bar>,
+    val monthList: List<MonthObject>
+)
+
+internal data class MonthObject (
+    val name: String,
+    var xOffset: Float,
+    val visible: Int // -1 off to the left, 0 visible, 1 off to the right
 )
 
 internal class ScrollableBarGraphHelper(
@@ -67,16 +74,28 @@ internal class ScrollableBarGraphHelper(
         val xItemSpacing = 30.dp.toPx()
 
         val visibleIndices = mutableListOf<Int>()
+        val monthList = mutableListOf<MonthObject>()
 
         for (i in 0 until yAxisData.size) {
             val x1 = xItemSpacing * i + xOffset
             val x2 = x1 + xItemSpacing
             val error = 32.dp.toPx()
 
-            if (x1 in (-error)..(size.width+error) || x2 in (-error)..(size.width+error)) {
+            if (xAxisData[i].dayOfMonth == 1 || i == 0) {
+                monthList.add(
+                    MonthObject(
+                        xAxisData[i].month.getName(TextStyle.FULL_STANDALONE),
+                        x1,
+                        if (x1 <= 0) -1 else if (x1 >= size.width) 1 else 0
+                    )
+                )
+            }
+            if (x2 >= -error && x1 <= size.width+error) {
                 visibleIndices.add(i)
                 if (stretch[i].value == 0f) onBarVisibilityChanged(i, true)
-            } else if (stretch[i].value == 1f) onBarVisibilityChanged(i, false)
+            } else if (stretch[i].value == 1f) {
+                onBarVisibilityChanged(i, false)
+            }
         }
 
         val absMaxY = visibleIndices.maxOf { yAxisData[it].first + yAxisData[it].second }.toLong()
@@ -130,6 +149,7 @@ internal class ScrollableBarGraphHelper(
             yAxisData = yAxisData,
             xAxisData = xAxisData,
             rectList = rectList,
+            monthList = monthList
         )
     }
 
@@ -138,9 +158,8 @@ internal class ScrollableBarGraphHelper(
      */
     internal fun drawGrid(color: Color, background: Color, textMeasurer: TextMeasurer) {
         scope.run {
-            val padding = 24.dp.toPx()
             drawLine(
-                start = Offset(-padding, 0f),
+                start = Offset(0f, 0f),
                 end = Offset(metrics.gridWidth, 0f),
                 color = color,
                 alpha = 0.5f,
@@ -171,12 +190,6 @@ internal class ScrollableBarGraphHelper(
 
             drawTextLabelsOverXAndYAxis(color, background, textMeasurer)
 
-            val brush1 = Brush.horizontalGradient(listOf(background, Color.Transparent), -padding, 0f)
-            drawRect(brush1, Offset(-padding, -padding), Size(padding, size.height + 2 * padding))
-
-            val brush2 = Brush.horizontalGradient(listOf(Color.Transparent, background), size.width, size.width + padding)
-            drawRect(brush2, Offset(size.width, -padding), Size(padding, size.height + 2 * padding))
-
             //Drawing text labels over the y- axis
             val dataSize = DataSize(maximum.value)
             drawContext.canvas.nativeCanvas.drawText(
@@ -192,7 +205,6 @@ internal class ScrollableBarGraphHelper(
         scope.run {
             val monthPadding = 4.dp.toPx().toLong()
             for (i in 0 until yAxisData.size) {
-                val xTopLabel = metrics.xItemSpacing * i
                 val xBottomLabel = metrics.xItemSpacing * (i + 0.5f)
                 drawContext.canvas.nativeCanvas.drawText(
                     xAxisData[i].dayOfMonth.toString(),
@@ -200,37 +212,51 @@ internal class ScrollableBarGraphHelper(
                     size.height,
                     textPaint(color)
                 )
-                if (xAxisData[i].dayOfMonth == 1 || i == 0) {
-                    val text = xAxisData[i].month.getName(TextStyle.FULL_STANDALONE)
-                    val result = textMeasurer.measure(text)
-                    val yOffset = (-result.size.height).toFloat() + 8.dp.toPx()
+            }
 
-                    val backgroundOffset = Offset(xTopLabel + xOffset - monthPadding, yOffset)
-                    val backgroundSize = Size(result.size.width + 2 * monthPadding.toFloat(), result.size.height.toFloat())
-                    val backgroundBrush = Brush.verticalGradient(
-                        0.6f to background, 1f to Color.Transparent,
-                        startY = yOffset,
-                        endY = yOffset + backgroundSize.height
+            var lastVisibility = 1
+            var lastOffset: Float = Float.MAX_VALUE
+            for (i in metrics.monthList.size-1 downTo 0) {
+                val text = metrics.monthList[i].name
+                val result = textMeasurer.measure(text)
+                val yOffset = (-result.size.height).toFloat() + 8.dp.toPx()
+
+
+                val snap = lastVisibility != -1 && metrics.monthList[i].visible == -1
+                var xOffset = if (snap && lastOffset != 0f) 0f else metrics.monthList[i].xOffset
+
+                val diffVsLast = xOffset + result.size.width.toFloat() - lastOffset
+                if (diffVsLast >= 0) xOffset -= diffVsLast
+
+
+                lastVisibility = metrics.monthList[i].visible
+                lastOffset = xOffset - 6 * monthPadding
+
+                val backgroundOffset = Offset(xOffset - monthPadding, yOffset)
+                val backgroundSize = Size(result.size.width + 2 * monthPadding.toFloat(), result.size.height.toFloat())
+                val backgroundBrush = Brush.verticalGradient(
+                    0.6f to background, 1f to Color.Transparent,
+                    startY = yOffset,
+                    endY = yOffset + backgroundSize.height
+                )
+                drawRect(backgroundBrush, backgroundOffset, backgroundSize)
+
+                val overlapRatio = -(xOffset - metrics.gridWidth) / result.size.width
+                val textOffset = Offset(xOffset, yOffset)
+                if (overlapRatio in 0f..1f) {
+                    val colorArray = mutableListOf(0f to color)
+                    colorArray.add(overlapRatio - 0.1f to color)
+                    colorArray.add(overlapRatio to background)
+                    val textBrush = Brush.horizontalGradient(
+                        0f to color, overlapRatio - 0.1f to color, overlapRatio to background,
+                        startX = 0f,
+                        endX = result.size.width.toFloat(),
                     )
-                    drawRect(backgroundBrush, backgroundOffset, backgroundSize)
-
-                    val overlapRatio = -(xTopLabel + xOffset - metrics.gridWidth) / result.size.width
-                    val textOffset = Offset(xTopLabel + xOffset, yOffset)
-                    if (overlapRatio in 0f..1f) {
-                        val colorArray = mutableListOf(0f to color)
-                        colorArray.add(overlapRatio - 0.1f to color)
-                        colorArray.add(overlapRatio to background)
-                        val textBrush = Brush.horizontalGradient(
-                            0f to color, overlapRatio - 0.1f to color, overlapRatio to background,
-                            startX = 0f,
-                            endX = result.size.width.toFloat(),
-                        )
-                        drawText(result, textBrush, textOffset)
-                    }
-                    else {
-                        val color = if (overlapRatio > 1f) color else background
-                        drawText(result, color, textOffset)
-                    }
+                    drawText(result, textBrush, textOffset)
+                }
+                else {
+                    val color = if (overlapRatio > 1f) color else background
+                    drawText(result, color, textOffset)
                 }
             }
 
