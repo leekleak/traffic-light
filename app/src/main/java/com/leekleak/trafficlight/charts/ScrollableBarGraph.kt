@@ -59,10 +59,11 @@ fun ScrollableBarGraph(
     val barAnimation = remember(data.size) { List(data.size) { Animatable(0f) } }
     val barOffset = remember { mutableListOf<Bar>() }
     var selected by remember { mutableIntStateOf(-1) }
-    var selectorOffset = remember { Animatable(0f) }
+    val selectorOffset = remember { Animatable(0f) }
 
     val barWidth = 30.dp.px
-    val offset = remember { Animatable(0f) }
+    var canvasWidth by remember { mutableFloatStateOf(0f) }
+    val offset = remember(canvasWidth) { Animatable(-barWidth * data.size + canvasWidth) }
 
     fun CoroutineScope.barAnimator(clickOffset: Offset, bar: Bar, i: Int) {
         if (
@@ -86,7 +87,6 @@ fun ScrollableBarGraph(
         }
     }
 
-    var canvasWidth by remember { mutableFloatStateOf(0f) }
     val maximum = remember(data) { Animatable(data.maxOf { it.y1 + it.y2 }.toFloat()) }
 
     val scrollableState = rememberScrollableState { delta ->

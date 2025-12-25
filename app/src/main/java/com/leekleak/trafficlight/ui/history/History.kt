@@ -6,6 +6,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,8 +18,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ButtonGroup
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -51,24 +55,35 @@ import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.ui.theme.card
+import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.SizeFormatter
-import com.leekleak.trafficlight.util.categoryTitle
+import com.leekleak.trafficlight.util.getName
 import com.leekleak.trafficlight.util.px
 import org.koin.compose.koinInject
 import java.time.LocalDate
+import java.time.format.TextStyle
 import kotlin.math.roundToInt
 
 const val MAX_DAYS = 96
 
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun History(paddingValues: PaddingValues) {
     val hourlyUsageRepo: HourlyUsageRepo = koinInject()
     val haptic = LocalHapticFeedback.current
 
     var appDay by remember { mutableStateOf( LocalDate.now()) }
-    var appDay2 by remember { mutableStateOf( LocalDate.now()) }
+    var showMonth by remember { mutableStateOf(false) }
 
-    val appList by remember(appDay, appDay2) { hourlyUsageRepo.getAllAppUsage(appDay, appDay2) }.collectAsState(initial = listOf())
+    val appList by remember(appDay, showMonth) {
+        if (!showMonth) {
+            hourlyUsageRepo.getAllAppUsage(appDay, appDay)
+        } else {
+            val start = appDay.minusDays(appDay.dayOfMonth.toLong()-1L)
+            val end = start.plusMonths(1)
+            hourlyUsageRepo.getAllAppUsage(start, end)
+        }
+    }.collectAsState(listOf())
     val appMaximum = appList.maxOfOrNull { it.usage.totalWifi + it.usage.totalCellular } ?: 0
     var appSelected by remember { mutableIntStateOf(-1) }
 
@@ -78,39 +93,59 @@ fun History(paddingValues: PaddingValues) {
     LazyColumn(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surface)
+            .statusBarsPadding()
             .fillMaxSize(),
         contentPadding = paddingValues,
-        verticalArrangement = Arrangement.spacedBy(6.dp)
-
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        categoryTitle(R.string.history)
-        item {
-            AnimatedContent(appDay) {
-                Text(it.toString())
-            }
-        }
-        item {
-            Box (
-                modifier = Modifier
-                    .card()
-                    .padding(6.dp)
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.background),
-            ) {
-                val usage: List<ScrollableBarData> by usageFlow.collectAsState(List(MAX_DAYS) { ScrollableBarData(LocalDate.now()) })
-                Box(
-                    modifier = Modifier
-                        .clip(MaterialTheme.shapes.medium)
-                        .background(MaterialTheme.colorScheme.background)
-                ) {
-                    ScrollableBarGraph(usage) {
-                        appDay = days.first.plusDays(it.toLong())
-                        appDay2 = days.first.plusDays(it.toLong())
+        stickyHeader {
+            Column {
+                Column (Modifier.background(MaterialTheme.colorScheme.background)) {
+                    CategoryTitleText(stringResource(R.string.history))
+                    Box(
+                        modifier = Modifier
+                            .card()
+                            .padding(6.dp)
+                            .clip(MaterialTheme.shapes.medium)
+                    ) {
+                        val usage: List<ScrollableBarData> by usageFlow.collectAsState(List(MAX_DAYS) {
+                            ScrollableBarData(
+                                LocalDate.now()
+                            )
+                        })
+                        Box(
+                            modifier = Modifier
+                                .clip(MaterialTheme.shapes.medium)
+                                .background(MaterialTheme.colorScheme.background)
+                        ) {
+                            ScrollableBarGraph(usage) {
+                                appDay = days.first.plusDays(it.toLong())
+                            }
+                        }
+                    }
+                    Row(Modifier.fillMaxWidth()) {
+                        CategoryTitleText(stringResource(R.string.app_usage))
+                        ButtonGroup(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
+                            expandedRatio = 0f, // TODO: Remove on a day google fixes compose.
+                            overflowIndicator = {}
+                        ) {
+                            toggleableItem(
+                                onCheckedChange = {showMonth = true},
+                                label = appDay.month.getName(TextStyle.FULL),
+                                checked = showMonth
+                            )
+                            toggleableItem(
+                                onCheckedChange = {showMonth = false},
+                                label = appDay.dayOfMonth.toString(),
+                                checked = !showMonth
+                            )
+                        }
                     }
                 }
             }
         }
-        categoryTitle(R.string.app_usage)
         items(appList, { it.name }) { item ->
             Box(Modifier.animateItem()) {
                 AppItem(item, item.uid == appSelected, appMaximum) {
