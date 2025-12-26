@@ -10,7 +10,7 @@
     <string name="battery_optimization">Оптимизация батареи</string>
     <string name="battery_optimization_description">Отключение оптимизации батареи позволят приложению работать в фоновом режиме без прерываний.</string>
     <string name="usage_statistics">Статистика использования</string>
-    <string name="usage_statistics_description">Самый стабильный способ получения данных использовании сети на платформе Android.</string>
+    <string name="usage_statistics_description">Требуется для долгосрочного отслеживания использования сети.</string>
     <string name="notifications">Уведомление</string>
     <string name="permissions">Разрешения</string>
     <string name="speed">Скорость: %1$s</string>
@@ -26,7 +26,7 @@
     <string name="cellular">Сотовая связь</string>
     <string name="grant">Разрешить</string>
     <string name="screen_off_update">Обновлять когда экран выключен</string>
-    <string name="screen_off_update_description">Показывает скорость в уведомлениях при постоянно включенном (Always On) экране. Повышает использование батареи.</string>
+    <string name="screen_off_update_description">Позволяет отслеживать использование при постоянно включенном (Always On) экране. Повышает использование батареи.</string>
     <string name="oversample_icon">Передискретизация иконки</string>
     <string name="oversample_icon_description">Отображает иконку в большем качестве если она размытая.</string>
     <string name="force_fallback">Использовать резервный метод отслеживания скорости</string>
@@ -37,4 +37,11 @@
     <string name="limited_mode">Ограниченный Режим</string>
     <string name="limited_mode_description">К сожалению, ваша операционная система не поддерживает долгосрочное отслеживание данных.</string>
     <string name="auto">Автоматически</string>
+    <string name="expressive_fonts">Выразительные Шрифты</string>
+    <string name="default_theme">По умолчанию</string>
+    <string name="help">Помощь</string>
+    <string name="advanced_settings">Дополнительные настройки</string>
+    <string name="notification_description">Отслеживайте скорость сети в полосе уведомлений.</string>
+    <string name="missing_permissions">Отсутствуют разрешения</string>
+    <string name="app_usage">Использование Приложения</string>
 </resources>
