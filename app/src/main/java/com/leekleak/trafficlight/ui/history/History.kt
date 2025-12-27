@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -39,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -47,6 +49,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.ScrollableBarGraph
@@ -70,20 +73,17 @@ const val MAX_DAYS = 96
 @Composable
 fun History(paddingValues: PaddingValues) {
     val hourlyUsageRepo: HourlyUsageRepo = koinInject()
+    val viewModel: HistoryVM = viewModel()
     val haptic = LocalHapticFeedback.current
 
     var appDay by remember { mutableStateOf( LocalDate.now()) }
     var showMonth by remember { mutableStateOf(false) }
 
-    val appList by remember(appDay, showMonth) {
-        if (!showMonth) {
-            hourlyUsageRepo.getAllAppUsage(appDay, appDay)
-        } else {
-            val start = appDay.minusDays(appDay.dayOfMonth.toLong()-1L)
-            val end = start.plusMonths(1)
-            hourlyUsageRepo.getAllAppUsage(start, end)
-        }
-    }.collectAsState(listOf())
+    LaunchedEffect(appDay, showMonth) {
+        viewModel.updateQuery(appDay, showMonth)
+    }
+
+    val appList by viewModel.appList.collectAsState()
     val appMaximum = appList.maxOfOrNull { it.usage.totalWifi + it.usage.totalCellular } ?: 0
     var appSelected by remember { mutableIntStateOf(-1) }
 
@@ -109,9 +109,7 @@ fun History(paddingValues: PaddingValues) {
                             .clip(MaterialTheme.shapes.medium)
                     ) {
                         val usage: List<ScrollableBarData> by usageFlow.collectAsState(List(MAX_DAYS) {
-                            ScrollableBarData(
-                                LocalDate.now()
-                            )
+                            ScrollableBarData(LocalDate.now())
                         })
                         Box(
                             modifier = Modifier
@@ -128,7 +126,7 @@ fun History(paddingValues: PaddingValues) {
                         ButtonGroup(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
-                            expandedRatio = 0f, // TODO: Remove on a day google fixes compose.
+                            expandedRatio = 0f, // TODO: Remove the day google fixes compose.
                             overflowIndicator = {}
                         ) {
                             toggleableItem(
@@ -170,6 +168,8 @@ fun AppItem(
     maximum: Long,
     onClick: () -> Unit,
 ) {
+    val context = LocalContext.current
+
     val totalWifi = appUsage.usage.totalWifi
     val totalCellular = appUsage.usage.totalCellular
 
@@ -181,8 +181,11 @@ fun AppItem(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 val width = 32.dp.px.roundToInt()
-                val bitmap = appUsage.drawable?.toBitmap(width, width)
-                bitmap?.let { Image(bitmap = it.asImageBitmap(), contentDescription = null) }
+                val icon = context.packageManager.getApplicationIcon(appUsage.packageName)
+                Image(
+                    bitmap = icon.toBitmap(width, width).asImageBitmap(),
+                    contentDescription = null
+                )
 
                 AnimatedContent(selected) { selected ->
                     if (!selected) {

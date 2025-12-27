@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.time.DayOfWeek
@@ -108,27 +110,28 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
     fun getAllAppUsage(startDate: LocalDate, endDate: LocalDate = startDate): Flow<List<AppUsage>> =
         flow {
             coroutineScope {
+                val requestSemaphore = Semaphore(permits = 3)
                 val jobs = appDatabase.suspiciousApps.map { app ->
                     async(Dispatchers.IO) {
-                        val dayUsage = calculateDayUsageBasic(startDate, endDate, app.uid)
-                        return@async AppUsage(
-                            usage = dayUsage,
-                            uid = app.uid,
-                            name = appDatabase.getLabel(app),
-                            icon = app.icon,
-                            drawable = appDatabase.getIcon(app),
-                            appInfo = app
-                        )
+                        requestSemaphore.withPermit {
+                            val dayUsage = calculateDayUsageBasic(startDate, endDate, app.uid)
+                            return@async AppUsage(
+                                usage = dayUsage,
+                                uid = app.uid,
+                                name = appDatabase.getLabel(app),
+                                packageName = app.packageName,
+                                appInfo = app
+                            )
+                        }
                     }
                 }
-
 
                 val list = jobs.awaitAll().toMutableList()
                 list.removeAll { it.usage.totalCellular + it.usage.totalWifi == 0L }
                 list.sortByDescending { it.usage.totalCellular + it.usage.totalWifi }
                 emit(list.distinctBy { it.uid }.toList())
             }
-        }
+        }.flowOn(Dispatchers.IO)
 
     fun daysUsage(startDate: LocalDate, endDate: LocalDate): Flow<List<ScrollableBarData>> = flow {
         val data: MutableList<ScrollableBarData> = mutableListOf()

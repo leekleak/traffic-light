@@ -27,5 +27,4 @@ class AppDatabase(context: Context): KoinComponent {
     }
 
     fun getLabel(app: ApplicationInfo): String = app.loadLabel(packageManager).toString()
-    fun getIcon(app: ApplicationInfo): Drawable = app.loadIcon(packageManager)
 }
