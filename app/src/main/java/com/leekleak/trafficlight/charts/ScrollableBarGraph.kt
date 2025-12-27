@@ -67,8 +67,8 @@ fun ScrollableBarGraph(
 
     val selectorGoal = (canvasWidth)/2 - ((canvasWidth)/2) % barWidth
 
-    LaunchedEffect(selectorOffsetSnapped.targetValue, offset.value) {
-        onSelect(((selectorOffsetSnapped.targetValue - offset.value)/barWidth).toInt())
+    LaunchedEffect(selectorOffsetSnapped.targetValue, offset.targetValue) {
+        onSelect(((selectorOffsetSnapped.targetValue - offset.targetValue)/barWidth).toInt())
     }
 
     fun CoroutineScope.barAnimator(clickOffset: Offset, bar: Bar, i: Int) {
