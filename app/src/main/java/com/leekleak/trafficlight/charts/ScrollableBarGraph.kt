@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -36,7 +38,8 @@ import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.util.px
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
+import timber.log.Timber
+import kotlin.math.sign
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -59,11 +62,15 @@ fun ScrollableBarGraph(
     val barAnimation = remember(data.size) { List(data.size) { Animatable(0f) } }
     val barOffset = remember { mutableListOf<Bar>() }
     var selected by remember { mutableIntStateOf(-1) }
-    val selectorOffset = remember { Animatable(0f) }
+    var selectorOffset by remember { mutableFloatStateOf(0f) }
+    val selectorOffsetSnapped = remember { Animatable(0f) }
+
 
     val barWidth = 30.dp.px
     var canvasWidth by remember { mutableFloatStateOf(0f) }
     val offset = remember(canvasWidth) { Animatable(-barWidth * data.size + canvasWidth) }
+
+    val selectorGoal = (canvasWidth-barWidth)/2
 
     fun CoroutineScope.barAnimator(clickOffset: Offset, bar: Bar, i: Int) {
         if (
@@ -71,10 +78,7 @@ fun ScrollableBarGraph(
             (clickOffset - bar.rect.topLeft).y in (0f..bar.rect.size.height)
         ) {
             haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-            selected = ((bar.rect.topLeft.x-offset.value)/barWidth).roundToInt()
-            onSelect(selected)
             launch {
-                selectorOffset.animateTo(barWidth * selected)
                 barAnimationSqueeze[i].animateTo(
                     targetValue = 8f,
                     animationSpec = tween(150)
@@ -90,7 +94,36 @@ fun ScrollableBarGraph(
     val maximum = remember(data) { Animatable(data.maxOf { it.y1 + it.y2 }.toFloat()) }
 
     val scrollableState = rememberScrollableState { delta ->
-        val totalOffset = (offset.value + delta).coerceIn(-barWidth * data.size + canvasWidth, 0f)
+        var totalOffset = (offset.value + delta).coerceIn(-barWidth * data.size + canvasWidth, 0f)
+        var selectorOff = (selectorOffset)
+        if ((selectorOffset * delta.sign < selectorGoal * delta.sign)) {
+            totalOffset = offset.value
+            val threshold = (selectorOff - delta) * delta.sign > selectorGoal * delta.sign
+            selectorOff = if (!threshold) (selectorOff - delta) else selectorGoal
+            Timber.e("Issue here")
+        } else if (totalOffset != offset.value + delta) {
+            totalOffset = offset.value
+            selectorOff -= delta
+            Timber.e("Issue here 2")
+        }
+
+        selectorOff = selectorOff.coerceIn(0f, canvasWidth - barWidth)
+
+        scope.launch {
+            selectorOffset = selectorOff
+            if (selectorOffsetSnapped.targetValue != (selectorOffset - selectorOffset % barWidth)) {
+                Timber.e("target: ${selectorOffsetSnapped.targetValue} offset ${selectorOffset} new target ${(selectorOffset - selectorOffset % barWidth)}")
+                selectorOffsetSnapped.animateTo(
+                    targetValue = selectorOffset - selectorOffset % barWidth,
+                    initialVelocity = 100f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        stiffness = Spring.StiffnessMediumLow
+                    )
+                )
+            }
+        }
+
         scope.launch {
             offset.snapTo(totalOffset)
         }
@@ -104,15 +137,39 @@ fun ScrollableBarGraph(
                 initialValue = offset.value,
                 initialVelocity = initialVelocity
             )
-            val snappedTarget = (targetValue - targetValue % barWidth).coerceIn(-barWidth * data.size + canvasWidth, 0f)
-            offset.animateTo(
-                targetValue = snappedTarget,
-                initialVelocity = initialVelocity,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioLowBouncy,
-                    stiffness = Spring.StiffnessMediumLow
+            var snappedTarget = (targetValue - targetValue % barWidth).coerceIn(-barWidth * data.size + canvasWidth, 0f)
+
+            var selectorOff = (selectorOffset)
+            if (
+                (selectorOffset * initialVelocity.sign > selectorGoal * initialVelocity.sign)
+                //|| targetValue - targetValue % barWidth != snappedTarget
+            ) {
+                selectorOff = selectorGoal
+            }
+
+            selectorOffset = selectorOff.coerceIn(0f, canvasWidth - barWidth)
+
+            scope.launch {
+                selectorOffsetSnapped.animateTo(
+                    targetValue = selectorOffset,
+                    initialVelocity = 100f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        stiffness = Spring.StiffnessMediumLow
+                    )
                 )
-            )
+            }
+
+            scope.launch {
+                offset.animateTo(
+                    targetValue = snappedTarget,
+                    initialVelocity = initialVelocity,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        stiffness = Spring.StiffnessMediumLow
+                    )
+                )
+            }
             return 0f
         }
     }
@@ -142,7 +199,7 @@ fun ScrollableBarGraph(
             stretch = barAnimation,
             xOffset = offset.value.toInt(),
             maximum = maximum,
-            selectorOffset = selectorOffset.value,
+            selectorOffset = selectorOffsetSnapped.value,
             onBarVisibilityChanged = { i, visible ->
                 if (visible) scope.launch { barAnimation[i].animateTo(1f) }
                 else scope.launch { barAnimation[i].snapTo(0f) }

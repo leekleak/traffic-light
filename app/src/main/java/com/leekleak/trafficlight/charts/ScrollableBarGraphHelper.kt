@@ -10,7 +10,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.TextMeasurer
@@ -18,6 +21,9 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.graphics.shapes.CornerRounding
+import androidx.graphics.shapes.RoundedPolygon
+import androidx.graphics.shapes.toPath
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.NetworkType
@@ -101,17 +107,14 @@ internal class ScrollableBarGraphHelper(
         val verticalStep = maximum.value / gridHeight
 
         rectList.clear()
-        rectList.add(
-            Bar(
-                rect = Rect(
-                    top = 0f,
-                    left = selectorOffset + xOffset,
-                    right = selectorOffset + xItemSpacing + xOffset,
-                    bottom = gridHeight
-                ),
-                type = NetworkType.Selector
-            )
-        )
+
+        val roundedPolygon = RoundedPolygon(3, 12.dp.toPx())
+        translate(selectorOffset + xItemSpacing / 2, size.height + 8.dp.toPx()) {
+            rotate(-90f, Offset.Zero) {
+                drawPath(roundedPolygon.toPath().asComposePath(), color = Color.White)
+            }
+        }
+
         for (i in 0 until data.size) {
             val padding = 0.5.dp.toPx()
             val x = xItemSpacing * i + xOffset
