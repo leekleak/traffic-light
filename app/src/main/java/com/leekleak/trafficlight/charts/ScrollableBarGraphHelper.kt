@@ -21,6 +21,7 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.toPath
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
@@ -33,7 +34,6 @@ import java.time.format.TextStyle
 internal data class ScrollableBarGraphMetrics(
     val gridHeight: Float,
     val gridWidth: Float,
-    val xItemSpacing: Float,
     val data: List<ScrollableBarData>,
     val rectList: List<Bar>,
     val monthList: List<MonthObject>
@@ -50,10 +50,16 @@ internal class ScrollableBarGraphHelper(
     private val data: List<ScrollableBarData>,
     private val stretch: List<Animatable<Float, *>>,
     private val xOffset: Int = 0,
+    private val xItemSpacing: Float = 30f,
     private val maximum: Animatable<Float, *>,
     private val selectorOffset: Float = -1f,
+    private val gridColor: Color,
+    private val backgroundColor: Color,
+    private val surfaceColor: Color,
+    private val primaryColor: Color,
+    private val secondaryColor: Color,
     private val onBarVisibilityChanged: (i: Int, visible: Boolean) -> Unit,
-    private val onMaximumChange: (maximum: Long) -> Unit
+    private val onMaximumChange: (maximum: Long) -> Unit,
 ) {
     private var sizeFormatter = SizeFormatter()
     internal val metrics = scope.buildMetrics()
@@ -73,7 +79,6 @@ internal class ScrollableBarGraphHelper(
         val gridWidth = size.width - yAxisPadding.toPx()
 
         val rectList = mutableListOf<Bar>()
-        val xItemSpacing = 30.dp.toPx()
 
         val visibleIndices = mutableListOf<Int>()
         val monthList = mutableListOf<MonthObject>()
@@ -108,9 +113,9 @@ internal class ScrollableBarGraphHelper(
         rectList.clear()
 
         val roundedPolygon = RoundedPolygon(3, 12.dp.toPx())
-        translate(selectorOffset + xItemSpacing / 2, size.height + 8.dp.toPx()) {
+        translate(selectorOffset + xItemSpacing / 2, size.height + 16.dp.toPx()) {
             rotate(-90f, Offset.Zero) {
-                drawPath(roundedPolygon.toPath().asComposePath(), color = Color.White)
+                drawPath(roundedPolygon.toPath().asComposePath(), color = primaryColor)
             }
         }
 
@@ -155,7 +160,6 @@ internal class ScrollableBarGraphHelper(
         return ScrollableBarGraphMetrics(
             gridHeight = gridHeight,
             gridWidth = gridWidth,
-            xItemSpacing = xItemSpacing,
             data,
             rectList = rectList,
             monthList = monthList
@@ -165,36 +169,36 @@ internal class ScrollableBarGraphHelper(
     /**
      * Drawing Grid lines behind the graph on x and y axis
      */
-    internal fun drawGrid(color: Color, background: Color, textMeasurer: TextMeasurer) {
+    internal fun drawGrid(textMeasurer: TextMeasurer) {
         scope.run {
             drawLine(
                 start = Offset(0f, 0f),
                 end = Offset(metrics.gridWidth, 0f),
-                color = color,
+                color = gridColor,
                 strokeWidth = 1.dp.toPx(),
                 pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), -xOffset.toFloat())
             )
 
             drawLine(
                 start = Offset(0f + xOffset, metrics.gridHeight),
-                end = Offset(metrics.xItemSpacing * data.size + xOffset, metrics.gridHeight),
-                color = color,
+                end = Offset(xItemSpacing * data.size + xOffset, metrics.gridHeight),
+                color = gridColor,
                 strokeWidth = 1.dp.toPx(),
             )
 
             for (i in 0 until data.size) {
-                val x = metrics.xItemSpacing * i + xOffset
+                val x = xItemSpacing * i + xOffset
                 val yStart = metrics.gridHeight + if (i % 3 == 0) 12 else 6
                 val yEnd = metrics.gridHeight - if (i % 3 == 0) 12 else 6
                 drawLine(
                     start = Offset(x, yStart),
                     end = Offset(x, yEnd),
-                    color = color,
+                    color = gridColor,
                     strokeWidth = 1.dp.toPx(),
                 )
             }
 
-            drawTextLabelsOverXAndYAxis(color, background, textMeasurer)
+            drawTextLabelsOverXAndYAxis(gridColor, backgroundColor, textMeasurer)
 
             //Drawing text labels over the y- axis
             val dataSize = DataSize(maximum.value)
@@ -202,7 +206,7 @@ internal class ScrollableBarGraphHelper(
                 sizeFormatter.format(dataSize.getComparisonValue().getBitValue(), 0, false),
                 metrics.gridWidth + 4.sp.toPx(),
                 0f + 4.sp.toPx(),
-                textPaint(color).apply { textAlign = Paint.Align.LEFT }
+                textPaint(gridColor).apply { textAlign = Paint.Align.LEFT }
             )
         }
     }
@@ -211,7 +215,7 @@ internal class ScrollableBarGraphHelper(
         scope.run {
             val monthPadding = 4.dp.toPx().toLong()
             for (i in 0 until data.size) {
-                val xBottomLabel = metrics.xItemSpacing * (i + 0.5f)
+                val xBottomLabel = xItemSpacing * (i + 0.5f)
                 drawContext.canvas.nativeCanvas.drawText(
                     data[i].x.dayOfMonth.toString(),
                     xBottomLabel + xOffset,
@@ -265,7 +269,7 @@ internal class ScrollableBarGraphHelper(
                 }
             }
 
-            val xPos = metrics.xItemSpacing * data.size + xOffset
+            val xPos = xItemSpacing * data.size + xOffset
 
             drawLine(
                 start = Offset(xPos, metrics.gridHeight + 12),
@@ -278,9 +282,6 @@ internal class ScrollableBarGraphHelper(
     }
     internal fun drawBars(
         cornerRadius: CornerRadius,
-        color1: Color,
-        color2: Color,
-        color3: Color,
         widths: List<Animatable<Float, *>>
     ) {
         scope.run {
@@ -292,16 +293,15 @@ internal class ScrollableBarGraphHelper(
                                 left = bar.rect.left + widths[i].value,
                                 right = bar.rect.right - widths[i].value,
                             ),
-                            cornerRadius = if (bar.type != NetworkType.Selector) cornerRadius else CornerRadius.Zero
+                            cornerRadius = cornerRadius
                         )
                     )
                 }
                 drawPath(
                     path = path,
                     color = when(bar.type) {
-                        NetworkType.Wifi -> color1
-                        NetworkType.Cellular -> color2
-                        NetworkType.Selector -> color3
+                        NetworkType.Wifi -> primaryColor
+                        NetworkType.Cellular -> secondaryColor
                     }
                 )
             }

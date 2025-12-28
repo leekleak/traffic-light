@@ -17,8 +17,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -33,9 +35,11 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
-import com.leekleak.trafficlight.util.px
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import kotlin.math.abs
+import kotlin.math.roundToInt
 import kotlin.math.sign
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -51,7 +55,7 @@ fun ScrollableBarGraph(
     val primaryColor = GraphTheme.primaryColor
     val secondaryColor = GraphTheme.secondaryColor
     val backgroundColor = GraphTheme.backgroundColor
-    val selectorColor = GraphTheme.selectorColor
+    val surfaceColor = colorScheme.surfaceContainer
     val gridColor = GraphTheme.gridColor
     val cornerRadius = GraphTheme.cornerRadius
 
@@ -61,14 +65,14 @@ fun ScrollableBarGraph(
     var selectorOffset by remember { mutableFloatStateOf(0f) }
     val selectorOffsetSnapped = remember { Animatable(0f) }
 
-    val barWidth = 30.dp.px
     var canvasWidth by remember { mutableFloatStateOf(0f) }
+    val barWidth by remember { derivedStateOf { canvasWidth / 11 } }
     val offset = remember(canvasWidth) { Animatable(-barWidth * data.size + canvasWidth) }
 
     val selectorGoal = (canvasWidth)/2 - ((canvasWidth)/2) % barWidth
 
     LaunchedEffect(selectorOffsetSnapped.targetValue, offset.targetValue) {
-        onSelect(((selectorOffsetSnapped.targetValue - offset.targetValue)/barWidth).toInt())
+        onSelect(((selectorOffsetSnapped.targetValue - offset.targetValue)/barWidth).roundToInt())
     }
 
     fun CoroutineScope.barAnimator(clickOffset: Offset, bar: Bar, i: Int) {
@@ -93,9 +97,9 @@ fun ScrollableBarGraph(
     val maximum = remember(data) { Animatable(data.maxOf { it.y1 + it.y2 }.toFloat()) }
 
     val scrollableState = rememberScrollableState { delta ->
-        var totalOffset = (offset.value + delta).coerceIn(-barWidth * data.size + canvasWidth, 0f)
-        var selectorOff = (selectorOffset)
-        if ((selectorOffset * delta.sign > selectorGoal * delta.sign)) {
+        var totalOffset = (offset.value + delta).coerceIn(canvasWidth - barWidth * data.size, 0f)
+        var selectorOff = selectorOffset
+        if (selectorOffset * delta.sign > selectorGoal * delta.sign) {
             totalOffset = offset.value
             val threshold = (selectorOff - delta) * delta.sign < selectorGoal * delta.sign
             selectorOff = if (!threshold) (selectorOff - delta) else selectorGoal
@@ -104,7 +108,7 @@ fun ScrollableBarGraph(
             selectorOff -= delta
         }
 
-        selectorOff = selectorOff.coerceIn(0f, canvasWidth)
+        selectorOff = selectorOff.coerceIn(0f, canvasWidth - 1f) // A bit of a workaround to ensure the selector doesn't go too far
 
         scope.launch {
             selectorOffset = selectorOff
@@ -129,13 +133,18 @@ fun ScrollableBarGraph(
     val snapFlingBehavior = object : FlingBehavior {
         val decaySpec = exponentialDecay<Float>()
         override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
-            val targetValue = decaySpec.calculateTargetValue(
-                initialValue = offset.value,
-                initialVelocity = initialVelocity
-            )
+            val targetValue = if (abs(initialVelocity) < 500) {
+                offset.value
+            } else {
+                decaySpec.calculateTargetValue(
+                    initialValue = offset.value,
+                    initialVelocity = initialVelocity
+                )
+            }
             val snappedTarget = (targetValue - targetValue % barWidth).coerceIn(-barWidth * data.size + canvasWidth, 0f)
 
-            if (initialVelocity.sign == (selectorOffset - selectorGoal).sign) {
+            if (targetValue != offset.value && initialVelocity.sign == (selectorOffset - selectorGoal).sign) {
+                selectorOffset = selectorGoal
                 scope.launch {
                     selectorOffsetSnapped.animateTo(
                         targetValue = selectorGoal,
@@ -146,18 +155,17 @@ fun ScrollableBarGraph(
                         )
                     )
                 }
-            }
-
-
-            scope.launch {
-                offset.animateTo(
-                    targetValue = snappedTarget,
-                    initialVelocity = initialVelocity,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioLowBouncy,
-                        stiffness = Spring.StiffnessMediumLow
+            } else if (selectorOffset == selectorGoal){
+                scope.launch {
+                    offset.animateTo(
+                        targetValue = snappedTarget,
+                        initialVelocity = initialVelocity,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioLowBouncy,
+                            stiffness = Spring.StiffnessMediumLow
+                        )
                     )
-                )
+                }
             }
             return 0f
         }
@@ -187,8 +195,14 @@ fun ScrollableBarGraph(
             data = data,
             stretch = barAnimation,
             xOffset = offset.value.toInt(),
+            xItemSpacing = barWidth,
             maximum = maximum,
             selectorOffset = selectorOffsetSnapped.value,
+            gridColor = gridColor,
+            backgroundColor = backgroundColor,
+            surfaceColor = surfaceColor,
+            primaryColor = primaryColor,
+            secondaryColor = secondaryColor,
             onBarVisibilityChanged = { i, visible ->
                 if (visible) scope.launch { barAnimation[i].animateTo(1f) }
                 else scope.launch { barAnimation[i].snapTo(0f) }
@@ -201,8 +215,8 @@ fun ScrollableBarGraph(
         barOffset.clear()
         barOffset.addAll(barGraphHelper.metrics.rectList)
         barGraphHelper.metrics.rectList
-        barGraphHelper.drawBars(cornerRadius, primaryColor, secondaryColor, selectorColor, barAnimationSqueeze)
-        barGraphHelper.drawGrid(gridColor, backgroundColor, textMeasurer)
+        barGraphHelper.drawBars(cornerRadius, barAnimationSqueeze)
+        barGraphHelper.drawGrid(textMeasurer)
     }
 }
 

@@ -40,7 +40,6 @@ object GraphTheme {
     val onPrimaryColor @Composable get() = MaterialTheme.colorScheme.onPrimary
     val onSecondaryColor @Composable get() = MaterialTheme.colorScheme.onTertiary
     val backgroundColor @Composable get() = MaterialTheme.colorScheme.surface
-    val selectorColor @Composable get() = MaterialTheme.colorScheme.onBackground
     val gridColor @Composable get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
 
     @Composable
