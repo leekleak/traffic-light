@@ -44,8 +44,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
@@ -56,7 +54,6 @@ import com.leekleak.trafficlight.charts.ScrollableBarGraph
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.HourlyUsageRepo
-import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.SizeFormatter
@@ -173,10 +170,8 @@ fun AppItem(
     val totalWifi = appUsage.usage.totalWifi
     val totalCellular = appUsage.usage.totalCellular
 
-    Column (Modifier.card()) {
         Column (Modifier.clickable { onClick() }) {
             Row(
-                modifier = Modifier.padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
@@ -237,7 +232,6 @@ fun AppItem(
                 }
             }
         }
-    }
 }
 
 @Composable
@@ -267,21 +261,5 @@ fun DataBadge (
                 color = tint
             )
         }
-    }
-}
-
-@Composable
-fun classyFont(): FontFamily? {
-    val preferenceRepo: PreferenceRepo = koinInject()
-    val expressiveFonts by preferenceRepo.expressiveFonts.collectAsState(true)
-
-    return if (expressiveFonts) {
-        FontFamily(
-            Font(
-                R.font.momo_trust_display
-            ),
-        )
-    } else {
-        null
     }
 }

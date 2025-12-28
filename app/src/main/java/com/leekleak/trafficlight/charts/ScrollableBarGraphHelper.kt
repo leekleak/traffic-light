@@ -21,7 +21,6 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.toPath
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
@@ -55,7 +54,6 @@ internal class ScrollableBarGraphHelper(
     private val selectorOffset: Float = -1f,
     private val gridColor: Color,
     private val backgroundColor: Color,
-    private val surfaceColor: Color,
     private val primaryColor: Color,
     private val secondaryColor: Color,
     private val onBarVisibilityChanged: (i: Int, visible: Boolean) -> Unit,

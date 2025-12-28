@@ -3,7 +3,6 @@ package com.leekleak.trafficlight.model
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
 import android.os.Build
 import org.koin.core.component.KoinComponent
 import kotlin.collections.contains

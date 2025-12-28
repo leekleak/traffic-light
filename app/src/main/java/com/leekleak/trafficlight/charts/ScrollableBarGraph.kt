@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sign
@@ -55,7 +54,7 @@ fun ScrollableBarGraph(
     val primaryColor = GraphTheme.primaryColor
     val secondaryColor = GraphTheme.secondaryColor
     val backgroundColor = GraphTheme.backgroundColor
-    val surfaceColor = colorScheme.surfaceContainer
+    colorScheme.surfaceContainer
     val gridColor = GraphTheme.gridColor
     val cornerRadius = GraphTheme.cornerRadius
 
@@ -200,7 +199,6 @@ fun ScrollableBarGraph(
             selectorOffset = selectorOffsetSnapped.value,
             gridColor = gridColor,
             backgroundColor = backgroundColor,
-            surfaceColor = surfaceColor,
             primaryColor = primaryColor,
             secondaryColor = secondaryColor,
             onBarVisibilityChanged = { i, visible ->

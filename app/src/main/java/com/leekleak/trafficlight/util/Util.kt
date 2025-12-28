@@ -91,3 +91,4 @@ fun WideScreenWrapper(content: @Composable () -> Unit) {
 }
 
 fun currentTimezone(): ZoneOffset = ZoneId.systemDefault().rules.getOffset(Instant.now())
+
