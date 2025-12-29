@@ -5,10 +5,7 @@
     <string name="this_week">Cette Semaine</string>
     <string name="history">Historique</string>
     <string name="wifi">Wi-Fi</string>
-    <string name="permissions">Permissions</string>
     <string name="settings">Réglages</string>
-    <string name="notification_permission">Notifications</string>
-    <string name="notification_permission_description">La permission de notification est nécessaire pour que l\'icône de vitesse du réseau dans la barre de status fonctionne.</string>
     <string name="battery_optimization">Optimisation de la batterie</string>
     <string name="usage_statistics">Statistiques d\'utilisation</string>
     <string name="screen_off_update">Mettre à jour quand l\'écran est éteint</string>
@@ -23,7 +20,6 @@
     <string name="github_description">Suivre le développement ou signaler des problèmes.</string>
     <string name="fallback_unsupported">Secours non supporté</string>
     <string name="ui">Interface</string>
-    <string name="improve_contrast">Améliorer le contraste</string>
     <string name="limited_mode">Mode limité</string>
     <string name="auto">Auto</string>
     <string name="default_theme">Defaut</string>
