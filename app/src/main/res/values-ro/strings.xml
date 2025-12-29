@@ -7,11 +7,8 @@
     <string name="wifi">Wi-Fi</string>
     <string name="cellular">Celulară</string>
     <string name="grant">Permite</string>
-    <string name="permissions">Permisiuni</string>
     <string name="speed">Viteză: %1$s</string>
     <string name="settings">Configurări</string>
-    <string name="notification_permission">Notificări</string>
-    <string name="notification_permission_description">Permisiunea Notificări este necesară pentru ca pictograma de viteză a rețelei din bara de stare să funcționeze.</string>
     <string name="battery_optimization">Optimizare baterie</string>
     <string name="battery_optimization_description">Trebuie dezactivat pentru a opri telefonul să închidă serviciul de fundal.</string>
     <string name="usage_statistics">Statistici Utilizare</string>
@@ -26,7 +23,6 @@
     <string name="github_description">Urmărește dezvoltarea sau raportează erori.</string>
     <string name="version">Versiunea %1$s</string>
     <string name="ui">Interfață</string>
-    <string name="improve_contrast">Îmbunătățește contrastul</string>
     <string name="limited_mode">Mod Limitat</string>
     <string name="auto">Automat</string>
     <string name="light">Luminos</string>
