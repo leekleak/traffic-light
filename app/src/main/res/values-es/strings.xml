@@ -7,11 +7,8 @@
     <string name="wifi">Wi-Fi</string>
     <string name="cellular">Celular</string>
     <string name="grant">Conceder</string>
-    <string name="permissions">Permisos</string>
     <string name="speed">Velocidad: %1$s</string>
     <string name="settings">Configuración</string>
-    <string name="notification_permission">Notificaciones</string>
-    <string name="notification_permission_description">La autorización de notificaciones es necesaria para que el icono de velocidad de red en la barra de estado funcione.</string>
     <string name="battery_optimization">Optimización de la batería</string>
     <string name="battery_optimization_description">Debe desactivarse para evitar que el teléfono elimine el servicio en segundo plano después de un tiempo.</string>
     <string name="usage_statistics">Estadísticas de Uso</string>
@@ -31,7 +28,6 @@
     <string name="force_fallback_description">Útil cuando se usa una ROM con errores o conexión por ethernet</string>
     <string name="fallback_unsupported">Método alternativo no disponible</string>
     <string name="ui">Interfaz</string>
-    <string name="improve_contrast">Mejorar el contraste</string>
     <string name="limited_mode">Modo Limitado</string>
     <string name="limited_mode_description">Lamentablemente, tu sistema operativo no es compatible con el seguimiento de datos a largo plazo.</string>
     <string name="auto">Automático</string>
