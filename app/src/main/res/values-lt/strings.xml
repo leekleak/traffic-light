@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Šviesoforas</string>
-    <string name="notification_permission_description">Leidimas skelbti pranešimus yra reikalingas tam, kad galėtume rodyti interneto greitį viršutinėje juostoje.</string>
     <string name="grant">Suteikti</string>
     <string name="today">Šiandien</string>
     <string name="this_week">Ši savaitė</string>
@@ -9,8 +8,6 @@
     <string name="wifi">Wi-Fi</string>
     <string name="cellular">Mobilieji</string>
     <string name="settings">Nustatymai</string>
-    <string name="notification_permission">Reikia leidimo skelbti pranešimus</string>
-    <string name="permissions">Leidimai</string>
     <string name="speed">Greitis: %1$s</string>
     <string name="battery_optimization">Akumuliatoriaus optimizacija</string>
     <string name="battery_optimization_description">Jei įjungta, sistema gali sustabdyti programėlės procesą.</string>
@@ -31,7 +28,6 @@
     <string name="force_fallback_description">Naudinga jei jūsų sitema turi klaidų arba esate prisijungę prie laidinio interneto</string>
     <string name="fallback_unsupported">Atsarginis skaičiavimo metodas neveikia</string>
     <string name="ui">Išvaizda</string>
-    <string name="improve_contrast">Padidinti kontrastą</string>
     <string name="limited_mode">Ribotas režimas</string>
     <string name="limited_mode_description">Deja jūsų operacinė sistema neplaiko ilgalaikio duomenų sekimo.</string>
     <string name="auto">Auto</string>
