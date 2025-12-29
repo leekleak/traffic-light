@@ -10,10 +10,7 @@
     <string name="usage_statistics">使用统计</string>
     <string name="speed">网速: %1$s</string>
     <string name="settings">设置</string>
-    <string name="notification_permission">通知</string>
     <string name="grant">授权</string>
-    <string name="permissions">权限</string>
-    <string name="notification_permission_description">用于在状态栏实时显示网速</string>
     <string name="battery_optimization">电池优化</string>
     <string name="usage_statistics_description">用于分析历史网络使用情况</string>
     <string name="notifications">通知</string>
@@ -31,7 +28,6 @@
     <string name="fallback_unsupported">不支持</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="ui">用户界面</string>
-    <string name="improve_contrast">高对比度</string>
     <string name="limited_mode">功能受限</string>
     <string name="limited_mode_description">无法从您的设备获取流量累计使用情况数据。</string>
     <string name="auto">自动</string>
