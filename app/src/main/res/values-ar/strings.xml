@@ -7,11 +7,8 @@
     <string name="wifi">واي فاي</string>
     <string name="cellular">خلوي</string>
     <string name="grant">منح</string>
-    <string name="permissions">الأذونات</string>
     <string name="speed">السرعة: %1$s</string>
     <string name="settings">الإعدادات</string>
-    <string name="notification_permission">الإشعارات</string>
-    <string name="notification_permission_description">إذن الإشعار مطلوب حتى يعمل رمز سرعة الشبكة في شريط الحالة.</string>
     <string name="battery_optimization">تحسين البطارية</string>
     <string name="battery_optimization_description">يجب تعطيله لمنع الهاتف من إنهاء الخدمة الخلفية بعد فترة.</string>
     <string name="usage_statistics">إحصائيات الاستخدام</string>
@@ -31,7 +28,6 @@
     <string name="force_fallback_description">مفيد عند استخدام نظام تشغيل معطوب أو شبكة إيثرنت</string>
     <string name="fallback_unsupported">الخيار البديل غير مدعوم</string>
     <string name="ui">الواجهة</string>
-    <string name="improve_contrast">تحسين التباين</string>
     <string name="limited_mode">الوضع المحدود</string>
     <string name="limited_mode_description">لسوء الحظ، نظام تشغيلك لا يدعم تتبع البيانات على المدى الطويل.</string>
     <string name="auto">تلقائي</string>
