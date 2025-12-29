@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -54,7 +53,6 @@ fun ScrollableBarGraph(
     val primaryColor = GraphTheme.primaryColor
     val secondaryColor = GraphTheme.secondaryColor
     val backgroundColor = GraphTheme.backgroundColor
-    colorScheme.surfaceContainer
     val gridColor = GraphTheme.gridColor
     val cornerRadius = GraphTheme.cornerRadius
 

@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.trafficlight.util.px
 import org.koin.compose.koinInject
 
 @Composable
@@ -31,6 +32,7 @@ fun LineGraph(
     data: Pair<Long, Long>,
 ) {
     val fontSize = 20.sp
+    val textPadding = 4.dp.px
 
     val primaryColor = GraphTheme.primaryColor
     val secondaryColor = GraphTheme.secondaryColor
@@ -39,14 +41,12 @@ fun LineGraph(
     val onBackgroundColor = GraphTheme.onBackgroundColor
 
     val textMeasurer = rememberTextMeasurer()
-
     val font = classyFont()
 
     Canvas(modifier = Modifier
         .fillMaxWidth()
         .height(32.dp)
-        .background(GraphTheme.backgroundColor)
-        .clip(MaterialTheme.shapes.small)
+        .clip(MaterialTheme.shapes.extraSmall)
     ) {
         /**
          * Bars
@@ -66,7 +66,6 @@ fun LineGraph(
         /**
          * Wifi text
          */
-
         val textMeasure1 = textMeasurer.measure(
             DataSize(data.first.toFloat()).toString(),
             TextStyle(
@@ -75,18 +74,19 @@ fun LineGraph(
             )
         )
 
+        val paddingRatio = textPadding / size.width
         val brush1 = Brush.horizontalGradient(
             0f to onPrimaryColor,
-            data.first.toFloat() / maximum to onPrimaryColor,
-            data.first.toFloat() / maximum to onBackgroundColor,
-            (maximum - data.second.toFloat()) / maximum to onBackgroundColor,
-            (maximum - data.second.toFloat()) / maximum to onSecondaryColor,
+            data.first.toFloat() / maximum - paddingRatio to onPrimaryColor,
+            data.first.toFloat() / maximum - paddingRatio to onBackgroundColor,
+            (maximum - data.second.toFloat()) / maximum - paddingRatio to onBackgroundColor,
+            (maximum - data.second.toFloat()) / maximum - paddingRatio to onSecondaryColor,
             startX = 0f,
             endX = size.width
         )
 
         drawText(
-            topLeft = Offset(0f, (size.height - textMeasure1.size.height) / 2),
+            topLeft = Offset(textPadding, (size.height - textMeasure1.size.height) / 2),
             textLayoutResult = textMeasure1,
             brush = brush1,
         )
@@ -94,7 +94,6 @@ fun LineGraph(
         /**
          * Mobile text
          */
-
         val textMeasure2 = textMeasurer.measure(
             DataSize(data.second.toFloat()).toString(),
             TextStyle(
@@ -105,15 +104,18 @@ fun LineGraph(
         )
         val brush2 = Brush.horizontalGradient(
             0f to onPrimaryColor,
-            data.first.toFloat() / maximum to onPrimaryColor,
-            data.first.toFloat() / maximum to onBackgroundColor,
-            (maximum - data.second.toFloat()) / maximum to onBackgroundColor,
-            (maximum - data.second.toFloat()) / maximum to onSecondaryColor,
+            data.first.toFloat() / maximum + paddingRatio to onPrimaryColor,
+            data.first.toFloat() / maximum + paddingRatio to onBackgroundColor,
+            (maximum - data.second.toFloat()) / maximum + paddingRatio to onBackgroundColor,
+            (maximum - data.second.toFloat()) / maximum + paddingRatio to onSecondaryColor,
             startX = textMeasure2.size.width - size.width,
             endX = textMeasure2.size.width.toFloat()
         )
         drawText(
-            topLeft = Offset(size.width - textMeasure2.size.width, (size.height - textMeasure1.size.height) / 2),
+            topLeft = Offset(
+                size.width - textMeasure2.size.width - textPadding,
+                (size.height - textMeasure1.size.height) / 2
+            ),
             textLayoutResult = textMeasure2,
             brush = brush2,
         )

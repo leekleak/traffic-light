@@ -17,14 +17,15 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,26 +38,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.ScrollableBarGraph
+import com.leekleak.trafficlight.charts.classyFont
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.CategoryTitleText
-import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.getName
 import com.leekleak.trafficlight.util.px
 import org.koin.compose.koinInject
@@ -87,65 +87,68 @@ fun History(paddingValues: PaddingValues) {
     val days = remember { getDatesForTimespan() }
     val usageFlow = remember { hourlyUsageRepo.daysUsage(days.first, days.second) }
 
-    LazyColumn(
+    Column (
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.surface)
+            .padding(
+                start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
+                end = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
+            )
             .statusBarsPadding()
-            .fillMaxSize(),
-        contentPadding = paddingValues,
-        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        stickyHeader {
-            Column {
-                Column (Modifier.background(MaterialTheme.colorScheme.background)) {
-                    CategoryTitleText(stringResource(R.string.history))
-                    Box(
-                        modifier = Modifier
-                            .card()
-                            .padding(6.dp)
-                            .clip(MaterialTheme.shapes.medium)
-                    ) {
-                        val usage: List<ScrollableBarData> by usageFlow.collectAsState(List(MAX_DAYS) {
-                            ScrollableBarData(LocalDate.now())
-                        })
-                        Box(
-                            modifier = Modifier
-                                .clip(MaterialTheme.shapes.medium)
-                                .background(MaterialTheme.colorScheme.background)
-                        ) {
-                            ScrollableBarGraph(usage) {
-                                appDay = days.first.plusDays(it.toLong())
-                            }
-                        }
-                    }
-                    Row(Modifier.fillMaxWidth()) {
-                        CategoryTitleText(stringResource(R.string.app_usage))
-                        ButtonGroup(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
-                            expandedRatio = 0f, // TODO: Remove the day google fixes compose.
-                            overflowIndicator = {}
-                        ) {
-                            toggleableItem(
-                                onCheckedChange = {showMonth = true},
-                                label = appDay.month.getName(TextStyle.FULL),
-                                checked = showMonth
-                            )
-                            toggleableItem(
-                                onCheckedChange = {showMonth = false},
-                                label = appDay.dayOfMonth.toString(),
-                                checked = !showMonth
-                            )
-                        }
-                    }
+        CategoryTitleText(stringResource(R.string.history))
+        Box(
+            modifier = Modifier
+                .card()
+                .padding(6.dp)
+                .clip(MaterialTheme.shapes.medium)
+        ) {
+            val usage: List<ScrollableBarData> by usageFlow.collectAsState(List(MAX_DAYS) {
+                ScrollableBarData(LocalDate.now())
+            })
+            Box(
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(colorScheme.background)
+            ) {
+                ScrollableBarGraph(usage) {
+                    appDay = days.first.plusDays(it.toLong())
                 }
             }
         }
-        items(appList, { it.name }) { item ->
-            Box(Modifier.animateItem()) {
-                AppItem(item, item.uid == appSelected, appMaximum) {
-                    appSelected = if (appSelected != item.uid) item.uid else -1
-                    haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+        Row(Modifier.fillMaxWidth()) {
+            CategoryTitleText(stringResource(R.string.app_usage))
+            ButtonGroup(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
+                expandedRatio = 0f, // TODO: Remove the day google fixes compose.
+                overflowIndicator = {}
+            ) {
+                toggleableItem(
+                    onCheckedChange = {showMonth = true},
+                    label = appDay.month.getName(TextStyle.FULL),
+                    checked = showMonth
+                )
+                toggleableItem(
+                    onCheckedChange = {showMonth = false},
+                    label = appDay.dayOfMonth.toString(),
+                    checked = !showMonth
+                )
+            }
+        }
+        LazyColumn(
+            modifier = Modifier
+                .background(colorScheme.surface)
+                .fillMaxSize(),
+            contentPadding = PaddingValues(0.dp, 0.dp, 0.dp, paddingValues.calculateBottomPadding()),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            item("scroll holder") { }
+            items(appList, { it.name }) { item ->
+                Box(Modifier.animateItem()) {
+                    AppItem(item, item.uid == appSelected, appMaximum) {
+                        appSelected = if (appSelected != item.uid) item.uid else -1
+                        haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                    }
                 }
             }
         }
@@ -170,96 +173,72 @@ fun AppItem(
     val totalWifi = appUsage.usage.totalWifi
     val totalCellular = appUsage.usage.totalCellular
 
-        Column (Modifier.clickable { onClick() }) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                val width = 32.dp.px.roundToInt()
-                val icon = context.packageManager.getApplicationIcon(appUsage.packageName)
-                Image(
-                    bitmap = icon.toBitmap(width, width).asImageBitmap(),
-                    contentDescription = null
-                )
+    val imageWidth = 32.dp
 
-                AnimatedContent(selected) { selected ->
-                    if (!selected) {
-                        LineGraph(
-                            maximum = maximum,
-                            data = Pair(totalWifi, totalCellular)
-                        )
-                    } else {
-                        Row (
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(MaterialTheme.shapes.medium)
-                                .background(MaterialTheme.colorScheme.background)
-                                .padding(8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                        ) {
-                            DataBadge(
-                                iconId = R.drawable.wifi,
-                                description = stringResource(R.string.wifi),
-                                bgTint = MaterialTheme.colorScheme.primary,
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                                value = totalWifi
-                            )
-                            DataBadge(
-                                iconId = R.drawable.cellular,
-                                description = stringResource(R.string.cellular),
-                                bgTint = MaterialTheme.colorScheme.tertiary,
-                                tint = MaterialTheme.colorScheme.onTertiary,
-                                value = totalCellular
-                            )
-                        }
-                    }
-                }
+    Column (
+        modifier = Modifier
+            .clip(MaterialTheme.shapes.small)
+            .background(colorScheme.surfaceContainer)
+            .clickable { onClick() }
+    ) {
+        Row(
+            modifier = Modifier.padding(4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            val icon = context.packageManager.getApplicationIcon(appUsage.packageName)
+            Image(
+                bitmap = icon.toBitmap(imageWidth.px.roundToInt(), imageWidth.px.roundToInt()).asImageBitmap(),
+                contentDescription = null
+            )
 
-            }
-            AnimatedVisibility (
-                visible = selected,
-                enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
-                exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
+            AnimatedContent(selected) { selected ->
+                if (!selected) {
+                    LineGraph(
+                        maximum = maximum,
+                        data = Pair(totalWifi, totalCellular)
+                    )
+                } else {
                     Text(
-                        textAlign = TextAlign.Center,
-                        text = appUsage.name + "\n" + appUsage.appInfo.packageName
+                        text = appUsage.name,
+                        fontFamily = classyFont()
                     )
                 }
             }
-        }
-}
 
-@Composable
-fun DataBadge (
-    iconId: Int,
-    description: String,
-    bgTint: Color,
-    tint: Color,
-    value: Long
-) {
-    val sizeFormatter = remember { SizeFormatter() }
-    Box (modifier = Modifier.clip(MaterialTheme.shapes.small)) {
-        Row(
-            modifier = Modifier
-                .background(bgTint)
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.spacedBy (4.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        }
+        AnimatedVisibility (
+            visible = selected,
+            enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
+            exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
         ) {
-            Icon(
-                painter = painterResource(iconId),
-                contentDescription = description,
-                tint = tint
-            )
-            Text(
-                text = sizeFormatter.format(value, 1),
-                color = tint
-            )
+            val offset = imageWidth + 12.dp
+            Column (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 4.dp, end = offset + 4.dp)
+                    .offset(offset, 0.dp),
+            ) {
+                Row {
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = stringResource(R.string.wifi),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = colorScheme.tertiary
+                    )
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = stringResource(R.string.cellular),
+                        textAlign = TextAlign.End,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = colorScheme.tertiary
+                    )
+                }
+                LineGraph(
+                    maximum = maximum,
+                    data = Pair(totalWifi, totalCellular)
+                )
+            }
         }
     }
 }
