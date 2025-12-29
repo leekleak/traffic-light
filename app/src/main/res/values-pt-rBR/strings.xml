@@ -14,7 +14,7 @@
     <string name="notification_permission_description">A permissão de notificação é necessária para que o ícone de velocidade de internet na barra de status funcione.</string>
     <string name="battery_optimization">Otimização de bateria</string>
     <string name="battery_optimization_description">Deve ser desativada para evitar que o telefone encerre o serviço em segundo plano após um tempo.</string>
-    <string name="usage_statistics">Estatísticas de uso</string>
+    <string name="usage_statistics">Acesso ao uso</string>
     <string name="usage_statistics_description">Necessário para o monitoramento do uso de dados a longo prazo.</string>
     <string name="notifications">Notificação</string>
     <string name="screen_off_update">Atualizar quando a tela estiver desligada</string>

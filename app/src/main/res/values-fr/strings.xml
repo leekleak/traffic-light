@@ -16,7 +16,7 @@
     <string name="dark">Sombre</string>
     <string name="help">Aide</string>
     <string name="cellular">Données mobiles</string>
-    <string name="screen_off_update_description">Autoriser le suivi sur l\'AOD, mais impacte la batterie.</string>
+    <string name="screen_off_update_description">Autoriser le suivi d\'utilisation sur l\'AOD, mais impacte la batterie.</string>
     <string name="oversample_icon_description">Afficher l\'icone en plus haute résolution si elle est floue.</string>
     <string name="about">A propos</string>
     <string name="speed_in_bits">Afficher la vitesse en bits</string>
@@ -27,14 +27,21 @@
     <string name="limited_mode">Mode limité</string>
     <string name="auto">Auto</string>
     <string name="default_theme">Defaut</string>
-    <string name="speed">Vitesse:%1$s</string>
+    <string name="speed">Vitesse :%1$s</string>
     <string name="battery_optimization_description">Doit être désactivé pour empêcher le téléphone de tuer le service en arrière plan après un certain temps.</string>
     <string name="notifications">Notification</string>
-    <string name="wi_fi">Wi-Fi:%1$s</string>
+    <string name="wi_fi">Wi-Fi :%1$s</string>
     <string name="force_fallback">Forcer le suivi de vitesse de secours</string>
     <string name="limited_mode_description">Malheuresement votre système d\'exploitation ne supporte pas le suivi de données sur le long terme.</string>
     <string name="expressive_fonts">Polices expressives</string>
     <string name="version">Version %1$s</string>
     <string name="app_usage">Utilisation des applications</string>
     <string name="missing_permissions">Permissions manquantes</string>
+    <string name="grant">Autoriser</string>
+    <string name="usage_statistics_description">Requis pour le suivi d\'utilisation des données sur le long terme.</string>
+    <string name="oversample_icon">Sur-échantillonnage de l’icône</string>
+    <string name="mobile">Mobile : %1$s</string>
+    <string name="force_fallback_description">Utile avec une ROM boguée ou avec ethernet</string>
+    <string name="advanced_settings">Paramètres avancés</string>
+    <string name="notification_description">Suivre la vitesse du réseau dans la barre d\'état.</string>
 </resources>
