@@ -5,14 +5,11 @@
     <string name="this_week">На этой неделе</string>
     <string name="history">История</string>
     <string name="wifi">Wi-Fi</string>
-    <string name="notification_permission">Уведомления</string>
-    <string name="notification_permission_description">Требуется для отображения скорости сети в разделе уведомлений.</string>
     <string name="battery_optimization">Оптимизация батареи</string>
     <string name="battery_optimization_description">Отключение оптимизации батареи позволят приложению работать в фоновом режиме без прерываний.</string>
     <string name="usage_statistics">Статистика использования</string>
     <string name="usage_statistics_description">Требуется для долгосрочного отслеживания использования сети.</string>
     <string name="notifications">Уведомление</string>
-    <string name="permissions">Разрешения</string>
     <string name="speed">Скорость: %1$s</string>
     <string name="settings">Настройки</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
@@ -33,7 +30,6 @@
     <string name="force_fallback_description">Полезно при использовании неисправной ОС или интернета</string>
     <string name="fallback_unsupported">Резервный вариант не поддерживается</string>
     <string name="ui">Интерфейс</string>
-    <string name="improve_contrast">Улучшить контраст</string>
     <string name="limited_mode">Ограниченный Режим</string>
     <string name="limited_mode_description">К сожалению, ваша операционная система не поддерживает долгосрочное отслеживание данных.</string>
     <string name="auto">Автоматически</string>
