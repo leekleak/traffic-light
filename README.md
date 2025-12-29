@@ -28,7 +28,7 @@ Make sure to follow the __issue template__ when reporting bugs or suggesting fea
 ## Contributions
 
 ### Code
-Contributors are welcome, however as I'm quite jaded, please create an issue first. Unless I deem it incredibly useful, I doubt I'll accept any major new features, so please tell me first so as to not be disappointed.
+Contributors are welcome, however please create an issue first. When asking/adding features please elaborate why that feature is useful to you.
 
 ### Translations
 [<img src="https://hosted.weblate.org/widget/traffic-light/multi-auto.svg" alt="Translation status" />](https://hosted.weblate.org/engage/traffic-light/)

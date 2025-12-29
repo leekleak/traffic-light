@@ -7,11 +7,8 @@
     <string name="wifi">Wi-Fi</string>
     <string name="cellular">Cellular</string>
     <string name="grant">Grant</string>
-    <string name="permissions">Permissions</string>
     <string name="speed">Speed: %1$s</string>
     <string name="settings">Settings</string>
-    <string name="notification_permission">Notifications</string>
-    <string name="notification_permission_description">The notification permission is required for the network speed icon in the status bar to work.</string>
     <string name="battery_optimization">Battery optimization</string>
     <string name="battery_optimization_description">Must be disabled to stop the phone killing the background service after a while.</string>
     <string name="usage_statistics">Usage Statistics</string>
@@ -32,7 +29,6 @@
     <string name="force_fallback_description">Helpful when using a buggy ROM or ethernet</string>
     <string name="fallback_unsupported">Fallback unsupported</string>
     <string name="ui">Interface</string>
-    <string name="improve_contrast">Improve contrast</string>
     <string name="limited_mode">Limited Mode</string>
     <string name="limited_mode_description">Unfortunately your operating system does not support long term data tracking.</string>
     <string name="auto">Auto</string>
