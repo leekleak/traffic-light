@@ -3,7 +3,6 @@ package com.leekleak.trafficlight.model
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
 import android.os.Build
 import org.koin.core.component.KoinComponent
 import kotlin.collections.contains
@@ -27,5 +26,4 @@ class AppDatabase(context: Context): KoinComponent {
     }
 
     fun getLabel(app: ApplicationInfo): String = app.loadLabel(packageManager).toString()
-    fun getIcon(app: ApplicationInfo): Drawable = app.loadIcon(packageManager)
 }

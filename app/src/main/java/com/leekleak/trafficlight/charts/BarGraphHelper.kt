@@ -32,7 +32,6 @@ internal data class BarGraphMetrics(
     val gridHeight: Float,
     val gridWidth: Float,
     val xItemSpacing: Float,
-    val maxPointsSize: Int,
     val yAxisData: List<Pair<Double, Double>>,
     val xAxisData: List<String>,
     val rectList: List<Bar>,
@@ -62,17 +61,15 @@ internal class BarGraphHelper(
         val gridHeight = size.height - paddingBottom.toPx()
         val gridWidth = size.width - yAxisPadding.toPx()
 
-        val maxPointsSize = yAxisData.size + 1
-
         val rectList = mutableListOf<Bar>()
 
         val absMaxY = max(DataSize(getAbsoluteMax(yAxisData)).getComparisonValue().getBitValue(), 1024)
         val verticalStep = absMaxY / gridHeight
 
-        val xItemSpacing = gridWidth / (maxPointsSize - 1)
+        val xItemSpacing = gridWidth / yAxisData.size
 
         rectList.clear()
-        for (i in 0 until maxPointsSize - 1) {
+        for (i in 0 until yAxisData.size) {
             val padding = 0.5.dp.toPx()
             val x = xItemSpacing * i
             val yOffset1 = yAxisData[i].first.toFloat() / verticalStep
@@ -121,7 +118,6 @@ internal class BarGraphHelper(
             gridHeight = gridHeight,
             gridWidth = gridWidth,
             xItemSpacing = xItemSpacing,
-            maxPointsSize = maxPointsSize,
             yAxisData = yAxisData,
             xAxisData = xAxisData,
             rectList = rectList,
@@ -139,7 +135,6 @@ internal class BarGraphHelper(
                 start = Offset(0f, 0f),
                 end = Offset(metrics.gridWidth, 0f),
                 color = color,
-                alpha = 0.5f,
                 strokeWidth = 1.dp.toPx(),
                 pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f))
             )
@@ -148,11 +143,10 @@ internal class BarGraphHelper(
                 start = Offset(0f, metrics.gridHeight),
                 end = Offset(metrics.gridWidth, metrics.gridHeight),
                 color = color,
-                alpha = 0.5f,
                 strokeWidth = 1.dp.toPx(),
             )
 
-            for (i in 0 until metrics.maxPointsSize - 1) {
+            for (i in 0 until yAxisData.size) {
                 val x = metrics.xItemSpacing * i
                 val yStart = metrics.gridHeight + if (i % 3 == 0) 12 else 6
                 val yEnd = metrics.gridHeight - if (i % 3 == 0) 12 else 6
@@ -160,7 +154,6 @@ internal class BarGraphHelper(
                     start = Offset(x, yStart),
                     end = Offset(x, yEnd),
                     color = color,
-                    alpha = 0.5f,
                     strokeWidth = 1.dp.toPx(),
                 )
             }
@@ -193,7 +186,6 @@ internal class BarGraphHelper(
                         with(icon) {
                             draw(
                                 size = iconSize,
-                                alpha = 1.0f,
                                 colorFilter = ColorFilter.tint(iconColor)
                             )
                         }
@@ -207,11 +199,10 @@ internal class BarGraphHelper(
         scope.run {
             val paint = Paint().apply {
                 this.color = color.toArgb()
-                alpha = 255/2
                 textAlign = Paint.Align.CENTER
                 textSize = 12.sp.toPx()
             }
-            for (i in 0 until metrics.maxPointsSize - 1) {
+            for (i in 0 until yAxisData.size) {
                 val xPos = metrics.xItemSpacing * (i + if (centerLabels) 0.5f else 0f)
                 drawContext.canvas.nativeCanvas.drawText(
                     xAxisData[i],
@@ -221,7 +212,7 @@ internal class BarGraphHelper(
                 )
             }
 
-            val xPos = (metrics.xItemSpacing * (metrics.maxPointsSize-1))
+            val xPos = metrics.xItemSpacing * yAxisData.size
             drawContext.canvas.nativeCanvas.drawText(finalGridPoint, xPos, size.height, paint)
 
             drawLine(

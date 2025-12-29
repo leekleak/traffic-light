@@ -27,7 +27,7 @@ import java.util.Locale
 
 enum class NetworkType {
     Cellular,
-    Wifi
+    Wifi,
 }
 
 fun String.clipAndPad(length: Int): String {
@@ -54,19 +54,19 @@ fun DayOfWeek.getName(style: TextStyle) =
 fun Month.getName(style: TextStyle) =
     this.getDisplayName(style, Locale.getDefault()).replaceFirstChar(Char::titlecase)
 
-fun LazyListScope.categoryTitle(text: Int) {
-    item {
-        Text(
-            modifier = Modifier.padding(8.dp),
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            text = stringResource(text)
-        )
-    }
+fun LazyListScope.categoryTitle(text: Int) = item { CategoryTitleText(stringResource(text)) }
+
+@Composable
+fun CategoryTitleText(text: String) {
+    Text(
+        modifier = Modifier.padding(8.dp),
+        fontSize = 24.sp,
+        fontWeight = FontWeight.Bold,
+        text = text
+    )
 }
 
 fun LazyListScope.categoryTitleSmall(text: Int) = item { CategoryTitleSmallText(stringResource(text)) }
-fun LazyListScope.categoryTitleSmall(text: String) = item { CategoryTitleSmallText(text) }
 
 @Composable
 fun CategoryTitleSmallText(text: String) {
@@ -91,3 +91,4 @@ fun WideScreenWrapper(content: @Composable () -> Unit) {
 }
 
 fun currentTimezone(): ZoneOffset = ZoneId.systemDefault().rules.getOffset(Instant.now())
+

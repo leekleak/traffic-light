@@ -1,7 +1,5 @@
 package com.leekleak.trafficlight.charts
 
-import android.os.VibrationEffect
-import android.os.Vibrator
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseIn
 import androidx.compose.animation.core.animateFloatAsState
@@ -25,8 +23,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.util.px
@@ -40,7 +39,8 @@ import kotlinx.coroutines.launch
 fun BarGraph(
     data: List<BarData>,
     finalGridPoint: String = "24",
-    centerLabels: Boolean = false
+    centerLabels: Boolean = false,
+    onClick: (i: Int) -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -51,7 +51,8 @@ fun BarGraph(
             xAxisData = data.map { it.x },
             yAxisData = data.map { Pair(it.y1, it.y2) },
             finalGridPoint = finalGridPoint,
-            centerLabels = centerLabels
+            centerLabels = centerLabels,
+            onClick = onClick
         )
     }
 }
@@ -62,15 +63,11 @@ private fun BarGraphImpl(
     xAxisData: List<String>,
     yAxisData: List<Pair<Double, Double>>,
     finalGridPoint: String,
-    centerLabels: Boolean
+    centerLabels: Boolean,
+    onClick: (i: Int) -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    val vibrator = LocalContext.current.getSystemService(Vibrator::class.java)
-    val vibrationEffectStrong = VibrationEffect.createOneShot(80, 200)
-    val vibrationEffectMedium = VibrationEffect.createOneShot(40, 100)
-    val vibrationEffectWeak = VibrationEffect.createOneShot(40,50)
-
-    val backgroundColor = GraphTheme.backgroundColor
+    val haptic = LocalHapticFeedback.current
 
     val primaryColor = GraphTheme.primaryColor
     val secondaryColor = GraphTheme.secondaryColor
@@ -99,8 +96,8 @@ private fun BarGraphImpl(
 
     val wifiAnimation = remember { Animatable(0f) }
     val cellularAnimation = remember { Animatable(0f) }
-    val barAnimationSqueeze = remember { List(yAxisData.size * 2) { Animatable(0f) } }
-    val barAnimation = remember { List(yAxisData.size) { Animatable(0f) } }
+    val barAnimationSqueeze = remember(yAxisData.size) { List(yAxisData.size * 2) { Animatable(0f) } }
+    val barAnimation = remember(yAxisData.size) { List(yAxisData.size) { Animatable(0f) } }
     LaunchedEffect(yAxisData) {
         for (i in 0..<barAnimation.size) {
             launch(Dispatchers.IO) {
@@ -123,9 +120,9 @@ private fun BarGraphImpl(
             legendStrength.intValue != 0
         ) {
             legendStrength.intValue -= 1
-            vibrator.vibrate(
-                if (legendStrength.intValue == 0) vibrationEffectStrong
-                else vibrationEffectMedium
+            haptic.performHapticFeedback(
+                if (legendStrength.intValue == 0) HapticFeedbackType.LongPress
+                else HapticFeedbackType.ContextClick
             )
             animation.animateTo(
                 targetValue = if (animation.targetValue == 15f) 0f else 15f,
@@ -134,13 +131,14 @@ private fun BarGraphImpl(
         }
     }
 
-    fun CoroutineScope.barAnimator(clickOffset: Offset, bar: Bar, animation: Animatable<Float, *>) {
+    fun CoroutineScope.barAnimator(clickOffset: Offset, bar: Bar, i: Int, animation: Animatable<Float, *>) {
         if (
             (clickOffset - bar.rect.topLeft).x in (0f..bar.rect.size.width) &&
             (clickOffset - bar.rect.topLeft).y in (0f..bar.rect.size.height)
         ) {
-            vibrator.vibrate(vibrationEffectWeak)
+            haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
             launch {
+                onClick(i)
                 animation.animateTo(
                     targetValue = 8f,
                     animationSpec = tween(150)
@@ -155,7 +153,6 @@ private fun BarGraphImpl(
 
     Canvas(
         modifier = Modifier
-            .background(backgroundColor)
             .padding(top = 24.dp, bottom = 14.dp, start = 20.dp, end = 20.dp)
             .height(170.dp)
             .fillMaxWidth()
@@ -165,7 +162,7 @@ private fun BarGraphImpl(
                         legendAnimator(offset, wifiOffset, wifiAnimation, wifiLegendStrength)
                         legendAnimator(offset, cellularOffset, cellularAnimation, cellularLegendStrength)
                         for (i in 0..<barOffset.size) {
-                            barAnimator(offset, barOffset[i], barAnimationSqueeze[i])
+                            barAnimator(offset, barOffset[i], i, barAnimationSqueeze[i])
                         }
                     }
                 }

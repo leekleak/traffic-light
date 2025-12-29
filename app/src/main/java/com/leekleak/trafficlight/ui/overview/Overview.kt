@@ -45,15 +45,17 @@ import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HourlyUsageRepo
+import com.leekleak.trafficlight.database.HourlyUsageRepo.Companion.dayUsageToBarData
 import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.services.UsageService
-import com.leekleak.trafficlight.ui.history.dayUsageToBarData
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.categoryTitle
 import kotlinx.coroutines.delay
 import org.koin.compose.koinInject
 import java.time.LocalDate
+import kotlin.collections.isNotEmpty
+import kotlin.collections.listOf
 
 @Composable
 fun Overview(
@@ -62,7 +64,7 @@ fun Overview(
     val viewModel: OverviewVM = viewModel()
 
     val todayUsage by viewModel.todayUsage.collectAsState(DayUsage())
-    val weeklyUsage by viewModel.weekUsage().collectAsState(listOf())
+    val weeklyUsage by viewModel.hourlyUsageRepo.weekUsage().collectAsState(listOf())
 
     /**
      * Generally the notification service is responsible for updating daily usage,
@@ -75,7 +77,7 @@ fun Overview(
     LaunchedEffect(notification) {
         if (!notification) {
             while (true) {
-                UsageService.todayUsage = hourlyUsageRepo.calculateDayUsage(LocalDate.now())
+                UsageService.todayUsage = hourlyUsageRepo.singleDayUsage(LocalDate.now())
                 delay(5000)
             }
         }

@@ -1,105 +1,139 @@
 package com.leekleak.trafficlight.charts
 
-import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.model.PreferenceRepo
+import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.px
-import java.lang.Float.max
-import kotlin.math.min
-import kotlin.math.pow
-
-
-data class RectDrawData (
-    val rect: Rect,
-    val color: Color,
-    val leftRadius: CornerRadius,
-    val rightRadius: CornerRadius,
-)
+import org.koin.compose.koinInject
 
 @Composable
 fun LineGraph(
     maximum: Long,
     data: Pair<Long, Long>,
 ) {
+    val fontSize = 20.sp
+    val textPadding = 4.dp.px
+
     val primaryColor = GraphTheme.primaryColor
     val secondaryColor = GraphTheme.secondaryColor
-    val backgroundColor = GraphTheme.backgroundColor
-    val cornerBig = CornerRadius(32.dp.px)
-    val cornerSmall = CornerRadius(16.dp.px)
+    val onPrimaryColor = GraphTheme.onPrimaryColor
+    val onSecondaryColor = GraphTheme.onSecondaryColor
+    val onBackgroundColor = GraphTheme.onBackgroundColor
 
-    val max = remember { Animatable(10f.pow(15)) }
+    val textMeasurer = rememberTextMeasurer()
+    val font = classyFont()
 
-    LaunchedEffect(maximum) {
-        max.animateTo(maximum.toFloat())
-    }
-
-    Canvas(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(32.dp)
+    Canvas(modifier = Modifier
+        .fillMaxWidth()
+        .height(32.dp)
+        .clip(MaterialTheme.shapes.extraSmall)
     ) {
-        val wifiMaxWidth = size.width - if (data.second != 0L) 24.dp.toPx() else 0f
-        val cellularMaxWidth = size.width - if (data.first != 0L) 24.dp.toPx() else 0f
-        val wifiSizeX =
-            min(
-                max((data.first.toDouble() / max.value * size.width).toFloat(), cornerBig.x),
-                wifiMaxWidth
+        /**
+         * Bars
+         */
+        val width1 = data.first.toFloat() / maximum * size.width
+        val width2 = data.second.toFloat() / maximum * size.width
+        drawRect(
+            color = primaryColor,
+            size = Size(width1, size.height)
+        )
+        drawRect(
+            color = secondaryColor,
+            topLeft = Offset(size.width-width2, 0f),
+            size = Size(width2, size.height)
+        )
+
+        /**
+         * Wifi text
+         */
+        val textMeasure1 = textMeasurer.measure(
+            DataSize(data.first.toFloat()).toString(),
+            TextStyle(
+                fontFamily = font,
+                fontSize = fontSize,
             )
-        val cellularSizeX =
-            min(
-            max((data.second.toDouble() / max.value * size.width).toFloat(), cornerBig.x),
-            cellularMaxWidth
+        )
+
+        val paddingRatio = textPadding / size.width
+        val brush1 = Brush.horizontalGradient(
+            0f to onPrimaryColor,
+            data.first.toFloat() / maximum - paddingRatio to onPrimaryColor,
+            data.first.toFloat() / maximum - paddingRatio to onBackgroundColor,
+            (maximum - data.second.toFloat()) / maximum - paddingRatio to onBackgroundColor,
+            (maximum - data.second.toFloat()) / maximum - paddingRatio to onSecondaryColor,
+            startX = 0f,
+            endX = size.width
+        )
+
+        drawText(
+            topLeft = Offset(textPadding, (size.height - textMeasure1.size.height) / 2),
+            textLayoutResult = textMeasure1,
+            brush = brush1,
+        )
+
+        /**
+         * Mobile text
+         */
+        val textMeasure2 = textMeasurer.measure(
+            DataSize(data.second.toFloat()).toString(),
+            TextStyle(
+                fontFamily = font,
+                fontSize = fontSize,
+                brush = brush1
             )
-
-        val padding = 6.dp.toPx()
-
-        val wifiRect = Rect(
-            Offset(padding, padding),
-            Size(wifiSizeX - padding * 2, size.height - padding * 2)
         )
-
-        val cellularRect = Rect(
-            Offset(size.width - cellularSizeX + padding, padding),
-            Size(cellularSizeX - padding * 2, size.height- padding * 2)
+        val brush2 = Brush.horizontalGradient(
+            0f to onPrimaryColor,
+            data.first.toFloat() / maximum + paddingRatio to onPrimaryColor,
+            data.first.toFloat() / maximum + paddingRatio to onBackgroundColor,
+            (maximum - data.second.toFloat()) / maximum + paddingRatio to onBackgroundColor,
+            (maximum - data.second.toFloat()) / maximum + paddingRatio to onSecondaryColor,
+            startX = textMeasure2.size.width - size.width,
+            endX = textMeasure2.size.width.toFloat()
         )
-
-        val backgroundRect = Rect(
-            Offset(0f, 0f),
-            Size(size.width, size.height)
+        drawText(
+            topLeft = Offset(
+                size.width - textMeasure2.size.width - textPadding,
+                (size.height - textMeasure1.size.height) / 2
+            ),
+            textLayoutResult = textMeasure2,
+            brush = brush2,
         )
-
-        val rects = mutableListOf(RectDrawData(backgroundRect, backgroundColor, cornerBig, cornerBig))
-        if (data.first != 0L) rects.add(RectDrawData(wifiRect, primaryColor, cornerBig, cornerSmall))
-        if (data.second != 0L) rects.add(RectDrawData(cellularRect, secondaryColor, cornerSmall, cornerBig))
-
-        for (data in rects) {
-            val path = Path().apply {
-                addRoundRect(
-                    RoundRect(
-                        rect = data.rect,
-                        topLeft = data.leftRadius,
-                        topRight = data.rightRadius,
-                        bottomRight = data.rightRadius,
-                        bottomLeft = data.leftRadius,
-                    )
-                )
-            }
-            drawPath(path, data.color)
-        }
     }
 }
 
+@Composable
+fun classyFont(): FontFamily? {
+    val preferenceRepo: PreferenceRepo = koinInject()
+    val expressiveFonts by preferenceRepo.expressiveFonts.collectAsState(true)
 
+    return if (expressiveFonts) {
+        FontFamily(
+            Font(
+                R.font.momo_trust_display
+            ),
+        )
+    } else {
+        null
+    }
+}

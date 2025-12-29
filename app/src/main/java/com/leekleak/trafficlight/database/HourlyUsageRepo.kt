@@ -4,8 +4,12 @@ import android.app.usage.NetworkStats
 import android.app.usage.NetworkStatsManager
 import android.content.Context
 import android.content.Context.NETWORK_STATS_SERVICE
+import com.leekleak.trafficlight.charts.model.BarData
+import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.model.AppDatabase
 import com.leekleak.trafficlight.services.PermissionManager
+import com.leekleak.trafficlight.util.getName
+import com.leekleak.trafficlight.util.padHour
 import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -15,9 +19,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
 
 enum class UsageMode {
@@ -39,7 +47,7 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
         else UsageMode.Unlimited
     }
 
-    fun calculateDayUsage(date: LocalDate): DayUsage {
+    fun singleDayUsage(date: LocalDate): DayUsage {
         val dayStamp = date.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
         val hours: MutableMap<Long, HourData> = mutableMapOf()
 
@@ -51,14 +59,11 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
         return DayUsage(date, hours).also { it.categorizeUsage() }
     }
 
-    fun calculateDayUsageFlow(date: LocalDate): Flow<DayUsage> = flow {
-        emit(calculateDayUsage(date))
-    }.flowOn(Dispatchers.Default)
-
-    fun calculateDayUsageBasic(date: LocalDate, uid: Int? = null): DayUsage {
-        val dayStamp = date.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
-        val stats = calculateHourData(dayStamp, dayStamp + 3_600_000L * 24, uid)
-        return DayUsage(date, mutableMapOf(), stats.wifi, stats.cellular)
+    fun calculateDayUsageBasic(startDate: LocalDate, endDate: LocalDate = startDate, uid: Int? = null): DayUsage {
+        val startStamp = startDate.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
+        val endStamp = endDate.plusDays(1).atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
+        val stats = calculateHourData(startStamp, endStamp, uid)
+        return DayUsage(startDate, mutableMapOf(), stats.wifi, stats.cellular)
     }
 
     fun calculateHourData(startTime: Long, endTime: Long, uid: Int? = null): HourData {
@@ -102,24 +107,90 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
         return hourData
     }
 
-    suspend fun getAllAppUsage(date: LocalDate): List<AppUsage> = coroutineScope {
-        val jobs = appDatabase.suspiciousApps.map { app ->
-            async(Dispatchers.IO) {
-                val dayUsage = calculateDayUsageBasic(date, app.uid)
-                return@async AppUsage(
-                    usage = dayUsage,
-                    uid = app.uid,
-                    name = appDatabase.getLabel(app),
-                    icon = app.icon,
-                    drawable = appDatabase.getIcon(app),
-                    appInfo = app
-                )
-            }
-        }
+    fun getAllAppUsage(startDate: LocalDate, endDate: LocalDate = startDate): Flow<List<AppUsage>> =
+        flow {
+            coroutineScope {
+                val requestSemaphore = Semaphore(permits = 3)
+                val jobs = appDatabase.suspiciousApps.map { app ->
+                    async(Dispatchers.IO) {
+                        requestSemaphore.withPermit {
+                            val dayUsage = calculateDayUsageBasic(startDate, endDate, app.uid)
+                            return@async AppUsage(
+                                usage = dayUsage,
+                                uid = app.uid,
+                                name = appDatabase.getLabel(app),
+                                packageName = app.packageName,
+                                appInfo = app
+                            )
+                        }
+                    }
+                }
 
-        val list = jobs.awaitAll().toMutableList()
-        list.removeAll { it.usage.totalCellular + it.usage.totalWifi == 0L }
-        list.sortByDescending { it.usage.totalCellular + it.usage.totalWifi }
-        return@coroutineScope list.map { it }
+                val list = jobs.awaitAll().toMutableList()
+                list.removeAll { it.usage.totalCellular + it.usage.totalWifi == 0L }
+                list.sortByDescending { it.usage.totalCellular + it.usage.totalWifi }
+                emit(list.distinctBy { it.uid }.toList())
+            }
+        }.flowOn(Dispatchers.IO)
+
+    fun daysUsage(startDate: LocalDate, endDate: LocalDate): Flow<List<ScrollableBarData>> = flow {
+        val data: MutableList<ScrollableBarData> = mutableListOf()
+        val range = startDate.toEpochDay()..<endDate.toEpochDay()
+
+        for (i in range) {
+            val now = LocalDate.ofEpochDay(i)
+            data.add(ScrollableBarData(now))
+        }
+        emit(data.toList())
+        for (i in 0..<data.size) {
+            val now = LocalDate.ofEpochDay(i + startDate.toEpochDay())
+            val usage = calculateDayUsageBasic(now)
+            data[i] = data[i].copy(
+                y1 = usage.totalCellular.toDouble(),
+                y2 = usage.totalWifi.toDouble()
+            )
+        }
+        emit(data.toList())
+    }.flowOn(Dispatchers.IO)
+
+    fun weekUsage(): Flow<List<BarData>> = flow {
+        val data: MutableList<BarData> = MutableList(7) { i ->
+            val x = DayOfWeek.entries[i].getName(TextStyle.SHORT_STANDALONE)
+            BarData(x, 0.0, 0.0)
+        }
+        val now = LocalDate.now()
+
+        for (i in 0..<now.dayOfWeek.value) {
+            val usage = calculateDayUsageBasic(now.minusDays(i.toLong()))
+
+            data[now.dayOfWeek.value - i - 1] += BarData(
+                "",
+                usage.totalCellular.toDouble(),
+                usage.totalWifi.toDouble()
+            )
+        }
+        emit(data.toList())
+    }.flowOn(Dispatchers.IO)
+
+    companion object {
+        fun dayUsageToBarData(usage: DayUsage): List<BarData> {
+            val data: MutableList<BarData> = mutableListOf()
+            val hours = usage.hours
+            for (i in 0..22 step 2) {
+                data.add(BarData(padHour(i), 0.0, 0.0))
+            }
+
+            if (hours.isNotEmpty()) {
+                for (i in hours.entries) {
+                    val ii = i.key.toInt() / 2
+                    data[ii] = BarData(
+                        padHour(ii * 2),
+                        i.value.cellular.toDouble(),
+                        i.value.wifi.toDouble()
+                    )
+                }
+            }
+            return data
+        }
     }
 }

@@ -1,7 +1,6 @@
 package com.leekleak.trafficlight.database
 
 import android.content.pm.ApplicationInfo
-import android.graphics.drawable.Drawable
 import android.net.TrafficStats
 import com.leekleak.trafficlight.model.PreferenceRepo
 import kotlinx.coroutines.CoroutineScope
@@ -29,8 +28,7 @@ data class AppUsage(
     val usage: DayUsage,
     val uid: Int,
     val name: String,
-    val icon: Int,
-    val drawable: Drawable?,
+    val packageName: String,
     val appInfo: ApplicationInfo
 )
 

@@ -128,7 +128,7 @@ class UsageService : Service(), KoinComponent {
             startJob()
 
             if (!limitedMode) {
-                todayUsage = hourlyUsageRepo.calculateDayUsage(LocalDate.now())
+                todayUsage = hourlyUsageRepo.singleDayUsage(LocalDate.now())
             }
             notificationBuilder
                 .setContentIntent(
@@ -197,7 +197,7 @@ class UsageService : Service(), KoinComponent {
 
     private fun updateDatabase() {
         if (todayUsage.date != LocalDate.now()) {
-            todayUsage = hourlyUsageRepo.calculateDayUsage(LocalDate.now())
+            todayUsage = hourlyUsageRepo.singleDayUsage(LocalDate.now())
         } else {
             val time = LocalDateTime.now()
 
@@ -221,7 +221,7 @@ class UsageService : Service(), KoinComponent {
                 }
             ).also { it.categorizeUsage() }
         } else {
-            todayUsage = hourlyUsageRepo.calculateDayUsage(LocalDate.now())
+            todayUsage = hourlyUsageRepo.singleDayUsage(LocalDate.now())
         }
     }
 
