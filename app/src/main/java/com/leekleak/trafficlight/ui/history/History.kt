@@ -116,7 +116,6 @@ fun History(paddingValues: PaddingValues) {
             }
         }
         Row(Modifier.fillMaxWidth()) {
-            CategoryTitleText(stringResource(R.string.app_usage))
             ButtonGroup(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
@@ -156,7 +155,7 @@ fun History(paddingValues: PaddingValues) {
 }
 
 fun getDatesForTimespan(): Pair<LocalDate, LocalDate> {
-    val now = LocalDate.now()
+    val now = LocalDate.now().plusDays(1)
     val base = now.minusDays(MAX_DAYS.toLong())
     return Pair(base, now)
 }

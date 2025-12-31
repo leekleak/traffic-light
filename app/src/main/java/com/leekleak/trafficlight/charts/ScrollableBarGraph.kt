@@ -11,6 +11,7 @@ import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +53,7 @@ fun ScrollableBarGraph(
     val primaryColor = GraphTheme.primaryColor
     val secondaryColor = GraphTheme.secondaryColor
     val backgroundColor = GraphTheme.backgroundColor
+    val onBackgroundColor = GraphTheme.onBackgroundColor
     val gridColor = GraphTheme.gridColor
     val cornerRadius = GraphTheme.cornerRadius
 
@@ -62,11 +63,19 @@ fun ScrollableBarGraph(
     var selectorOffset by remember { mutableFloatStateOf(0f) }
     val selectorOffsetSnapped = remember { Animatable(0f) }
 
-    var canvasWidth by remember { mutableFloatStateOf(0f) }
-    val barWidth by remember { derivedStateOf { canvasWidth / 11 } }
+    var zoom by remember { mutableFloatStateOf(11f) }
+    var canvasWidth by remember { mutableFloatStateOf(1f) }
+    val barWidth by remember(canvasWidth, zoom) {
+        mutableFloatStateOf(canvasWidth / zoom.roundToInt())
+    }
     val offset = remember(canvasWidth) { Animatable(-barWidth * data.size + canvasWidth) }
 
     val selectorGoal = (canvasWidth)/2 - ((canvasWidth)/2) % barWidth
+
+    LaunchedEffect(canvasWidth) {
+        selectorOffset = canvasWidth - 1f
+        selectorOffsetSnapped.snapTo(selectorOffset - selectorOffset % barWidth)
+    }
 
     LaunchedEffect(selectorOffsetSnapped.targetValue, offset.targetValue) {
         onSelect(((selectorOffsetSnapped.targetValue - offset.targetValue)/barWidth).roundToInt())
@@ -94,6 +103,7 @@ fun ScrollableBarGraph(
     val maximum = remember(data) { Animatable(data.maxOf { it.y1 + it.y2 }.toFloat()) }
 
     val scrollableState = rememberScrollableState { delta ->
+        if (offset.value !in canvasWidth - barWidth * data.size..0f) return@rememberScrollableState 0f
         var totalOffset = (offset.value + delta).coerceIn(canvasWidth - barWidth * data.size, 0f)
         var selectorOff = selectorOffset
         if (selectorOffset * delta.sign > selectorGoal * delta.sign) {
@@ -124,7 +134,7 @@ fun ScrollableBarGraph(
         scope.launch {
             offset.snapTo(totalOffset)
         }
-        delta
+        return@rememberScrollableState delta
     }
 
     val snapFlingBehavior = object : FlingBehavior {
@@ -182,6 +192,11 @@ fun ScrollableBarGraph(
                     }
                 }
             }
+            .pointerInput(Unit) {
+                detectTransformGestures { _, _, gestureZoom, _ ->
+                    zoom = (zoom / gestureZoom).coerceIn(7f, 31f)
+                }
+            }
             .scrollable(scrollableState, Orientation.Horizontal, flingBehavior = snapFlingBehavior)
             .onSizeChanged { size ->
                 canvasWidth = size.width.toFloat()
@@ -197,6 +212,7 @@ fun ScrollableBarGraph(
             selectorOffset = selectorOffsetSnapped.value,
             gridColor = gridColor,
             backgroundColor = backgroundColor,
+            onBackgroundColor = onBackgroundColor,
             primaryColor = primaryColor,
             secondaryColor = secondaryColor,
             onBarVisibilityChanged = { i, visible ->

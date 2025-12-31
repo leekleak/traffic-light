@@ -6,6 +6,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -54,6 +55,7 @@ internal class ScrollableBarGraphHelper(
     private val selectorOffset: Float = -1f,
     private val gridColor: Color,
     private val backgroundColor: Color,
+    private val onBackgroundColor: Color,
     private val primaryColor: Color,
     private val secondaryColor: Color,
     private val onBarVisibilityChanged: (i: Int, visible: Boolean) -> Unit,
@@ -214,12 +216,27 @@ internal class ScrollableBarGraphHelper(
             val monthPadding = 4.dp.toPx().toLong()
             for (i in 0 until data.size) {
                 val xBottomLabel = xItemSpacing * (i + 0.5f)
-                drawContext.canvas.nativeCanvas.drawText(
-                    data[i].x.dayOfMonth.toString(),
-                    xBottomLabel + xOffset,
-                    size.height,
-                    textPaint(color)
-                )
+                if (data[i].x.dayOfWeek.value == 1) {
+                    drawRoundRect(
+                        color = onBackgroundColor,
+                        topLeft = Offset(xItemSpacing * i + xOffset, size.height-12.sp.toPx()),
+                        size = Size(xItemSpacing, 16.sp.toPx()),
+                        cornerRadius = CornerRadius(8.dp.toPx())
+                    )
+                    drawContext.canvas.nativeCanvas.drawText(
+                        data[i].x.dayOfMonth.toString(),
+                        xBottomLabel + xOffset,
+                        size.height,
+                        textPaint(background)
+                    )
+                } else {
+                    drawContext.canvas.nativeCanvas.drawText(
+                        data[i].x.dayOfMonth.toString(),
+                        xBottomLabel + xOffset,
+                        size.height,
+                        textPaint(color)
+                    )
+                }
             }
 
             var lastVisibility = 1
@@ -229,13 +246,11 @@ internal class ScrollableBarGraphHelper(
                 val result = textMeasurer.measure(text)
                 val yOffset = (-result.size.height).toFloat() + 8.dp.toPx()
 
-
                 val snap = lastVisibility != -1 && metrics.monthList[i].visible == -1
                 var xOffset = if (snap && lastOffset != 0f) 0f else metrics.monthList[i].xOffset
 
                 val diffVsLast = xOffset + result.size.width.toFloat() - lastOffset
                 if (diffVsLast >= 0) xOffset -= diffVsLast
-
 
                 lastVisibility = metrics.monthList[i].visible
                 lastOffset = xOffset - 6 * monthPadding
