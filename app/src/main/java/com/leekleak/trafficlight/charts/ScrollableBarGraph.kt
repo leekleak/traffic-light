@@ -11,7 +11,6 @@ import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -63,11 +63,8 @@ fun ScrollableBarGraph(
     var selectorOffset by remember { mutableFloatStateOf(0f) }
     val selectorOffsetSnapped = remember { Animatable(0f) }
 
-    var zoom by remember { mutableFloatStateOf(11f) }
     var canvasWidth by remember { mutableFloatStateOf(1f) }
-    val barWidth by remember(canvasWidth, zoom) {
-        mutableFloatStateOf(canvasWidth / zoom.roundToInt())
-    }
+    val barWidth by remember { derivedStateOf { canvasWidth / 11f } }
     val offset = remember(canvasWidth) { Animatable(-barWidth * data.size + canvasWidth) }
 
     val selectorGoal = (canvasWidth)/2 - ((canvasWidth)/2) % barWidth
@@ -190,11 +187,6 @@ fun ScrollableBarGraph(
                             barAnimator(offset, barOffset[i], i)
                         }
                     }
-                }
-            }
-            .pointerInput(Unit) {
-                detectTransformGestures { _, _, gestureZoom, _ ->
-                    zoom = (zoom / gestureZoom).coerceIn(7f, 31f)
                 }
             }
             .scrollable(scrollableState, Orientation.Horizontal, flingBehavior = snapFlingBehavior)
