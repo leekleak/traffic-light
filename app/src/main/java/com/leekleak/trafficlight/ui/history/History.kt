@@ -110,7 +110,8 @@ fun History(paddingValues: PaddingValues) {
                 start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
                 end = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
             )
-            .statusBarsPadding()
+            .statusBarsPadding(),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         CategoryTitleText(stringResource(R.string.history))
         Box(
@@ -132,19 +133,27 @@ fun History(paddingValues: PaddingValues) {
         Row(Modifier.fillMaxWidth()) {
             ButtonGroup(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
-                expandedRatio = 0f, // TODO: Remove the day google fixes compose.
+                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+                expandedRatio = 0.05f,
                 overflowIndicator = {}
             ) {
                 toggleableItem(
-                    onCheckedChange = {showMonth = true},
+                    onCheckedChange = {
+                        showMonth = true
+                        haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                    },
                     label = appDay.month.getName(TextStyle.FULL),
-                    checked = showMonth
+                    checked = showMonth,
+                    weight = 3f
                 )
                 toggleableItem(
-                    onCheckedChange = {showMonth = false},
+                    onCheckedChange = {
+                        showMonth = false
+                        haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                    },
                     label = appDay.dayOfMonth.toString(),
-                    checked = !showMonth
+                    checked = !showMonth,
+                    weight = 1f
                 )
             }
         }
@@ -157,7 +166,6 @@ fun History(paddingValues: PaddingValues) {
             verticalArrangement = Arrangement.spacedBy(6.dp),
             state = listState
         ) {
-            item("scroll holder") { }
             stickyHeader {
                 Box (
                     Modifier
