@@ -19,11 +19,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
@@ -42,6 +46,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
@@ -62,9 +67,11 @@ import com.leekleak.trafficlight.util.px
 import org.koin.compose.koinInject
 import java.time.LocalDate
 import java.time.format.TextStyle
+import java.time.temporal.ChronoUnit
 import kotlin.math.roundToInt
 
 const val MAX_DAYS = 96
+val imageWidth = 32.dp
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -86,6 +93,9 @@ fun History(paddingValues: PaddingValues) {
 
     val days = remember { getDatesForTimespan() }
     val usageFlow = remember { hourlyUsageRepo.daysUsage(days.first, days.second) }
+    val usage: List<ScrollableBarData> by usageFlow.collectAsState(List(MAX_DAYS) {
+        ScrollableBarData(LocalDate.now())
+    })
 
     Column (
         modifier = Modifier
@@ -102,9 +112,6 @@ fun History(paddingValues: PaddingValues) {
                 .padding(6.dp)
                 .clip(MaterialTheme.shapes.medium)
         ) {
-            val usage: List<ScrollableBarData> by usageFlow.collectAsState(List(MAX_DAYS) {
-                ScrollableBarData(LocalDate.now())
-            })
             Box(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.medium)
@@ -134,14 +141,67 @@ fun History(paddingValues: PaddingValues) {
                 )
             }
         }
+        val listState = rememberLazyListState()
         LazyColumn(
             modifier = Modifier
                 .background(colorScheme.surface)
                 .fillMaxSize(),
             contentPadding = PaddingValues(0.dp, 0.dp, 0.dp, paddingValues.calculateBottomPadding()),
             verticalArrangement = Arrangement.spacedBy(6.dp),
+            state = listState
         ) {
             item("scroll holder") { }
+            stickyHeader {
+                val index = ChronoUnit.DAYS.between(days.first, appDay)
+                val usage = usage[index.toInt()]
+
+                Column (
+                    Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = colorScheme.surface,
+                            shape = RoundedCornerShape(0.dp, 0.dp, 24.dp, 24.dp)
+                        )
+                        .card()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(imageWidth),
+                            painter = painterResource(R.drawable.data_usage),
+                            contentDescription = null
+                        )
+                        AnimatedContent(!listState.canScrollBackward) { selected ->
+                            if (!selected) {
+                                LineGraph(
+                                    maximum = (usage.y1 + usage.y2).toLong(),
+                                    data = Pair(usage.y2.toLong(), usage.y1.toLong())
+                                )
+                            } else {
+                                Text(
+                                    text = stringResource(R.string.total_usage),
+                                    fontFamily = classyFont()
+                                )
+                            }
+                        }
+                    }
+                    AnimatedVisibility (
+                        visible = !listState.canScrollBackward,
+                        enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
+                        exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
+                    ) {
+                        LineGraphHeader {
+                            LineGraph(
+                                maximum = (usage.y1 + usage.y2).toLong(),
+                                data = Pair(usage.y2.toLong(), usage.y1.toLong())
+                            )
+                        }
+                    }
+                }
+            }
             items(appList, { it.name }) { item ->
                 Box(Modifier.animateItem()) {
                     AppItem(item, item.uid == appSelected, appMaximum) {
@@ -172,8 +232,6 @@ fun AppItem(
     val totalWifi = appUsage.usage.totalWifi
     val totalCellular = appUsage.usage.totalCellular
 
-    val imageWidth = 32.dp
-
     Column (
         modifier = Modifier
             .clip(MaterialTheme.shapes.small)
@@ -190,7 +248,6 @@ fun AppItem(
                 bitmap = icon.toBitmap(imageWidth.px.roundToInt(), imageWidth.px.roundToInt()).asImageBitmap(),
                 contentDescription = null
             )
-
             AnimatedContent(selected) { selected ->
                 if (!selected) {
                     LineGraph(
@@ -204,40 +261,46 @@ fun AppItem(
                     )
                 }
             }
-
         }
         AnimatedVisibility (
             visible = selected,
             enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
             exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
         ) {
-            val offset = imageWidth + 12.dp
-            Column (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 4.dp, end = offset + 4.dp)
-                    .offset(offset, 0.dp),
-            ) {
-                Row {
-                    Text(
-                        modifier = Modifier.weight(1f),
-                        text = stringResource(R.string.wifi),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = colorScheme.tertiary
-                    )
-                    Text(
-                        modifier = Modifier.weight(1f),
-                        text = stringResource(R.string.cellular),
-                        textAlign = TextAlign.End,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = colorScheme.tertiary
-                    )
-                }
+            LineGraphHeader {
                 LineGraph(
                     maximum = maximum,
                     data = Pair(totalWifi, totalCellular)
                 )
             }
         }
+    }
+}
+
+@Composable
+fun LineGraphHeader(lineGraph: @Composable (() -> Unit)) {
+    val offset = imageWidth + 12.dp
+    Column (
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 4.dp, end = offset + 4.dp)
+            .offset(offset, 0.dp),
+    ) {
+        Row {
+            Text(
+                modifier = Modifier.weight(1f),
+                text = stringResource(R.string.wifi),
+                style = MaterialTheme.typography.titleMedium,
+                color = colorScheme.tertiary
+            )
+            Text(
+                modifier = Modifier.weight(1f),
+                text = stringResource(R.string.cellular),
+                textAlign = TextAlign.End,
+                style = MaterialTheme.typography.titleMedium,
+                color = colorScheme.tertiary
+            )
+        }
+        lineGraph()
     }
 }
