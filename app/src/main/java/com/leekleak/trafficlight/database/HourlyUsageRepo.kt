@@ -120,7 +120,6 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
                                 uid = app.uid,
                                 name = appDatabase.getLabel(app),
                                 packageName = app.packageName,
-                                appInfo = app
                             )
                         }
                     }

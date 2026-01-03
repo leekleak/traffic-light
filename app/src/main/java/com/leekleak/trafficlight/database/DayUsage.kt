@@ -1,6 +1,5 @@
 package com.leekleak.trafficlight.database
 
-import android.content.pm.ApplicationInfo
 import android.net.TrafficStats
 import com.leekleak.trafficlight.model.PreferenceRepo
 import kotlinx.coroutines.CoroutineScope
@@ -29,7 +28,6 @@ data class AppUsage(
     val uid: Int,
     val name: String,
     val packageName: String,
-    val appInfo: ApplicationInfo
 )
 
 data class HourData(
