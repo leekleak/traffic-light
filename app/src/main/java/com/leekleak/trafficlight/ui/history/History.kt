@@ -42,7 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -51,24 +51,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.ScrollableBarGraph
 import com.leekleak.trafficlight.charts.classyFont
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
-import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.getName
-import com.leekleak.trafficlight.util.px
 import org.koin.compose.koinInject
 import java.time.LocalDate
 import java.time.format.TextStyle
-import java.time.temporal.ChronoUnit
-import kotlin.math.roundToInt
 
 const val MAX_DAYS = 96
 val imageWidth = 32.dp
@@ -79,6 +75,7 @@ fun History(paddingValues: PaddingValues) {
     val hourlyUsageRepo: HourlyUsageRepo = koinInject()
     val viewModel: HistoryVM = viewModel()
     val haptic = LocalHapticFeedback.current
+    val context = LocalContext.current
 
     var appDay by remember { mutableStateOf( LocalDate.now()) }
     var showMonth by remember { mutableStateOf(false) }
@@ -88,7 +85,6 @@ fun History(paddingValues: PaddingValues) {
     }
 
     val appList by viewModel.appList.collectAsState()
-    val appMaximum = appList.maxOfOrNull { it.usage.totalWifi + it.usage.totalCellular } ?: 0
     var appSelected by remember { mutableIntStateOf(-1) }
 
     val days = remember { getDatesForTimespan() }
@@ -96,6 +92,17 @@ fun History(paddingValues: PaddingValues) {
     val usage: List<ScrollableBarData> by usageFlow.collectAsState(List(MAX_DAYS) {
         ScrollableBarData(LocalDate.now())
     })
+
+    val selectedUsage = remember(appList) {
+        var data = ScrollableBarData(LocalDate.now())
+        for (i in usage) {
+            if ((showMonth && appDay.month == i.x.month) || (!showMonth && appDay.dayOfYear == i.x.dayOfYear)) {
+                data += i
+            }
+        }
+        data
+    }
+    val appMaximum = remember(selectedUsage) { (selectedUsage.y1 + selectedUsage.y2).toLong() }
 
     Column (
         modifier = Modifier
@@ -152,59 +159,36 @@ fun History(paddingValues: PaddingValues) {
         ) {
             item("scroll holder") { }
             stickyHeader {
-                val index = ChronoUnit.DAYS.between(days.first, appDay)
-                val usage = usage[index.toInt()]
-
-                Column (
+                Box (
                     Modifier
                         .fillMaxWidth()
                         .background(
                             color = colorScheme.surface,
                             shape = RoundedCornerShape(0.dp, 0.dp, 24.dp, 24.dp)
                         )
-                        .card()
                 ) {
-                    Row(
-                        modifier = Modifier.padding(4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Icon(
-                            modifier = Modifier.size(imageWidth),
-                            painter = painterResource(R.drawable.data_usage),
-                            contentDescription = null
-                        )
-                        AnimatedContent(!listState.canScrollBackward) { selected ->
-                            if (!selected) {
-                                LineGraph(
-                                    maximum = (usage.y1 + usage.y2).toLong(),
-                                    data = Pair(usage.y2.toLong(), usage.y1.toLong())
-                                )
-                            } else {
-                                Text(
-                                    text = stringResource(R.string.total_usage),
-                                    fontFamily = classyFont()
-                                )
-                            }
-                        }
-                    }
-                    AnimatedVisibility (
-                        visible = !listState.canScrollBackward,
-                        enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
-                        exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
-                    ) {
-                        LineGraphHeader {
-                            LineGraph(
-                                maximum = (usage.y1 + usage.y2).toLong(),
-                                data = Pair(usage.y2.toLong(), usage.y1.toLong())
-                            )
-                        }
-                    }
+                    AppItem(
+                        totalWifi = selectedUsage.y2.toLong(),
+                        totalCellular = selectedUsage.y1.toLong(),
+                        painter = painterResource(R.drawable.data_usage),
+                        icon = true,
+                        name = stringResource(R.string.total_usage),
+                        selected = !listState.canScrollBackward,
+                        maximum = appMaximum
+                    )
                 }
             }
             items(appList, { it.name }) { item ->
                 Box(Modifier.animateItem()) {
-                    AppItem(item, item.uid == appSelected, appMaximum) {
+                    val painter = rememberDrawablePainter(context.packageManager.getApplicationIcon(item.packageName))
+                    AppItem(
+                        totalWifi = item.usage.totalWifi,
+                        totalCellular = item.usage.totalCellular,
+                        painter = painter,
+                        name = item.name,
+                        selected = item.uid == appSelected,
+                        maximum = appMaximum
+                    ) {
                         appSelected = if (appSelected != item.uid) item.uid else -1
                         haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                     }
@@ -222,16 +206,15 @@ fun getDatesForTimespan(): Pair<LocalDate, LocalDate> {
 
 @Composable
 fun AppItem(
-    appUsage: AppUsage,
+    totalWifi: Long,
+    totalCellular: Long,
+    painter: Painter,
+    icon: Boolean = false,
+    name: String,
     selected: Boolean,
     maximum: Long,
-    onClick: () -> Unit,
+    onClick: () -> Unit = {},
 ) {
-    val context = LocalContext.current
-
-    val totalWifi = appUsage.usage.totalWifi
-    val totalCellular = appUsage.usage.totalCellular
-
     Column (
         modifier = Modifier
             .clip(MaterialTheme.shapes.small)
@@ -243,11 +226,19 @@ fun AppItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            val icon = context.packageManager.getApplicationIcon(appUsage.packageName)
-            Image(
-                bitmap = icon.toBitmap(imageWidth.px.roundToInt(), imageWidth.px.roundToInt()).asImageBitmap(),
-                contentDescription = null
-            )
+            if (icon) {
+                Icon(
+                    modifier = Modifier.size(imageWidth),
+                    painter = painter,
+                    contentDescription = null
+                )
+            } else {
+                Image(
+                    modifier = Modifier.size(imageWidth),
+                    painter = painter,
+                    contentDescription = null
+                )
+            }
             AnimatedContent(selected) { selected ->
                 if (!selected) {
                     LineGraph(
@@ -256,7 +247,7 @@ fun AppItem(
                     )
                 } else {
                     Text(
-                        text = appUsage.name,
+                        text = name,
                         fontFamily = classyFont()
                     )
                 }

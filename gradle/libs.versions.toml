@@ -1,4 +1,5 @@
 [versions]
+accompanistDrawablepainter = "0.37.3"
 agp = "8.13.2"
 coreKtx = "1.17.0"
 activityCompose = "1.12.2"
@@ -49,6 +50,9 @@ androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", vers
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+
+# Accompanist
+accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanistDrawablepainter" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
