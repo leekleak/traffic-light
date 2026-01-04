@@ -12,10 +12,10 @@
     <string name="battery_optimization">Batterieoptimierung</string>
     <string name="battery_optimization_description">Muss deaktiviert werden, damit das Telefon den Hintergrunddienst nicht nach einer Weile beendet.</string>
     <string name="usage_statistics">Nutzungs-Statistiken</string>
-    <string name="usage_statistics_description">Die fehlerfreieste Methode, um zusammengefasste Netzwerknutzungsdaten auf Android zu erhalten.</string>
+    <string name="usage_statistics_description">Erforderlich für die langfristige Nachverfolgung der Datennutzung.</string>
     <string name="notifications">Benachrichtigung</string>
     <string name="screen_off_update">Aktualisieren wenn Bildschirm aus ist</string>
-    <string name="screen_off_update_description">Ermöglicht die Nachverfolgung auf dem AOD, beeinträchtigt jedoch die Akkuleistung.</string>
+    <string name="screen_off_update_description">Ermöglicht die Nachverfolgung der Nutzung auf dem AOD, wirkt sich jedoch auf den Akku aus.</string>
     <string name="oversample_icon">Überabtastungssymbol</string>
     <string name="oversample_icon_description">Das Symbol mit einer höheren Auflösung rendern, wenn es unscharf ist.</string>
     <string name="wi_fi">WLAN: %1$s</string>
