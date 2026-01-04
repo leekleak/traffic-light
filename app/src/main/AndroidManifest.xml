@@ -13,10 +13,6 @@
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
 
-    <queries>
-        <package android:name="android.permission.QUERY_ALL_PACKAGES"/>
-    </queries>
-
     <application
         android:name=".TrafficLightApplication"
         android:allowBackup="false"

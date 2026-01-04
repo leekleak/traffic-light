@@ -197,22 +197,22 @@ fun History(paddingValues: PaddingValues) {
                         }
                     }
                 }
-            }
-            selectedUsage?.let {
-                if (appTotal.totalCellular != it.totalCellular || appTotal.totalWifi != it.totalWifi) {
-                    item {
-                        val uid = -99
-                        Box(Modifier.animateItem()) {
-                            AppItem(
-                                totalWifi = it.totalWifi - appTotal.totalWifi,
-                                totalCellular = it.totalCellular - appTotal.totalCellular,
-                                painter = painterResource(R.drawable.help),
-                                name = "Unknown",
-                                selected = uid == appSelected,
-                                maximum = totalMaximum ?: 1
-                            ) {
-                                appSelected = if (appSelected != uid) uid else -1
-                                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                selectedUsage?.let {
+                    if ((appTotal.totalCellular != it.totalCellular || appTotal.totalWifi != it.totalWifi) && appList.isNotEmpty()) {
+                        item {
+                            val uid = -99
+                            Box(Modifier.animateItem()) {
+                                AppItem(
+                                    totalWifi = it.totalWifi - appTotal.totalWifi,
+                                    totalCellular = it.totalCellular - appTotal.totalCellular,
+                                    painter = painterResource(R.drawable.help),
+                                    name = "Unknown",
+                                    selected = uid == appSelected,
+                                    maximum = totalMaximum
+                                ) {
+                                    appSelected = if (appSelected != uid) uid else -1
+                                    haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                                }
                             }
                         }
                     }
