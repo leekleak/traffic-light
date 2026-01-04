@@ -40,4 +40,5 @@
     <string name="notification_description">Ver a velocidade da rede na barra de status.</string>
     <string name="missing_permissions">Permissões não concedidas</string>
     <string name="app_usage">Acesso aos dados de uso</string>
+    <string name="total_usage">Consumo total</string>
 </resources>

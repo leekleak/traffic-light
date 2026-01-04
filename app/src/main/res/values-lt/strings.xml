@@ -40,4 +40,5 @@
     <string name="notification_description">Rodo interneto greitį pranešimų juostoje.</string>
     <string name="missing_permissions">Trūksta leidimų</string>
     <string name="app_usage">Programėlių duomenys</string>
+    <string name="total_usage">Bendras suvartojimas</string>
 </resources>
