@@ -78,6 +78,21 @@ fun ScrollableBarGraph(
         onSelect(((selectorOffsetSnapped.targetValue - offset.targetValue)/barWidth).roundToInt())
     }
 
+    LaunchedEffect(selectorOffset) {
+        if (selectorOffsetSnapped.targetValue != (selectorOffset - selectorOffset % barWidth)) {
+            scope.launch {
+                selectorOffsetSnapped.animateTo(
+                    targetValue = selectorOffset - selectorOffset % barWidth,
+                    initialVelocity = 200f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        stiffness = Spring.StiffnessMedium
+                    )
+                )
+            }
+        }
+    }
+
     fun CoroutineScope.barAnimator(clickOffset: Offset, bar: Bar, i: Int) {
         if (
             (clickOffset - bar.rect.topLeft).x in (0f..bar.rect.size.width) &&
@@ -112,21 +127,7 @@ fun ScrollableBarGraph(
             selectorOff -= delta
         }
 
-        selectorOff = selectorOff.coerceIn(0f, canvasWidth - 1f) // A bit of a workaround to ensure the selector doesn't go too far
-
-        scope.launch {
-            selectorOffset = selectorOff
-            if (selectorOffsetSnapped.targetValue != (selectorOffset - selectorOffset % barWidth)) {
-                selectorOffsetSnapped.animateTo(
-                    targetValue = selectorOffset - selectorOffset % barWidth,
-                    initialVelocity = 200f,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioLowBouncy,
-                        stiffness = Spring.StiffnessMedium
-                    )
-                )
-            }
-        }
+        selectorOffset = selectorOff.coerceIn(0f, canvasWidth - 1f) // A bit of a workaround to ensure the selector doesn't go too far
 
         scope.launch {
             offset.snapTo(totalOffset)
@@ -149,17 +150,7 @@ fun ScrollableBarGraph(
 
             if (targetValue != offset.value && initialVelocity.sign == (selectorOffset - selectorGoal).sign) {
                 selectorOffset = selectorGoal
-                scope.launch {
-                    selectorOffsetSnapped.animateTo(
-                        targetValue = selectorGoal,
-                        initialVelocity = initialVelocity,
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioLowBouncy,
-                            stiffness = Spring.StiffnessMediumLow
-                        )
-                    )
-                }
-            } else if (selectorOffset == selectorGoal){
+            } else {
                 scope.launch {
                     offset.animateTo(
                         targetValue = snappedTarget,
