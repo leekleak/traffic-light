@@ -65,6 +65,7 @@ import com.leekleak.trafficlight.util.getName
 import org.koin.compose.koinInject
 import java.time.LocalDate
 import java.time.format.TextStyle
+import kotlin.math.max
 
 const val MAX_DAYS = 96
 val imageWidth = 32.dp
@@ -84,7 +85,7 @@ fun History(paddingValues: PaddingValues) {
         viewModel.updateQuery(appDay, showMonth)
     }
 
-    val appList by viewModel.appList.collectAsState()
+    val appList by remember { viewModel.appList }.collectAsState()
     var appSelected by remember { mutableIntStateOf(-1) }
 
     val days = remember { getDatesForTimespan() }
@@ -93,16 +94,9 @@ fun History(paddingValues: PaddingValues) {
         ScrollableBarData(LocalDate.now())
     })
 
-    val selectedUsage = remember(appList) {
-        var data = ScrollableBarData(LocalDate.now())
-        for (i in usage) {
-            if ((showMonth && appDay.month == i.x.month) || (!showMonth && appDay.dayOfYear == i.x.dayOfYear)) {
-                data += i
-            }
-        }
-        data
-    }
-    val appMaximum = remember(selectedUsage) { (selectedUsage.y1 + selectedUsage.y2).toLong() }
+    val selectedUsage by remember { viewModel.totalUsage }.collectAsState(null)
+    val totalMaximum = remember(selectedUsage) { selectedUsage?.let { it.totalWifi + it.totalCellular } }
+    val appTotal = remember(appList) { viewModel.appUsageSum(appList) }
 
     Column (
         modifier = Modifier
@@ -176,29 +170,51 @@ fun History(paddingValues: PaddingValues) {
                         )
                 ) {
                     AppItem(
-                        totalWifi = selectedUsage.y2.toLong(),
-                        totalCellular = selectedUsage.y1.toLong(),
+                        totalWifi = selectedUsage?.totalWifi ?: 0L,
+                        totalCellular = selectedUsage?.totalCellular ?: 0L,
                         painter = painterResource(R.drawable.data_usage),
                         icon = true,
                         name = stringResource(R.string.total_usage),
                         selected = !listState.canScrollBackward,
-                        maximum = appMaximum
+                        maximum = max(totalMaximum ?: 0L, 1)
                     )
                 }
             }
-            items(appList, { it.name }) { item ->
-                Box(Modifier.animateItem()) {
-                    val painter = rememberDrawablePainter(context.packageManager.getApplicationIcon(item.packageName))
-                    AppItem(
-                        totalWifi = item.usage.totalWifi,
-                        totalCellular = item.usage.totalCellular,
-                        painter = painter,
-                        name = item.name,
-                        selected = item.uid == appSelected,
-                        maximum = appMaximum
-                    ) {
-                        appSelected = if (appSelected != item.uid) item.uid else -1
-                        haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+            if (totalMaximum != null) {
+                items(appList, { it.name }) { item ->
+                    Box(Modifier.animateItem()) {
+                        val painter = rememberDrawablePainter(context.packageManager.getApplicationIcon(item.packageName))
+                        AppItem(
+                            totalWifi = item.usage.totalWifi,
+                            totalCellular = item.usage.totalCellular,
+                            painter = painter,
+                            name = item.name,
+                            selected = item.uid == appSelected,
+                            maximum = totalMaximum
+                        ) {
+                            appSelected = if (appSelected != item.uid) item.uid else -1
+                            haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                        }
+                    }
+                }
+            }
+            selectedUsage?.let {
+                if (appTotal.totalCellular != it.totalCellular || appTotal.totalWifi != it.totalWifi) {
+                    item {
+                        val uid = -99
+                        Box(Modifier.animateItem()) {
+                            AppItem(
+                                totalWifi = it.totalWifi - appTotal.totalWifi,
+                                totalCellular = it.totalCellular - appTotal.totalCellular,
+                                painter = painterResource(R.drawable.help),
+                                name = "Unknown",
+                                selected = uid == appSelected,
+                                maximum = totalMaximum ?: 1
+                            ) {
+                                appSelected = if (appSelected != uid) uid else -1
+                                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                            }
+                        }
                     }
                 }
             }

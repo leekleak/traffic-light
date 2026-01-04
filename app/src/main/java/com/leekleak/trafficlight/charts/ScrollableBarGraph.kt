@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
+import com.leekleak.trafficlight.util.DataSize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -150,7 +151,7 @@ fun ScrollableBarGraph(
 
             if (targetValue != offset.value && initialVelocity.sign == (selectorOffset - selectorGoal).sign) {
                 selectorOffset = selectorGoal
-            } else {
+            } else if (selectorOffset == selectorGoal || snappedTarget != targetValue - targetValue % barWidth) {
                 scope.launch {
                     offset.animateTo(
                         targetValue = snappedTarget,
@@ -203,13 +204,14 @@ fun ScrollableBarGraph(
                 else scope.launch { barAnimation[i].snapTo(0f) }
             },
             onMaximumChange = {
-                new -> scope.launch { maximum.animateTo(new.toFloat()) }
+                new -> scope.launch {
+                    maximum.animateTo(DataSize(new.toFloat()).getComparisonValue().getBitValue().toFloat())
+                }
             }
         )
 
         barOffset.clear()
         barOffset.addAll(barGraphHelper.metrics.rectList)
-        barGraphHelper.metrics.rectList
         barGraphHelper.drawBars(cornerRadius, barAnimationSqueeze)
         barGraphHelper.drawGrid(textMeasurer)
     }
