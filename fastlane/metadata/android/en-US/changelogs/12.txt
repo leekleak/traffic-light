@@ -1,0 +1,9 @@
+History overhaul:
+- Added option to see monthly usage
+- Added a timeline graph
+- Improved readablity and UI
+- Improved performance
+
+Translations:
+- New language: Portuguese
+- New language: Persian
