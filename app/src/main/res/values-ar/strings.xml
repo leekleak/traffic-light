@@ -3,9 +3,9 @@
     <string name="app_name">إشارة المرور</string>
     <string name="today">اليوم</string>
     <string name="this_week">هذا الأسبوع</string>
-    <string name="history">التأريخ</string>
+    <string name="history">التاريخ</string>
     <string name="wifi">واي فاي</string>
-    <string name="cellular">خلوي</string>
+    <string name="cellular">خلوى</string>
     <string name="grant">منح</string>
     <string name="speed">السرعة: %1$s</string>
     <string name="settings">الإعدادات</string>
@@ -19,7 +19,7 @@
     <string name="oversample_icon">أيقونة العينة الزائدة</string>
     <string name="oversample_icon_description">صيّر الأيقونة بدقة أعلى إذا كانت غير واضحة.</string>
     <string name="wi_fi">واي فاي: %1$s</string>
-    <string name="mobile">جوال: %1$s</string>
+    <string name="mobile">خلوى: %1$s</string>
     <string name="about">عن</string>
     <string name="speed_in_bits">أظهر السرعة بالبت</string>
     <string name="github_description">تتبع التطور أو الإبلاغ عن المشكلات.</string>
@@ -40,4 +40,5 @@
     <string name="notification_description">تتبع سرعة الشبكة في شريط الحالة.</string>
     <string name="missing_permissions">أذونات مفقودة</string>
     <string name="app_usage">استخدام التطبيق</string>
+    <string name="total_usage">الإستخدام الكلى</string>
 </resources>
