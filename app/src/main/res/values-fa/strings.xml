@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">چراغ راهنمایی</string>
+    <string name="today">امروز</string>
+    <string name="this_week">این هفته</string>
+    <string name="history">تاریخچه</string>
+    <string name="wifi">وای فای</string>
+    <string name="cellular">موبایل</string>
+    <string name="speed">سرعت: %1$s</string>
+    <string name="settings">تنظیمات</string>
+    <string name="battery_optimization">بهینه سازی باتری</string>
+    <string name="grant">اجازه</string>
+    <string name="usage_statistics">آمار استفاده</string>
+    <string name="battery_optimization_description">باید غیرفعال شود تا گوشی، سرویس پس‌زمینه رو بعد از مدتی متوقف نکند.</string>
+    <string name="usage_statistics_description">برای ردیابی بلندمدت مصرف داده نیاز است.</string>
+    <string name="notifications">اعلان</string>
+    <string name="screen_off_update">وقتی صفحه خاموشه آپدیت کن</string>
+    <string name="wi_fi">وای فای: %1$s</string>
+    <string name="mobile">موبایل: %1$s</string>
+    <string name="about">درباره</string>
+    <string name="speed_in_bits">نمایش سرعت به صورت بیت</string>
+    <string name="version">نسخه %1$s</string>
+    <string name="light">روشن</string>
+    <string name="dark">تیره</string>
+    <string name="help">کمک</string>
+    <string name="advanced_settings">تنظیمات پیشرفته</string>
+    <string name="screen_off_update_description">اجازه ردیابی داده روی AOD را می دهد، ولی باتری تحت تاثیر قرار میگیرد.</string>
+    <string name="oversample_icon">نمونه‌ برداری بیش‌ از حد آیکون</string>
+    <string name="oversample_icon_description">اگر آیکون تار باشد، آن را با وضوح بالاتر رندر می‌کند.</string>
+    <string name="github_description">دنبال کردن توسعه یا گزارش مشکلات.</string>
+    <string name="force_fallback">اجبار به ردیابی سرعت جایگزین</string>
+    <string name="force_fallback_description">هنگام استفاده از رام مشکل‌ دار یا اترنت مفید است</string>
+    <string name="fallback_unsupported">حالت جایگزین پشتیبانی نمی‌ شود</string>
+    <string name="ui">رابط کاربری</string>
+    <string name="limited_mode">حالت محدود</string>
+    <string name="limited_mode_description">متأسفانه سیستم‌ عامل شما از ردیابی بلند مدت داده پشتیبانی نمی‌کند.</string>
+    <string name="auto">خودکار</string>
+    <string name="expressive_fonts">فونت‌ های ابرازی</string>
+    <string name="default_theme">پیش‌ فرض</string>
+    <string name="notification_description">ردیابی سرعت شبکه در نوار وضعیت.</string>
+    <string name="missing_permissions">مجوز های لازم موجود نیست</string>
+    <string name="app_usage">مصرف برنامه</string>
+    <string name="total_usage">کل استفاده</string>
+</resources>
