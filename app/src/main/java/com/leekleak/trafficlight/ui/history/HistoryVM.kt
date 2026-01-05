@@ -35,9 +35,10 @@ class HistoryVM: ViewModel(), KoinComponent {
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val totalUsage: Flow<DayUsage> = dateParams
-        .flatMapLatest { (day, isMonth) ->
+    val totalUsage: Flow<DayUsage> = appList
+        .flatMapLatest {
             flow {
+                val (day, isMonth) = dateParams.value
                 if (!isMonth) {
                     emit(hourlyUsageRepo.calculateDayUsageBasic(day, day))
                 } else {

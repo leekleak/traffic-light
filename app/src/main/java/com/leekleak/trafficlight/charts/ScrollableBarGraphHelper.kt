@@ -62,6 +62,7 @@ internal class ScrollableBarGraphHelper(
     private val onMaximumChange: (maximum: Long) -> Unit,
 ) {
     private var sizeFormatter = SizeFormatter()
+    private val visibleIndices = mutableListOf<Int>()
     internal val metrics = scope.buildMetrics()
 
     private fun DrawScope.textPaint(color: Color): Paint {
@@ -80,7 +81,6 @@ internal class ScrollableBarGraphHelper(
 
         val rectList = mutableListOf<Bar>()
 
-        val visibleIndices = mutableListOf<Int>()
         val monthList = mutableListOf<MonthObject>()
 
         for (i in 0 until data.size) {
@@ -119,7 +119,7 @@ internal class ScrollableBarGraphHelper(
             }
         }
 
-        for (i in 0 until data.size) {
+        for (i in visibleIndices) {
             val padding = 0.5.dp.toPx()
             val x = xItemSpacing * i + xOffset
             val yOffset1 = data[i].y1.toFloat() / verticalStep
@@ -214,7 +214,7 @@ internal class ScrollableBarGraphHelper(
     internal fun drawTextLabelsOverXAndYAxis(color: Color, background: Color, textMeasurer: TextMeasurer) {
         scope.run {
             val monthPadding = 4.dp.toPx().toLong()
-            for (i in 0 until data.size) {
+            for (i in visibleIndices) {
                 val xBottomLabel = xItemSpacing * (i + 0.5f)
                 if (data[i].x.dayOfWeek.value == 1) {
                     drawRoundRect(
