@@ -1,8 +1,11 @@
 History overhaul:
 - Added option to see monthly usage
 - Added a timeline graph
-- Improved readablity and UI
+- Improved readability and UI
 - Improved performance
+
+Enhancements:
+- Improved accessibility for screen readers
 
 Translations:
 - New language: Portuguese

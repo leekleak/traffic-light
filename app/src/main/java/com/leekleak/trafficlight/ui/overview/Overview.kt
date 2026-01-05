@@ -33,6 +33,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -121,11 +122,13 @@ fun LazyListScope.overviewTab(
             ) {
                 SummaryItem(
                     painter = painterResource(R.drawable.wifi),
+                    contentDescription = stringResource(R.string.wifi),
                     tint = MaterialTheme.colorScheme.primary,
                     data = { wifi }
                 )
                 SummaryItem(
                     painter = painterResource(R.drawable.cellular),
+                    contentDescription = stringResource(R.string.cellular),
                     tint = MaterialTheme.colorScheme.tertiary,
                     data = { cellular }
                 )
@@ -148,6 +151,7 @@ fun LazyListScope.overviewTab(
 @Composable
 fun RowScope.SummaryItem(
     painter: Painter,
+    contentDescription: String,
     tint: Color,
     data: () -> Long
 ) {
@@ -205,7 +209,7 @@ fun RowScope.SummaryItem(
                 )
                 Icon(
                     painter = painter,
-                    contentDescription = null,
+                    contentDescription = contentDescription,
                     tint = tint,
                 )
             }

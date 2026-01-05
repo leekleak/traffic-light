@@ -254,13 +254,13 @@ fun AppItem(
                 Icon(
                     modifier = Modifier.size(imageWidth),
                     painter = painter,
-                    contentDescription = null
+                    contentDescription = name
                 )
             } else {
                 Image(
                     modifier = Modifier.size(imageWidth),
                     painter = painter,
-                    contentDescription = null
+                    contentDescription = name
                 )
             }
             AnimatedContent(selected) { selected ->

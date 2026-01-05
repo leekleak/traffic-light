@@ -59,28 +59,6 @@ import com.leekleak.trafficlight.ui.settings.Settings
 import com.leekleak.trafficlight.ui.theme.navBarShadow
 import com.leekleak.trafficlight.util.WideScreenWrapper
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
-
-/**
- * Main screens
- */
-
-@Serializable
-data object Blank : NavKey
-@Serializable
-data object Overview : NavKey
-@Serializable
-data object History : NavKey
-@Serializable
-data object Settings : NavKey
-
-val mainScreens = listOf(Blank, Overview, History, Settings)
-
-/**
- * Settings
- */
-@Serializable
-data object NotificationSettings : NavKey
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -202,7 +180,7 @@ fun NavigationButton(backstack: NavBackStack<NavKey>, route: NavKey, icon: Int) 
     ) {
         Icon(
             painter = painterResource(icon),
-            contentDescription = null
+            contentDescription = route.toString()
         )
     }
 }
