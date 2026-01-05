@@ -86,7 +86,7 @@ fun History(paddingValues: PaddingValues) {
     }
 
     val appList by remember { viewModel.appList }.collectAsState()
-    var appSelected by remember { mutableIntStateOf(-1) }
+    var appSelected by remember { mutableIntStateOf(-100) }
 
     val days = remember { getDatesForTimespan() }
     val usageFlow = remember { hourlyUsageRepo.daysUsage(days.first, days.second) }
@@ -169,15 +169,18 @@ fun History(paddingValues: PaddingValues) {
                             shape = RoundedCornerShape(0.dp, 0.dp, 24.dp, 24.dp)
                         )
                 ) {
+                    val uid = -100
                     AppItem(
                         totalWifi = selectedUsage?.totalWifi ?: 0L,
                         totalCellular = selectedUsage?.totalCellular ?: 0L,
                         painter = painterResource(R.drawable.data_usage),
                         icon = true,
                         name = stringResource(R.string.total_usage),
-                        selected = !listState.canScrollBackward,
+                        selected = uid == appSelected,
                         maximum = max(totalMaximum ?: 0L, 1)
-                    )
+                    ) {
+                        appSelected = if (appSelected != uid) uid else -1
+                    }
                 }
             }
             if (totalMaximum != null) {
@@ -193,7 +196,6 @@ fun History(paddingValues: PaddingValues) {
                             maximum = totalMaximum
                         ) {
                             appSelected = if (appSelected != item.uid) item.uid else -1
-                            haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                         }
                     }
                 }
@@ -206,12 +208,11 @@ fun History(paddingValues: PaddingValues) {
                                     totalWifi = it.totalWifi - appTotal.totalWifi,
                                     totalCellular = it.totalCellular - appTotal.totalCellular,
                                     painter = painterResource(R.drawable.help),
-                                    name = "Unknown",
+                                    name = stringResource(R.string.unknown),
                                     selected = uid == appSelected,
                                     maximum = totalMaximum
                                 ) {
                                     appSelected = if (appSelected != uid) uid else -1
-                                    haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                                 }
                             }
                         }
@@ -239,11 +240,15 @@ fun AppItem(
     maximum: Long,
     onClick: () -> Unit = {},
 ) {
+    val haptic = LocalHapticFeedback.current
     Column (
         modifier = Modifier
             .clip(MaterialTheme.shapes.small)
             .background(colorScheme.surfaceContainer)
-            .clickable { onClick() }
+            .clickable {
+                onClick()
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+            }
     ) {
         Row(
             modifier = Modifier.padding(4.dp),
