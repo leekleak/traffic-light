@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Traffic Light</string>
+    <string name="today">Vandaag</string>
+    <string name="this_week">Deze week</string>
+    <string name="history">Geschiedenis</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="cellular">Mobiel</string>
+    <string name="grant">Toestaan</string>
+    <string name="speed">Snelheid: %1$s</string>
+    <string name="settings">Instellingen</string>
+    <string name="battery_optimization">Batterijoptimalisatie</string>
+    <string name="battery_optimization_description">Moet uitgeschakeld zijn om te voorkomen dat de telefoon de achtergrondservice stopt na een tijdje.</string>
+    <string name="usage_statistics">Gebruiksstatistieken</string>
+    <string name="usage_statistics_description">Nodig voor het langdurig volgen van het datagebruik.</string>
+    <string name="notifications">Melding</string>
+    <string name="screen_off_update">Updaten wanneer het scherm uit is</string>
+    <string name="screen_off_update_description">Staat volgen van gebruik toe op de AOD, maar kan invloed hebben op de batterij.</string>
+    <string name="oversample_icon">Oversample-icoon</string>
+    <string name="oversample_icon_description">Laat het icoon met een hogere resolutie zien als het wazig is.</string>
+    <string name="wi_fi">Wi-Fi: %1$s</string>
+    <string name="mobile">Mobiel: %1$s</string>
+    <string name="about">Over</string>
+    <string name="speed_in_bits">Snelheid in bits weergeven</string>
+    <string name="github_description">Volg de ontwikkeling of meld problemen.</string>
+    <string name="version">Versie %1$s</string>
+    <string name="force_fallback">Forceer terugval bij snelheid volgen</string>
+    <string name="force_fallback_description">Handig wanneer je een foutieve ROM of Ethernet gebruikt</string>
+    <string name="fallback_unsupported">Terugval wordt niet ondersteund</string>
+    <string name="ui">Interface</string>
+    <string name="limited_mode">Begrensde modus</string>
+    <string name="limited_mode_description">Jammer genoeg ondersteunt je besturingssysteem niet het volgen van data op de lange termijn.</string>
+    <string name="auto">Automatisch</string>
+    <string name="light">Licht</string>
+    <string name="dark">Donker</string>
+    <string name="expressive_fonts">Expressieve lettertypes</string>
+    <string name="default_theme">Standaard</string>
+    <string name="help">Hulp</string>
+    <string name="advanced_settings">Geavanceerde instellingen</string>
+    <string name="notification_description">Check de netwerksnelheid in de statusbalk.</string>
+    <string name="missing_permissions">Missende machtigingen</string>
+    <string name="total_usage">Totaal gebruik</string>
+    <string name="unknown">Onbekend</string>
+</resources>
