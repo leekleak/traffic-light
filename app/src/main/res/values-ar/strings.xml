@@ -39,6 +39,5 @@
     <string name="advanced_settings">إعدادات متقدمة</string>
     <string name="notification_description">تتبع سرعة الشبكة في شريط الحالة.</string>
     <string name="missing_permissions">أذونات مفقودة</string>
-    <string name="app_usage">استخدام التطبيق</string>
     <string name="total_usage">الإستخدام الكلى</string>
 </resources>
