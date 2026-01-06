@@ -39,5 +39,4 @@
     <string name="advanced_settings">Configuraciones Avanzadas</string>
     <string name="notification_description">Ver velocidad de red en la barra de estado.</string>
     <string name="missing_permissions">Permisos Faltantes</string>
-    <string name="app_usage">Acceso a Datos de Uso</string>
 </resources>
