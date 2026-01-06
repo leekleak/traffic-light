@@ -39,6 +39,6 @@
     <string name="default_theme">پیش‌ فرض</string>
     <string name="notification_description">ردیابی سرعت شبکه در نوار وضعیت.</string>
     <string name="missing_permissions">مجوز های لازم موجود نیست</string>
-    <string name="app_usage">مصرف برنامه</string>
     <string name="total_usage">کل استفاده</string>
+    <string name="unknown">ناشناخته</string>
 </resources>
