@@ -39,5 +39,4 @@
     <string name="advanced_settings">Дополнительные настройки</string>
     <string name="notification_description">Отслеживайте скорость сети в полосе уведомлений.</string>
     <string name="missing_permissions">Отсутствуют разрешения</string>
-    <string name="app_usage">Использование Приложения</string>
 </resources>
