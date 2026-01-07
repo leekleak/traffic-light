@@ -41,6 +41,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -141,6 +142,7 @@ class UsageService : Service(), KoinComponent {
                     )
                 )
 
+            runBlocking { updateNotification(TrafficSnapshot(connectivityManager)) }
             try {
                 notification?.let {
                     ServiceCompat.startForeground(
