@@ -39,5 +39,4 @@
     <string name="advanced_settings">高级设置</string>
     <string name="notification_description">在状态栏显示网速</string>
     <string name="missing_permissions">缺少权限</string>
-    <string name="app_usage">应用使用情况</string>
 </resources>

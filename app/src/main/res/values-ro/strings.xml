@@ -39,5 +39,4 @@
     <string name="fallback_unsupported">Fallback nesuportat</string>
     <string name="limited_mode_description">Sistemul de operare nu suportă urmărirea datelor pe termen lung.</string>
     <string name="notification_description">Vezi viteza rețelei în bara de stare.</string>
-    <string name="app_usage">Utilizate aplicație</string>
 </resources>

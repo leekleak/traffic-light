@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="today">今日</string>
+    <string name="this_week">今週</string>
+    <string name="history">履歴</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="cellular">モバイルデータ通信</string>
+    <string name="grant">付与</string>
+    <string name="speed">速度: %1$s</string>
+    <string name="settings">設定</string>
+    <string name="battery_optimization">バッテリーの最適化</string>
+    <string name="battery_optimization_description">一定時間後にスマホがバックグラウンドサービスを強制終了するのを防ぐためには、無効にする必要があります。</string>
+    <string name="usage_statistics">使用状況統計</string>
+    <string name="usage_statistics_description">長期的なデータ使用量の追跡に必要です。</string>
+    <string name="notifications">通知</string>
+    <string name="screen_off_update">画面がオフのときに更新する</string>
+    <string name="screen_off_update_description">常時表示ディスプレイでの使用状況の追跡は可能ですが、バッテリー消費に影響します。</string>
+    <string name="oversample_icon">オーバーサンプルアイコン</string>
+    <string name="oversample_icon_description">アイコンがぼやけている場合は、より大きな解像度でレンダリングします。</string>
+    <string name="wi_fi">Wi-Fi: %1$s</string>
+    <string name="mobile">モバイル: %1$s</string>
+    <string name="about">概要</string>
+    <string name="speed_in_bits">速度をビットで表示</string>
+    <string name="github_description">開発を追跡したり、問題を報告したりします。</string>
+    <string name="version">バージョン: %1$s</string>
+    <string name="force_fallback">強制フォールバック速度追跡</string>
+    <string name="force_fallback_description">バグのあるROMやイーサネットを使用する際に役立ちます</string>
+    <string name="fallback_unsupported">フォールバックはサポートされていません</string>
+    <string name="ui">インターフェース</string>
+    <string name="limited_mode">制限モード</string>
+    <string name="limited_mode_description">残念ながら、お使いのオペレーティング システムは長期のデータ追跡をサポートしていません。</string>
+    <string name="auto">自動</string>
+    <string name="light">ライト</string>
+    <string name="dark">ダーク</string>
+    <string name="expressive_fonts">表現力豊かなフォント</string>
+    <string name="default_theme">標準</string>
+    <string name="help">ヘルプ</string>
+    <string name="advanced_settings">詳細設定</string>
+    <string name="notification_description">ステータスバーでネットワーク速度を追跡します。</string>
+    <string name="missing_permissions">権限がありません</string>
+    <string name="total_usage">総使用量</string>
+    <string name="unknown">不明</string>
+    <string name="app_name">信号機</string>
+</resources>
