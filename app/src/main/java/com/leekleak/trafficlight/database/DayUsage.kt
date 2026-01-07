@@ -1,6 +1,9 @@
 package com.leekleak.trafficlight.database
 
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.TrafficStats
+import android.os.Build
 import com.leekleak.trafficlight.model.PreferenceRepo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +44,7 @@ data class HourData(
 }
 
 data class TrafficSnapshot (
+    val connectivityManager: ConnectivityManager,
     var lastDown: Long = 0,
     var lastUp: Long = 0,
     var currentDown: Long = 0,
@@ -88,8 +92,17 @@ data class TrafficSnapshot (
     }
 
     private fun regularUpdateSnapshot() {
-        currentDown = TrafficStats.getTotalRxBytes()
-        currentUp = TrafficStats.getTotalTxBytes()
+        val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        if (
+            capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_VPN) ?: false &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        ) {
+            currentDown = TrafficStats.getRxBytes("tun0")
+            currentUp = TrafficStats.getTxBytes("tun0")
+        } else {
+            currentDown = TrafficStats.getTotalRxBytes()
+            currentUp = TrafficStats.getTotalTxBytes()
+        }
 
         /**
          * Fun fact: when switching networks the api sometimes fucks up the values as per

@@ -12,6 +12,7 @@ import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Paint
+import android.net.ConnectivityManager
 import android.os.IBinder
 import androidx.collection.LruCache
 import androidx.compose.ui.graphics.NativeCanvas
@@ -53,6 +54,7 @@ class UsageService : Service(), KoinComponent {
     private val serviceScope = CoroutineScope(Dispatchers.IO)
     private var job: Job? = null
 
+    private val connectivityManager: ConnectivityManager by lazy { getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager }
     private val hourlyUsageRepo: HourlyUsageRepo by inject()
     private val preferenceRepo: PreferenceRepo by inject()
     private val notificationManager: NotificationManager by lazy { getSystemService(NOTIFICATION_SERVICE) as NotificationManager }
@@ -157,7 +159,7 @@ class UsageService : Service(), KoinComponent {
 
     private fun startJob() {
         job = serviceScope.launch {
-            val trafficSnapshot = TrafficSnapshot()
+            val trafficSnapshot = TrafficSnapshot(connectivityManager)
             trafficSnapshot.updateSnapshot()
             trafficSnapshot.setCurrentAsLast()
 

@@ -7,6 +7,11 @@ History overhaul:
 Enhancements:
 - Improved accessibility for screen readers
 
+Bugfixes:
+- Fix inflated network speed when using a VPN
+
 Translations:
 - New language: Portuguese
 - New language: Persian
+- New language: Dutch
+- New language: Japanese
