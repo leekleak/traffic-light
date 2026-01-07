@@ -9,6 +9,7 @@ Enhancements:
 
 Bugfixes:
 - Fix inflated network speed when using a VPN
+- Fix notification occasionally missing usage stats
 
 Translations:
 - New language: Portuguese
