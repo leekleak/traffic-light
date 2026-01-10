@@ -40,4 +40,5 @@
     <string name="advanced_settings">Paramètres avancés</string>
     <string name="notification_description">Suivre la vitesse du réseau dans la barre d\'état.</string>
     <string name="total_usage">Total utilisé</string>
+    <string name="unknown">Inconnu</string>
 </resources>
