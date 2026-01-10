@@ -1,3 +1,5 @@
+Warning: This is the first release with a new signing key meaning that all existing users have to manually reinstall the app.
+
 History overhaul:
 - Added option to see monthly usage
 - Added a timeline graph
@@ -10,6 +12,7 @@ Enhancements:
 Bugfixes:
 - Fix inflated network speed when using a VPN
 - Fix notification occasionally missing usage stats
+- Fix notification disappearing
 
 Translations:
 - New language: Portuguese
