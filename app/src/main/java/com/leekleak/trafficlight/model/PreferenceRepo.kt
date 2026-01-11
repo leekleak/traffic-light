@@ -50,6 +50,9 @@ class PreferenceRepo (
     val forceFallback: Flow<Boolean> = context.dataStore.data.map { it[FORCE_FALLBACK] ?: false }
     fun setForceFallback(value: Boolean) = scope.launch { context.dataStore.edit { it[FORCE_FALLBACK] = value } }
 
+    val altVpn: Flow<Boolean> = context.dataStore.data.map { it[ALT_VPN_WORKAROUND] ?: false }
+    fun setAltVpn(value: Boolean) = scope.launch { context.dataStore.edit { it[ALT_VPN_WORKAROUND] = value } }
+
     val theme: Flow<Theme> = context.dataStore.data.map { Theme.valueOf(it[THEME] ?: Theme.AutoMaterial.name ) }
     fun setTheme(value: Theme) = scope.launch { context.dataStore.edit { it[THEME] = value.name } }
 
@@ -62,6 +65,7 @@ class PreferenceRepo (
         val BIG_ICON = booleanPreferencesKey("big_icon")
         val SPEED_BITS = booleanPreferencesKey("speed_bits")
         val FORCE_FALLBACK = booleanPreferencesKey("force_fallback")
+        val ALT_VPN_WORKAROUND = booleanPreferencesKey("alt_vpn_workaround")
         val THEME = stringPreferencesKey("theme")
         val EXPRESSIVE_FONTS = booleanPreferencesKey("expressive_fonts")
     }

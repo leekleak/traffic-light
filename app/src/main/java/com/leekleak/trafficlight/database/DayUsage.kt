@@ -13,6 +13,7 @@ import org.koin.core.component.inject
 import timber.log.Timber
 import java.io.File
 import java.time.LocalDate
+import kotlin.math.max
 
 data class DayUsage(
     val date: LocalDate = LocalDate.now(),
@@ -52,6 +53,7 @@ data class TrafficSnapshot (
 ) : KoinComponent {
     private val preferenceRepo: PreferenceRepo by inject()
     private var useFallback: Boolean = TrafficStats.getTotalTxBytes() == TrafficStats.UNSUPPORTED.toLong()
+    private var altVpnWorkaround: Boolean = false
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
@@ -59,6 +61,9 @@ data class TrafficSnapshot (
                 useFallback = if (it) true
                 else TrafficStats.getTotalTxBytes() == TrafficStats.UNSUPPORTED.toLong()
             }
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            preferenceRepo.altVpn.collect { altVpnWorkaround = it }
         }
     }
     val totalSpeed: Long
@@ -93,12 +98,17 @@ data class TrafficSnapshot (
 
     private fun regularUpdateSnapshot() {
         val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-        if (
-            capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_VPN) ?: false &&
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-        ) {
-            currentDown = TrafficStats.getRxBytes("tun0")
-            currentUp = TrafficStats.getTxBytes("tun0")
+        val runVpnWorkaround = capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_VPN) ?: false &&
+                               Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+
+        if (runVpnWorkaround) {
+            if (altVpnWorkaround) { // Less accurate, but fixes split tunneling setups
+                currentDown = max(currentDown, TrafficStats.getTotalRxBytes() - TrafficStats.getRxBytes("tun0"))
+                currentUp = max(currentUp, TrafficStats.getTotalTxBytes() - TrafficStats.getTxBytes("tun0"))
+            } else {
+                currentDown = TrafficStats.getRxBytes("tun0")
+                currentUp = TrafficStats.getTxBytes("tun0")
+            }
         } else {
             currentDown = TrafficStats.getTotalRxBytes()
             currentUp = TrafficStats.getTotalTxBytes()

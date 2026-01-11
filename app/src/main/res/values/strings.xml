@@ -43,4 +43,8 @@
     <string name="missing_permissions">Missing Permissions</string>
     <string name="total_usage">Total usage</string>
     <string name="unknown">Unknown</string>
+    <string name="appearance">Appearance</string>
+    <string name="behavior">Behavior</string>
+    <string name="alt_vpn_workaround">Alternate VPN workaround</string>
+    <string name="alt_vpn_workaround_description">Reduces measurement accuracy but accommodates split tunneling.</string>
 </resources>
