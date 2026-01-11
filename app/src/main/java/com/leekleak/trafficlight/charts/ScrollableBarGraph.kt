@@ -147,7 +147,7 @@ fun ScrollableBarGraph(
                     initialVelocity = initialVelocity
                 )
             }
-            val snappedTarget = (targetValue - targetValue % barWidth).coerceIn(-barWidth * data.size + canvasWidth, 0f)
+            val snappedTarget = ((targetValue / barWidth).roundToInt() * barWidth).coerceIn(-barWidth * data.size + canvasWidth, 0f)
 
             if (targetValue != offset.value && initialVelocity.sign == (selectorOffset - selectorGoal).sign) {
                 selectorOffset = selectorGoal
