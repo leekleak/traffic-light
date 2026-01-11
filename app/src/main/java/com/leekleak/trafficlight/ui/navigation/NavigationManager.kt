@@ -91,7 +91,7 @@ fun NavigationManager() {
         PaddingValues(
             start = 16.dp,
             end = 16.dp,
-            top = if (backStack.last() == History) 0.dp else topPadding,
+            top = topPadding,
             bottom = bottomPadding + if (toolbarVisible) toolbarOffset else 8.dp
         )
 

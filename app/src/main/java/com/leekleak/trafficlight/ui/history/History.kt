@@ -103,8 +103,8 @@ fun History(paddingValues: PaddingValues) {
             .padding(
                 start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
                 end = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
-            )
-            .statusBarsPadding(),
+                top = paddingValues.calculateTopPadding()
+            ),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         CategoryTitleText(stringResource(R.string.history))
