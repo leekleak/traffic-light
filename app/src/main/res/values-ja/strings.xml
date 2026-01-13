@@ -41,4 +41,8 @@
     <string name="total_usage">総使用量</string>
     <string name="unknown">不明</string>
     <string name="app_name">信号機</string>
+    <string name="alt_vpn_workaround_description">測定精度は低下しますが、スプリット トンネリングに対応します。</string>
+    <string name="alt_vpn_workaround">代替VPNの回避策</string>
+    <string name="behavior">行動</string>
+    <string name="appearance">外観</string>
 </resources>
