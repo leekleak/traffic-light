@@ -40,4 +40,9 @@
     <string name="notification_description">تتبع سرعة الشبكة في شريط الحالة.</string>
     <string name="missing_permissions">أذونات مفقودة</string>
     <string name="total_usage">الإستخدام الكلى</string>
+    <string name="unknown">مجهول</string>
+    <string name="appearance">المظهر</string>
+    <string name="behavior">السلوك</string>
+    <string name="alt_vpn_workaround">حل بديل لـ VPN</string>
+    <string name="alt_vpn_workaround_description">يقلل من دقة القياس ولكنه يتوافق مع التوجيه المقسم.</string>
 </resources>
