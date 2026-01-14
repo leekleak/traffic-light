@@ -26,6 +26,7 @@ android {
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
         debug {
             applicationIdSuffix = ".debug"
@@ -90,4 +91,6 @@ dependencies {
     implementation(libs.timber)
 
     implementation(libs.accompanist.drawablepainter)
+
+    implementation(libs.coil.compose)
 }

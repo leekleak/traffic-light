@@ -51,7 +51,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.accompanist.drawablepainter.rememberDrawablePainter
+import coil3.compose.rememberAsyncImagePainter
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.ScrollableBarGraph
@@ -59,6 +61,7 @@ import com.leekleak.trafficlight.charts.classyFont
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.ui.theme.card
+import com.leekleak.trafficlight.model.AppIcon
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.getName
 import org.koin.compose.koinInject
@@ -185,7 +188,7 @@ fun History(paddingValues: PaddingValues) {
             if (totalMaximum != null) {
                 items(appList, { it.name }) { item ->
                     Box(Modifier.animateItem()) {
-                        val painter = rememberDrawablePainter(context.packageManager.getApplicationIcon(item.packageName))
+                        val painter = rememberAsyncImagePainter(AppIcon(item.packageName))
                         AppItem(
                             totalWifi = item.usage.totalWifi,
                             totalCellular = item.usage.totalCellular,

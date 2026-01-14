@@ -1,6 +1,7 @@
 [versions]
 accompanistDrawablepainter = "0.37.3"
 agp = "8.13.2"
+coilCompose = "3.3.0"
 coreKtx = "1.17.0"
 activityCompose = "1.12.2"
 composeBom = "2025.12.01"
@@ -53,6 +54,9 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 # Accompanist
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanistDrawablepainter" }
+
+# Coil
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
