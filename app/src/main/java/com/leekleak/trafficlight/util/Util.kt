@@ -41,6 +41,9 @@ fun String.clipAndPad(length: Int): String {
 inline val Dp.px: Float
     @Composable get() = with(LocalDensity.current) { this@px.toPx() }
 
+inline val Int.toDp: Dp
+    @Composable get() = with(LocalDensity.current) { this@toDp.toDp() }
+
 fun padHour(time: Number): String {
     if (time.toLong() % 6 == 0L) return time.toString().padStart(2, '0')
     return ""

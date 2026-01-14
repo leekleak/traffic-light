@@ -13,7 +13,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -47,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
@@ -66,6 +66,8 @@ import com.leekleak.trafficlight.model.AppIcon
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.getName
+import com.leekleak.trafficlight.util.px
+import com.leekleak.trafficlight.util.toDp
 import org.koin.compose.koinInject
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -164,20 +166,22 @@ fun History(paddingValues: PaddingValues) {
             state = listState
         ) {
             stickyHeader {
-                Box(
-                    Modifier.fillMaxWidth()
-                        .height(IntrinsicSize.Min)
-                ) {
+                var itemHeight by remember { mutableIntStateOf(0) }
+                val padding = 8.dp.px
+                val uid = -100
+                Box {
+                    // Required otherwise item shadows bleed through the sides
                     Box(
-                        Modifier
-                            .fillMaxSize()
-                            .padding(bottom = 8.dp)
+                        modifier = Modifier
                             .wrapContentWidth(unbounded = true)
-                            .width(LocalWindowInfo.current.containerDpSize.width) // Required otherwise item shadows bleed through the sides
+                            .height((itemHeight - padding.toInt()).toDp)
+                            .width(LocalWindowInfo.current.containerDpSize.width)
                             .background(colorScheme.surface)
                     )
-                    val uid = -100
                     AppItem(
+                        modifier = Modifier.onGloballyPositioned { coordinates ->
+                            itemHeight = coordinates.size.height
+                        },
                         totalWifi = selectedUsage?.totalWifi ?: 0L,
                         totalCellular = selectedUsage?.totalCellular ?: 0L,
                         painter = painterResource(R.drawable.data_usage),
@@ -189,6 +193,7 @@ fun History(paddingValues: PaddingValues) {
                         appSelected = if (appSelected != uid) uid else -1
                     }
                 }
+
             }
             if (totalMaximum != null) {
                 items(appList, { it.name }) { item ->
@@ -239,6 +244,7 @@ fun getDatesForTimespan(): Pair<LocalDate, LocalDate> {
 
 @Composable
 fun AppItem(
+    modifier: Modifier = Modifier,
     totalWifi: Long,
     totalCellular: Long,
     painter: Painter,
@@ -250,7 +256,7 @@ fun AppItem(
 ) {
     val haptic = LocalHapticFeedback.current
     Column (
-        modifier = Modifier
+        modifier = modifier
             .shadow(1.dp, MaterialTheme.shapes.small)
             .background(colorScheme.surfaceContainer)
             .clickable {
