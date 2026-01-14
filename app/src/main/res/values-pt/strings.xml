@@ -39,4 +39,9 @@
     <string name="advanced_settings">Definições Avançadas</string>
     <string name="notification_description">Ver a velocidade da rede na barra de estado.</string>
     <string name="missing_permissions">Permissões em falta</string>
+    <string name="total_usage">Uso total</string>
+    <string name="unknown">Desconhecido</string>
+    <string name="appearance">Aparência</string>
+    <string name="behavior">Comportamento</string>
+    <string name="alt_vpn_workaround">Solução alternativa da VPN</string>
 </resources>

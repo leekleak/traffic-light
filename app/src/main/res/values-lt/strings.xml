@@ -41,4 +41,8 @@
     <string name="missing_permissions">Trūksta leidimų</string>
     <string name="total_usage">Bendras suvartojimas</string>
     <string name="unknown">Nežinoma</string>
+    <string name="appearance">Išvaizda</string>
+    <string name="behavior">Elgesys</string>
+    <string name="alt_vpn_workaround">Alternatyvus VPN duomenų skaičiavimas</string>
+    <string name="alt_vpn_workaround_description">Prastesnis matavimų tikslumas, tačiau palaiko kelių tunelių konfigūracijas.</string>
 </resources>

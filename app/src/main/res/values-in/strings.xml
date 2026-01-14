@@ -1,3 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Lampu Lalu Lintas</string>
+    <string name="today">Hari Ini</string>
+    <string name="this_week">Minggu Ini</string>
+    <string name="history">Riwayat</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="cellular">Selular</string>
+    <string name="grant">Izinkan</string>
+    <string name="speed">Kecepatan: %1$s</string>
+    <string name="settings">Pengaturan</string>
+    <string name="battery_optimization">Optimasi baterai</string>
+    <string name="battery_optimization_description">Harus dinonaktifkan untuk mencegah telepon menghentikan layanan latar belakang setelah beberapa saat.</string>
+    <string name="usage_statistics">Statistik Penggunaan</string>
+    <string name="usage_statistics_description">Diperlukan untuk pemantauan penggunaan data jangka panjang.</string>
+    <string name="notifications">Notifikasi</string>
+    <string name="screen_off_update">Perbarui ketika layar mati</string>
+    <string name="screen_off_update_description">Izinkan pemantauan penggunaan pada AOD, tetapi berdampak pada daya baterai.</string>
+    <string name="oversample_icon">Perbesar Ikon</string>
+    <string name="oversample_icon_description">Hasilkan ikon dengan resolusi yang lebih tinggi jika ikon tersebut buram.</string>
+    <string name="wi_fi">Wi-Fi: %1$s</string>
+    <string name="mobile">Seluler: %1$s</string>
+    <string name="about">Tentang</string>
+    <string name="speed_in_bits">Tampilkan kecepatan dalam bits</string>
+    <string name="github_description">Pantau pengembangan atau laporkan masalah.</string>
+    <string name="version">Versi %1$s</string>
+    <string name="force_fallback">Paksa pelacakan kecepatan cadangan</string>
+    <string name="force_fallback_description">Berguna saat menggunakan ROM yang bermasalah atau koneksi ethernet</string>
+    <string name="fallback_unsupported">Cadangan tidak didukung</string>
+    <string name="ui">Tampilan</string>
+    <string name="limited_mode">Mode Terbatas</string>
+    <string name="limited_mode_description">Sayangnya sistem operasi Anda tidak mendukung pemantauan data jangka panjang.</string>
+    <string name="auto">Otomatis</string>
+    <string name="light">Terang</string>
+    <string name="dark">Gelap</string>
+    <string name="expressive_fonts">Font Ekspresif</string>
+    <string name="default_theme">Bawaan</string>
+    <string name="help">Bantuan</string>
+    <string name="advanced_settings">Pengaturan Lanjutan</string>
+    <string name="notification_description">Pantau kecepatan jaringan di bilah status.</string>
+    <string name="missing_permissions">Kehilangan Perizinan</string>
+    <string name="total_usage">Total penggunaan</string>
+    <string name="unknown">Tidak diketahui</string>
 </resources>

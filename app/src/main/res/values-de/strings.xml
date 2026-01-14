@@ -39,4 +39,6 @@
     <string name="advanced_settings">Erweiterte Einstellungen</string>
     <string name="notification_description">Überwacht die Netzwerkgeschwindigkeit in der Statusleiste.</string>
     <string name="missing_permissions">Fehlende Berechtigungen</string>
+    <string name="total_usage">Gesamtverbrauch</string>
+    <string name="unknown">Unbekannt</string>
 </resources>
