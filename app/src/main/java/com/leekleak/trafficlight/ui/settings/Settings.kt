@@ -22,8 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -95,16 +94,15 @@ fun Settings(
                         icon = painterResource(R.drawable.usage),
                         onClick = { viewModel.permissionManager.askUsagePermission(activity) }
                     ) {
-                        FloatingActionButton(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        PermissionButton(
+                            icon = painterResource(R.drawable.help),
+                            contentDescription = stringResource(R.string.help),
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                            ),
                             onClick = { viewModel.permissionManager.openUsagePermissionHelp(activity) }
-                        ) {
-                            Icon(
-                                painterResource(R.drawable.help),
-                                contentDescription = stringResource(R.string.help)
-                            )
-                        }
+                        )
                     }
                 }
                 AnimatedPreference(usageMode == Limited) {

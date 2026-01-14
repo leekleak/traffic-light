@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.copy
@@ -393,13 +396,30 @@ fun PermissionCard(
             Text(modifier = Modifier.fillMaxWidth(), text = description)
         }
         extraButton?.invoke()
-        FloatingActionButton (
+        PermissionButton(
+            icon = painterResource(R.drawable.grant),
+            contentDescription = stringResource(R.string.grant),
             onClick = onClick
-        ) {
-            Icon(
-                painterResource(R.drawable.grant),
-                contentDescription = stringResource(R.string.grant),
-            )
-        }
+        )
+    }
+}
+
+@Composable
+fun PermissionButton(
+    icon: Painter,
+    contentDescription: String,
+    colors: IconButtonColors = IconButtonDefaults.filledIconButtonColors(),
+    onClick: () -> Unit
+) {
+    FilledIconButton (
+        modifier = Modifier.size(56.dp).shadow(2.dp, MaterialTheme.shapes.large),
+        colors = colors,
+        shape = MaterialTheme.shapes.large,
+        onClick = onClick,
+    ) {
+        Icon(
+            icon,
+            contentDescription = contentDescription,
+        )
     }
 }

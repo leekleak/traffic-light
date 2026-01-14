@@ -13,17 +13,20 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -41,10 +44,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -52,16 +56,14 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.rememberAsyncImagePainter
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.ScrollableBarGraph
 import com.leekleak.trafficlight.charts.classyFont
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.HourlyUsageRepo
-import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.model.AppIcon
+import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.getName
 import org.koin.compose.koinInject
@@ -78,7 +80,6 @@ fun History(paddingValues: PaddingValues) {
     val hourlyUsageRepo: HourlyUsageRepo = koinInject()
     val viewModel: HistoryVM = viewModel()
     val haptic = LocalHapticFeedback.current
-    val context = LocalContext.current
 
     var appDay by remember { mutableStateOf( LocalDate.now()) }
     var showMonth by remember { mutableStateOf(false) }
@@ -163,14 +164,18 @@ fun History(paddingValues: PaddingValues) {
             state = listState
         ) {
             stickyHeader {
-                Box (
-                    Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = colorScheme.surface,
-                            shape = RoundedCornerShape(0.dp, 0.dp, 24.dp, 24.dp)
-                        )
+                Box(
+                    Modifier.fillMaxWidth()
+                        .height(IntrinsicSize.Min)
                 ) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(bottom = 8.dp)
+                            .wrapContentWidth(unbounded = true)
+                            .width(LocalWindowInfo.current.containerDpSize.width) // Required otherwise item shadows bleed through the sides
+                            .background(colorScheme.surface)
+                    )
                     val uid = -100
                     AppItem(
                         totalWifi = selectedUsage?.totalWifi ?: 0L,
@@ -210,6 +215,7 @@ fun History(paddingValues: PaddingValues) {
                                     totalWifi = it.totalWifi - appTotal.totalWifi,
                                     totalCellular = it.totalCellular - appTotal.totalCellular,
                                     painter = painterResource(R.drawable.help),
+                                    icon = true,
                                     name = stringResource(R.string.unknown),
                                     selected = uid == appSelected,
                                     maximum = totalMaximum
@@ -245,7 +251,7 @@ fun AppItem(
     val haptic = LocalHapticFeedback.current
     Column (
         modifier = Modifier
-            .clip(MaterialTheme.shapes.small)
+            .shadow(1.dp, MaterialTheme.shapes.small)
             .background(colorScheme.surfaceContainer)
             .clickable {
                 onClick()

@@ -15,7 +15,7 @@ class AppIconFetcher(
     private val data: AppIcon,
     private val context: Context
 ) : Fetcher {
-    override suspend fun fetch(): FetchResult? {
+    override suspend fun fetch(): FetchResult {
         val drawable = context.packageManager.getApplicationIcon(data.packageName)
 
         return ImageFetchResult(
