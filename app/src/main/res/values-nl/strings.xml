@@ -41,4 +41,8 @@
     <string name="missing_permissions">Missende machtigingen</string>
     <string name="total_usage">Totaal gebruik</string>
     <string name="unknown">Onbekend</string>
+    <string name="appearance">Uiterlijk</string>
+    <string name="behavior">Gedrag</string>
+    <string name="alt_vpn_workaround">Alternatieve VPN-omzeiling</string>
+    <string name="alt_vpn_workaround_description">Vermindert nauwkeurigheid van metingen, maar werkt met split tunnels.</string>
 </resources>

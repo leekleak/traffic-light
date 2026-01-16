@@ -27,7 +27,7 @@
     <string name="force_fallback">Paksa pelacakan kecepatan cadangan</string>
     <string name="force_fallback_description">Berguna saat menggunakan ROM yang bermasalah atau koneksi ethernet</string>
     <string name="fallback_unsupported">Cadangan tidak didukung</string>
-    <string name="ui">Tampilan</string>
+    <string name="ui">Antarmuka</string>
     <string name="limited_mode">Mode Terbatas</string>
     <string name="limited_mode_description">Sayangnya sistem operasi Anda tidak mendukung pemantauan data jangka panjang.</string>
     <string name="auto">Otomatis</string>
@@ -41,4 +41,8 @@
     <string name="missing_permissions">Kehilangan Perizinan</string>
     <string name="total_usage">Total penggunaan</string>
     <string name="unknown">Tidak diketahui</string>
+    <string name="appearance">Tampilan</string>
+    <string name="behavior">Perilaku</string>
+    <string name="alt_vpn_workaround">Solusi alternatif VPN</string>
+    <string name="alt_vpn_workaround_description">Mengurangi akurasi pengukuran tetapi mendukung tunneling terpisah.</string>
 </resources>
