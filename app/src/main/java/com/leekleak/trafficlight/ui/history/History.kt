@@ -91,7 +91,7 @@ fun History(paddingValues: PaddingValues) {
     }
 
     val appList by remember { viewModel.appList }.collectAsState()
-    var appSelected by remember { mutableIntStateOf(-100) }
+    var appSelected by remember { mutableIntStateOf(-1) }
 
     val days = remember { getDatesForTimespan() }
     val usageFlow = remember { hourlyUsageRepo.daysUsage(days.first, days.second) }
@@ -196,7 +196,7 @@ fun History(paddingValues: PaddingValues) {
 
             }
             if (totalMaximum != null) {
-                items(appList, { it.name }) { item ->
+                items(appList, { it.uid }) { item ->
                     Box(Modifier.animateItem()) {
                         val painter = rememberAsyncImagePainter(AppIcon(item.packageName))
                         AppItem(
