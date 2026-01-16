@@ -1,10 +1,9 @@
 [versions]
-accompanistDrawablepainter = "0.37.3"
 agp = "8.13.2"
 coilCompose = "3.3.0"
 coreKtx = "1.17.0"
 activityCompose = "1.12.2"
-composeBom = "2025.12.01"
+composeBom = "2026.01.00"
 
 coreSplashscreen = "1.2.0"
 datastore = "1.2.0"
@@ -12,7 +11,7 @@ kotlin = "2.3.0"
 kotlinxSerializationJson = "1.9.0"
 lifecycle = "2.10.0"
 koin-bom = "4.1.1"
-material3 = "1.5.0-alpha11"
+material3 = "1.5.0-alpha12"
 
 nav3Core = "1.0.0"
 timber = "5.0.1"
@@ -51,9 +50,6 @@ androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", vers
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
-
-# Accompanist
-accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanistDrawablepainter" }
 
 # Coil
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }

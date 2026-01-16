@@ -90,7 +90,5 @@ dependencies {
 
     implementation(libs.timber)
 
-    implementation(libs.accompanist.drawablepainter)
-
     implementation(libs.coil.compose)
 }
