@@ -1,5 +1,5 @@
 [versions]
-agp = "8.13.2"
+agp = "9.0.0"
 coilCompose = "3.3.0"
 coreKtx = "1.17.0"
 activityCompose = "1.12.2"
@@ -49,6 +49,8 @@ androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", vers
 # DataStore
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+
+# Timber
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 # Coil
@@ -56,7 +58,6 @@ coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCo
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
