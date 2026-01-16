@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -14,8 +12,8 @@ android {
         applicationId = "com.leekleak.trafficlight"
         minSdk = 26
         targetSdk = 36
-        versionCode = 12
-        versionName = "2.8"
+        versionCode = 13
+        versionName = "2.8.1"
         base.archivesName = "$namespace-$versionName"
     }
     buildTypes {
@@ -37,11 +35,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlin {
-        compilerOptions {
-            jvmTarget = JvmTarget.fromTarget("11")
-        }
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.15"

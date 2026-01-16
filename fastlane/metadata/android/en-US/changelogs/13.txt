@@ -1,0 +1,12 @@
+Enhancements:
+- Added an alternate VPN workaround for split tunneling users
+- Various performance improvements
+- Various minor UI improvements and fixes
+
+Bugfixes:
+- Fix notification not restarting on boot
+- Fix crash when there are apps with duplicate names
+- Fix incorrect graph snapping behavior
+
+Translations:
+- New language: Indonesian
