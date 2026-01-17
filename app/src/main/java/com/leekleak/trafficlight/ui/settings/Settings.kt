@@ -1,6 +1,7 @@
 package com.leekleak.trafficlight.ui.settings
 
 import android.Manifest
+import android.content.pm.PackageManager
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -44,6 +45,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.UsageMode.Limited
 import com.leekleak.trafficlight.database.UsageMode.NoPermission
 import com.leekleak.trafficlight.database.UsageMode.Unlimited
+import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.NotificationSettings
 import com.leekleak.trafficlight.ui.theme.Theme
 import com.leekleak.trafficlight.ui.theme.card
@@ -52,6 +54,9 @@ import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.util.px
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
+import rikka.shizuku.Shizuku
+import rikka.shizuku.ShizukuProvider
 
 @Composable
 fun Settings(
@@ -59,6 +64,7 @@ fun Settings(
     backstack: NavBackStack<NavKey>,
 ) {
     val viewModel: SettingsVM = viewModel()
+    val permissionManager: PermissionManager = koinInject()
     val activity = LocalActivity.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -71,6 +77,7 @@ fun Settings(
         item {
             val usageMode by viewModel.hourlyUsageRepo.usageModeFlow().collectAsState(Unlimited)
             val backgroundPermission by viewModel.permissionManager.backgroundPermissionFlow.collectAsState(true)
+            val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
 
             if (usageMode != Unlimited || !backgroundPermission) {
                 CategoryTitleSmallText(stringResource(R.string.missing_permissions))
@@ -79,7 +86,7 @@ fun Settings(
             Column (
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                AnimatedPreference(!backgroundPermission) {
+                if (!backgroundPermission) {
                     PermissionCard(
                         title = stringResource(R.string.battery_optimization),
                         description = stringResource(R.string.battery_optimization_description),
@@ -87,7 +94,7 @@ fun Settings(
                         onClick = { viewModel.permissionManager.askBackgroundPermission(activity) }
                     )
                 }
-                AnimatedPreference(usageMode == NoPermission) {
+                if (usageMode == NoPermission) {
                     PermissionCard(
                         title = stringResource(R.string.usage_statistics),
                         description = stringResource(R.string.usage_statistics_description),
@@ -105,7 +112,7 @@ fun Settings(
                         )
                     }
                 }
-                AnimatedPreference(usageMode == Limited) {
+                if (usageMode == Limited) {
                     Column(
                         modifier = Modifier
                             .padding(vertical = 8.dp)
@@ -124,6 +131,17 @@ fun Settings(
                             color = MaterialTheme.colorScheme.error,
                         )
                     }
+                }
+
+                if (!shizukuPermission) {
+                    val shizukuRunning by permissionManager.shizukuRunningFlow.collectAsState(false)
+                    PermissionCard (
+                        title = stringResource(R.string.shizuku),
+                        enabled = shizukuRunning,
+                        description = stringResource(R.string.allows_in_depth_data_plan_tracking),
+                        icon = painterResource(R.drawable.version),
+                        onClick = { Shizuku.requestPermission(12199) },
+                    )
                 }
             }
         }
@@ -157,7 +175,7 @@ fun Settings(
                     }
                 },
             )
-            AnimatedPreference(notification) {
+            if (notification) {
                 Preference(
                     title = stringResource(R.string.advanced_settings),
                     icon = painterResource(R.drawable.notification_settings),
@@ -221,16 +239,5 @@ fun Settings(
                 onClick = { viewModel.openAppSettings(activity) },
             )
         }
-    }
-}
-
-@Composable
-fun AnimatedPreference(visible: Boolean, content: @Composable () -> Unit) {
-    AnimatedVisibility(
-        visible = visible,
-        enter = slideInVertically() + expandVertically() + fadeIn(),
-        exit = slideOutVertically() + shrinkVertically() + fadeOut()
-    ) {
-        content()
     }
 }

@@ -12,9 +12,12 @@ import android.os.Build
 import android.os.PowerManager
 import android.os.Process.myUid
 import android.provider.Settings
+import android.util.Log
 import androidx.core.net.toUri
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import rikka.shizuku.Shizuku
+import timber.log.Timber
 
 class PermissionManager(
     private val context: Context
@@ -27,6 +30,12 @@ class PermissionManager(
 
     private val _notificationPermission = MutableStateFlow(false)
     val notificationPermissionFlow = _notificationPermission.asStateFlow()
+
+    private val _shizukuRunning = MutableStateFlow(false)
+    val shizukuRunningFlow = _shizukuRunning.asStateFlow()
+
+    private val _shizukuPermission = MutableStateFlow(false)
+    val shizukuPermissionFlow = _shizukuPermission.asStateFlow()
 
     @SuppressLint("BatteryLife")
     fun askBackgroundPermission(activity: Activity?) {
@@ -69,7 +78,6 @@ class PermissionManager(
         val pm = context.getSystemService(POWER_SERVICE) as PowerManager
         _backgroundPermission.value = pm.isIgnoringBatteryOptimizations(packageName)
 
-
         val appOpsManager = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
         val mode = appOpsManager.checkOpNoThrow(
             AppOpsManager.OPSTR_GET_USAGE_STATS,
@@ -82,6 +90,12 @@ class PermissionManager(
             context.checkSelfPermission(POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
         } else {
             true
+        }
+
+        _shizukuRunning.value = Shizuku.pingBinder()
+        Timber.e(_shizukuRunning.value.toString())
+        if (_shizukuRunning.value) {
+            _shizukuPermission.value = Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
         }
     }
 }

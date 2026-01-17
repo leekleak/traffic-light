@@ -15,6 +15,7 @@ material3 = "1.5.0-alpha12"
 
 nav3Core = "1.0.0"
 timber = "5.0.1"
+shizuku = "13.1.5"
 
 [libraries]
 
@@ -55,6 +56,10 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 # Coil
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
+
+# Shizuku
+shizuku-api = { module = "dev.rikka.shizuku:api", version.ref = "shizuku" }
+shizuku-provider = { module = "dev.rikka.shizuku:provider", version.ref = "shizuku" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
