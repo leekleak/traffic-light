@@ -204,7 +204,14 @@ fun Settings(
                 title = stringResource(R.string.github),
                 summary = stringResource(R.string.github_description),
                 icon = painterResource(R.drawable.github),
-                onClick = { viewModel.openGithub(activity) },
+                onClick = { viewModel.openLink(activity, "https://github.com/leekleak/traffic-light") },
+            )
+        }
+        item {
+            Preference(
+                title = stringResource(R.string.support_development),
+                icon = painterResource(R.drawable.donate),
+                onClick = { viewModel.openLink(activity, "https://github.com/sponsors/leekleak") },
             )
         }
         item {

@@ -47,4 +47,5 @@
     <string name="behavior">Behavior</string>
     <string name="alt_vpn_workaround">Alternate VPN workaround</string>
     <string name="alt_vpn_workaround_description">Reduces measurement accuracy but accommodates split tunneling.</string>
+    <string name="support_development">Support development</string>
 </resources>

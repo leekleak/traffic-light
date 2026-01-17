@@ -29,11 +29,11 @@ class SettingsVM : ViewModel(), KoinComponent {
         }
     }
 
-    fun openGithub(activity: Activity?) {
+    fun openLink(activity: Activity?, link: String) {
         activity?.startActivity(
             Intent(
                 Intent.ACTION_VIEW,
-                "https://github.com/leekleak/traffic-light".toUri()
+                link.toUri()
             )
         )
     }

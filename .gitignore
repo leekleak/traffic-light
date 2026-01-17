@@ -33,3 +33,6 @@ google-services.json
 # Android Profiling
 *.hprof
 bugreport.zip
+
+# Baseline Profiles
+*.dm
