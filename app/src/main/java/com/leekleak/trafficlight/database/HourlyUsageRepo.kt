@@ -7,6 +7,7 @@ import android.content.Context.NETWORK_STATS_SERVICE
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.model.AppDatabase
+import com.leekleak.trafficlight.model.ShizukuDataManager
 import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.util.getName
 import com.leekleak.trafficlight.util.padHour
@@ -37,6 +38,7 @@ enum class UsageMode {
 class HourlyUsageRepo(context: Context) : KoinComponent {
     private var networkStatsManager: NetworkStatsManager = context.getSystemService(NETWORK_STATS_SERVICE) as NetworkStatsManager
     private val permissionManager: PermissionManager by inject()
+    private val shizukuDataManager: ShizukuDataManager by inject()
     private val appDatabase: AppDatabase by inject()
 
     fun usageModeFlow(): Flow<UsageMode> = permissionManager.usagePermissionFlow.map {
@@ -67,39 +69,39 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
     }
 
     fun calculateHourData(startTime: Long, endTime: Long, uid: Int? = null): HourData {
-        val wifiBuckets = mutableListOf<NetworkStats.Bucket>()
         val mobileBuckets = mutableListOf<NetworkStats.Bucket>()
+        val wifiBuckets = mutableListOf<NetworkStats.Bucket>()
 
         if (uid == null) {
-            wifiBuckets.add(
+            mobileBuckets.add(
                 networkStatsManager.querySummaryForDevice(0, null, startTime, endTime)
             )
-            mobileBuckets.add(
-                networkStatsManager.querySummaryForDevice(1,null, startTime, endTime)
+            wifiBuckets.add(
+                networkStatsManager.querySummaryForDevice(1, null, startTime, endTime)
             )
         } else {
-            val statsWifi = networkStatsManager.queryDetailsForUid(0, null, startTime, endTime, uid)
-            val statsMobile = networkStatsManager.queryDetailsForUid(1, null, startTime, endTime, uid)
-            while (statsWifi.hasNextBucket()) {
-                val bucket = NetworkStats.Bucket()
-                statsWifi.getNextBucket(bucket)
-                wifiBuckets.add(bucket)
-            }
+            val statsMobile = networkStatsManager.queryDetailsForUid(0, null, startTime, endTime, uid)
+            val statsWifi = networkStatsManager.queryDetailsForUid(1, null, startTime, endTime, uid)
             while (statsMobile.hasNextBucket()) {
                 val bucket = NetworkStats.Bucket()
                 statsMobile.getNextBucket(bucket)
                 mobileBuckets.add(bucket)
             }
+            while (statsWifi.hasNextBucket()) {
+                val bucket = NetworkStats.Bucket()
+                statsWifi.getNextBucket(bucket)
+                wifiBuckets.add(bucket)
+            }
         }
 
         val hourData = HourData()
-        for (bucket in wifiBuckets) {
+        for (bucket in mobileBuckets) {
             hourData.cellular += bucket.txBytes + bucket.rxBytes
             hourData.upload += bucket.txBytes
             hourData.download += bucket.rxBytes
         }
 
-        for (bucket in mobileBuckets) {
+        for (bucket in wifiBuckets) {
             hourData.wifi += bucket.txBytes + bucket.rxBytes
             hourData.upload += bucket.txBytes
             hourData.download += bucket.rxBytes
