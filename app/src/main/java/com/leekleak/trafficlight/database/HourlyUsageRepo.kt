@@ -7,7 +7,6 @@ import android.content.Context.NETWORK_STATS_SERVICE
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.model.AppDatabase
-import com.leekleak.trafficlight.model.ShizukuDataManager
 import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.util.getName
 import com.leekleak.trafficlight.util.padHour
@@ -38,7 +37,6 @@ enum class UsageMode {
 class HourlyUsageRepo(context: Context) : KoinComponent {
     private var networkStatsManager: NetworkStatsManager = context.getSystemService(NETWORK_STATS_SERVICE) as NetworkStatsManager
     private val permissionManager: PermissionManager by inject()
-    private val shizukuDataManager: ShizukuDataManager by inject()
     private val appDatabase: AppDatabase by inject()
 
     fun usageModeFlow(): Flow<UsageMode> = permissionManager.usagePermissionFlow.map {

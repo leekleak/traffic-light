@@ -9,11 +9,13 @@ coreSplashscreen = "1.2.0"
 datastore = "1.2.0"
 kotlin = "2.3.0"
 kotlinxSerializationJson = "1.9.0"
+ksp = "2.3.4"
 lifecycle = "2.10.0"
 koin-bom = "4.1.1"
 material3 = "1.5.0-alpha12"
 
 nav3Core = "1.0.0"
+room = "2.8.4"
 timber = "5.0.1"
 shizuku = "13.1.5"
 
@@ -61,8 +63,15 @@ coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCo
 shizuku-api = { module = "dev.rikka.shizuku:api", version.ref = "shizuku" }
 shizuku-provider = { module = "dev.rikka.shizuku:provider", version.ref = "shizuku" }
 
+# Room
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+
 

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -67,6 +68,8 @@ fun Overview(
     val todayUsage by viewModel.todayUsage.collectAsState(DayUsage())
     val weeklyUsage by viewModel.hourlyUsageRepo.weekUsage().collectAsState(listOf())
 
+    val subscriberIDs = remember { viewModel.getSubscriberIDs() }
+
     /**
      * Generally the notification service is responsible for updating daily usage,
      * however some people may prefer to use the app exclusively for historical data tracking
@@ -89,6 +92,18 @@ fun Overview(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = paddingValues
     ) {
+        items(subscriberIDs, { it }) {
+            val hasDataPlan by viewModel.getSubscriberIDHasDataPlan(it).collectAsState(true)
+            Row {
+                Text(it)
+                if (hasDataPlan) {
+                    Text(" (with data plan)")
+                } else {
+                    Text(" (no data plan)")
+                }
+            }
+        }
+
         overviewTab(
             label = R.string.today,
             data = dayUsageToBarData(todayUsage),

@@ -43,6 +43,7 @@ class ShizukuDataManager(): KoinComponent {
 
             val binder = ShizukuBinderWrapper(getSystemService("isub"))
 
+            // TODO: Get transaction code procedurally
             binder.transact(5, data, reply, 0)
             Timber.e("Exception:%s", reply.readException())
             val info = reply.createTypedArrayList(SubscriptionInfo.CREATOR)
@@ -73,6 +74,7 @@ class ShizukuDataManager(): KoinComponent {
 
                 val binder = ShizukuBinderWrapper(getSystemService("iphonesubinfo"))
 
+                // TODO: Get transaction code procedurally
                 binder.transact(10, data, reply, 0) // TRANSACTION_getSubscriberIdForSubscriber = 10;
                 Timber.e("Exception:%s", reply.readException())
                 val string = reply.readString()!!
