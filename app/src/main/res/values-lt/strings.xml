@@ -27,7 +27,7 @@
     <string name="force_fallback">Priverstinai naudoti atsarginį skaičiavimo metodą</string>
     <string name="force_fallback_description">Naudinga jei jūsų sitema turi klaidų arba esate prisijungę prie laidinio interneto</string>
     <string name="fallback_unsupported">Atsarginis skaičiavimo metodas neveikia</string>
-    <string name="ui">Išvaizda</string>
+    <string name="ui">Sąsaja</string>
     <string name="limited_mode">Ribotas režimas</string>
     <string name="limited_mode_description">Deja jūsų operacinė sistema neplaiko ilgalaikio duomenų sekimo.</string>
     <string name="auto">Auto</string>
@@ -39,10 +39,11 @@
     <string name="advanced_settings">Papildomi nustatymai</string>
     <string name="notification_description">Rodo interneto greitį pranešimų juostoje.</string>
     <string name="missing_permissions">Trūksta leidimų</string>
-    <string name="total_usage">Bendras suvartojimas</string>
+    <string name="total_usage">Bendras naudojimas</string>
     <string name="unknown">Nežinoma</string>
     <string name="appearance">Išvaizda</string>
-    <string name="behavior">Elgesys</string>
+    <string name="behavior">Elgsena</string>
     <string name="alt_vpn_workaround">Alternatyvus VPN duomenų skaičiavimas</string>
     <string name="alt_vpn_workaround_description">Prastesnis matavimų tikslumas, tačiau palaiko kelių tunelių konfigūracijas.</string>
+    <string name="support_development">Paremti kūrimą</string>
 </resources>
