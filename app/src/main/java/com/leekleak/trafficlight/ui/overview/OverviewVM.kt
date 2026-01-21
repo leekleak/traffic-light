@@ -1,5 +1,6 @@
 package com.leekleak.trafficlight.ui.overview
 
+import android.telephony.SubscriptionInfo
 import androidx.lifecycle.ViewModel
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.DayUsage
@@ -20,7 +21,8 @@ class OverviewVM : ViewModel(), KoinComponent {
     val shizukuDataManager: ShizukuDataManager by inject()
     val dataPlanDao: DataPlanDao by inject()
 
-    fun getSubscriberIDs(): List<String> = shizukuDataManager.getSubscriberIDs()
+    fun getSubscriptionInfos(): List<SubscriptionInfo> = shizukuDataManager.getSubscriptionInfos()
+    fun getSubscriberID(subscriptionId: Int): String? = shizukuDataManager.getSubscriberID(subscriptionId)
 
     fun getSubscriberIDHasDataPlan(subscriberID: String): Flow<Boolean> = flow {
         emit(dataPlanDao.get(subscriberID) != null)

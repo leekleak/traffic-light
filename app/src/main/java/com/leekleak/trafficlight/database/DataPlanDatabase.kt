@@ -52,6 +52,12 @@ data class DataPlan(
 
     @ColumnInfo val rollover: Boolean,
     @ColumnInfo val rolloverLeftover: Int,
+
+
+    /**
+     * Customization
+     */
+    @ColumnInfo val uiBackground: Int,
 )
 
 @Dao

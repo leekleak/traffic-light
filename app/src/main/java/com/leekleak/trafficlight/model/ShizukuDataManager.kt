@@ -5,8 +5,6 @@ import android.telephony.SubscriptionInfo
 import com.leekleak.trafficlight.services.PermissionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -28,13 +26,7 @@ class ShizukuDataManager(): KoinComponent {
         }
     }
 
-    val subscriptionIDs: Flow<List<String>> = permissionManager.shizukuPermissionFlow.map {
-        if (it) getSubscriberIDs()
-        else listOf()
-    }
-
-    fun getSubscriptionIDs(): List<Int> {
-        //if (!enabled) return listOf()
+    fun getSubscriptionInfos(): List<SubscriptionInfo> {
         val data = Parcel.obtain()
         val reply = Parcel.obtain()
         try {
@@ -47,12 +39,7 @@ class ShizukuDataManager(): KoinComponent {
             binder.transact(5, data, reply, 0)
             Timber.e("Exception:%s", reply.readException())
             val info = reply.createTypedArrayList(SubscriptionInfo.CREATOR)
-            if (info != null) {
-                for (i in info) {
-                    Timber.e(i.toString())
-                }
-            }
-            return info?.map { it.subscriptionId } ?: listOf()
+            return info ?: listOf()
         } catch (e: Exception) {
             Timber.e(e)
             return listOf()
@@ -62,34 +49,29 @@ class ShizukuDataManager(): KoinComponent {
         }
     }
 
-    fun getSubscriberIDs(): List<String> {
-        val ids = getSubscriptionIDs()
-        val subscriberIDs = ids.map {
-            val data = Parcel.obtain()
-            val reply = Parcel.obtain()
-            try {
-                data.writeInterfaceToken("com.android.internal.telephony.IPhoneSubInfo")
-                data.writeInt(it)
-                data.writeString("com.android.shell")
+    fun getSubscriberID(subscriptionId: Int): String? {
+        val data = Parcel.obtain()
+        val reply = Parcel.obtain()
+        try {
+            data.writeInterfaceToken("com.android.internal.telephony.IPhoneSubInfo")
+            data.writeInt(subscriptionId)
+            data.writeString("com.android.shell")
 
-                val binder = ShizukuBinderWrapper(getSystemService("iphonesubinfo"))
+            val binder = ShizukuBinderWrapper(getSystemService("iphonesubinfo"))
 
-                // TODO: Get transaction code procedurally
-                binder.transact(10, data, reply, 0) // TRANSACTION_getSubscriberIdForSubscriber = 10;
-                Timber.e("Exception:%s", reply.readException())
-                val string = reply.readString()!!
-                Timber.e("SubsrciberID:%s", string)
-                string
-            } catch (e: Exception) {
-                Timber.e(e)
-                null
-            } finally {
-                data.recycle()
-                reply.recycle()
-            }
+            // TODO: Get transaction code procedurally
+            binder.transact(10, data, reply, 0) // TRANSACTION_getSubscriberIdForSubscriber = 10;
+            Timber.e("Exception:%s", reply.readException())
+            val string = reply.readString()!!
+            Timber.e("SubsrciberID:%s", string)
+            return string
+        } catch (e: Exception) {
+            Timber.e(e)
+            return null
+        } finally {
+            data.recycle()
+            reply.recycle()
         }
-
-        return subscriberIDs.filterNotNull()
     }
 
 

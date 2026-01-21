@@ -50,4 +50,6 @@
     <string name="support_development">Support development</string>
     <string name="shizuku" translatable="false">Shizuku</string>
     <string name="allows_in_depth_data_plan_tracking">Allows in-depth data plan tracking</string>
+    <string name="sim_card">SIM card</string>
+    <string name="data_plans">Data Plans</string>
 </resources>

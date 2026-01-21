@@ -68,7 +68,7 @@ fun Overview(
     val todayUsage by viewModel.todayUsage.collectAsState(DayUsage())
     val weeklyUsage by viewModel.hourlyUsageRepo.weekUsage().collectAsState(listOf())
 
-    val subscriberIDs = remember { viewModel.getSubscriberIDs() }
+    val subscriptionInfos = remember { viewModel.getSubscriptionInfos() }
 
     /**
      * Generally the notification service is responsible for updating daily usage,
@@ -88,20 +88,17 @@ fun Overview(
     }
 
     LazyColumn(
-        modifier = Modifier.background(MaterialTheme.colorScheme.surface).fillMaxSize(),
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.surface)
+            .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = paddingValues
     ) {
-        items(subscriberIDs, { it }) {
-            val hasDataPlan by viewModel.getSubscriberIDHasDataPlan(it).collectAsState(true)
-            Row {
-                Text(it)
-                if (hasDataPlan) {
-                    Text(" (with data plan)")
-                } else {
-                    Text(" (no data plan)")
-                }
-            }
+        categoryTitle(R.string.data_plans)
+        items(subscriptionInfos, { it.subscriptionId }) {
+            val subscriberID = viewModel.getSubscriberID(it.subscriptionId)!!
+            val hasDataPlan by viewModel.getSubscriberIDHasDataPlan(subscriberID).collectAsState(true)
+            UnconfiguredDataPlan(it)
         }
 
         overviewTab(
