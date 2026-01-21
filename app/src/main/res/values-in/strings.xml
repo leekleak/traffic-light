@@ -45,4 +45,5 @@
     <string name="behavior">Perilaku</string>
     <string name="alt_vpn_workaround">Solusi alternatif VPN</string>
     <string name="alt_vpn_workaround_description">Mengurangi akurasi pengukuran tetapi mendukung tunneling terpisah.</string>
+    <string name="support_development">Dukung pengembangan</string>
 </resources>

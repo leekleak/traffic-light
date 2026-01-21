@@ -45,4 +45,5 @@
     <string name="behavior">السلوك</string>
     <string name="alt_vpn_workaround">حل بديل لـ VPN</string>
     <string name="alt_vpn_workaround_description">يقلل من دقة القياس ولكنه يتوافق مع التوجيه المقسم.</string>
+    <string name="support_development">ادعم التطوير</string>
 </resources>

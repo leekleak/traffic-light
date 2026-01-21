@@ -45,4 +45,5 @@
     <string name="behavior">Comportement</string>
     <string name="alt_vpn_workaround">Contournement VPN alternatif</string>
     <string name="alt_vpn_workaround_description">Diminue la précision des mesures, mais permet les tunnels.</string>
+    <string name="support_development">Aidez au développement</string>
 </resources>
