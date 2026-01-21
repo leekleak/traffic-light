@@ -1,0 +1,5 @@
+Enhancements:
+- Added a button to support development
+
+Translations:
+- Updated translations
