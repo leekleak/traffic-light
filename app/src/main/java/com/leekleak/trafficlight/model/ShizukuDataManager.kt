@@ -61,10 +61,8 @@ class ShizukuDataManager(): KoinComponent {
 
             // TODO: Get transaction code procedurally
             binder.transact(10, data, reply, 0) // TRANSACTION_getSubscriberIdForSubscriber = 10;
-            Timber.e("Exception:%s", reply.readException())
-            val string = reply.readString()!!
-            Timber.e("SubsrciberID:%s", string)
-            return string
+            reply.readException()
+            return reply.readString()!!
         } catch (e: Exception) {
             Timber.e(e)
             return null

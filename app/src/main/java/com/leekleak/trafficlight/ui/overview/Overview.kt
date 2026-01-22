@@ -42,6 +42,8 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.model.BarData
@@ -50,6 +52,7 @@ import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.database.HourlyUsageRepo.Companion.dayUsageToBarData
 import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.services.UsageService
+import com.leekleak.trafficlight.ui.navigation.PlanConfig
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.categoryTitle
@@ -61,7 +64,8 @@ import kotlin.collections.listOf
 
 @Composable
 fun Overview(
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    backStack: NavBackStack<NavKey>
 ) {
     val viewModel: OverviewVM = viewModel()
 
@@ -98,7 +102,9 @@ fun Overview(
         items(subscriptionInfos, { it.subscriptionId }) {
             val subscriberID = viewModel.getSubscriberID(it.subscriptionId)!!
             val hasDataPlan by viewModel.getSubscriberIDHasDataPlan(subscriberID).collectAsState(true)
-            UnconfiguredDataPlan(it)
+            UnconfiguredDataPlan(it) {
+                backStack.add(PlanConfig(subscriberID))
+            }
         }
 
         overviewTab(

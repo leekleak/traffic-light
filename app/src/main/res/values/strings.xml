@@ -52,4 +52,5 @@
     <string name="allows_in_depth_data_plan_tracking">Allows in-depth data plan tracking</string>
     <string name="sim_card">SIM card</string>
     <string name="data_plans">Data Plans</string>
+    <string name="configure_plan">Configure Plan</string>
 </resources>

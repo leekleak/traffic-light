@@ -54,6 +54,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.UsageMode
 import com.leekleak.trafficlight.ui.history.History
 import com.leekleak.trafficlight.ui.overview.Overview
+import com.leekleak.trafficlight.ui.overview.PlanConfig
 import com.leekleak.trafficlight.ui.settings.NotificationSettings
 import com.leekleak.trafficlight.ui.settings.Settings
 import com.leekleak.trafficlight.ui.theme.navBarShadow
@@ -99,7 +100,8 @@ fun NavigationManager() {
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             Box(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .navigationBarsPadding()
                     .padding(8.dp),
                 contentAlignment = Alignment.Center
@@ -128,10 +130,11 @@ fun NavigationManager() {
                 onBack = { backStack.removeLastOrNull() },
                 entryProvider = entryProvider {
                     entry<Blank> { Box(modifier = Modifier.fillMaxSize())}
-                    entry<Overview> { Overview(paddingValues) }
+                    entry<Overview> { Overview(paddingValues, backStack) }
                     entry<History> { History(paddingValues) }
                     entry<Settings> { Settings(paddingValues, backStack) }
 
+                    entry<PlanConfig> { PlanConfig(paddingValues, it.subscriberId) }
                     entry<NotificationSettings> { NotificationSettings(paddingValues) }
                 },
                 transitionSpec = {

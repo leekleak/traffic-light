@@ -46,7 +46,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.leekleak.trafficlight.R
 
 @Composable
-fun UnconfiguredDataPlan(info: SubscriptionInfo) {
+fun UnconfiguredDataPlan(info: SubscriptionInfo, onConfigure: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     Box(modifier = Modifier
         .fillMaxWidth()
@@ -137,7 +137,7 @@ fun UnconfiguredDataPlan(info: SubscriptionInfo) {
                     )
                     customItem(
                         buttonGroupContent = {
-                            FilledIconButton(onClick = {}, shape = MaterialTheme.shapes.small) {
+                            FilledIconButton(onClick = onConfigure, shape = MaterialTheme.shapes.small) {
                                 Icon(
                                     painterResource(R.drawable.cellular),
                                     contentDescription = stringResource(R.string.cellular)

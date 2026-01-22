@@ -21,4 +21,10 @@ val mainScreens = listOf(Blank, Overview, History, Settings)
  * Settings
  */
 @Serializable
+data class PlanConfig(val subscriberId: String) : NavKey
+
+/**
+ * Settings
+ */
+@Serializable
 data object NotificationSettings : NavKey
