@@ -8,6 +8,7 @@ import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.model.AppDatabase
 import com.leekleak.trafficlight.services.PermissionManager
+import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.getName
 import com.leekleak.trafficlight.util.padHour
 import com.leekleak.trafficlight.util.toTimestamp
@@ -25,6 +26,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
 
@@ -64,6 +66,20 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
         val endStamp = endDate.plusDays(1).atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
         val stats = calculateHourData(startStamp, endStamp, uid)
         return DayUsage(startDate, mutableMapOf(), stats.wifi, stats.cellular)
+    }
+
+    fun planUsage(dataPlan: DataPlan): DayUsage {
+        var startDate = fromTimestamp(dataPlan.startDate)
+        val now = LocalDateTime.now()
+        while (startDate < now) startDate = startDate.plusMonths(1)
+        startDate = startDate.minusMonths(1)
+
+        val startStamp = startDate.toTimestamp()
+        val endStamp = now.toTimestamp()
+        val stats = calculateHourData(startStamp, endStamp)
+
+        // TODO: Don't calculate wifi. That's stupid
+        return DayUsage(startDate.toLocalDate(), mutableMapOf(), stats.wifi, stats.cellular)
     }
 
     fun calculateHourData(startTime: Long, endTime: Long, uid: Int? = null): HourData {

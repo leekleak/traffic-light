@@ -50,6 +50,12 @@ fun padHour(time: Number): String {
 }
 
 fun LocalDateTime.toTimestamp(): Long = toInstant(currentTimezone()).toEpochMilli()
+fun fromTimestamp(stamp: Long): LocalDateTime {
+    return LocalDateTime.ofInstant(
+        Instant.ofEpochMilli(stamp),
+        ZoneId.systemDefault()
+    )
+}
 
 fun DayOfWeek.getName(style: TextStyle) =
     this.getDisplayName(style, Locale.getDefault()).replaceFirstChar(Char::titlecase)

@@ -11,6 +11,8 @@ import androidx.room.Query
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import com.leekleak.trafficlight.util.toTimestamp
+import java.time.LocalDateTime
 
 enum class TimeInterval {
     DAY,
@@ -23,14 +25,14 @@ enum class TimeInterval {
 data class DataPlan(
     @PrimaryKey val subscriberID: String,
 
-    @ColumnInfo val data: Long = 0,
+    @ColumnInfo val dataMax: Long = 0,
 
     // Recurring data plan settings
 
     // If false, the plan is pre-paid.
     // Crucially the other settings are still valid as
-    @ColumnInfo val recurring: Boolean = false,
-    @ColumnInfo val startDate: Long? = null, // LocalDate as timestamp
+    @ColumnInfo val recurring: Boolean = true,
+    @ColumnInfo val startDate: Long = LocalDateTime.now().toTimestamp(), // LocalDate as timestamp
     @ColumnInfo val interval: TimeInterval? = null,
     @ColumnInfo val intervalMultiplier: Int? = null,
 

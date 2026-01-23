@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
@@ -24,9 +23,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,17 +49,25 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
+import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.DataSizeUnit
-import timber.log.Timber
-import kotlin.math.max
+import com.leekleak.trafficlight.util.fromTimestamp
+import org.koin.compose.koinInject
+import java.text.DecimalFormat
+import java.time.LocalDateTime
+import java.time.Period
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: () -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
+
+    var expanded by remember { mutableStateOf(false) }
+    val dataUsage = remember(dataPlan) { hourlyUsageRepo.planUsage(dataPlan) }
+
     Box(modifier = Modifier
         .fillMaxWidth()
         .clip(MaterialTheme.shapes.medium)
@@ -90,6 +97,7 @@ fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: 
                     textAlign = TextAlign.End
                 )
             }
+            val usage = DataSize(dataUsage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
             Row (
                 modifier = Modifier
                     .fillMaxWidth()
@@ -97,12 +105,13 @@ fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: 
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.Bottom
             ) {
+                val formatter = remember { DecimalFormat("0.#") }
                 Text(
-                    text = "12.1",
+                    text = formatter.format(usage),
                     fontFamily = bigFont(),
                     fontSize = 64.sp,
                 )
-                val data = DataSize(dataPlan.data.toDouble()).toStringParts()
+                val data = DataSize(dataPlan.dataMax.toDouble()).toStringParts()
                 Text(
                     text = "/${data[0]}${if (data[1] != "0") ("."+data[1]) else ""}GB",
                     fontFamily = bigFont(),
@@ -118,16 +127,22 @@ fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: 
                 verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Bottom),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                val reset by remember(dataPlan) { derivedStateOf {
+                    val now = LocalDateTime.now()
+                    var next = fromTimestamp(dataPlan.startDate)
+                    while (next < now) next = next.plusMonths(1)
+                    Period.between(now.toLocalDate(), next.toLocalDate()).days
+                } }
                 Text(
-                    text = "Resets in 6 days",
+                    text = "Resets in $reset days",
                     fontFamily = robotoFlex(0f,150f,1000f)
                 )
-                val usage = DataSize(12.1, unit = DataSizeUnit.GB)
+                val lineUsage = DataSize(usage, unit = DataSizeUnit.GB)
                 LinearWavyProgressIndicator(
                     modifier = Modifier.fillMaxWidth(),
                     progress = {
-                        if (dataPlan.data == 0L) 0f
-                        else (usage.getBitValue().toDouble() / dataPlan.data.toDouble()).toFloat().coerceIn(0f, 1f)
+                        if (dataPlan.dataMax == 0L) 0f
+                        else (lineUsage.getBitValue().toDouble() / dataPlan.dataMax.toDouble()).toFloat().coerceIn(0f, 1f)
                    },
                 )
             }

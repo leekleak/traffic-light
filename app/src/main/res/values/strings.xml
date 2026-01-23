@@ -55,4 +55,7 @@
     <string name="configure_plan">Configure Plan</string>
     <string name="background">Background</string>
     <string name="add_data">Add Data</string>
+    <string name="type">Type</string>
+    <string name="selected">Selected</string>
+    <string name="monthly">Monthly</string>
 </resources>

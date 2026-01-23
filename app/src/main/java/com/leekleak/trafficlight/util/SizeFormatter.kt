@@ -42,6 +42,11 @@ data class DataSize (
         return (value * 1024f.pow(DataSizeUnit.entries.indexOf(unit))).toLong()
     }
 
+    fun getAsUnit(unit: DataSizeUnit): Double {
+        if (unit == this.unit) return value
+        else return value * 1024f.pow((this.unit.ordinal - unit.ordinal)).toLong()
+    }
+
     override fun toString(): String {
         val outValue = if (value < 1024 && unit == DataSizeUnit.B) {
             unit = DataSizeUnit.KB
