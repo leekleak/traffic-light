@@ -1,106 +1,228 @@
 package com.leekleak.trafficlight.ui.overview
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
-import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.maxLength
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.toPath
-import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.copy
 import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.GraphTheme.wifiShape
+import com.leekleak.trafficlight.database.DataPlan
+import com.leekleak.trafficlight.database.DataPlanDao
+import com.leekleak.trafficlight.ui.theme.backgrounds
+import com.leekleak.trafficlight.ui.theme.card
+import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.trafficlight.util.DataSizeUnit
 import com.leekleak.trafficlight.util.categoryTitle
+import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.util.px
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
+import java.text.DecimalFormat
 import kotlin.math.E
 import kotlin.math.pow
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun PlanConfig(
     paddingValues: PaddingValues,
-    subscriberId: String
+    subscriberId: String,
+    backStack: NavBackStack<NavKey>
 ) {
-    val viewModel: PlanConfigVM = viewModel()
+    val viewModel: OverviewVM = viewModel()
+    val scope = rememberCoroutineScope()
+    val dataPlanDao: DataPlanDao = koinInject()
+    val currentPlan = remember { viewModel.getDataPlan(subscriberId) }.collectAsState(DataPlan(subscriberId))
+    var newPlan = DataPlan(subscriberId)
+    LaunchedEffect(currentPlan.value) {
+        newPlan = currentPlan.value
+    }
 
-    LazyColumn(
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.surface)
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = paddingValues
+    Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        bottomBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(16.dp),
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                ExtendedFloatingActionButton (
+                    onClick = {
+                        scope.launch(Dispatchers.IO) {
+                            dataPlanDao.add(newPlan)
+                            backStack.removeAt(backStack.lastIndex)
+                        }
+                    }
+                ) {
+                    Row (horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Icon(
+                            painter = painterResource(R.drawable.save),
+                            contentDescription = null
+                        )
+                        Text(
+                            text = "Save"
+                        )
+                    }
+                }
+            }
+        }
     ) {
-        categoryTitle(R.string.configure_plan)
-        item {
-            PlanSizeConfig()
+        LazyColumn(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.surface)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = paddingValues
+        ) {
+            categoryTitle(R.string.configure_plan)
+            item {
+                val size by remember { derivedStateOf { DataSize(currentPlan.value.data.toDouble()).value.toFloat() } }
+                PlanSizeConfig (
+                    size = size
+                ) {
+                    val data = DataSize(it.toDouble(), unit = DataSizeUnit.GB)
+                    newPlan = newPlan.copy(data = data.getBitValue())
+                }
+            }
+            categoryTitleSmall(R.string.background)
+            item {
+                LazyRow(
+                    modifier = Modifier.card(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(16.dp)
+                ) {
+                    itemsIndexed(backgrounds) { i, item ->
+                        BackgroundSelector(item) {
+                            newPlan = newPlan.copy(uiBackground = i)
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+}
+
+@Composable
+fun BackgroundSelector(resource: Int?, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .width(192.dp)
+            .height(128.dp)
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.background)
+            .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium)
+            .clickable { onClick() },
+    ) {
+        resource?.let {
+            Image(
+                modifier = Modifier
+                    .matchParentSize()
+                    .graphicsLayer(scaleX = 1.2f, scaleY = 1.2f),
+                painter = painterResource(it),
+                contentDescription = null,
+                contentScale = ContentScale.FillWidth,
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primaryContainer)
+            )
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun PlanSizeConfig() {
+fun PlanSizeConfig(size: Float, onSizeUpdate: (Float) -> Unit) {
     Box(
-        modifier = Modifier.height(128.dp * 2.5f).fillMaxWidth(),
+        modifier = Modifier
+            .height(128.dp * 2.5f)
+            .fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
-
         val shape = wifiShape().toPath()
         val shapeSizeBase = 128.dp.px
         val shapeColor = MaterialTheme.colorScheme.primaryContainer
-        val size = remember { Animatable(0f) }
+        val scale = remember { Animatable(0f) }
 
-        val shapeTransformed = remember(size.value) {
-            val sizePx = shapeSizeBase * (1 + size.value)
+        val shapeTransformed = remember(scale.value) {
+            val sizePx = shapeSizeBase * (1 + scale.value)
             val matrix = Matrix().apply {
                 scale(sizePx, sizePx)
             }
             shape.copy().apply { transform(matrix) }
         }
 
-        val fieldState = rememberTextFieldState("10")
+        val formatter = remember { DecimalFormat("0.#") }
+        val fieldState = remember(size) {
+            TextFieldState(formatter.format(size))
+        }
+
         LaunchedEffect(fieldState.text) {
             val number = fieldState.text.toString().toFloatOrNull() ?: 0f
-            size.animateTo(
+            onSizeUpdate(number)
+            scale.animateTo(
                 targetValue = (1.5 * (1-E.pow(-number * 0.1))).toFloat(),
                 animationSpec = spring(
                     dampingRatio = Spring.DampingRatioLowBouncy,
@@ -111,10 +233,10 @@ fun PlanSizeConfig() {
 
         Box(
             modifier = Modifier
-                .size(128.dp * (1 + size.value))
+                .size(128.dp * (1 + scale.value))
                 .drawWithCache {
                     onDrawBehind {
-                        rotate(size.value * 90f) {
+                        rotate(scale.value * 90f) {
                             drawPath(
                                 path = shapeTransformed,
                                 color = shapeColor,
@@ -125,30 +247,35 @@ fun PlanSizeConfig() {
             contentAlignment = Alignment.Center
         ) {
             Row(
-                modifier = Modifier.size(128.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(2.dp)
+                horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally)
             ) {
+                var intrinsics by remember { mutableIntStateOf(0) }
                 BasicTextField(
                     state = fieldState,
-                    modifier = Modifier.weight(1.1f),
+                    modifier = Modifier.width (with(LocalDensity.current) { intrinsics.toDp() }),
                     inputTransformation = InputTransformation.maxLength(3),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number
                     ),
                     textStyle = TextStyle(
                         fontFamily = bigFont(),
-                        fontSize = 40.sp,
+                        fontSize = 40.sp * (1 + scale.value/2),
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         textAlign = TextAlign.End,
                     ),
+                    onTextLayout = { out ->
+                        val right = out()?.getLineRight(0)?.toInt()
+                        val left = out()?.getLineLeft(0)?.toInt()
+                        intrinsics = if (right != null && left != null) { right - left } else 0
+                    },
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.surface),
                     lineLimits = TextFieldLineLimits.SingleLine,
                 )
                 Text(
-                    modifier = Modifier.weight(1f),
                     fontFamily = bigFont(),
-                    fontSize = 30.sp,
+                    fontSize = 30.sp * (1 + scale.value/2),
+                    maxLines = 1,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     text = "GB"
                 )

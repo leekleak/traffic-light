@@ -53,4 +53,5 @@
     <string name="sim_card">SIM card</string>
     <string name="data_plans">Data Plans</string>
     <string name="configure_plan">Configure Plan</string>
+    <string name="background">Background</string>
 </resources>

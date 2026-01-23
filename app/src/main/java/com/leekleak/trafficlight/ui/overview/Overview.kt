@@ -47,6 +47,7 @@ import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.model.BarData
+import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.database.HourlyUsageRepo.Companion.dayUsageToBarData
@@ -101,8 +102,8 @@ fun Overview(
         categoryTitle(R.string.data_plans)
         items(subscriptionInfos, { it.subscriptionId }) {
             val subscriberID = viewModel.getSubscriberID(it.subscriptionId)!!
-            val hasDataPlan by viewModel.getSubscriberIDHasDataPlan(subscriberID).collectAsState(true)
-            UnconfiguredDataPlan(it) {
+            val dataPlan = remember { viewModel.getDataPlan(subscriberID) }.collectAsState(DataPlan(subscriberID))
+            UnconfiguredDataPlan(it, dataPlan.value) {
                 backStack.add(PlanConfig(subscriberID))
             }
         }
@@ -195,7 +196,7 @@ fun RowScope.SummaryItem(
             },
         horizontalArrangement = Arrangement.Center,
     ) {
-        val text = DataSize(value = data().toFloat(), precision = 2).toStringParts()
+        val text = DataSize(value = data().toDouble(), precision = 2).toStringParts()
         Text(
             fontSize = 64.sp,
             text = text[0],

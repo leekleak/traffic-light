@@ -115,6 +115,8 @@ fun Modifier.navBarShadow(): Modifier {
     return this.shadow(2.dp, MaterialTheme.shapes.extraLargeIncreased)
 }
 
+val backgrounds = listOf(null, R.drawable.background_1, R.drawable.background_2, R.drawable.background_3, R.drawable.background_4)
+
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
     onPrimary = onPrimaryLight,

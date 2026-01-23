@@ -2,6 +2,7 @@ package com.leekleak.trafficlight.ui.overview
 
 import android.telephony.SubscriptionInfo
 import androidx.lifecycle.ViewModel
+import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HourlyUsageRepo
@@ -26,6 +27,10 @@ class OverviewVM : ViewModel(), KoinComponent {
 
     fun getSubscriberIDHasDataPlan(subscriberID: String): Flow<Boolean> = flow {
         emit(dataPlanDao.get(subscriberID) != null)
+    }.flowOn(Dispatchers.IO)
+
+    fun getDataPlan(subscriberID: String): Flow<DataPlan> = flow {
+        emit(dataPlanDao.get(subscriberID) ?: DataPlan(subscriberID))
     }.flowOn(Dispatchers.IO)
 
     val todayUsage: Flow<DayUsage> = UsageService.todayUsageFlow

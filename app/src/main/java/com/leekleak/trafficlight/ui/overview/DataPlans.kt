@@ -7,6 +7,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,9 +45,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.database.DataPlan
+import com.leekleak.trafficlight.ui.theme.backgrounds
+import com.leekleak.trafficlight.util.DataSize
 
 @Composable
-fun UnconfiguredDataPlan(info: SubscriptionInfo, onConfigure: () -> Unit) {
+fun UnconfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     Box(modifier = Modifier
         .fillMaxWidth()
@@ -54,15 +58,17 @@ fun UnconfiguredDataPlan(info: SubscriptionInfo, onConfigure: () -> Unit) {
         .clickable(onClick = { expanded = !expanded })
         .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium),
     ) {
-        Image(
-            modifier = Modifier
-                .matchParentSize()
-                .graphicsLayer(scaleX = 1.2f, scaleY = 1.2f),
-            painter = painterResource(R.drawable.background_4),
-            contentDescription = null,
-            contentScale = ContentScale.FillWidth,
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primaryContainer)
-        )
+        backgrounds[dataPlan.uiBackground]?.let { background ->
+            Image(
+                modifier = Modifier
+                    .matchParentSize()
+                    .graphicsLayer(scaleX = 1.2f, scaleY = 1.2f),
+                painter = painterResource(background),
+                contentDescription = null,
+                contentScale = ContentScale.FillWidth,
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primaryContainer)
+            )
+        }
         Column (Modifier.padding(8.dp)) {
             Row {
                 SimIcon(info.simSlotIndex + 1)
@@ -87,8 +93,9 @@ fun UnconfiguredDataPlan(info: SubscriptionInfo, onConfigure: () -> Unit) {
                     fontFamily = bigFont(),
                     fontSize = 64.sp,
                 )
+                val data = DataSize(dataPlan.data.toDouble()).toStringParts()
                 Text(
-                    text = "/15GB",
+                    text = "/${data[0]}${if (data[1] != "0") ("."+data[1]) else ""}GB",
                     fontFamily = bigFont(),
                     fontSize = 36.sp,
                     lineHeight = 48.sp
@@ -112,35 +119,37 @@ fun UnconfiguredDataPlan(info: SubscriptionInfo, onConfigure: () -> Unit) {
                 )
             }
 
-            AnimatedVisibility(expanded) {
+            AnimatedVisibility(expanded, Modifier.fillMaxWidth()) {
                 ButtonGroup(
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(8.dp)
                         .height(48.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+                    expandedRatio = 0.05f,
                     overflowIndicator = {}
                 ) {
                     clickableItem(
-                        label = "",
-                        icon = {Icon(
-                            painterResource(R.drawable.wifi),
-                            contentDescription = stringResource(R.string.wifi)
-                        )},
-                        onClick = {}
-                    )
-                    clickableItem(
-                        label = "",
-                        icon = {Icon(
-                            painterResource(R.drawable.cellular),
-                            contentDescription = stringResource(R.string.cellular)
-                        )},
+                        label = "Add Data",
+                        icon = {
+                            Icon(
+                                painterResource(R.drawable.add),
+                                contentDescription = stringResource(R.string.wifi)
+                            )
+                        },
+                        weight = 1f,
                         onClick = {}
                     )
                     customItem(
                         buttonGroupContent = {
-                            FilledIconButton(onClick = onConfigure, shape = MaterialTheme.shapes.small) {
+                            val interactionSource = remember { MutableInteractionSource() }
+                            FilledIconButton(
+                                modifier = Modifier.animateWidth(interactionSource),
+                                onClick = onConfigure,
+                                shape = MaterialTheme.shapes.extraLargeIncreased,
+                                interactionSource = interactionSource
+                            ) {
                                 Icon(
-                                    painterResource(R.drawable.cellular),
-                                    contentDescription = stringResource(R.string.cellular)
+                                    painterResource(R.drawable.settings),
+                                    contentDescription = stringResource(R.string.configure_plan)
                                 )
                             }
                         },

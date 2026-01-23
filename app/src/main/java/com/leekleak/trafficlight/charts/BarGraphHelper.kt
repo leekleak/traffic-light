@@ -252,9 +252,9 @@ internal class BarGraphHelper(
             }
         }
     }
-    internal fun getAbsoluteMax(list: List<Pair<Number, Number>>): Float {
+    internal fun getAbsoluteMax(list: List<Pair<Number, Number>>): Double {
         return list.maxOfOrNull {
-            it.first.toFloat() + it.second.toFloat()
-        } ?: 0F
+            it.first.toDouble() + it.second.toDouble()
+        } ?: 0.0
     }
 }

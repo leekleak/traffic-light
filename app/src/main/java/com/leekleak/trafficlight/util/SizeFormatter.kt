@@ -10,7 +10,7 @@ enum class DataSizeUnit {
 }
 
 data class DataSize (
-    var value: Float,
+    var value: Double,
     var unit: DataSizeUnit = DataSizeUnit.B,
     val speed: Boolean = false,
     var precision: Int = 1
@@ -21,13 +21,13 @@ data class DataSize (
     init {
         var i = DataSizeUnit.entries.indexOf(unit)
         while (value >= 1000 && i < DataSizeUnit.entries.size) {
-            value = if (value < 1024) 1f else value / 1024
+            value = if (value < 1024) 1.0 else value / 1024
             i++
         }
         unit = DataSizeUnit.entries[i]
     }
 
-    private fun applyPrecision(size: Float): String {
+    fun applyPrecision(size: Double): String {
         return if (precision == 0 || size.toInt() >= 100) size.toInt().toString()
             else ((size * precisionDec).toInt().toFloat() / precisionDec).toString() // Round down
     }
@@ -65,13 +65,13 @@ class SizeFormatter () {
     var asBits = false
 
     fun format(size: Number, precision: Int, speed: Boolean = false): String {
-        val realSize = size.toFloat() * if (asBits && speed) 8f else 1f
+        val realSize = size.toDouble() * if (asBits && speed) 8.0 else 1.0
         val dataSize = DataSize(realSize, DataSizeUnit.B, speed, precision)
         return "$dataSize".let { if (asBits && speed) it.replace("B", "b") else it }
     }
 
     fun partFormat(size: Number, speed: Boolean = false): List<String> {
-        val realSize = size.toFloat() * if (asBits && speed) 8f else 1f
+        val realSize = size.toDouble() * if (asBits && speed) 8.0 else 1.0
         val dataSize = DataSize(realSize, DataSizeUnit.B, speed, 2)
         dataSize.precision = if (dataSize.value < 10 && dataSize.unit >= DataSizeUnit.MB) 1 else 0
         return dataSize.toStringParts(!asBits || !speed)
