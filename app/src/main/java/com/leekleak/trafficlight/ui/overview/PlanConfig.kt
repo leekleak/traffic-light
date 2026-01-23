@@ -324,7 +324,7 @@ fun PlanSizeConfig(size: Float, onSizeUpdate: (Float) -> Unit) {
                 .size(128.dp * (1 + scale.value))
                 .drawWithCache {
                     onDrawBehind {
-                        rotate(scale.value * 90f) {
+                        rotate(scale.value * 60f) {
                             drawPath(
                                 path = shapeTransformed,
                                 color = shapeColor,

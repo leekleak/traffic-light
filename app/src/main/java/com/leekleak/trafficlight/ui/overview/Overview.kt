@@ -117,7 +117,7 @@ fun Overview(
                         backStack.add(PlanConfig(subscriberID))
                     }
                 } else {
-                    UnconfiguredDataPlan(subInfo) {
+                    UnconfiguredDataPlan(subInfo, subscriberID) {
                         backStack.add(PlanConfig(subscriberID))
                     }
                 }

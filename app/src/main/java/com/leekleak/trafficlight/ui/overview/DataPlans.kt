@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.Font
@@ -54,8 +55,10 @@ import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.DataSizeUnit
 import com.leekleak.trafficlight.util.fromTimestamp
+import com.leekleak.trafficlight.util.toTimestamp
 import org.koin.compose.koinInject
 import java.text.DecimalFormat
+import java.time.Duration
 import java.time.LocalDateTime
 import java.time.Period
 
@@ -86,65 +89,71 @@ fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: 
             )
         }
         Column (Modifier.padding(8.dp)) {
-            Row {
-                SimIcon(info.simSlotIndex + 1)
-                Text(
+            Column(Modifier.height(184.dp)) {
+                Row {
+                    SimIcon(info.simSlotIndex + 1)
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(end = 4.dp),
+                        text = info.carrierName.toString(),
+                        fontFamily = carrierFont(),
+                        textAlign = TextAlign.End
+                    )
+                }
+                val usage = DataSize(dataUsage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(end = 4.dp),
-                    text = info.carrierName.toString(),
-                    fontFamily = carrierFont(),
-                    textAlign = TextAlign.End
-                )
-            }
-            val usage = DataSize(dataUsage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 32.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.Bottom
-            ) {
-                val formatter = remember { DecimalFormat("0.#") }
-                Text(
-                    text = formatter.format(usage),
-                    fontFamily = bigFont(),
-                    fontSize = 64.sp,
-                )
-                val data = DataSize(dataPlan.dataMax.toDouble()).toStringParts()
-                Text(
-                    text = "/${data[0]}${if (data[1] != "0") ("."+data[1]) else ""}GB",
-                    fontFamily = bigFont(),
-                    fontSize = 36.sp,
-                    lineHeight = 48.sp
-                )
-            }
+                        .padding(top = 32.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    val formatter = remember { DecimalFormat("0.##") }
+                    Text(
+                        text = formatter.format(usage),
+                        fontFamily = bigFont(),
+                        fontSize = 64.sp,
+                    )
+                    val data = DataSize(dataPlan.dataMax.toDouble()).toStringParts()
+                    Text(
+                        text = "/${data[0]}${if (data[1] != "0") ("." + data[1]) else ""}GB",
+                        fontFamily = bigFont(),
+                        fontSize = 36.sp,
+                        lineHeight = 48.sp
+                    )
+                }
 
-            Column(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .height(48.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Bottom),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                val reset by remember(dataPlan) { derivedStateOf {
-                    val now = LocalDateTime.now()
-                    var next = fromTimestamp(dataPlan.startDate)
-                    while (next < now) next = next.plusMonths(1)
-                    Period.between(now.toLocalDate(), next.toLocalDate()).days
-                } }
-                Text(
-                    text = "Resets in $reset days",
-                    fontFamily = robotoFlex(0f,150f,1000f)
-                )
-                val lineUsage = DataSize(usage, unit = DataSizeUnit.GB)
-                LinearWavyProgressIndicator(
-                    modifier = Modifier.fillMaxWidth(),
-                    progress = {
-                        if (dataPlan.dataMax == 0L) 0f
-                        else (lineUsage.getBitValue().toDouble() / dataPlan.dataMax.toDouble()).toFloat().coerceIn(0f, 1f)
-                   },
-                )
+                Column(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .height(48.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Bottom),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val reset by remember(dataPlan) {
+                        derivedStateOf {
+                            val now = LocalDateTime.now()
+                            var next = fromTimestamp(dataPlan.startDate)
+                            while (next < now) next = next.plusMonths(1)
+                            Duration.between(now, next).toDays().toInt() + 1
+                        }
+                    }
+                    Text(
+                        text = pluralStringResource(R.plurals.resets_in_days, reset, reset),
+                        fontFamily = robotoFlex(0f, 150f, 1000f)
+                    )
+                    val lineUsage = DataSize(usage, unit = DataSizeUnit.GB)
+                    LinearWavyProgressIndicator(
+                        modifier = Modifier.fillMaxWidth(),
+                        progress = {
+                            if (dataPlan.dataMax == 0L) 0f
+                            else (lineUsage.getBitValue()
+                                .toDouble() / dataPlan.dataMax.toDouble()).toFloat()
+                                .coerceIn(0f, 1f)
+                        },
+                    )
+                }
             }
 
             AnimatedVisibility(expanded, Modifier.fillMaxWidth()) {
@@ -194,65 +203,81 @@ fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: 
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
-fun UnconfiguredDataPlan(info: SubscriptionInfo, onConfigure: () -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
+fun UnconfiguredDataPlan(info: SubscriptionInfo, subscriberID: String, onConfigure: () -> Unit) {
     val context = LocalContext.current
-    Box(
+    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
+
+    val dataUsage = remember {
+        hourlyUsageRepo.planUsage(
+            DataPlan(
+                subscriberID = subscriberID,
+                startDate = LocalDateTime.now().withDayOfMonth(1).minusDays(1).toTimestamp()
+            )
+        )
+    }
+    val usage = DataSize(dataUsage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
+    val formatter = remember { DecimalFormat("0.##") }
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .height(200.dp)
             .clip(MaterialTheme.shapes.medium)
-            .clickable(onClick = { expanded = !expanded })
-            .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium),
+            .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium)
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(Modifier.padding(8.dp)) {
-            Row {
-                SimIcon(info.simSlotIndex + 1)
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(end = 4.dp),
-                    text = info.carrierName.toString(),
-                    fontFamily = carrierFont(),
-                    textAlign = TextAlign.End
-                )
-            }
-            Row(
+        Row {
+            SimIcon(info.simSlotIndex + 1)
+            Text(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 32.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.Bottom
-            ) {
-                Text(
-                    text = "12.1",
-                    fontFamily = bigFont(),
-                    fontSize = 64.sp,
-                )
-                Text(
-                    text = "GB",
-                    fontFamily = bigFont(),
-                    fontSize = 36.sp,
-                    lineHeight = 48.sp
-                )
-            }
-
-            ButtonGroup(
-                modifier = Modifier.padding(top = 16.dp).fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.Bottom,
-                overflowIndicator = {}
-            ) {
-                clickableItem(
-                    label = context.getString(R.string.configure_plan),
-                    icon = {
-                        Icon(
-                            painterResource(R.drawable.settings),
-                            contentDescription = null
-                        )
-                    },
-                    onClick = onConfigure
-                )
-            }
+                    .padding(end = 4.dp),
+                text = info.carrierName.toString(),
+                fontFamily = carrierFont(),
+                textAlign = TextAlign.End
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.Bottom
+        ) {
+            Text(
+                text = formatter.format(usage),
+                fontFamily = bigFont(),
+                fontSize = 64.sp,
+            )
+            Text(
+                text = "GB",
+                fontFamily = bigFont(),
+                fontSize = 36.sp,
+                lineHeight = 48.sp
+            )
+        }
+        Text(
+            text = stringResource(R.string.this_month),
+            fontSize = 18.sp,
+            fontFamily = robotoFlex(0f,150f,1000f)
+        )
+        ButtonGroup(
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.Bottom,
+            overflowIndicator = {}
+        ) {
+            clickableItem(
+                label = context.getString(R.string.configure_plan),
+                icon = {
+                    Icon(
+                        painterResource(R.drawable.settings),
+                        contentDescription = null
+                    )
+                },
+                onClick = onConfigure
+            )
         }
     }
 }

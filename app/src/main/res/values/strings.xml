@@ -58,4 +58,9 @@
     <string name="type">Type</string>
     <string name="selected">Selected</string>
     <string name="monthly">Monthly</string>
+    <string name="this_month">This Month</string>
+    <plurals name="resets_in_days">
+        <item quantity="one">Resets tomorrow</item>
+        <item quantity="other">Resets in %d days</item>
+    </plurals>
 </resources>

@@ -76,26 +76,26 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
 
         val startStamp = startDate.toTimestamp()
         val endStamp = now.toTimestamp()
-        val stats = calculateHourData(startStamp, endStamp)
+        val stats = calculateHourData(startStamp, endStamp, subscriberId = dataPlan.subscriberID)
 
         // TODO: Don't calculate wifi. That's stupid
         return DayUsage(startDate.toLocalDate(), mutableMapOf(), stats.wifi, stats.cellular)
     }
 
-    fun calculateHourData(startTime: Long, endTime: Long, uid: Int? = null): HourData {
+    fun calculateHourData(startTime: Long, endTime: Long, uid: Int? = null, subscriberId: String? = null): HourData {
         val mobileBuckets = mutableListOf<NetworkStats.Bucket>()
         val wifiBuckets = mutableListOf<NetworkStats.Bucket>()
 
         if (uid == null) {
             mobileBuckets.add(
-                networkStatsManager.querySummaryForDevice(0, null, startTime, endTime)
+                networkStatsManager.querySummaryForDevice(0, subscriberId, startTime, endTime)
             )
             wifiBuckets.add(
-                networkStatsManager.querySummaryForDevice(1, null, startTime, endTime)
+                networkStatsManager.querySummaryForDevice(1, subscriberId, startTime, endTime)
             )
         } else {
-            val statsMobile = networkStatsManager.queryDetailsForUid(0, null, startTime, endTime, uid)
-            val statsWifi = networkStatsManager.queryDetailsForUid(1, null, startTime, endTime, uid)
+            val statsMobile = networkStatsManager.queryDetailsForUid(0, subscriberId, startTime, endTime, uid)
+            val statsWifi = networkStatsManager.queryDetailsForUid(1, subscriberId, startTime, endTime, uid)
             while (statsMobile.hasNextBucket()) {
                 val bucket = NetworkStats.Bucket()
                 statsMobile.getNextBucket(bucket)
