@@ -54,4 +54,5 @@
     <string name="data_plans">Data Plans</string>
     <string name="configure_plan">Configure Plan</string>
     <string name="background">Background</string>
+    <string name="add_data">Add Data</string>
 </resources>

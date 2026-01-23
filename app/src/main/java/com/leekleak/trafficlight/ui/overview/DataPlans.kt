@@ -2,6 +2,7 @@
 
 package com.leekleak.trafficlight.ui.overview
 
+import android.annotation.SuppressLint
 import android.telephony.SubscriptionInfo
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
@@ -22,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,6 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -48,10 +52,15 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.trafficlight.util.DataSizeUnit
+import timber.log.Timber
+import kotlin.math.max
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
-fun UnconfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: () -> Unit) {
+fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     Box(modifier = Modifier
         .fillMaxWidth()
         .clip(MaterialTheme.shapes.medium)
@@ -113,22 +122,28 @@ fun UnconfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure
                     text = "Resets in 6 days",
                     fontFamily = robotoFlex(0f,150f,1000f)
                 )
+                val usage = DataSize(12.1, unit = DataSizeUnit.GB)
                 LinearWavyProgressIndicator(
                     modifier = Modifier.fillMaxWidth(),
-                    progress = { 12.1f/15f },
+                    progress = {
+                        if (dataPlan.data == 0L) 0f
+                        else (usage.getBitValue().toDouble() / dataPlan.data.toDouble()).toFloat().coerceIn(0f, 1f)
+                   },
                 )
             }
 
             AnimatedVisibility(expanded, Modifier.fillMaxWidth()) {
                 ButtonGroup(
-                    modifier = Modifier.fillMaxWidth().padding(8.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
                         .height(48.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
                     expandedRatio = 0.05f,
                     overflowIndicator = {}
                 ) {
                     clickableItem(
-                        label = "Add Data",
+                        label = context.getString(R.string.add_data),
                         icon = {
                             Icon(
                                 painterResource(R.drawable.add),
@@ -156,6 +171,72 @@ fun UnconfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure
                         menuContent = {}
                     )
                 }
+            }
+        }
+    }
+}
+
+
+@SuppressLint("LocalContextGetResourceValueCall")
+@Composable
+fun UnconfiguredDataPlan(info: SubscriptionInfo, onConfigure: () -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.medium)
+            .clickable(onClick = { expanded = !expanded })
+            .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium),
+    ) {
+        Column(Modifier.padding(8.dp)) {
+            Row {
+                SimIcon(info.simSlotIndex + 1)
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(end = 4.dp),
+                    text = info.carrierName.toString(),
+                    fontFamily = carrierFont(),
+                    textAlign = TextAlign.End
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 32.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Text(
+                    text = "12.1",
+                    fontFamily = bigFont(),
+                    fontSize = 64.sp,
+                )
+                Text(
+                    text = "GB",
+                    fontFamily = bigFont(),
+                    fontSize = 36.sp,
+                    lineHeight = 48.sp
+                )
+            }
+
+            ButtonGroup(
+                modifier = Modifier.padding(top = 16.dp).fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom,
+                overflowIndicator = {}
+            ) {
+                clickableItem(
+                    label = context.getString(R.string.configure_plan),
+                    icon = {
+                        Icon(
+                            painterResource(R.drawable.settings),
+                            contentDescription = null
+                        )
+                    },
+                    onClick = onConfigure
+                )
             }
         }
     }

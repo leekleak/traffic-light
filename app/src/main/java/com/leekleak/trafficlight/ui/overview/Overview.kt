@@ -1,8 +1,12 @@
 package com.leekleak.trafficlight.ui.overview
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -100,11 +104,23 @@ fun Overview(
         contentPadding = paddingValues
     ) {
         categoryTitle(R.string.data_plans)
-        items(subscriptionInfos, { it.subscriptionId }) {
-            val subscriberID = viewModel.getSubscriberID(it.subscriptionId)!!
-            val dataPlan = remember { viewModel.getDataPlan(subscriberID) }.collectAsState(DataPlan(subscriberID))
-            UnconfiguredDataPlan(it, dataPlan.value) {
-                backStack.add(PlanConfig(subscriberID))
+        items(subscriptionInfos, { it.subscriptionId }) { subInfo ->
+            val subscriberID = viewModel.getSubscriberID(subInfo.subscriptionId)!!
+            val configured by remember { viewModel.getSubscriberIDHasDataPlan(subscriberID) }.collectAsState(true)
+            AnimatedContent(
+                targetState = configured,
+                transitionSpec = { fadeIn() togetherWith fadeOut() }
+            ) {
+                if (it) {
+                    val dataPlan = remember { viewModel.getDataPlan(subscriberID) }.collectAsState(DataPlan(subscriberID))
+                    ConfiguredDataPlan(subInfo, dataPlan.value) {
+                        backStack.add(PlanConfig(subscriberID))
+                    }
+                } else {
+                    UnconfiguredDataPlan(subInfo) {
+                        backStack.add(PlanConfig(subscriberID))
+                    }
+                }
             }
         }
 
