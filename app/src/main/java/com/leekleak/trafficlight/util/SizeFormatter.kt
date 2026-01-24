@@ -43,8 +43,8 @@ data class DataSize (
     }
 
     fun getAsUnit(unit: DataSizeUnit): Double {
-        if (unit == this.unit) return value
-        else return value * 1024.0.pow((this.unit.ordinal - unit.ordinal).toDouble())
+        return if (unit == this.unit) value
+        else value * 1024.0.pow((this.unit.ordinal - unit.ordinal).toDouble())
     }
 
     override fun toString(): String {

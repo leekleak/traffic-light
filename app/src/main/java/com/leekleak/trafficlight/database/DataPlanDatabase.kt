@@ -33,10 +33,10 @@ data class DataPlan(
     // Crucially the other settings are still valid as
     @ColumnInfo val recurring: Boolean = true,
     @ColumnInfo val startDate: Long = LocalDateTime.now().toTimestamp(), // LocalDate as timestamp
-    @ColumnInfo val interval: TimeInterval? = null,
+    @ColumnInfo val interval: TimeInterval = TimeInterval.MONTH,
     @ColumnInfo val intervalMultiplier: Int? = null,
 
-    @ColumnInfo val excludedApps: List<Int>? = null, // List of excluded app UIDs
+    @ColumnInfo val excludedApps: List<Int> = listOf(), // List of excluded app UIDs
     @ColumnInfo val unlimitedDataPeriod: List<Int>? = null, // List of 2 items. Start and end hours of the range in UTC
 
     /**
@@ -88,6 +88,7 @@ class Converters {
 
     @TypeConverter
     fun toListInt(data: String): List<Int> {
+        if (data == "") return listOf()
         return listOf(*data.split(",").map { it.toInt() }.toTypedArray())
     }
 }

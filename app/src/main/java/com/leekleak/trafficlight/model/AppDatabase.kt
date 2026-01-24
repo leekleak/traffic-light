@@ -22,7 +22,7 @@ class AppDatabase(context: Context): KoinComponent {
         allApps.filter { app ->
             val pi = packageManager.getPackageInfo(app.packageName, PackageManager.GET_PERMISSIONS)
             (pi.requestedPermissions?.contains("android.permission.INTERNET") ?: true)
-        }
+        }.distinctBy { it.uid }
     }
 
     fun getLabel(app: ApplicationInfo): String = app.loadLabel(packageManager).toString()

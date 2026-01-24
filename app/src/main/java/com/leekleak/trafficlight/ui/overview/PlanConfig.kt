@@ -1,6 +1,7 @@
 package com.leekleak.trafficlight.ui.overview
 
 import android.annotation.SuppressLint
+import android.content.pm.ApplicationInfo
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -28,23 +29,32 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.maxLength
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonGroup
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberSearchBarState
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.toPath
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -74,15 +84,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import coil3.compose.rememberAsyncImagePainter
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.GraphTheme.wifiShape
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
+import com.leekleak.trafficlight.model.AppDatabase
+import com.leekleak.trafficlight.model.AppIcon
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.DataSize
@@ -91,14 +105,16 @@ import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.px
+import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import java.text.DecimalFormat
+import java.time.LocalDateTime
 import kotlin.math.E
 import kotlin.math.pow
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "LocalContextGetResourceValueCall")
 @Composable
 fun PlanConfig(
@@ -169,7 +185,7 @@ fun PlanConfig(
                 Column(
                     modifier = Modifier
                         .card()
-                        .padding(8.dp)
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     ButtonGroup(
                         modifier = Modifier.fillMaxWidth(),
@@ -189,39 +205,93 @@ fun PlanConfig(
                         )
                     }
 
-                    var selectDate by remember { mutableStateOf(false) }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text ("Cycle start day: ")
-                        Button(onClick = { selectDate = true }) {
-                            val date = fromTimestamp(newPlan.startDate)
-                            Text(date.dayOfMonth.toString())
+                    var selectedDate by remember(newPlan) { mutableIntStateOf( fromTimestamp(newPlan.startDate).dayOfMonth ) }
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        text = stringResource(R.string.resets_on, selectedDate),
+                        fontSize = 18.sp,
+                        fontFamily = robotoFlex(0f,150f,1000f),
+                        textAlign = TextAlign.Center,
+                    )
+                    Slider(
+                        value = selectedDate.toFloat(),
+                        onValueChange = {
+                            newPlan = newPlan.copy(startDate = LocalDateTime.now().withDayOfMonth(it.toInt()).toTimestamp())
+                        },
+                        enabled = true,
+                        valueRange = 1f..28f,
+                        steps = 28
+                    )
+                }
+            }
+
+            categoryTitleSmall(R.string.unlimited_apps)
+            item {
+                val appDatabase: AppDatabase = koinInject()
+                val excludedApps by remember { derivedStateOf {
+                    appDatabase.suspiciousApps.filter { newPlan.excludedApps.contains(it.uid) }
+                } }
+                val includedApps by remember { derivedStateOf {
+                    appDatabase.suspiciousApps.filter { !newPlan.excludedApps.contains(it.uid) }
+                } }
+                Column(
+                    modifier = Modifier
+                        .card()
+                        .padding(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    var addApps by remember { mutableStateOf(false) }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AppSelector(excludedApps, Modifier.weight(1f)) { uid ->
+                            newPlan = newPlan.copy(excludedApps = newPlan.excludedApps.filter { it != uid })
+                        }
+                        FilledIconButton (
+                            modifier = Modifier.size(48.dp),
+                            onClick = {addApps = !addApps},
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.add),
+                                contentDescription = null
+                            )
                         }
                     }
 
-                    val datePickerState = rememberDatePickerState()
-                    if (selectDate) {
-                        DatePickerDialog(
-                            onDismissRequest = { selectDate = false },
-                            confirmButton = {
-                                Button(onClick = {
-                                    newPlan = newPlan.copy(startDate = datePickerState.selectedDateMillis!!)
-                                    selectDate = false
-                                }) {
-                                    Row (horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    AnimatedVisibility(addApps, modifier = Modifier.fillMaxWidth()) {
+                        val searchBarState = rememberSearchBarState()
+                        var query by remember { mutableStateOf("") }
+                        val searchResults by remember { derivedStateOf {
+                            includedApps.filter { appDatabase.getLabel(it).lowercase().contains(query.lowercase()) }
+                        } }
+
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            HorizontalDivider()
+                            AppSelector(searchResults) { uid ->
+                                newPlan = newPlan.copy(excludedApps = newPlan.excludedApps + (includedApps.map { it.uid }.filter { it == uid }))
+                            }
+                            SearchBar(
+                                state = searchBarState,
+                                inputField = { SearchBarDefaults.InputField(
+                                    query = query,
+                                    onQueryChange = {query = it},
+                                    onSearch = {},
+                                    expanded = false,
+                                    onExpandedChange = {},
+                                    leadingIcon = {
                                         Icon(
-                                            painter = painterResource(R.drawable.save),
+                                            painter = painterResource(R.drawable.search),
                                             contentDescription = null
                                         )
-                                        Text(
-                                            text = "Save"
-                                        )
                                     }
-                                }
-                            }
-                        ) {
-                            DatePicker(datePickerState)
+                                )}
+                            )
                         }
                     }
+
                 }
             }
             categoryTitleSmall(R.string.background)
@@ -229,13 +299,58 @@ fun PlanConfig(
                 LazyRow(
                     modifier = Modifier.card(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(16.dp)
+                    contentPadding = PaddingValues(8.dp)
                 ) {
+                    item ("holder") {  }
                     items(backgrounds.size) { i ->
                         BackgroundSelector(i, newPlan) {
                             newPlan = newPlan.copy(uiBackground = i)
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppSelector(
+    uids: List<ApplicationInfo>,
+    modifier: Modifier = Modifier,
+    onClick: (uid: Int) -> Unit
+) {
+    val appDatabase: AppDatabase = koinInject()
+
+    LazyRow(modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(uids, {it.uid}) {
+            val painter = rememberAsyncImagePainter(AppIcon(it.packageName))
+            val label = appDatabase.getLabel(it)
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                    TooltipAnchorPosition.Above,
+                    4.dp
+                ),
+                tooltip = {
+                    PlainTooltip { Text(label) }
+                },
+                state = rememberTooltipState(),
+            ) {
+                Column(
+                    Modifier.width(64.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        modifier = Modifier.size(52.dp).clickable { onClick(it.uid) },
+                        painter = painter,
+                        contentDescription = null,
+                    )
+                    Text(
+                        text = label,
+                        fontFamily = robotoFlex(0f, 25f, 500f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
         }

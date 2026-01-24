@@ -4,6 +4,7 @@ package com.leekleak.trafficlight.ui.overview
 
 import android.annotation.SuppressLint
 import android.telephony.SubscriptionInfo
+import androidx.annotation.FloatRange
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -60,7 +61,6 @@ import org.koin.compose.koinInject
 import java.text.DecimalFormat
 import java.time.Duration
 import java.time.LocalDateTime
-import java.time.Period
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
@@ -320,7 +320,11 @@ fun bigFont(): FontFamily? {
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
-fun robotoFlex(slant: Float, width: Float, weight: Float): FontFamily? {
+fun robotoFlex(
+    @FloatRange(-10.0, 0.0) slant: Float,
+    @FloatRange(25.0, 151.0) width: Float,
+    @FloatRange(100.0, 1000.0) weight: Float
+): FontFamily? {
     val viewModel: OverviewVM = viewModel()
     val expressiveFonts by viewModel.preferenceRepo.expressiveFonts.collectAsState(true)
 
