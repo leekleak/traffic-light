@@ -3,6 +3,7 @@ package com.leekleak.trafficlight.ui.overview
 import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -70,7 +71,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.copy
@@ -134,7 +140,7 @@ fun PlanConfig(
     }
 
     Scaffold(
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        //contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             Box(
                 modifier = Modifier
@@ -157,7 +163,7 @@ fun PlanConfig(
                             contentDescription = null
                         )
                         Text(
-                            text = "Save"
+                            text = stringResource(R.string.save)
                         )
                     }
                 }
@@ -166,9 +172,10 @@ fun PlanConfig(
     ) {
         LazyColumn(
             modifier = Modifier
+                .padding(horizontal = 16.dp)
                 .background(MaterialTheme.colorScheme.surface)
                 .fillMaxSize(),
-            contentPadding = paddingValues
+            contentPadding = it
         ) {
             categoryTitle(R.string.configure_plan)
             item {
@@ -227,7 +234,7 @@ fun PlanConfig(
                 }
             }
 
-            categoryTitleSmall(R.string.unlimited_apps)
+            categoryTitleSmall(R.string.zero_rated_apps)
             item {
                 val appDatabase: AppDatabase = koinInject()
                 val excludedApps by remember { derivedStateOf {
@@ -239,19 +246,31 @@ fun PlanConfig(
                 Column(
                     modifier = Modifier
                         .card()
-                        .padding(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(vertical = 8.dp),
                 ) {
                     var addApps by remember { mutableStateOf(false) }
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .animateContentSize(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        AppSelector(excludedApps, Modifier.weight(1f)) { uid ->
+                        val brush = Brush.horizontalGradient(0.95f to Color.Black, 1f to Color.Transparent)
+                        AppSelector(
+                            uids = excludedApps,
+                            Modifier
+                                .weight(1f)
+                                .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+                                .drawWithContent {
+                                    drawContent()
+                                    drawRect(brush = brush, blendMode = BlendMode.DstIn)
+                                }
+                        ) { uid ->
                             newPlan = newPlan.copy(excludedApps = newPlan.excludedApps.filter { it != uid })
                         }
                         FilledIconButton (
-                            modifier = Modifier.size(48.dp),
+                            modifier = Modifier.padding(end = 8.dp),
                             onClick = {addApps = !addApps},
                         ) {
                             Icon(
@@ -265,10 +284,15 @@ fun PlanConfig(
                         val searchBarState = rememberSearchBarState()
                         var query by remember { mutableStateOf("") }
                         val searchResults by remember { derivedStateOf {
-                            includedApps.filter { appDatabase.getLabel(it).lowercase().contains(query.lowercase()) }
+                            if (query.isEmpty()) includedApps.sortedByDescending { specialApps.indexOf(it.packageName) }
+                            else includedApps.filter { appDatabase.getLabel(it).lowercase().contains(query.lowercase()) }
                         } }
 
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Column(
+                            modifier = Modifier.padding(top = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
                             HorizontalDivider()
                             AppSelector(searchResults) { uid ->
                                 newPlan = newPlan.copy(excludedApps = newPlan.excludedApps + (includedApps.map { it.uid }.filter { it == uid }))
@@ -322,11 +346,15 @@ fun AppSelector(
 ) {
     val appDatabase: AppDatabase = koinInject()
 
-    LazyRow(modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    LazyRow(modifier, contentPadding = PaddingValues(horizontal = 8.dp)) {
         items(uids, {it.uid}) {
             val painter = rememberAsyncImagePainter(AppIcon(it.packageName))
             val label = appDatabase.getLabel(it)
             TooltipBox(
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.medium)
+                    .clickable { onClick(it.uid) }
+                    .padding(4.dp),
                 positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
                     TooltipAnchorPosition.Above,
                     4.dp
@@ -341,17 +369,29 @@ fun AppSelector(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
-                        modifier = Modifier.size(52.dp).clickable { onClick(it.uid) },
+                        modifier = Modifier.size(52.dp),
                         painter = painter,
                         contentDescription = null,
                     )
                     Text(
                         text = label,
                         fontFamily = robotoFlex(0f, 25f, 500f),
+                        fontSize = 12.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
+            }
+        }
+        if (uids.isEmpty()) {
+            item {
+                Text(
+                    modifier = Modifier.padding(start = 8.dp),
+                    text = "No apps",
+                    fontFamily = robotoFlex(0f, 151f, 1000f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         }
     }
@@ -486,3 +526,28 @@ fun PlanSizeConfig(size: Float, onSizeUpdate: (Float) -> Unit) {
         }
     }
 }
+
+/**
+ * Apps most often included as zero-rated.
+ *
+ * The further down the list the app, the higher it will be placed when sorted.
+ */
+val specialApps = listOf(
+    "com.amazon.avod.thirdpartyclient", // Prime Video
+    "org.telegram.messenger",
+    "com.microsoft.teams",
+    "us.zoom.videomeetings",
+    "com.waze",
+    "com.google.android.apps.maps",
+    "com.apple.android.music",
+    "com.netflix.mediaclient",
+    "com.ss.android.ugc.trill", // TikTok
+    "com.google.android.youtube",
+    "com.spotify.music",
+    "com.snapchat.android",
+    "com.twitter.android",
+    "com.instagram.android",
+    "com.facebook.orca", // Facebook Messenger
+    "com.facebook.katana", // Facebook
+    "com.whatsapp",
+)

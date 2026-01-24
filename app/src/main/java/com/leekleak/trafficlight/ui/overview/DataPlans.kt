@@ -167,32 +167,14 @@ fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: 
                     overflowIndicator = {}
                 ) {
                     clickableItem(
-                        label = context.getString(R.string.add_data),
+                        label = context.getString(R.string.configure_plan),
                         icon = {
                             Icon(
-                                painterResource(R.drawable.add),
-                                contentDescription = stringResource(R.string.wifi)
+                                painterResource(R.drawable.settings),
+                                contentDescription = stringResource(R.string.configure_plan)
                             )
                         },
-                        weight = 1f,
-                        onClick = {}
-                    )
-                    customItem(
-                        buttonGroupContent = {
-                            val interactionSource = remember { MutableInteractionSource() }
-                            FilledIconButton(
-                                modifier = Modifier.animateWidth(interactionSource),
-                                onClick = onConfigure,
-                                shape = MaterialTheme.shapes.extraLargeIncreased,
-                                interactionSource = interactionSource
-                            ) {
-                                Icon(
-                                    painterResource(R.drawable.settings),
-                                    contentDescription = stringResource(R.string.configure_plan)
-                                )
-                            }
-                        },
-                        menuContent = {}
+                        onClick = onConfigure,
                     )
                 }
             }

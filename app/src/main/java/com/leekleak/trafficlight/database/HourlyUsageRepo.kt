@@ -69,7 +69,7 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
     }
 
     fun planUsage(dataPlan: DataPlan): DayUsage {
-        var startDate = fromTimestamp(dataPlan.startDate)
+        var startDate = fromTimestamp(dataPlan.startDate).toLocalDate().atStartOfDay()
         val now = LocalDateTime.now()
         while (startDate < now) startDate = startDate.plusMonths(1)
         startDate = startDate.minusMonths(1)
@@ -77,6 +77,10 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
         val startStamp = startDate.toTimestamp()
         val endStamp = now.toTimestamp()
         val stats = calculateHourData(startStamp, endStamp, subscriberId = dataPlan.subscriberID)
+
+        for (uid in dataPlan.excludedApps) {
+            stats.cellular -= calculateHourData(startStamp, endStamp, uid, dataPlan.subscriberID).cellular
+        }
 
         // TODO: Don't calculate wifi. That's stupid
         return DayUsage(startDate.toLocalDate(), mutableMapOf(), stats.wifi, stats.cellular)

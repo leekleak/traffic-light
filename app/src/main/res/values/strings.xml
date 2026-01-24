@@ -54,13 +54,13 @@
     <string name="data_plans">Data Plans</string>
     <string name="configure_plan">Configure Plan</string>
     <string name="background">Background</string>
-    <string name="add_data">Add Data</string>
     <string name="type">Type</string>
     <string name="selected">Selected</string>
     <string name="monthly">Monthly</string>
     <string name="this_month">This Month</string>
     <string name="resets_on">Resets on day: %1$d</string>
-    <string name="unlimited_apps">Unlimited apps</string>
+    <string name="zero_rated_apps">Zero-rated apps</string>
+    <string name="save">Save</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>
