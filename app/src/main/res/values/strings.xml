@@ -63,6 +63,7 @@
     <string name="resets_on">Resets on day: %1$d</string>
     <string name="zero_rated_apps">Zero-rated apps</string>
     <string name="save">Save</string>
+    <string name="no_apps">No apps</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

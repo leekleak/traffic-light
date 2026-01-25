@@ -81,9 +81,11 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.copy
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -115,10 +117,13 @@ import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import timber.log.Timber
 import java.text.DecimalFormat
+import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.math.E
 import kotlin.math.pow
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "LocalContextGetResourceValueCall")
@@ -129,7 +134,9 @@ fun PlanConfig(
 ) {
     val viewModel: OverviewVM = viewModel()
     val scope = rememberCoroutineScope()
+
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
 
     val dataPlanDao: DataPlanDao = koinInject()
     val currentPlan = remember { viewModel.getDataPlan(subscriberId) }.collectAsState(DataPlan(subscriberId))
@@ -151,6 +158,7 @@ fun PlanConfig(
                     onClick = {
                         scope.launch(Dispatchers.IO) {
                             dataPlanDao.add(newPlan)
+                            haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                             backStack.removeAt(backStack.lastIndex)
                         }
                     }
@@ -244,14 +252,15 @@ fun PlanConfig(
                             Slider(
                                 value = selectedDate.toFloat(),
                                 onValueChange = {
-                                    newPlan = newPlan.copy(
-                                        startDate = LocalDateTime.now().withDayOfMonth(it.toInt())
-                                            .toTimestamp()
-                                    )
+                                    val newDate = LocalDate.now().withDayOfMonth(it.roundToInt()).atStartOfDay().toTimestamp()
+                                    if (newDate != newPlan.startDate) {
+                                        haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                                        newPlan = newPlan.copy(startDate = newDate)
+                                    }
                                 },
                                 enabled = true,
                                 valueRange = 1f..28f,
-                                steps = 28
+                                steps = 26
                             )
                         }
                     }
@@ -411,7 +420,7 @@ fun AppSelector(
             item {
                 Text(
                     modifier = Modifier.padding(start = 8.dp),
-                    text = "No apps",
+                    text = stringResource(R.string.no_apps),
                     fontFamily = robotoFlex(0f, 151f, 1000f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -423,6 +432,7 @@ fun AppSelector(
 
 @Composable
 fun BackgroundSelector(i: Int, newPlan: DataPlan, onClick: () -> Unit) {
+    val haptic = LocalHapticFeedback.current
     Box(
         modifier = Modifier
             .width(192.dp)
@@ -430,7 +440,10 @@ fun BackgroundSelector(i: Int, newPlan: DataPlan, onClick: () -> Unit) {
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.background)
             .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium)
-            .clickable { onClick() },
+            .clickable {
+                onClick()
+                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+            },
     ) {
         backgrounds[i]?.let {
             Image(
