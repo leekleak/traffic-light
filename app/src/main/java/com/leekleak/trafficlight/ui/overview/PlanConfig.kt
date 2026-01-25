@@ -349,7 +349,6 @@ fun PlanConfig(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     contentPadding = PaddingValues(8.dp)
                 ) {
-                    item ("holder") {  }
                     items(backgrounds.size) { i ->
                         BackgroundSelector(i, newPlan) {
                             newPlan = newPlan.copy(uiBackground = i)
@@ -371,6 +370,7 @@ fun AppSelector(
     val appDatabase: AppDatabase = koinInject()
 
     LazyRow(modifier, contentPadding = PaddingValues(horizontal = 8.dp)) {
+        item ("holder") {  }
         items(uids, {it.uid}) {
             val painter = rememberAsyncImagePainter(AppIcon(it.packageName))
             val label = appDatabase.getLabel(it)
