@@ -34,8 +34,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -65,6 +67,7 @@ import java.time.LocalDateTime
 @Composable
 fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: () -> Unit) {
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
     val hourlyUsageRepo: HourlyUsageRepo = koinInject()
 
     var expanded by remember { mutableStateOf(false) }
@@ -73,7 +76,10 @@ fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: 
     Box(modifier = Modifier
         .fillMaxWidth()
         .clip(MaterialTheme.shapes.medium)
-        .clickable(onClick = { expanded = !expanded })
+        .clickable(onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+            expanded = !expanded
+        })
         .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium),
     ) {
         backgrounds[dataPlan.uiBackground]?.let { background ->
@@ -179,7 +185,10 @@ fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: 
                                 contentDescription = stringResource(R.string.configure_plan)
                             )
                         },
-                        onClick = onConfigure,
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onConfigure()
+                        }
                     )
                 }
             }
@@ -192,6 +201,7 @@ fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: 
 @Composable
 fun UnconfiguredDataPlan(info: SubscriptionInfo, subscriberID: String, onConfigure: () -> Unit) {
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
     val hourlyUsageRepo: HourlyUsageRepo = koinInject()
 
     val dataUsage = remember {
@@ -263,7 +273,10 @@ fun UnconfiguredDataPlan(info: SubscriptionInfo, subscriberID: String, onConfigu
                         contentDescription = null
                     )
                 },
-                onClick = onConfigure
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onConfigure()
+                }
             )
         }
     }

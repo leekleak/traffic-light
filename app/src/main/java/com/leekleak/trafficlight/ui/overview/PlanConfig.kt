@@ -212,7 +212,10 @@ fun PlanConfig(
                                     contentDescription = null
                                 )
                             },
-                            onCheckedChange = { newPlan = newPlan.copy(interval = TimeInterval.MONTH) },
+                            onCheckedChange = {
+                                newPlan = newPlan.copy(interval = TimeInterval.MONTH)
+                                haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                            },
                             weight = 1f,
                         )
                         toggleableItem(
@@ -224,7 +227,10 @@ fun PlanConfig(
                                     contentDescription = null
                                 )
                             },
-                            onCheckedChange = { newPlan = newPlan.copy(interval = TimeInterval.DAY) },
+                            onCheckedChange = {
+                                newPlan = newPlan.copy(interval = TimeInterval.DAY)
+                                haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                            },
                             weight = 1f,
                         )
                     }
@@ -300,7 +306,10 @@ fun PlanConfig(
                         }
                         FilledIconButton (
                             modifier = Modifier.padding(end = 8.dp),
-                            onClick = {addApps = !addApps},
+                            onClick = {
+                                addApps = !addApps
+                                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                            },
                         ) {
                             Icon(
                                 painter = painterResource(R.drawable.add),
@@ -373,6 +382,7 @@ fun AppSelector(
     onClick: (uid: Int) -> Unit
 ) {
     val appDatabase: AppDatabase = koinInject()
+    val haptic = LocalHapticFeedback.current
 
     LazyRow(modifier, contentPadding = PaddingValues(horizontal = 8.dp)) {
         item ("holder") {  }
@@ -382,7 +392,10 @@ fun AppSelector(
             TooltipBox(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.medium)
-                    .clickable { onClick(it.uid) }
+                    .clickable {
+                        onClick(it.uid)
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    }
                     .padding(4.dp),
                 positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
                     TooltipAnchorPosition.Above,
