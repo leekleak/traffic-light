@@ -46,4 +46,25 @@
     <string name="alt_vpn_workaround">Alternatyvus VPN duomenų skaičiavimas</string>
     <string name="alt_vpn_workaround_description">Prastesnis matavimų tikslumas, tačiau palaiko kelių tunelių konfigūracijas.</string>
     <string name="support_development">Paremti kūrimą</string>
+    <string name="allows_in_depth_data_plan_tracking">Leidžia detaliai sekti duomenų planus.</string>
+    <string name="shizuku_not_running">Shizuku nepaleistas.</string>
+    <string name="sim_card">SIM kortelė</string>
+    <string name="data_plans">Duomenų Planai</string>
+    <string name="configure_plan">Konfigūruoti planą</string>
+    <string name="background">Fonas</string>
+    <string name="type">Tipas</string>
+    <string name="selected">Pasirinktas</string>
+    <string name="monthly">Mėnesinis</string>
+    <string name="this_month">Šį mėnesį</string>
+    <string name="resets_on">Atsinaujinimo diena: %1$d</string>
+    <string name="zero_rated_apps">Neribotos programėlės</string>
+    <string name="save">Išsaugoti</string>
+    <plurals name="resets_in_days">
+        <item quantity="one">Atsinaujins po %d dienos</item>
+        <item quantity="few">Atsinaujins po %d dienų</item>
+        <item quantity="many">Atsinaujins po %d dienų</item>
+        <item quantity="other">Atsinaujins po %d dienų</item>
+    </plurals>
+    <string name="daily">Kasdienis</string>
+    <string name="no_apps">Programėlių nėra</string>
 </resources>
