@@ -49,7 +49,8 @@
     <string name="alt_vpn_workaround_description">Reduces measurement accuracy but accommodates split tunneling.</string>
     <string name="support_development">Support development</string>
     <string name="shizuku" translatable="false">Shizuku (Experimental)</string>
-    <string name="allows_in_depth_data_plan_tracking">Allows in-depth data plan tracking</string>
+    <string name="allows_in_depth_data_plan_tracking">Allows in-depth data plan tracking.</string>
+    <string name="shizuku_not_running">Shizuku not running.</string>
     <string name="sim_card">SIM card</string>
     <string name="data_plans">Data Plans</string>
     <string name="configure_plan">Configure Plan</string>

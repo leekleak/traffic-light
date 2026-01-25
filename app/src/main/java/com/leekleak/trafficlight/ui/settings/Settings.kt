@@ -69,6 +69,7 @@ fun Settings(
             val usageMode by viewModel.hourlyUsageRepo.usageModeFlow().collectAsState(Unlimited)
             val backgroundPermission by viewModel.permissionManager.backgroundPermissionFlow.collectAsState(true)
             val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
+            val shizukuRunning by permissionManager.shizukuRunningFlow.collectAsState(false)
 
             if (usageMode != Unlimited || !backgroundPermission) {
                 CategoryTitleSmallText(stringResource(R.string.missing_permissions))
@@ -124,12 +125,12 @@ fun Settings(
                     }
                 }
 
-                if (!shizukuPermission) {
-                    val shizukuRunning by permissionManager.shizukuRunningFlow.collectAsState(false)
+                if (!shizukuPermission || !shizukuRunning) {
                     PermissionCard (
                         title = stringResource(R.string.shizuku),
                         enabled = shizukuRunning,
-                        description = stringResource(R.string.allows_in_depth_data_plan_tracking),
+                        description = stringResource(R.string.allows_in_depth_data_plan_tracking) +
+                                if (!shizukuRunning) " " + stringResource(R.string.shizuku_not_running) else "",
                         icon = painterResource(R.drawable.version),
                         onClick = { Shizuku.requestPermission(12199) },
                     )

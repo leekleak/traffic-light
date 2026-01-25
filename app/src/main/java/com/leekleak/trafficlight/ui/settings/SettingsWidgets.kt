@@ -415,7 +415,7 @@ fun PermissionButton(
     onClick: () -> Unit
 ) {
     FilledIconButton (
-        modifier = Modifier.size(56.dp).shadow(2.dp, MaterialTheme.shapes.large),
+        modifier = Modifier.size(56.dp),
         colors = colors,
         enabled = enabled,
         shape = MaterialTheme.shapes.large,
