@@ -8,6 +8,7 @@ plugins {
 android {
     namespace = "com.leekleak.trafficlight"
     compileSdk = 36
+    compileSdkMinor = 1
 
     defaultConfig {
         applicationId = "com.leekleak.trafficlight"
@@ -36,9 +37,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.15"
     }
     buildFeatures {
         compose = true
