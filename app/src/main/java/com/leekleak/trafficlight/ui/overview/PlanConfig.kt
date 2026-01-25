@@ -100,6 +100,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.GraphTheme.wifiShape
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
+import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.model.AppDatabase
 import com.leekleak.trafficlight.model.AppIcon
 import com.leekleak.trafficlight.ui.theme.backgrounds
@@ -166,12 +167,12 @@ fun PlanConfig(
                 }
             }
         }
-    ) {
+    ) { paddintValues ->
         LazyColumn(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .fillMaxSize(),
-            contentPadding = it
+            contentPadding = paddintValues
         ) {
             categoryTitle(R.string.configure_plan)
             item {
@@ -190,12 +191,14 @@ fun PlanConfig(
                         .card()
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
+                    val interval by remember { derivedStateOf { newPlan.interval } }
                     ButtonGroup(
                         modifier = Modifier.fillMaxWidth(),
+                        expandedRatio = 0.05f,
                         overflowIndicator = {}
                     ) {
                         toggleableItem(
-                            checked = newPlan.recurring,
+                            checked = interval == TimeInterval.MONTH,
                             label = context.getString(R.string.monthly),
                             icon = {
                                 Icon(
@@ -203,30 +206,55 @@ fun PlanConfig(
                                     contentDescription = null
                                 )
                             },
-                            onCheckedChange = {},
+                            onCheckedChange = { newPlan = newPlan.copy(interval = TimeInterval.MONTH) },
+                            weight = 1f,
+                        )
+                        toggleableItem(
+                            checked = interval == TimeInterval.DAY,
+                            label = context.getString(R.string.daily),
+                            icon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.daily),
+                                    contentDescription = null
+                                )
+                            },
+                            onCheckedChange = { newPlan = newPlan.copy(interval = TimeInterval.DAY) },
                             weight = 1f,
                         )
                     }
 
-                    var selectedDate by remember(newPlan) { mutableIntStateOf( fromTimestamp(newPlan.startDate).dayOfMonth ) }
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp),
-                        text = stringResource(R.string.resets_on, selectedDate),
-                        fontSize = 18.sp,
-                        fontFamily = robotoFlex(0f,150f,1000f),
-                        textAlign = TextAlign.Center,
-                    )
-                    Slider(
-                        value = selectedDate.toFloat(),
-                        onValueChange = {
-                            newPlan = newPlan.copy(startDate = LocalDateTime.now().withDayOfMonth(it.toInt()).toTimestamp())
-                        },
-                        enabled = true,
-                        valueRange = 1f..28f,
-                        steps = 28
-                    )
+                    AnimatedVisibility(interval == TimeInterval.MONTH) {
+                        Column {
+                            var selectedDate by remember(newPlan) {
+                                mutableIntStateOf(
+                                    fromTimestamp(
+                                        newPlan.startDate
+                                    ).dayOfMonth
+                                )
+                            }
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 16.dp),
+                                text = stringResource(R.string.resets_on, selectedDate),
+                                fontSize = 18.sp,
+                                fontFamily = robotoFlex(0f, 150f, 1000f),
+                                textAlign = TextAlign.Center,
+                            )
+                            Slider(
+                                value = selectedDate.toFloat(),
+                                onValueChange = {
+                                    newPlan = newPlan.copy(
+                                        startDate = LocalDateTime.now().withDayOfMonth(it.toInt())
+                                            .toTimestamp()
+                                    )
+                                },
+                                enabled = true,
+                                valueRange = 1f..28f,
+                                steps = 28
+                            )
+                        }
+                    }
                 }
             }
 
@@ -459,10 +487,10 @@ fun PlanSizeConfig(size: Float, onSizeUpdate: (Float) -> Unit) {
         }
 
         LaunchedEffect(fieldState.text) {
-            val number = fieldState.text.toString().toFloatOrNull() ?: 0f
+            val number = fieldState.text.toString().split('.').first().toFloatOrNull() ?: 0f
             onSizeUpdate(number)
             scale.animateTo(
-                targetValue = (1.5 * (1-E.pow(-number * 0.1))).toFloat(),
+                targetValue = (1.5 * (1 - E.pow(-number * 0.1))).toFloat(),
                 animationSpec = spring(
                     dampingRatio = Spring.DampingRatioLowBouncy,
                     stiffness = Spring.StiffnessMedium
