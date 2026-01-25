@@ -41,4 +41,9 @@
     <string name="notification_description">Vezi viteza rețelei în bara de stare.</string>
     <string name="unknown">Necunoscut</string>
     <string name="appearance">Aspect</string>
+    <string name="total_usage">Utilizare totală</string>
+    <string name="behavior">Comportament</string>
+    <string name="alt_vpn_workaround">Soluții alternative pentru VPN</string>
+    <string name="alt_vpn_workaround_description">Reduce precizia de măsurare, dar acomodează tuneluri divizate.</string>
+    <string name="support_development">Sprijinină dezvoltarea aplicației</string>
 </resources>
