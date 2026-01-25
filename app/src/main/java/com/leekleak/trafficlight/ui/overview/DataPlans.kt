@@ -100,7 +100,9 @@ fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: 
                         textAlign = TextAlign.End
                     )
                 }
-                val usage = DataSize(dataUsage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
+                val usage by remember(dataUsage) { derivedStateOf {
+                    DataSize(dataUsage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
+                } }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -114,9 +116,11 @@ fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: 
                         fontFamily = bigFont(),
                         fontSize = 64.sp,
                     )
-                    val data = DataSize(dataPlan.dataMax.toDouble()).toStringParts()
+                    val data by remember(dataPlan) { derivedStateOf { formatter.format(
+                        DataSize(dataPlan.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)
+                    ) } }
                     Text(
-                        text = "/${data[0]}${if (data[1] != "0") ("." + data[1]) else ""}GB",
+                        text = "/${data}GB",
                         fontFamily = bigFont(),
                         fontSize = 36.sp,
                         lineHeight = 48.sp

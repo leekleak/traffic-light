@@ -117,10 +117,10 @@ import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
-import timber.log.Timber
 import java.text.DecimalFormat
+import java.text.NumberFormat
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.util.Locale
 import kotlin.math.E
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -168,9 +168,7 @@ fun PlanConfig(
                             painter = painterResource(R.drawable.save),
                             contentDescription = null
                         )
-                        Text(
-                            text = stringResource(R.string.save)
-                        )
+                        Text(stringResource(R.string.save))
                     }
                 }
             }
@@ -184,10 +182,10 @@ fun PlanConfig(
         ) {
             categoryTitle(R.string.configure_plan)
             item {
-                val size by remember { derivedStateOf { DataSize(currentPlan.value.dataMax.toDouble()).value.toFloat() } }
-                PlanSizeConfig (
-                    size = size
-                ) {
+                val size by remember { derivedStateOf {
+                    DataSize(currentPlan.value.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)
+                } }
+                PlanSizeConfig (size = size) {
                     val data = DataSize(it.toDouble(), unit = DataSizeUnit.GB)
                     newPlan = newPlan.copy(dataMax = data.getBitValue())
                 }
@@ -235,9 +233,7 @@ fun PlanConfig(
                         Column {
                             var selectedDate by remember(newPlan) {
                                 mutableIntStateOf(
-                                    fromTimestamp(
-                                        newPlan.startDate
-                                    ).dayOfMonth
+                                    fromTimestamp(newPlan.startDate).dayOfMonth
                                 )
                             }
                             Text(
@@ -292,7 +288,7 @@ fun PlanConfig(
                         val brush = Brush.horizontalGradient(0.95f to Color.Black, 1f to Color.Transparent)
                         AppSelector(
                             uids = excludedApps,
-                            Modifier
+                            modifier = Modifier
                                 .weight(1f)
                                 .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
                                 .drawWithContent {
@@ -474,7 +470,7 @@ fun BackgroundSelector(i: Int, newPlan: DataPlan, onClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun PlanSizeConfig(size: Float, onSizeUpdate: (Float) -> Unit) {
+fun PlanSizeConfig(size: Double, onSizeUpdate: (Float) -> Unit) {
     Box(
         modifier = Modifier
             .height(128.dp * 2.5f)
@@ -495,20 +491,23 @@ fun PlanSizeConfig(size: Float, onSizeUpdate: (Float) -> Unit) {
         }
 
         val formatter = remember { DecimalFormat("0.#") }
+        val numberFormat = NumberFormat.getInstance(Locale.US)
         val fieldState = remember(size) {
             TextFieldState(formatter.format(size))
         }
 
         LaunchedEffect(fieldState.text) {
-            val number = fieldState.text.toString().split('.').first().toFloatOrNull() ?: 0f
-            onSizeUpdate(number)
-            scale.animateTo(
-                targetValue = (1.5 * (1 - E.pow(-number * 0.1))).toFloat(),
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioLowBouncy,
-                    stiffness = Spring.StiffnessMedium
+            val number = numberFormat.parse(fieldState.text.toString())
+            if (number != null) {
+                onSizeUpdate(number.toFloat())
+                scale.animateTo(
+                    targetValue = (1.5 * (1 - E.pow(-number.toFloat() * 0.1))).toFloat(),
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        stiffness = Spring.StiffnessMedium
+                    )
                 )
-            )
+            }
         }
 
         Box(
@@ -534,7 +533,14 @@ fun PlanSizeConfig(size: Float, onSizeUpdate: (Float) -> Unit) {
                 BasicTextField(
                     state = fieldState,
                     modifier = Modifier.width (with(LocalDensity.current) { intrinsics.toDp() }),
-                    inputTransformation = InputTransformation.maxLength(3),
+                    inputTransformation =  InputTransformation {
+                        val newText = asCharSequence().toString()
+                        if (newText.isEmpty()) {
+                            replace(0, length, "0")
+                        } else if (newText.length > 1 && newText.startsWith("0") && !newText.contains(".")) {
+                            replace(0, 1, "")
+                        }
+                    }.maxLength(5),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number
                     ),
