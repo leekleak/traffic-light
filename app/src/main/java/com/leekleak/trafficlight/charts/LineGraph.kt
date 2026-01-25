@@ -66,7 +66,7 @@ fun LineGraph(
          * Wifi text
          */
         val textMeasure1 = textMeasurer.measure(
-            DataSize(data.first.toFloat()).toString(),
+            DataSize(data.first.toDouble()).toString(),
             TextStyle(
                 fontFamily = font,
                 fontSize = fontSize,
@@ -94,7 +94,7 @@ fun LineGraph(
          * Mobile text
          */
         val textMeasure2 = textMeasurer.measure(
-            DataSize(data.second.toFloat()).toString(),
+            DataSize(data.second.toDouble()).toString(),
             TextStyle(
                 fontFamily = font,
                 fontSize = fontSize,

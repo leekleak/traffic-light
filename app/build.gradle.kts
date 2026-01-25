@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -83,4 +84,11 @@ dependencies {
     implementation(libs.timber)
 
     implementation(libs.coil.compose)
+
+    implementation(libs.shizuku.api)
+    implementation(libs.shizuku.provider)
+
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 }

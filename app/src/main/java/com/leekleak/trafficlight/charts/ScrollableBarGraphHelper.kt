@@ -201,7 +201,7 @@ internal class ScrollableBarGraphHelper(
             drawTextLabelsOverXAndYAxis(gridColor, backgroundColor, textMeasurer)
 
             //Drawing text labels over the y- axis
-            val dataSize = DataSize(maximum.value)
+            val dataSize = DataSize(maximum.value.toDouble())
             drawContext.canvas.nativeCanvas.drawText(
                 sizeFormatter.format(dataSize.getComparisonValue().getBitValue(), 0, false),
                 metrics.gridWidth + 4.sp.toPx(),

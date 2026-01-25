@@ -374,6 +374,7 @@ fun PermissionCard(
     description: String,
     icon: Painter,
     onClick: () -> Unit,
+    enabled: Boolean = true,
     extraButton: @Composable (() -> Unit)? = null
 ) {
     Row (modifier = Modifier
@@ -399,6 +400,7 @@ fun PermissionCard(
         PermissionButton(
             icon = painterResource(R.drawable.grant),
             contentDescription = stringResource(R.string.grant),
+            enabled = enabled,
             onClick = onClick
         )
     }
@@ -408,12 +410,14 @@ fun PermissionCard(
 fun PermissionButton(
     icon: Painter,
     contentDescription: String,
+    enabled: Boolean = true,
     colors: IconButtonColors = IconButtonDefaults.filledIconButtonColors(),
     onClick: () -> Unit
 ) {
     FilledIconButton (
-        modifier = Modifier.size(56.dp).shadow(2.dp, MaterialTheme.shapes.large),
+        modifier = Modifier.size(56.dp),
         colors = colors,
+        enabled = enabled,
         shape = MaterialTheme.shapes.large,
         onClick = onClick,
     ) {

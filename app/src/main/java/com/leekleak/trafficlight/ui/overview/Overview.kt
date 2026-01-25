@@ -1,8 +1,12 @@
 package com.leekleak.trafficlight.ui.overview
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -41,14 +46,19 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.model.BarData
+import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.database.HourlyUsageRepo.Companion.dayUsageToBarData
 import com.leekleak.trafficlight.model.PreferenceRepo
+import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.services.UsageService
+import com.leekleak.trafficlight.ui.navigation.PlanConfig
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.categoryTitle
@@ -60,12 +70,17 @@ import kotlin.collections.listOf
 
 @Composable
 fun Overview(
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    backStack: NavBackStack<NavKey>
 ) {
     val viewModel: OverviewVM = viewModel()
 
     val todayUsage by viewModel.todayUsage.collectAsState(DayUsage())
     val weeklyUsage by viewModel.hourlyUsageRepo.weekUsage().collectAsState(listOf())
+
+    val permissionManager: PermissionManager = koinInject()
+    val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(true)
+    val subscriptionInfos = remember { viewModel.getSubscriptionInfos() }
 
     /**
      * Generally the notification service is responsible for updating daily usage,
@@ -85,10 +100,33 @@ fun Overview(
     }
 
     LazyColumn(
-        modifier = Modifier.background(MaterialTheme.colorScheme.surface).fillMaxSize(),
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.surface)
+            .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = paddingValues
     ) {
+        if (shizukuPermission && subscriptionInfos.isNotEmpty()) { categoryTitle(R.string.data_plans) }
+        items(subscriptionInfos, { it.subscriptionId }) { subInfo ->
+            val subscriberID = viewModel.getSubscriberID(subInfo.subscriptionId)!!
+            val configured by remember { viewModel.getSubscriberIDHasDataPlan(subscriberID) }.collectAsState(true)
+            AnimatedContent(
+                targetState = configured,
+                transitionSpec = { fadeIn() togetherWith fadeOut() }
+            ) {
+                if (it) {
+                    val dataPlan = remember { viewModel.getDataPlan(subscriberID) }.collectAsState(DataPlan(subscriberID))
+                    ConfiguredDataPlan(subInfo, dataPlan.value) {
+                        backStack.add(PlanConfig(subscriberID))
+                    }
+                } else {
+                    UnconfiguredDataPlan(subInfo, subscriberID) {
+                        backStack.add(PlanConfig(subscriberID))
+                    }
+                }
+            }
+        }
+
         overviewTab(
             label = R.string.today,
             data = dayUsageToBarData(todayUsage),
@@ -177,7 +215,7 @@ fun RowScope.SummaryItem(
             },
         horizontalArrangement = Arrangement.Center,
     ) {
-        val text = DataSize(value = data().toFloat(), precision = 2).toStringParts()
+        val text = DataSize(value = data().toDouble(), precision = 2).toStringParts()
         Text(
             fontSize = 64.sp,
             text = text[0],

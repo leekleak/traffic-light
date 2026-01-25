@@ -8,6 +8,7 @@ import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.model.AppDatabase
 import com.leekleak.trafficlight.services.PermissionManager
+import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.getName
 import com.leekleak.trafficlight.util.padHour
 import com.leekleak.trafficlight.util.toTimestamp
@@ -25,6 +26,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
 
@@ -66,40 +68,58 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
         return DayUsage(startDate, mutableMapOf(), stats.wifi, stats.cellular)
     }
 
-    fun calculateHourData(startTime: Long, endTime: Long, uid: Int? = null): HourData {
-        val wifiBuckets = mutableListOf<NetworkStats.Bucket>()
+    fun planUsage(dataPlan: DataPlan): DayUsage {
+        var startDate = fromTimestamp(dataPlan.startDate).toLocalDate().atStartOfDay()
+        val now = LocalDateTime.now()
+        while (startDate < now) startDate = startDate.plusMonths(1)
+        startDate = startDate.minusMonths(1)
+
+        val startStamp = startDate.toTimestamp()
+        val endStamp = now.toTimestamp()
+        val stats = calculateHourData(startStamp, endStamp, subscriberId = dataPlan.subscriberID)
+
+        for (uid in dataPlan.excludedApps) {
+            stats.cellular -= calculateHourData(startStamp, endStamp, uid, dataPlan.subscriberID).cellular
+        }
+
+        // TODO: Don't calculate wifi. That's stupid
+        return DayUsage(startDate.toLocalDate(), mutableMapOf(), stats.wifi, stats.cellular)
+    }
+
+    fun calculateHourData(startTime: Long, endTime: Long, uid: Int? = null, subscriberId: String? = null): HourData {
         val mobileBuckets = mutableListOf<NetworkStats.Bucket>()
+        val wifiBuckets = mutableListOf<NetworkStats.Bucket>()
 
         if (uid == null) {
-            wifiBuckets.add(
-                networkStatsManager.querySummaryForDevice(0, null, startTime, endTime)
-            )
             mobileBuckets.add(
-                networkStatsManager.querySummaryForDevice(1,null, startTime, endTime)
+                networkStatsManager.querySummaryForDevice(0, subscriberId, startTime, endTime)
+            )
+            wifiBuckets.add(
+                networkStatsManager.querySummaryForDevice(1, subscriberId, startTime, endTime)
             )
         } else {
-            val statsWifi = networkStatsManager.queryDetailsForUid(0, null, startTime, endTime, uid)
-            val statsMobile = networkStatsManager.queryDetailsForUid(1, null, startTime, endTime, uid)
-            while (statsWifi.hasNextBucket()) {
-                val bucket = NetworkStats.Bucket()
-                statsWifi.getNextBucket(bucket)
-                wifiBuckets.add(bucket)
-            }
+            val statsMobile = networkStatsManager.queryDetailsForUid(0, subscriberId, startTime, endTime, uid)
+            val statsWifi = networkStatsManager.queryDetailsForUid(1, subscriberId, startTime, endTime, uid)
             while (statsMobile.hasNextBucket()) {
                 val bucket = NetworkStats.Bucket()
                 statsMobile.getNextBucket(bucket)
                 mobileBuckets.add(bucket)
             }
+            while (statsWifi.hasNextBucket()) {
+                val bucket = NetworkStats.Bucket()
+                statsWifi.getNextBucket(bucket)
+                wifiBuckets.add(bucket)
+            }
         }
 
         val hourData = HourData()
-        for (bucket in wifiBuckets) {
+        for (bucket in mobileBuckets) {
             hourData.cellular += bucket.txBytes + bucket.rxBytes
             hourData.upload += bucket.txBytes
             hourData.download += bucket.rxBytes
         }
 
-        for (bucket in mobileBuckets) {
+        for (bucket in wifiBuckets) {
             hourData.wifi += bucket.txBytes + bucket.rxBytes
             hourData.upload += bucket.txBytes
             hourData.download += bucket.rxBytes
