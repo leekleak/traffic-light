@@ -1,0 +1,10 @@
+Data Plans:
+- Added experimental support for data plan tracking
+- Multi SIM tracking included
+- Shizuku required
+- Support for monthly and daily plans
+- Support for zero-rated plans
+- Support for custom backgrounds because that's fun
+
+Bug fixes:
+- Minor UI fixes

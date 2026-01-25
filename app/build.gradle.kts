@@ -13,8 +13,8 @@ android {
         applicationId = "com.leekleak.trafficlight"
         minSdk = 26
         targetSdk = 36
-        versionCode = 14
-        versionName = "2.8.2"
+        versionCode = 15
+        versionName = "2.9"
         base.archivesName = "$namespace-$versionName"
     }
     buildTypes {
