@@ -134,7 +134,7 @@ fun NavigationManager() {
                     entry<History> { History(paddingValues) }
                     entry<Settings> { Settings(paddingValues, backStack) }
 
-                    entry<PlanConfig> { PlanConfig(paddingValues, it.subscriberId, backStack) }
+                    entry<PlanConfig> { PlanConfig(it.subscriberId, backStack) }
                     entry<NotificationSettings> { NotificationSettings(paddingValues) }
                 },
                 transitionSpec = {

@@ -1,5 +1,6 @@
 package com.leekleak.trafficlight.model
 
+import android.os.Build
 import android.os.Parcel
 import android.telephony.SubscriptionInfo
 import com.leekleak.trafficlight.services.PermissionManager
@@ -35,8 +36,17 @@ class ShizukuDataManager(): KoinComponent {
 
             val binder = ShizukuBinderWrapper(getSystemService("isub"))
 
-            // TODO: Get transaction code procedurally
-            binder.transact(5, data, reply, 0)
+            // Really sucks to hardcode, but the method is private and reflection is hard soooooo deal with it.
+            // The codes were obtained by installing all supported Android version emulators and pulling their
+            // /system/framework/framework.jar
+            // Technically it's possible for the codes to be different to to vendor changes, but
+            // my Android 16 Samsung skin matched with Android 16 Google skin, so maybe it's fine.
+            val code = when { //TRANSACTION_getActiveSubscriptionInfoList
+                Build.VERSION.SDK_INT >= 34 -> 5
+                else -> 6
+            }
+
+            binder.transact(code, data, reply, 0)
             Timber.e("Exception:%s", reply.readException())
             val info = reply.createTypedArrayList(SubscriptionInfo.CREATOR)
             return info ?: listOf()
@@ -59,8 +69,13 @@ class ShizukuDataManager(): KoinComponent {
 
             val binder = ShizukuBinderWrapper(getSystemService("iphonesubinfo"))
 
-            // TODO: Get transaction code procedurally
-            binder.transact(10, data, reply, 0) // TRANSACTION_getSubscriberIdForSubscriber = 10;
+            // For more info, see getSubscriptionInfos()
+            val code = when { // TRANSACTION_getSubscriberIdForSubscriber
+                Build.VERSION.SDK_INT >= 30 -> 10
+                else -> 8
+            }
+
+            binder.transact(code, data, reply, 0)
             reply.readException()
             return reply.readString()!!
         } catch (e: Exception) {

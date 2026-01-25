@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -124,7 +123,6 @@ import kotlin.math.pow
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "LocalContextGetResourceValueCall")
 @Composable
 fun PlanConfig(
-    paddingValues: PaddingValues,
     subscriberId: String,
     backStack: NavBackStack<NavKey>
 ) {
@@ -140,7 +138,6 @@ fun PlanConfig(
     }
 
     Scaffold(
-        //contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             Box(
                 modifier = Modifier
@@ -173,7 +170,6 @@ fun PlanConfig(
         LazyColumn(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
-                .background(MaterialTheme.colorScheme.surface)
                 .fillMaxSize(),
             contentPadding = it
         ) {

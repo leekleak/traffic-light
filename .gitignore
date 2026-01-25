@@ -36,3 +36,6 @@ bugreport.zip
 
 # Baseline Profiles
 *.dm
+
+# Testig files
+framework*.jar

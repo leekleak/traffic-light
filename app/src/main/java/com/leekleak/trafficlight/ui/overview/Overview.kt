@@ -56,6 +56,7 @@ import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.database.HourlyUsageRepo.Companion.dayUsageToBarData
 import com.leekleak.trafficlight.model.PreferenceRepo
+import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.services.UsageService
 import com.leekleak.trafficlight.ui.navigation.PlanConfig
 import com.leekleak.trafficlight.ui.theme.card
@@ -77,6 +78,8 @@ fun Overview(
     val todayUsage by viewModel.todayUsage.collectAsState(DayUsage())
     val weeklyUsage by viewModel.hourlyUsageRepo.weekUsage().collectAsState(listOf())
 
+    val permissionManager: PermissionManager = koinInject()
+    val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(true)
     val subscriptionInfos = remember { viewModel.getSubscriptionInfos() }
 
     /**
@@ -103,7 +106,7 @@ fun Overview(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = paddingValues
     ) {
-        categoryTitle(R.string.data_plans)
+        if (shizukuPermission && subscriptionInfos.isNotEmpty()) { categoryTitle(R.string.data_plans) }
         items(subscriptionInfos, { it.subscriptionId }) { subInfo ->
             val subscriberID = viewModel.getSubscriberID(subInfo.subscriptionId)!!
             val configured by remember { viewModel.getSubscriberIDHasDataPlan(subscriberID) }.collectAsState(true)
