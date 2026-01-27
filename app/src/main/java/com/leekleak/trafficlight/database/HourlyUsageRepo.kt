@@ -69,20 +69,24 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
     }
 
     fun planUsage(dataPlan: DataPlan): DayUsage {
-        var startDate = when (dataPlan.interval) {
-            TimeInterval.MONTH -> fromTimestamp(dataPlan.startDate).toLocalDate().atStartOfDay()
+        val now = LocalDateTime.now()
+        val startDate = when (dataPlan.interval) {
+            TimeInterval.MONTH -> {
+                var startDate = fromTimestamp(dataPlan.startDate).toLocalDate().atStartOfDay()
+                while (startDate <= now) {
+                    startDate = startDate.plusMonths(1)
+                }
+                startDate.minusMonths(1)
+            }
             TimeInterval.DAY -> {
                 var startDate = fromTimestamp(dataPlan.startDate).toLocalDate().atStartOfDay()
-                while (startDate <= LocalDateTime.now()) {
+                while (startDate <= now) {
                     startDate = startDate.plusDays(dataPlan.intervalMultiplier?.toLong() ?: 1)
                 }
                 startDate.minusDays(dataPlan.intervalMultiplier?.toLong() ?: 1)
             }
             else -> throw Exception("Unsupported time interval")
         }
-        val now = LocalDateTime.now()
-        while (startDate < now) startDate = startDate.plusMonths(1)
-        startDate = startDate.minusMonths(1)
 
         val startStamp = startDate.toTimestamp()
         val endStamp = now.toTimestamp()
