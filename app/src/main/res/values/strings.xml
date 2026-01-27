@@ -58,7 +58,7 @@
     <string name="type">Type</string>
     <string name="selected">Selected</string>
     <string name="monthly">Monthly</string>
-    <string name="daily">Daily</string>
+    <string name="custom">Custom</string>
     <string name="this_month">This Month</string>
     <string name="resets_on">Resets on day: %1$d</string>
     <string name="zero_rated_apps">Zero-rated apps</string>

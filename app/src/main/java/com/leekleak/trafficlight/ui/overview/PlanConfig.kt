@@ -2,6 +2,7 @@ package com.leekleak.trafficlight.ui.overview
 
 import android.annotation.SuppressLint
 import android.content.pm.ApplicationInfo
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
@@ -36,7 +37,11 @@ import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.maxLength
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonGroup
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -53,6 +58,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.toPath
@@ -220,10 +226,10 @@ fun PlanConfig(
                         )
                         toggleableItem(
                             checked = interval == TimeInterval.DAY,
-                            label = context.getString(R.string.daily),
+                            label = context.getString(R.string.custom),
                             icon = {
                                 Icon(
-                                    painter = painterResource(R.drawable.daily),
+                                    painter = painterResource(R.drawable.custom),
                                     contentDescription = null
                                 )
                             },
@@ -235,35 +241,119 @@ fun PlanConfig(
                         )
                     }
 
-                    AnimatedVisibility(interval == TimeInterval.MONTH) {
-                        Column {
-                            var selectedDate by remember(newPlan) {
-                                mutableIntStateOf(
-                                    fromTimestamp(newPlan.startDate).dayOfMonth
+                    var selectedMonthDay by remember(newPlan) {
+                        mutableIntStateOf(fromTimestamp(newPlan.startDate).dayOfMonth)
+                    }
+
+                    var selectedStartDay by remember(newPlan) {
+                        mutableStateOf(fromTimestamp(newPlan.startDate))
+                    }
+                    AnimatedContent(interval) { 
+                        if (it == TimeInterval.MONTH) {
+                            Column {
+                                Text(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 16.dp),
+                                    text = stringResource(R.string.resets_on, selectedMonthDay),
+                                    fontSize = 18.sp,
+                                    fontFamily = robotoFlex(0f, 150f, 1000f),
+                                    textAlign = TextAlign.Center,
+                                )
+                                Slider(
+                                    value = selectedMonthDay.toFloat(),
+                                    onValueChange = {
+                                        val newDate = LocalDate.now().withDayOfMonth(it.roundToInt()).atStartOfDay().toTimestamp()
+                                        if (newDate != newPlan.startDate) {
+                                            haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                                            newPlan = newPlan.copy(startDate = newDate)
+                                        }
+                                    },
+                                    enabled = true,
+                                    valueRange = 1f..28f,
+                                    steps = 26
                                 )
                             }
-                            Text(
+                        } else {
+                            Column (
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(top = 16.dp),
-                                text = stringResource(R.string.resets_on, selectedDate),
-                                fontSize = 18.sp,
-                                fontFamily = robotoFlex(0f, 150f, 1000f),
-                                textAlign = TextAlign.Center,
-                            )
-                            Slider(
-                                value = selectedDate.toFloat(),
-                                onValueChange = {
-                                    val newDate = LocalDate.now().withDayOfMonth(it.roundToInt()).atStartOfDay().toTimestamp()
-                                    if (newDate != newPlan.startDate) {
-                                        haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
-                                        newPlan = newPlan.copy(startDate = newDate)
+                                    .padding(vertical = 8.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ){
+                                val datePickerState = rememberDatePickerState(newPlan.startDate)
+                                val textFieldState = rememberTextFieldState()
+                                var datePickerVisible by remember { mutableStateOf(false) }
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Text(
+                                        text = "Last reset day:",
+                                        fontSize = 18.sp,
+                                        fontFamily = robotoFlex(0f, 150f, 1000f),
+                                    )
+                                    ButtonGroup(overflowIndicator = {}) {
+                                        clickableItem(
+                                            label = selectedStartDay.toLocalDate().toString(),
+                                            onClick = { datePickerVisible = true }
+                                        )
                                     }
-                                },
-                                enabled = true,
-                                valueRange = 1f..28f,
-                                steps = 26
-                            )
+                                }
+                                Row(
+                                    modifier = Modifier.padding(top = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Text(
+                                        text = "Resets every",
+                                        fontSize = 18.sp,
+                                        fontFamily = robotoFlex(0f, 150f, 1000f),
+                                    )
+                                    BasicTextField(
+                                        modifier = Modifier
+                                            .width(64.dp)
+                                            .clip(MaterialTheme.shapes.medium)
+                                            .background(MaterialTheme.colorScheme.primary)
+                                            .padding(8.dp),
+                                        state = textFieldState,
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                        inputTransformation = InputTransformation {
+                                            this.toString().filter { it.isDigit() }
+                                        }.maxLength(3),
+                                        textStyle = TextStyle(
+                                            fontFamily = robotoFlex(0f, 150f, 1000f),
+                                            fontSize = 18.sp,
+                                            textAlign = TextAlign.Center,
+                                            color = MaterialTheme.colorScheme.onPrimary
+                                        ),
+                                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onPrimary),
+                                    )
+                                    Text(
+                                        text = "days",
+                                        fontSize = 18.sp,
+                                        fontFamily = robotoFlex(0f, 150f, 1000f),
+                                    )
+                                }
+                                if (datePickerVisible) {
+                                    DatePickerDialog (
+                                        onDismissRequest = { datePickerVisible = false },
+                                        confirmButton = {
+                                            Button(
+                                                onClick = {
+                                                    datePickerVisible = false
+                                                    newPlan = newPlan.copy(startDate = datePickerState.selectedDateMillis!!)
+                                                }
+                                            ) {
+                                                Text(stringResource(R.string.save))
+                                            }
+                                        }
+                                    ) {
+                                        DatePicker(datePickerState)
+                                    }
+                                }
+                            }
                         }
                     }
                 }

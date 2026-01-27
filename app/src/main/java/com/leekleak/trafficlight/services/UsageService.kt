@@ -152,8 +152,8 @@ class UsageService : Service(), KoinComponent {
                         ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
                     )
                 }
-            } catch (_: Exception) {
-                Timber.e("Failed to start foreground service")
+            } catch (e: Exception) {
+                Timber.e("Failed to start foreground service: $e")
             }
         }
         return START_STICKY
