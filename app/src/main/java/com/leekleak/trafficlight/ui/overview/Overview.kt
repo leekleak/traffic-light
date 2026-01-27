@@ -64,10 +64,7 @@ import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.categoryTitle
 import kotlinx.coroutines.delay
 import org.koin.compose.koinInject
-import timber.log.Timber
 import java.time.LocalDate
-import kotlin.collections.isNotEmpty
-import kotlin.collections.listOf
 
 @Composable
 fun Overview(
@@ -107,13 +104,11 @@ fun Overview(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = paddingValues
     ) {
-        if (shizukuPermission && subscriptionInfos.isNotEmpty()) {
-            categoryTitle(R.string.data_plans)
-            items(subscriptionInfos, { it.subscriptionId }) { subInfo ->
-                val subscriberID = viewModel.getSubscriberID(subInfo.subscriptionId)!!
-                val configured by remember { viewModel.getSubscriberIDHasDataPlan(subscriberID) }.collectAsState(
-                    true
-                )
+        if (shizukuPermission && subscriptionInfos.isNotEmpty()) { categoryTitle(R.string.data_plans) }
+        items(subscriptionInfos, { it.subscriptionId }) { subInfo ->
+            val subscriberID = viewModel.getSubscriberID(subInfo.subscriptionId)
+            if (subscriberID != null) {
+                val configured by remember { viewModel.getSubscriberIDHasDataPlan(subscriberID) }.collectAsState(true)
                 AnimatedContent(
                     targetState = configured,
                     transitionSpec = { fadeIn() togetherWith fadeOut() }
