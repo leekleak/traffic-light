@@ -64,6 +64,7 @@ import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.categoryTitle
 import kotlinx.coroutines.delay
 import org.koin.compose.koinInject
+import timber.log.Timber
 import java.time.LocalDate
 import kotlin.collections.isNotEmpty
 import kotlin.collections.listOf
@@ -79,8 +80,8 @@ fun Overview(
     val weeklyUsage by viewModel.hourlyUsageRepo.weekUsage().collectAsState(listOf())
 
     val permissionManager: PermissionManager = koinInject()
-    val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(true)
-    val subscriptionInfos = remember { viewModel.getSubscriptionInfos() }
+    val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
+    val subscriptionInfos = remember(shizukuPermission) { viewModel.getSubscriptionInfos() }
 
     /**
      * Generally the notification service is responsible for updating daily usage,

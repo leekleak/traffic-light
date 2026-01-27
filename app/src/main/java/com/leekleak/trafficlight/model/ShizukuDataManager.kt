@@ -28,6 +28,7 @@ class ShizukuDataManager(): KoinComponent {
     }
 
     fun getSubscriptionInfos(): List<SubscriptionInfo> {
+        if (!enabled) return emptyList()
         val data = Parcel.obtain()
         val reply = Parcel.obtain()
         try {
@@ -60,6 +61,7 @@ class ShizukuDataManager(): KoinComponent {
     }
 
     fun getSubscriberID(subscriptionId: Int): String? {
+        if (!enabled) return ""
         val data = Parcel.obtain()
         val reply = Parcel.obtain()
         try {
