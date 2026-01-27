@@ -46,4 +46,21 @@
     <string name="alt_vpn_workaround">Solusi alternatif VPN</string>
     <string name="alt_vpn_workaround_description">Mengurangi akurasi pengukuran tetapi mendukung tunneling terpisah.</string>
     <string name="support_development">Dukung pengembangan</string>
+    <string name="allows_in_depth_data_plan_tracking">Mengizinkan pelacakan paket data secara mendalam.</string>
+    <string name="shizuku_not_running">Shizuku tidak berjalan.</string>
+    <string name="sim_card">Kartu SIM</string>
+    <string name="data_plans">Paket Data</string>
+    <string name="configure_plan">Atur Paket</string>
+    <string name="background">Latar belakang</string>
+    <string name="type">Jenis</string>
+    <string name="selected">Dipilih</string>
+    <string name="monthly">Bulanan</string>
+    <string name="this_month">Bulan Ini</string>
+    <string name="resets_on">Atur ulang pada hari: %1$d</string>
+    <string name="zero_rated_apps">Aplikasi yang bebas biaya</string>
+    <string name="save">Simpan</string>
+    <string name="no_apps">Tidak ada aplikasi</string>
+    <plurals name="resets_in_days">
+        <item quantity="other">Diatur ulang dalam %d hari</item>
+    </plurals>
 </resources>
