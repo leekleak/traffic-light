@@ -60,11 +60,12 @@
     <string name="zero_rated_apps">التطبيقات المستثناة من الرصيد</string>
     <string name="save">حفظ</string>
     <plurals name="resets_in_days">
-        <item quantity="zero"></item>
-        <item quantity="one">يُعاد الضبط غدًا</item>
-        <item quantity="two"></item>
-        <item quantity="few"></item>
-        <item quantity="many">يُعاد الضبط بعد %d يوم</item>
-        <item quantity="other"></item>
+        <item quantity="zero">يُصفّر الآن</item>
+        <item quantity="one">يُصفّر غدًا</item>
+        <item quantity="two">يُصفّر بعد يومان</item>
+        <item quantity="few">يُصفّر بعد %d أيام</item>
+        <item quantity="many">يُصفّر بعد %d يومًا</item>
+        <item quantity="other">يُصفّر بعد %d يوم</item>
     </plurals>
+    <string name="no_apps">لا تطبيقات</string>
 </resources>
