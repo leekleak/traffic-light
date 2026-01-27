@@ -88,6 +88,7 @@ class UsageService : Service(), KoinComponent {
     override fun onCreate() {
         super.onCreate()
         instance = this
+        Timber.i("Creating UsageService")
         
         notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
@@ -135,6 +136,7 @@ class UsageService : Service(), KoinComponent {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (job == null) {
+            Timber.i("Starting foreground service")
             if (!limitedMode) {
                 todayUsage = hourlyUsageRepo.singleDayUsage(LocalDate.now())
             }
@@ -163,6 +165,7 @@ class UsageService : Service(), KoinComponent {
 
             var updateCounter = 0
             while (true) {
+                Timber.i("Updating notification")
                 trafficSnapshot.updateSnapshot()
 
                 /**
