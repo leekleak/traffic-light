@@ -41,4 +41,27 @@
     <string name="missing_permissions">Fehlende Berechtigungen</string>
     <string name="total_usage">Gesamtverbrauch</string>
     <string name="unknown">Unbekannt</string>
+    <string name="appearance">Aussehen</string>
+    <string name="behavior">Verhalten</string>
+    <string name="alt_vpn_workaround">Alternative VPN-Lösung</string>
+    <string name="alt_vpn_workaround_description">Verringert die Messgenauigkeit, ermöglicht jedoch Split-Tunneling.</string>
+    <string name="support_development">Entwicklung unterstützen</string>
+    <string name="allows_in_depth_data_plan_tracking">Ermöglicht eine detaillierte Nachverfolgung des Datenplans.</string>
+    <string name="shizuku_not_running">Shizuku läuft nicht.</string>
+    <string name="sim_card">SIM-Karte</string>
+    <string name="data_plans">Datenpläne</string>
+    <string name="configure_plan">Plan konfigurieren</string>
+    <string name="background">Hintergrund</string>
+    <string name="type">Typ</string>
+    <string name="selected">Ausgewählt</string>
+    <string name="monthly">Monatlich</string>
+    <string name="this_month">Dieser Monat</string>
+    <string name="resets_on">Wird zurückgesetzt am Tag: %1$d</string>
+    <string name="zero_rated_apps">Nulltarif-Apps</string>
+    <string name="save">Speichern</string>
+    <string name="no_apps">Keine Apps</string>
+    <plurals name="resets_in_days">
+        <item quantity="one">Wird morgen zurückgesetzt</item>
+        <item quantity="other">Zurücksetzen in %d Tagen</item>
+    </plurals>
 </resources>
