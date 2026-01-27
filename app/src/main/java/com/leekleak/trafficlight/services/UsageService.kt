@@ -57,25 +57,8 @@ class UsageService : Service(), KoinComponent {
     private val hourlyUsageRepo: HourlyUsageRepo by inject()
     private val preferenceRepo: PreferenceRepo by inject()
     private val notificationManager: NotificationManager by lazy { getSystemService(NOTIFICATION_SERVICE) as NotificationManager }
-    private var notification: Notification? = null
-    private val notificationBuilder by lazy {
-        NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("Traffic Light")
-            .setOngoing(true)
-            .setSilent(true)
-            .setLocalOnly(true)
-            .setOnlyAlertOnce(true)
-            .setWhen(Long.MAX_VALUE) // Keep above other notifications
-            .setShowWhen(false) // Hide timestamp
-            .setContentIntent(
-                PendingIntent.getActivity(
-                    this, 0, Intent(this, MainActivity::class.java).apply {
-                        Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    }, PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-    }
+    private lateinit var notificationBuilder: NotificationCompat.Builder
+    private lateinit var notification: Notification
 
     private val screenStateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -105,6 +88,25 @@ class UsageService : Service(), KoinComponent {
     override fun onCreate() {
         super.onCreate()
         instance = this
+        
+        notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle("Traffic Light")
+            .setOngoing(true)
+            .setSilent(true)
+            .setLocalOnly(true)
+            .setOnlyAlertOnce(true)
+            .setWhen(Long.MAX_VALUE) // Keep above other notifications
+            .setShowWhen(false) // Hide timestamp
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    this, 0, Intent(this, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    }, PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+        notification = notificationBuilder.build()
+
         registerReceiver(screenStateReceiver, IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_ON)
             addAction(Intent.ACTION_SCREEN_OFF)
@@ -136,9 +138,8 @@ class UsageService : Service(), KoinComponent {
             if (!limitedMode) {
                 todayUsage = hourlyUsageRepo.singleDayUsage(LocalDate.now())
             }
-            notification = notificationBuilder.build()
             try {
-                notification?.let {
+                notification.let {
                     ServiceCompat.startForeground(
                         this,
                         NOTIFICATION_ID,
@@ -241,7 +242,7 @@ class UsageService : Service(), KoinComponent {
             .setContentTitle(title)
             .run { if (!limitedMode) this.setContentText(messageShort) else this }
             .build()
-        notification?.flags = Notification.FLAG_ONGOING_EVENT or Notification.FLAG_NO_CLEAR
+        notification.flags = Notification.FLAG_ONGOING_EVENT or Notification.FLAG_NO_CLEAR
         notificationManager.notify(NOTIFICATION_ID, notification)
     }
 
