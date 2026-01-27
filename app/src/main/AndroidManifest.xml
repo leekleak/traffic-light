@@ -39,6 +39,8 @@
             android:foregroundServiceType="specialUse"
             android:enabled="true"
             android:exported="false">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Persistent notification that refreshes every second and shows current network usage."/>
         </service>
         <receiver android:name=".services.AutoStarter"
             android:exported="true">

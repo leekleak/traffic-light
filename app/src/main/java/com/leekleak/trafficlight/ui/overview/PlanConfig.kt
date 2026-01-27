@@ -248,8 +248,8 @@ fun PlanConfig(
                     var selectedStartDay by remember(newPlan) {
                         mutableStateOf(fromTimestamp(newPlan.startDate))
                     }
-                    AnimatedContent(interval) { 
-                        if (it == TimeInterval.MONTH) {
+                    AnimatedContent(interval) { currentInterval ->
+                        if (currentInterval == TimeInterval.MONTH) {
                             Column {
                                 Text(
                                     modifier = Modifier

@@ -41,7 +41,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -49,7 +48,6 @@ import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import kotlin.apply
 
 class UsageService : Service(), KoinComponent {
     private val serviceScope = CoroutineScope(Dispatchers.IO)
@@ -70,6 +68,13 @@ class UsageService : Service(), KoinComponent {
             .setOnlyAlertOnce(true)
             .setWhen(Long.MAX_VALUE) // Keep above other notifications
             .setShowWhen(false) // Hide timestamp
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    this, 0, Intent(this, MainActivity::class.java).apply {
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    }, PendingIntent.FLAG_IMMUTABLE
+                )
+            )
     }
 
     private val screenStateReceiver = object : BroadcastReceiver() {
@@ -128,21 +133,10 @@ class UsageService : Service(), KoinComponent {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (job == null) {
-            startJob()
-
             if (!limitedMode) {
                 todayUsage = hourlyUsageRepo.singleDayUsage(LocalDate.now())
             }
-            notificationBuilder
-                .setContentIntent(
-                    PendingIntent.getActivity(
-                        this, 0, Intent(this, MainActivity::class.java).apply {
-                            Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                        }, PendingIntent.FLAG_IMMUTABLE
-                    )
-                )
-
-            runBlocking { updateNotification(TrafficSnapshot(connectivityManager)) }
+            notification = notificationBuilder.build()
             try {
                 notification?.let {
                     ServiceCompat.startForeground(
@@ -152,6 +146,7 @@ class UsageService : Service(), KoinComponent {
                         ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
                     )
                 }
+                startJob()
             } catch (e: Exception) {
                 Timber.e("Failed to start foreground service: $e")
             }

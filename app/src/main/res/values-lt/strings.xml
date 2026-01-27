@@ -65,6 +65,5 @@
         <item quantity="many">Atsinaujins po %d dienų</item>
         <item quantity="other">Atsinaujins po %d dienų</item>
     </plurals>
-    <string name="daily">Kasdienis</string>
     <string name="no_apps">Programėlių nėra</string>
 </resources>

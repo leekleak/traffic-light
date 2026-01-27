@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -97,12 +98,15 @@ fun Overview(
         }
     }
 
+    val columnState = rememberLazyListState()
+    LaunchedEffect(shizukuPermission) { columnState.scrollToItem(0) }
     LazyColumn(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surface)
             .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = paddingValues
+        contentPadding = paddingValues,
+        state = columnState
     ) {
         if (shizukuPermission && subscriptionInfos.isNotEmpty()) { categoryTitle(R.string.data_plans) }
         items(subscriptionInfos, { it.subscriptionId }) { subInfo ->

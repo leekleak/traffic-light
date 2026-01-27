@@ -55,7 +55,6 @@
     <string name="type">النوع</string>
     <string name="selected">محدد</string>
     <string name="monthly">شهريًا</string>
-    <string name="daily">يوميًا</string>
     <string name="this_month">هذا الشهر</string>
     <string name="resets_on">يُعاد الضبط في اليوم: %1$d</string>
     <string name="zero_rated_apps">التطبيقات المستثناة من الرصيد</string>
