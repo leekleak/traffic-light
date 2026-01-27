@@ -64,6 +64,8 @@
     <string name="zero_rated_apps">Zero-rated apps</string>
     <string name="save">Save</string>
     <string name="no_apps">No apps</string>
+    <string name="period_length_days">Period length (days):</string>
+    <string name="last_reset_day">Last reset day:</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

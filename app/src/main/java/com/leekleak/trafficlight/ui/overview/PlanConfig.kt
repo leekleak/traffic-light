@@ -283,21 +283,26 @@ fun PlanConfig(
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ){
                                 val datePickerState = rememberDatePickerState(newPlan.startDate)
-                                val textFieldState = rememberTextFieldState()
+                                val textFieldState = rememberTextFieldState((newPlan.intervalMultiplier?:1).toString())
                                 var datePickerVisible by remember { mutableStateOf(false) }
+
+                                LaunchedEffect(textFieldState.text) {
+                                    val number = textFieldState.text.toString().toIntOrNull()
+                                    if (number != null) newPlan = newPlan.copy(intervalMultiplier = number)
+                                }
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     Text(
-                                        text = "Last reset day:",
+                                        text = stringResource(R.string.last_reset_day),
                                         fontSize = 18.sp,
                                         fontFamily = robotoFlex(0f, 150f, 1000f),
                                     )
-                                    ButtonGroup(overflowIndicator = {}) {
-                                        clickableItem(
-                                            label = selectedStartDay.toLocalDate().toString(),
-                                            onClick = { datePickerVisible = true }
+                                    Button({datePickerVisible = true}) {
+                                        Text(
+                                            text = selectedStartDay.toLocalDate().toString(),
+                                            fontFamily = robotoFlex(0f, 150f, 1000f),
                                         )
                                     }
                                 }
@@ -307,7 +312,7 @@ fun PlanConfig(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     Text(
-                                        text = "Resets every",
+                                        text = stringResource(R.string.period_length_days),
                                         fontSize = 18.sp,
                                         fontFamily = robotoFlex(0f, 150f, 1000f),
                                     )
@@ -329,11 +334,6 @@ fun PlanConfig(
                                             color = MaterialTheme.colorScheme.onPrimary
                                         ),
                                         cursorBrush = SolidColor(MaterialTheme.colorScheme.onPrimary),
-                                    )
-                                    Text(
-                                        text = "days",
-                                        fontSize = 18.sp,
-                                        fontFamily = robotoFlex(0f, 150f, 1000f),
                                     )
                                 }
                                 if (datePickerVisible) {
