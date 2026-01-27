@@ -1,0 +1,11 @@
+Enhancements:
+- Added option to create custom period cycles
+
+Bugfixes:
+- Fix month day slider being quite frustrating
+- Fix poor handling of plan sizes with decimals
+- Fix crash on some devices when Shizuku permission has been granted
+- Fix missing haptic feedback
+
+Translations:
+- Updated translations
