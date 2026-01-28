@@ -66,4 +66,7 @@
         <item quantity="other">Atsinaujins po %d dienų</item>
     </plurals>
     <string name="no_apps">Programėlių nėra</string>
+    <string name="custom">Pasirinktinis</string>
+    <string name="period_length_days">Laikotarpio trukmė (dienomis):</string>
+    <string name="last_reset_day">Paskutinė plano atsistatymo data:</string>
 </resources>
