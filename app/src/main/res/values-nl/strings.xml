@@ -46,4 +46,25 @@
     <string name="alt_vpn_workaround">Alternatieve VPN-omzeiling</string>
     <string name="alt_vpn_workaround_description">Vermindert nauwkeurigheid van metingen, maar werkt met split tunnels.</string>
     <string name="support_development">Ontwikkeling steunen</string>
+    <string name="allows_in_depth_data_plan_tracking">Staat het gedetailleerd volgen van databundels toe.</string>
+    <string name="shizuku_not_running">Shizuku loopt niet.</string>
+    <string name="sim_card">Simkaart</string>
+    <string name="data_plans">Databundels</string>
+    <string name="configure_plan">Bundel instellen</string>
+    <string name="background">Achtergrond</string>
+    <string name="type">Type</string>
+    <string name="selected">Geselecteerd</string>
+    <string name="monthly">Maandelijks</string>
+    <string name="custom">Aangepast</string>
+    <string name="this_month">Deze maand</string>
+    <string name="resets_on">Reset op dag: %1$d</string>
+    <string name="zero_rated_apps">Apps met nultarief</string>
+    <string name="save">Opslaan</string>
+    <string name="no_apps">Geen apps</string>
+    <string name="period_length_days">Lengte van periode (dagen):</string>
+    <string name="last_reset_day">Laatste resetdag:</string>
+    <plurals name="resets_in_days">
+        <item quantity="one">Reset morgen</item>
+        <item quantity="other">Reset in %d dagen</item>
+    </plurals>
 </resources>
