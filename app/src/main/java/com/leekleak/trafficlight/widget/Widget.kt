@@ -10,6 +10,8 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.action.actionStartActivity
+import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.LinearProgressIndicator
 import androidx.glance.appwidget.cornerRadius
@@ -28,83 +30,114 @@ import androidx.glance.layout.padding
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
+import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.database.DataPlanDao
+import com.leekleak.trafficlight.database.HourlyUsageRepo
+import com.leekleak.trafficlight.model.ShizukuDataManager
+import com.leekleak.trafficlight.services.PermissionManager
+import com.leekleak.trafficlight.ui.theme.backgrounds
+import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.trafficlight.util.DataSizeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
+import org.koin.mp.KoinPlatform
+import java.text.DecimalFormat
 
 class Widget: GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
+        val koinInstance = KoinPlatform.getKoin()
+        val hourlyUsageRepo: HourlyUsageRepo = koinInstance.get()
+        val shizukuManager: ShizukuDataManager = koinInstance.get()
+        val permissionManager: PermissionManager = koinInstance.get()
+        val dataPlanDao: DataPlanDao = koinInstance.get()
+
+        // Get all data in the suspend context
+        val shizukuPermission = permissionManager.shizukuPermissionFlow.first()
+        val subscriptionInfos = shizukuManager.getSubscriptionInfos()
+
+        val subscriberID = shizukuManager.getSubscriberID(
+            subscriptionInfos.firstOrNull()?.subscriptionId ?: return
+        ) ?: return
+
+        val dataPlan = withContext(Dispatchers.IO) { dataPlanDao.get(subscriberID) } ?: return
+        val usage = hourlyUsageRepo.planUsage(dataPlan)
+        val usageSize = DataSize(usage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
+        val dataMax = DataSize(dataPlan.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)
+        val formatter = DecimalFormat("0.##")
         provideContent {
             GlanceTheme {
-                MyContent()
-            }
-        }
-    }
-
-    @Composable
-    private fun MyContent() {
-        Column(
-            modifier = GlanceModifier
-                .background(GlanceTheme.colors.primary)
-                .padding(1.dp)
-                .cornerRadius(32.dp),
-        ) {
-            Box(
-                modifier = GlanceModifier
-                    .background(GlanceTheme.colors.surface)
-                    .cornerRadius(32.dp)
-            ) {
-                Image(
-                    modifier = GlanceModifier.fillMaxSize(),
-                    provider = ImageProvider(R.drawable.background_2),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    colorFilter = ColorFilter.tint(GlanceTheme.colors.primaryContainer)
-                )
-                Column(GlanceModifier.fillMaxHeight()) {
-                    Row(GlanceModifier.padding(16.dp)) {
-                        SimIcon(1)
-                        Text(
-                            modifier = GlanceModifier.fillMaxWidth().padding(end = 4.dp),
-                            text = "Odido",
-                            style = TextStyle(
-                                color = GlanceTheme.colors.onSurface,
-                                textAlign = TextAlign.End
-                            )
-                        )
-                    }
-                    Column(
-                        modifier = GlanceModifier.fillMaxWidth().fillMaxHeight().defaultWeight(),
-                        verticalAlignment = Alignment.CenterVertically
+                val cornerRadius = 24.dp
+                Column(
+                    modifier = GlanceModifier
+                        .background(GlanceTheme.colors.primary)
+                        .padding(1.dp)
+                        .cornerRadius(cornerRadius)
+                        .clickable(actionStartActivity<MainActivity>()),
+                ) {
+                    Box(
+                        modifier = GlanceModifier
+                            .background(GlanceTheme.colors.surface)
+                            .cornerRadius(cornerRadius)
                     ) {
-                        Row(
-                            modifier = GlanceModifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.Bottom,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = "15",
-                                style = TextStyle(
-                                    color = GlanceTheme.colors.onSurface,
-                                    fontSize = 64.sp
-                                ),
+                        backgrounds[dataPlan.uiBackground]?.let { background ->
+                            Image(
+                                modifier = GlanceModifier.fillMaxSize(),
+                                provider = ImageProvider(background),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                colorFilter = ColorFilter.tint(GlanceTheme.colors.primaryContainer)
                             )
-                            Text(
-                                text = "/20GB",
-                                style = TextStyle(
-                                    color = GlanceTheme.colors.onSurface,
-                                    fontSize = 36.sp,
-                                ),
+                        }
+                        Column(GlanceModifier.fillMaxHeight()) {
+                            Row(GlanceModifier.padding(16.dp).fillMaxWidth()) {
+                                SimIcon(1)
+                                Text(
+                                    modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
+                                    text = subscriptionInfos.first().carrierName.toString(),
+                                    style = TextStyle(
+                                        color = GlanceTheme.colors.onSurface,
+                                        textAlign = TextAlign.End
+                                    )
+                                )
+                            }
+                            Column(
+                                modifier = GlanceModifier.fillMaxSize().defaultWeight(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    modifier = GlanceModifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.Bottom,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = formatter.format(usageSize),
+                                        style = TextStyle(
+                                            color = GlanceTheme.colors.onSurface,
+                                            fontSize = 64.sp
+                                        ),
+                                    )
+                                    Text(
+                                        text = "/${formatter.format(dataMax)}GB",
+                                        style = TextStyle(
+                                            color = GlanceTheme.colors.onSurface,
+                                            fontSize = 36.sp,
+                                        ),
+                                    )
+                                }
+                            }
+                            LinearProgressIndicator(
+                                modifier = GlanceModifier
+                                    .height(54.dp)
+                                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 32.dp)
+                                    .fillMaxWidth(),
+                                color = GlanceTheme.colors.primary,
+                                backgroundColor = GlanceTheme.colors.primaryContainer,
+                                progress = 0.75f,
                             )
                         }
                     }
-                    LinearProgressIndicator(
-                        modifier = GlanceModifier
-                            .height(54.dp)
-                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 32.dp)
-                            .fillMaxWidth(),
-                        color = GlanceTheme.colors.primary,
-                        backgroundColor = GlanceTheme.colors.primaryContainer,
-                        progress = 0.75f,
-                    )
                 }
             }
         }

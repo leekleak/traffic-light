@@ -118,10 +118,7 @@ fun Overview(
                     transitionSpec = { fadeIn() togetherWith fadeOut() }
                 ) {
                     if (it) {
-                        val dataPlan =
-                            remember { viewModel.getDataPlan(subscriberID) }.collectAsState(
-                                DataPlan(subscriberID)
-                            )
+                        val dataPlan = remember { viewModel.getDataPlan(subscriberID) }.collectAsState(DataPlan(subscriberID))
                         ConfiguredDataPlan(subInfo, dataPlan.value) {
                             backStack.add(PlanConfig(subscriberID))
                         }
