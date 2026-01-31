@@ -59,7 +59,7 @@ import coil3.compose.rememberAsyncImagePainter
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.ScrollableBarGraph
-import com.leekleak.trafficlight.charts.classyFont
+import com.leekleak.trafficlight.charts.momoTrustDisplayFont
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.model.AppIcon
@@ -291,7 +291,7 @@ fun AppItem(
                 } else {
                     Text(
                         text = name,
-                        fontFamily = classyFont()
+                        fontFamily = momoTrustDisplayFont()
                     )
                 }
             }

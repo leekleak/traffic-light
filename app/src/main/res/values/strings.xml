@@ -35,6 +35,7 @@
     <string name="light">Light</string>
     <string name="dark">Dark</string>
     <string name="expressive_fonts">Expressive Fonts</string>
+    <string name="expressive_fonts_description">Disabling Expressive Fonts may break layouts and is being deprecated.</string>
     <string name="material_theme" translatable="false">Material You</string>
     <string name="default_theme">Default</string>
     <string name="help">Help</string>

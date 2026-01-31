@@ -23,7 +23,6 @@ import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,7 +47,6 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.HourlyUsageRepo
@@ -119,7 +117,7 @@ fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: 
                     val formatter = remember { DecimalFormat("0.##") }
                     Text(
                         text = formatter.format(usage),
-                        fontFamily = bigFont(),
+                        fontFamily = doHyeonFont(),
                         fontSize = 64.sp,
                     )
                     val data by remember(dataPlan) { derivedStateOf { formatter.format(
@@ -127,7 +125,7 @@ fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: 
                     ) } }
                     Text(
                         text = "/${data}GB",
-                        fontFamily = bigFont(),
+                        fontFamily = doHyeonFont(),
                         fontSize = 36.sp,
                         lineHeight = 48.sp
                     )
@@ -242,12 +240,12 @@ fun UnconfiguredDataPlan(info: SubscriptionInfo, subscriberID: String, onConfigu
         ) {
             Text(
                 text = formatter.format(usage),
-                fontFamily = bigFont(),
+                fontFamily = doHyeonFont(),
                 fontSize = 64.sp,
             )
             Text(
                 text = "GB",
-                fontFamily = bigFont(),
+                fontFamily = doHyeonFont(),
                 fontSize = 36.sp,
                 lineHeight = 48.sp
             )
@@ -299,23 +297,16 @@ fun SimIcon(number: Int) {
 }
 
 @Composable
-fun carrierFont(): FontFamily? = robotoFlex(-10f,25f,675f)
+fun carrierFont(): FontFamily = robotoFlex(-10f,25f,675f)
 
 @OptIn(ExperimentalTextApi::class)
 @Composable
-fun bigFont(): FontFamily? {
-    val viewModel: OverviewVM = viewModel()
-    val expressiveFonts by viewModel.preferenceRepo.expressiveFonts.collectAsState(true)
-
-    return if (expressiveFonts) {
-        FontFamily(
-            Font(
-                R.font.do_hyeon,
-            ),
-        )
-    } else {
-        null
-    }
+fun doHyeonFont(): FontFamily {
+    return FontFamily(
+        Font(
+            R.font.do_hyeon,
+        ),
+    )
 }
 
 @OptIn(ExperimentalTextApi::class)
@@ -324,22 +315,15 @@ fun robotoFlex(
     @FloatRange(-10.0, 0.0) slant: Float,
     @FloatRange(25.0, 151.0) width: Float,
     @FloatRange(100.0, 1000.0) weight: Float
-): FontFamily? {
-    val viewModel: OverviewVM = viewModel()
-    val expressiveFonts by viewModel.preferenceRepo.expressiveFonts.collectAsState(true)
-
-    return if (expressiveFonts) {
-        FontFamily(
-            Font(
-                R.font.roboto_flex,
-                variationSettings = FontVariation.Settings(
-                    FontVariation.Setting("slnt", slant),
-                    FontVariation.Setting("wdth", width),
-                    FontVariation.Setting("wght", weight)
-                )
-            ),
-        )
-    } else {
-        null
-    }
+): FontFamily {
+    return FontFamily(
+        Font(
+            R.font.roboto_flex,
+            variationSettings = FontVariation.Settings(
+                FontVariation.Setting("slnt", slant),
+                FontVariation.Setting("wdth", width),
+                FontVariation.Setting("wght", weight)
+            )
+        ),
+    )
 }

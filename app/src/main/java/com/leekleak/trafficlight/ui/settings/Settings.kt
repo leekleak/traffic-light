@@ -202,6 +202,7 @@ fun Settings(
             val expressiveFonts by viewModel.preferenceRepo.expressiveFonts.collectAsState(true)
             SwitchPreference(
                 title = stringResource(R.string.expressive_fonts),
+                summary = stringResource(R.string.expressive_fonts_description),
                 icon = painterResource(R.drawable.expressive),
                 value = expressiveFonts,
                 onValueChanged = { viewModel.preferenceRepo.setExpressiveFonts(it) }

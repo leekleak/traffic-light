@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -20,10 +18,8 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.px
-import org.koin.compose.koinInject
 
 @Composable
 fun LineGraph(
@@ -40,7 +36,7 @@ fun LineGraph(
     val onBackgroundColor = GraphTheme.onBackgroundColor
 
     val textMeasurer = rememberTextMeasurer()
-    val font = classyFont()
+    val font = momoTrustDisplayFont()
 
     Canvas(modifier = Modifier
         .fillMaxWidth()
@@ -122,17 +118,10 @@ fun LineGraph(
 }
 
 @Composable
-fun classyFont(): FontFamily? {
-    val preferenceRepo: PreferenceRepo = koinInject()
-    val expressiveFonts by preferenceRepo.expressiveFonts.collectAsState(true)
-
-    return if (expressiveFonts) {
-        FontFamily(
-            Font(
-                R.font.momo_trust_display
-            ),
-        )
-    } else {
-        null
-    }
+fun momoTrustDisplayFont(): FontFamily {
+    return FontFamily(
+        Font(
+            R.font.momo_trust_display
+        ),
+    )
 }

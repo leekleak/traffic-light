@@ -648,7 +648,7 @@ fun PlanSizeConfig(size: Double, onSizeUpdate: (Float) -> Unit) {
                         keyboardType = KeyboardType.Number
                     ),
                     textStyle = TextStyle(
-                        fontFamily = bigFont(),
+                        fontFamily = doHyeonFont(),
                         fontSize = 40.sp * (1 + scale.value/2),
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         textAlign = TextAlign.End,
@@ -662,7 +662,7 @@ fun PlanSizeConfig(size: Double, onSizeUpdate: (Float) -> Unit) {
                     lineLimits = TextFieldLineLimits.SingleLine,
                 )
                 Text(
-                    fontFamily = bigFont(),
+                    fontFamily = doHyeonFont(),
                     fontSize = 30.sp * (1 + scale.value/2),
                     maxLines = 1,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
