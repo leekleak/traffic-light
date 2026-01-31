@@ -12,7 +12,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.leekleak.trafficlight.util.toTimestamp
-import java.time.LocalDateTime
+import java.time.LocalDate
 
 enum class TimeInterval {
     DAY,
@@ -32,7 +32,7 @@ data class DataPlan(
     // If false, the plan is pre-paid.
     // Crucially the other settings are still valid as
     @ColumnInfo val recurring: Boolean = true,
-    @ColumnInfo val startDate: Long = LocalDateTime.now().toTimestamp(), // LocalDate as timestamp
+    @ColumnInfo val startDate: Long = LocalDate.now().withDayOfMonth(1).atStartOfDay().toTimestamp(), // LocalDate as timestamp
     @ColumnInfo val interval: TimeInterval = TimeInterval.MONTH,
     @ColumnInfo val intervalMultiplier: Int? = null,
 
