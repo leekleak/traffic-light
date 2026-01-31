@@ -6,7 +6,7 @@
     <string name="history">التاريخ</string>
     <string name="wifi">واي فاي</string>
     <string name="cellular">بيانات الجوال</string>
-    <string name="grant">منح</string>
+    <string name="grant">امنح</string>
     <string name="speed">السرعة: %1$s</string>
     <string name="settings">الإعدادات</string>
     <string name="battery_optimization">تحسين البطارية</string>
@@ -56,7 +56,7 @@
     <string name="selected">محدد</string>
     <string name="monthly">شهريًا</string>
     <string name="this_month">هذا الشهر</string>
-    <string name="resets_on">يُعاد الضبط في اليوم: %1$d</string>
+    <string name="resets_on">يُصفّر في اليوم: %1$d</string>
     <string name="zero_rated_apps">التطبيقات المستثناة من الرصيد</string>
     <string name="save">حفظ</string>
     <plurals name="resets_in_days">
@@ -68,4 +68,7 @@
         <item quantity="other">يُصفّر بعد %d يوم</item>
     </plurals>
     <string name="no_apps">لا تطبيقات</string>
+    <string name="custom">مخصّص</string>
+    <string name="period_length_days">طول الفترة (بالأيام):</string>
+    <string name="last_reset_day">يوم تصفير الأخير:</string>
 </resources>

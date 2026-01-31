@@ -63,4 +63,7 @@
     <plurals name="resets_in_days">
         <item quantity="other">Diatur ulang dalam %d hari</item>
     </plurals>
+    <string name="custom">Khusus</string>
+    <string name="period_length_days">Jangka waktu (hari):</string>
+    <string name="last_reset_day">Terakhir diatur ulang:</string>
 </resources>

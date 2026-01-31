@@ -65,4 +65,7 @@
         <item quantity="many">Réinitialisation dans %d jours</item>
         <item quantity="other">Réinitialisation dans %d jours</item>
     </plurals>
+    <string name="custom">Personnalisé</string>
+    <string name="period_length_days">Durée (jours) :</string>
+    <string name="last_reset_day">Dernière réinitialisation :</string>
 </resources>
