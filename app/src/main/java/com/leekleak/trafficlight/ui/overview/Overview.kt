@@ -220,8 +220,10 @@ fun RowScope.SummaryItem(
         horizontalArrangement = Arrangement.Center,
     ) {
         val text = DataSize(value = data().toDouble(), precision = 2).toStringParts()
+        val viewModel: OverviewVM = viewModel()
+        val expressiveFonts by viewModel.preferenceRepo.expressiveFonts.collectAsState(true)
         Text(
-            fontSize = 64.sp,
+            fontSize = if (expressiveFonts) 64.sp else 48.sp,
             text = text[0],
             fontFamily = chonkyFont(animation.value),
             color = tint
@@ -233,7 +235,7 @@ fun RowScope.SummaryItem(
             verticalArrangement = Arrangement.spacedBy((-8).dp)
         ) {
             Text(
-                fontSize = 36.sp,
+                fontSize = if (expressiveFonts) 36.sp else 28.sp,
                 text = "." + text[1].padEnd(2, '0'),
                 maxLines = 1,
                 fontFamily = chonkyFont(animation.value),
@@ -244,7 +246,7 @@ fun RowScope.SummaryItem(
                 horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 Text(
-                    fontSize = 22.sp,
+                    fontSize = if (expressiveFonts) 22.sp else 18.sp,
                     text = text[2],
                     fontFamily = chonkyFont(animation.value),
                     color = tint,
