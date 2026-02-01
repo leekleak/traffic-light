@@ -43,6 +43,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import org.koin.mp.KoinPlatform
+import timber.log.Timber
 import java.text.DecimalFormat
 
 class Widget: GlanceAppWidget() {
@@ -66,6 +67,7 @@ class Widget: GlanceAppWidget() {
         val usageSize = DataSize(usage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
         val dataMax = DataSize(dataPlan.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)
         val formatter = DecimalFormat("0.##")
+        Timber.i("Updating widget: $id")
         provideContent {
             GlanceTheme {
                 val cornerRadius = 24.dp
