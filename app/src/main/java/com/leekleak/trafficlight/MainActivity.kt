@@ -24,13 +24,13 @@ class MainActivity : ComponentActivity(), KoinComponent {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG && Timber.forest().isEmpty()) {
             Timber.plant(Timber.DebugTree())
         }
         enableEdgeToEdge()
         createNotificationChannel()
 
-        WidgetUpdateWorker.enqueue(this)
+        WidgetUpdateWorker.enqueue(this@MainActivity)
 
         setContent {
             setSingletonImageLoaderFactory {
