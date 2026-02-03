@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.ColorFilter
@@ -18,8 +19,10 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.LinearProgressIndicator
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
+import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.background
+import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
@@ -39,7 +42,6 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.database.resetString
-import com.leekleak.trafficlight.model.ShizukuDataManager
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.DataSizeUnit
@@ -51,23 +53,17 @@ import java.text.DecimalFormat
 import java.time.LocalDateTime
 
 class Widget: GlanceAppWidget() {
-
     override val stateDefinition = PreferencesGlanceStateDefinition
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val koinInstance = KoinPlatform.getKoin()
         val hourlyUsageRepo: HourlyUsageRepo = koinInstance.get()
-        val shizukuManager: ShizukuDataManager = koinInstance.get()
         val dataPlanDao: DataPlanDao = koinInstance.get()
 
-        // Get all data in the suspend context
-        val subscriptionInfos = shizukuManager.getSubscriptionInfos()
+        val state = getAppWidgetState(context, stateDefinition, id)
+        val subscriberID = state[SUBSCRIBER_ID] ?: return
 
-        val subscriberID = shizukuManager.getSubscriberID(
-            subscriptionInfos.firstOrNull()?.subscriptionId ?: return
-        ) ?: return
-
-        val dataPlan = withContext(Dispatchers.IO) { dataPlanDao.get(subscriberID) } ?: return
+        val dataPlan = withContext(Dispatchers.IO) { dataPlanDao.get(subscriberID) }!!
         val usage = hourlyUsageRepo.planUsage(dataPlan)
         val usageSize = DataSize(usage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
         val dataMax = DataSize(dataPlan.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)
@@ -84,7 +80,8 @@ class Widget: GlanceAppWidget() {
             if (
                 mutable[LAST_USAGE] == lastUsage &&
                 mutable[LAST_MAX] == lastMax &&
-                mutable[BACKGROUND] == dataPlan.uiBackground
+                mutable[BACKGROUND] == dataPlan.uiBackground &&
+                mutable[FORCE_REFRESH] != true
             ) {
                 Timber.i("Skipping widget refresh")
                 mutable
@@ -94,6 +91,7 @@ class Widget: GlanceAppWidget() {
                     this[LAST_USAGE] = lastUsage
                     this[LAST_MAX] = lastMax
                     this[BACKGROUND] = dataPlan.uiBackground
+                    this[FORCE_REFRESH] = false
                 }
             }
         }
@@ -127,7 +125,7 @@ class Widget: GlanceAppWidget() {
                         }
                         Column(GlanceModifier.fillMaxHeight()) {
                             Row(GlanceModifier.padding(16.dp).fillMaxWidth()) {
-                                SimIcon(1)
+                                SimIcon(currentState(SIM_NUMBER) ?: 0)
                                 Text(
                                     text = LocalDateTime.now().minute.toString(),
                                     style = TextStyle(
@@ -137,7 +135,7 @@ class Widget: GlanceAppWidget() {
                                 )
                                 Text(
                                     modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
-                                    text = subscriptionInfos.first().carrierName.toString(),
+                                    text = currentState(CARRIER_NAME) ?: "",
                                     style = TextStyle(
                                         color = GlanceTheme.colors.onSurface,
                                         textAlign = TextAlign.End
@@ -185,7 +183,7 @@ class Widget: GlanceAppWidget() {
                                         .fillMaxWidth(),
                                     color = GlanceTheme.colors.primary,
                                     backgroundColor = GlanceTheme.colors.primaryContainer,
-                                    progress = 0.75f,
+                                    progress = (usageSize/dataMax).toFloat(),
                                 )
                             }
                         }
@@ -196,7 +194,7 @@ class Widget: GlanceAppWidget() {
     }
 
     @Composable
-    fun SimIcon(number: Int) {
+    private fun SimIcon(number: Int) {
         Box(contentAlignment = Alignment.Center) {
             Image(
                 provider = ImageProvider(R.drawable.sim_card),
@@ -214,8 +212,12 @@ class Widget: GlanceAppWidget() {
         }
     }
     companion object {
+        val SUBSCRIBER_ID = stringPreferencesKey("sub_id")
+        val CARRIER_NAME = stringPreferencesKey("carrier")
+        val SIM_NUMBER = intPreferencesKey("sim_number")
         val LAST_USAGE = stringPreferencesKey("last_usage")
         val LAST_MAX = stringPreferencesKey("last_max")
         val BACKGROUND = intPreferencesKey("ui_background")
+        val FORCE_REFRESH = booleanPreferencesKey("force_refresh")
     }
 }

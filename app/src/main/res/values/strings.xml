@@ -67,6 +67,8 @@
     <string name="no_apps">No apps</string>
     <string name="period_length_days">Period length (days):</string>
     <string name="last_reset_day">Last reset day:</string>
+    <string name="add_widget">Add widget</string>
+    <string name="configured_plans">Configured plans</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

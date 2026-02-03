@@ -31,8 +31,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -64,104 +64,28 @@ import java.time.LocalDateTime
 fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: () -> Unit) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
-    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
 
     var expanded by remember { mutableStateOf(false) }
-    val dataUsage = remember(dataPlan) { hourlyUsageRepo.planUsage(dataPlan) }
 
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .clip(MaterialTheme.shapes.medium)
-        .clickable(onClick = {
+    BoxBackground(
+        background = backgrounds[dataPlan.uiBackground],
+        onClick = {
             haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
             expanded = !expanded
-        })
-        .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium),
-    ) {
-        backgrounds[dataPlan.uiBackground]?.let { background ->
-            Image(
-                modifier = Modifier
-                    .matchParentSize()
-                    .graphicsLayer(scaleX = 1.2f, scaleY = 1.2f),
-                painter = painterResource(background),
-                contentDescription = null,
-                contentScale = ContentScale.FillWidth,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primaryContainer)
-            )
         }
-        Column (Modifier.padding(8.dp)) {
-            Column(Modifier.height(184.dp)) {
-                Row {
-                    SimIcon(info.simSlotIndex + 1)
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(end = 4.dp),
-                        text = info.carrierName.toString(),
-                        fontFamily = carrierFont(),
-                        textAlign = TextAlign.End
-                    )
-                }
-                val usage by remember(dataUsage) { derivedStateOf {
-                    DataSize(dataUsage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
-                } }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 32.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    val formatter = remember { DecimalFormat("0.##") }
-                    Text(
-                        text = formatter.format(usage),
-                        fontFamily = doHyeonFont(),
-                        fontSize = 64.sp,
-                    )
-                    val data by remember(dataPlan) { derivedStateOf { formatter.format(
-                        DataSize(dataPlan.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)
-                    ) } }
-                    Text(
-                        text = "/${data}GB",
-                        fontFamily = doHyeonFont(),
-                        fontSize = 36.sp,
-                        lineHeight = 48.sp
-                    )
-                }
-
-                Column(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .height(48.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Bottom),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    if (dataPlan.interval != TimeInterval.DAY) {
-                        Text(
-                            text = dataPlan.resetString(context),
-                            fontFamily = robotoFlex(0f, 150f, 1000f)
-                        )
-                    }
-                    val lineUsage = DataSize(usage, unit = DataSizeUnit.GB)
-                    LinearWavyProgressIndicator(
-                        modifier = Modifier.fillMaxWidth(),
-                        progress = {
-                            if (dataPlan.dataMax == 0L) 0f
-                            else (lineUsage.getBitValue()
-                                .toDouble() / dataPlan.dataMax.toDouble()).toFloat()
-                                .coerceIn(0f, 1f)
-                        },
-                    )
-                }
-            }
-
+    ) {
+        Column {
+            ConfiguredDataPlanContent(dataPlan, info)
             AnimatedVisibility(expanded, Modifier.fillMaxWidth()) {
                 ButtonGroup(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
                         .height(48.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        4.dp,
+                        Alignment.CenterHorizontally
+                    ),
                     expandedRatio = 0.05f,
                     overflowIndicator = {}
                 ) {
@@ -184,6 +108,32 @@ fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: 
     }
 }
 
+@Composable
+private fun BoxBackground(
+    background: Int? = null,
+    onClick: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    Box (modifier = Modifier
+        .fillMaxWidth()
+        .clip(MaterialTheme.shapes.medium)
+        .clickable { onClick() }
+        .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium)
+    ) {
+        background?.let { background ->
+            Image(
+                modifier = Modifier
+                    .matchParentSize()
+                    .scale(1.2f),
+                painter = painterResource(background),
+                contentDescription = null,
+                contentScale = ContentScale.FillWidth,
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primaryContainer)
+            )
+        }
+        content()
+    }
+}
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
@@ -266,6 +216,103 @@ fun UnconfiguredDataPlan(info: SubscriptionInfo, subscriberID: String, onConfigu
                     onConfigure()
                 }
             )
+        }
+    }
+}
+
+@Composable
+fun DataPlanSelectorWidget(info: SubscriptionInfo, dataPlan: DataPlan, onClick: () -> Unit) {
+    val haptic = LocalHapticFeedback.current
+    BoxBackground(
+        background = backgrounds[dataPlan.uiBackground],
+        onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+            onClick()
+        }
+    ) {
+        ConfiguredDataPlanContent(dataPlan, info)
+    }
+}
+
+@Composable
+private fun ConfiguredDataPlanContent(
+    dataPlan: DataPlan,
+    info: SubscriptionInfo,
+) {
+    val context = LocalContext.current
+    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
+    val dataUsage = remember(dataPlan) { hourlyUsageRepo.planUsage(dataPlan) }
+
+    Column(Modifier.padding(8.dp)) {
+        Column(Modifier.height(184.dp)) {
+            Row {
+                SimIcon(info.simSlotIndex + 1)
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(end = 4.dp),
+                    text = info.carrierName.toString(),
+                    fontFamily = carrierFont(),
+                    textAlign = TextAlign.End
+                )
+            }
+            val usage by remember(dataUsage) {
+                derivedStateOf {
+                    DataSize(dataUsage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 32.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                val formatter = remember { DecimalFormat("0.##") }
+                Text(
+                    text = formatter.format(usage),
+                    fontFamily = doHyeonFont(),
+                    fontSize = 64.sp,
+                )
+                val data by remember(dataPlan) {
+                    derivedStateOf {
+                        formatter.format(
+                            DataSize(dataPlan.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)
+                        )
+                    }
+                }
+                Text(
+                    text = "/${data}GB",
+                    fontFamily = doHyeonFont(),
+                    fontSize = 36.sp,
+                    lineHeight = 48.sp
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .height(48.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Bottom),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (dataPlan.interval != TimeInterval.DAY) {
+                    Text(
+                        text = dataPlan.resetString(context),
+                        fontFamily = robotoFlex(0f, 150f, 1000f)
+                    )
+                }
+                val lineUsage = DataSize(usage, unit = DataSizeUnit.GB)
+                LinearWavyProgressIndicator(
+                    modifier = Modifier.fillMaxWidth(),
+                    progress = {
+                        if (dataPlan.dataMax == 0L) 0f
+                        else (lineUsage.getBitValue()
+                            .toDouble() / dataPlan.dataMax.toDouble()).toFloat()
+                            .coerceIn(0f, 1f)
+                    },
+                )
+            }
         }
     }
 }
