@@ -1,5 +1,6 @@
 package com.leekleak.trafficlight.database
 
+import android.content.Context
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
@@ -11,8 +12,12 @@ import androidx.room.Query
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.toTimestamp
+import java.time.Duration
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 enum class TimeInterval {
     DAY,
@@ -91,4 +96,12 @@ class Converters {
         if (data == "") return listOf()
         return listOf(*data.split(",").map { it.toInt() }.toTypedArray())
     }
+}
+
+fun DataPlan.resetString(context: Context): String {
+    val now = LocalDateTime.now()
+    var next = fromTimestamp(startDate)
+    while (next < now) next = next.plusMonths(1)
+    val duration = Duration.between(now, next).toDays().toInt() + 1
+    return context.resources.getQuantityString(R.plurals.resets_in_days, duration, duration)
 }

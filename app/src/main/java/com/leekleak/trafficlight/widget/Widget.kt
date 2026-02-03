@@ -34,6 +34,7 @@ import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.HourlyUsageRepo
+import com.leekleak.trafficlight.database.resetString
 import com.leekleak.trafficlight.model.ShizukuDataManager
 import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.ui.theme.backgrounds
@@ -45,6 +46,7 @@ import kotlinx.coroutines.withContext
 import org.koin.mp.KoinPlatform
 import timber.log.Timber
 import java.text.DecimalFormat
+import java.time.LocalDateTime
 
 class Widget: GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
@@ -67,6 +69,7 @@ class Widget: GlanceAppWidget() {
         val usageSize = DataSize(usage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
         val dataMax = DataSize(dataPlan.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)
         val formatter = DecimalFormat("0.##")
+
         Timber.i("Updating widget: $id")
         provideContent {
             GlanceTheme {
@@ -95,6 +98,13 @@ class Widget: GlanceAppWidget() {
                         Column(GlanceModifier.fillMaxHeight()) {
                             Row(GlanceModifier.padding(16.dp).fillMaxWidth()) {
                                 SimIcon(1)
+                                Text(
+                                    text = LocalDateTime.now().minute.toString(),
+                                    style = TextStyle(
+                                        color = GlanceTheme.colors.onSurface,
+                                        textAlign = TextAlign.End
+                                    )
+                                )
                                 Text(
                                     modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
                                     text = subscriptionInfos.first().carrierName.toString(),
@@ -129,15 +139,25 @@ class Widget: GlanceAppWidget() {
                                     )
                                 }
                             }
-                            LinearProgressIndicator(
-                                modifier = GlanceModifier
-                                    .height(54.dp)
-                                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 32.dp)
-                                    .fillMaxWidth(),
-                                color = GlanceTheme.colors.primary,
-                                backgroundColor = GlanceTheme.colors.primaryContainer,
-                                progress = 0.75f,
-                            )
+                            Column (GlanceModifier.padding(16.dp)) {
+                                Text(
+                                    modifier = GlanceModifier.fillMaxWidth().padding(bottom = 8.dp),
+                                    text = dataPlan.resetString(context),
+                                    style = TextStyle(
+                                        color = GlanceTheme.colors.onSurface,
+                                        fontSize = 16.sp,
+                                        textAlign = TextAlign.Center
+                                    ),
+                                )
+                                LinearProgressIndicator(
+                                    modifier = GlanceModifier
+                                        .height(4.dp)
+                                        .fillMaxWidth(),
+                                    color = GlanceTheme.colors.primary,
+                                    backgroundColor = GlanceTheme.colors.primaryContainer,
+                                    progress = 0.75f,
+                                )
+                            }
                         }
                     }
                 }

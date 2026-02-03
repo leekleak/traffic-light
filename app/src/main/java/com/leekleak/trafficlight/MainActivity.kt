@@ -6,8 +6,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
 import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.request.crossfade
@@ -19,7 +17,6 @@ import com.leekleak.trafficlight.widget.WidgetUpdateWorker
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity(), KoinComponent {
     private val appIconFactory: AppIconFetcher.Factory by inject()
@@ -33,8 +30,7 @@ class MainActivity : ComponentActivity(), KoinComponent {
         enableEdgeToEdge()
         createNotificationChannel()
 
-        val nextRequest = PeriodicWorkRequestBuilder<WidgetUpdateWorker>(15, TimeUnit.MINUTES).build()
-        WorkManager.getInstance(this).enqueue(nextRequest)
+        WidgetUpdateWorker.enqueue(this)
 
         setContent {
             setSingletonImageLoaderFactory {

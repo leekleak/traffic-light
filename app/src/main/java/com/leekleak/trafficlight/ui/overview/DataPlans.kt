@@ -38,7 +38,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.Font
@@ -51,14 +50,13 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.database.TimeInterval
+import com.leekleak.trafficlight.database.resetString
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.DataSizeUnit
-import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.toTimestamp
 import org.koin.compose.koinInject
 import java.text.DecimalFormat
-import java.time.Duration
 import java.time.LocalDateTime
 
 @SuppressLint("LocalContextGetResourceValueCall")
@@ -138,17 +136,9 @@ fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: 
                     verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Bottom),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    val reset by remember(dataPlan) {
-                        derivedStateOf {
-                            val now = LocalDateTime.now()
-                            var next = fromTimestamp(dataPlan.startDate)
-                            while (next < now) next = next.plusMonths(1)
-                            Duration.between(now, next).toDays().toInt() + 1
-                        }
-                    }
                     if (dataPlan.interval != TimeInterval.DAY) {
                         Text(
-                            text = pluralStringResource(R.plurals.resets_in_days, reset, reset),
+                            text = dataPlan.resetString(context),
                             fontFamily = robotoFlex(0f, 150f, 1000f)
                         )
                     }
