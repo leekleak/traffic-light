@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.rememberAsyncImagePainter
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.HourlyUsageRepo
@@ -124,7 +125,7 @@ private fun BoxBackground(
                 modifier = Modifier
                     .matchParentSize()
                     .scale(1.2f),
-                painter = painterResource(background),
+                painter = rememberAsyncImagePainter(background),
                 contentDescription = null,
                 contentScale = ContentScale.FillWidth,
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primaryContainer)
