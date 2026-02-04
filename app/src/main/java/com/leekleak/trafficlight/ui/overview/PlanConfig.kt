@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
@@ -38,6 +39,7 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.DatePicker
@@ -53,11 +55,13 @@ import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.getSelectedDate
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.material3.rememberTooltipState
@@ -282,7 +286,10 @@ fun PlanConfig(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ){
-                                val datePickerState = rememberDatePickerState(newPlan.startDate)
+                                val datePickerState = rememberDatePickerState(
+                                    initialSelectedDateMillis = newPlan.startDate,
+                                    selectableDates = PastOrPresentSelectableDates
+                                )
                                 val textFieldState = rememberTextFieldState((newPlan.intervalMultiplier?:1).toString())
                                 var datePickerVisible by remember { mutableStateOf(false) }
 
@@ -340,7 +347,8 @@ fun PlanConfig(
                                     DatePickerDialog (
                                         onDismissRequest = { datePickerVisible = false },
                                         confirmButton = {
-                                            Button(
+                                            Button (
+                                                enabled = datePickerState.getSelectedDate()?.let{it <= LocalDate.now()} ?: false,
                                                 onClick = {
                                                     datePickerVisible = false
                                                     newPlan = newPlan.copy(startDate = datePickerState.selectedDateMillis!!)
@@ -350,7 +358,10 @@ fun PlanConfig(
                                             }
                                         }
                                     ) {
-                                        DatePicker(datePickerState)
+                                        DatePicker(
+                                            state = datePickerState,
+                                            modifier = Modifier.verticalScroll(rememberScrollState())
+                                        )
                                     }
                                 }
                             }
@@ -697,3 +708,13 @@ val specialApps = listOf(
     "com.facebook.katana", // Facebook
     "com.whatsapp",
 )
+
+object PastOrPresentSelectableDates: SelectableDates {
+    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+        return utcTimeMillis <= System.currentTimeMillis()
+    }
+
+    override fun isSelectableYear(year: Int): Boolean {
+        return year <= LocalDate.now().year
+    }
+}
