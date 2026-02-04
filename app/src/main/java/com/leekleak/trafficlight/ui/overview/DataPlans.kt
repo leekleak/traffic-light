@@ -49,7 +49,6 @@ import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.HourlyUsageRepo
-import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.database.resetString
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.util.DataSize
@@ -296,12 +295,10 @@ private fun ConfiguredDataPlanContent(
                 verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Bottom),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (dataPlan.interval != TimeInterval.DAY) {
-                    Text(
-                        text = dataPlan.resetString(context),
-                        fontFamily = robotoFlex(0f, 150f, 1000f)
-                    )
-                }
+                Text(
+                    text = dataPlan.resetString(context),
+                    fontFamily = robotoFlex(0f, 150f, 1000f)
+                )
                 val lineUsage = DataSize(usage, unit = DataSizeUnit.GB)
                 LinearWavyProgressIndicator(
                     modifier = Modifier.fillMaxWidth(),

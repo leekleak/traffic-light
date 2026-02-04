@@ -100,8 +100,23 @@ class Converters {
 
 fun DataPlan.resetString(context: Context): String {
     val now = LocalDateTime.now()
-    var next = fromTimestamp(startDate)
-    while (next < now) next = next.plusMonths(1)
-    val duration = Duration.between(now, next).toDays().toInt() + 1
+    val startDate = when (interval) {
+        TimeInterval.MONTH -> {
+            var startDate = fromTimestamp(startDate).toLocalDate().atStartOfDay()
+            while (startDate <= now) {
+                startDate = startDate.plusMonths(1)
+            }
+            startDate
+        }
+        TimeInterval.DAY -> {
+            var startDate = fromTimestamp(startDate).toLocalDate().atStartOfDay()
+            while (startDate <= now) {
+                startDate = startDate.plusDays(intervalMultiplier?.toLong() ?: 1)
+            }
+            startDate
+        }
+        else -> throw Exception("Unsupported time interval")
+    }
+    val duration = Duration.between(now, startDate).toDays().toInt() + 1
     return context.resources.getQuantityString(R.plurals.resets_in_days, duration, duration)
 }

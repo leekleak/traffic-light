@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -62,10 +61,9 @@ class WidgetConfigureActivity : ComponentActivity() {
 
     @Composable
     private fun Content(appWidgetId: Int, resultValue: Intent, paddingValues: PaddingValues) {
-        LocalContext.current
         val dataPlanDao: DataPlanDao = koinInject()
         val shizukuManager: ShizukuDataManager = koinInject()
-        val scope = rememberCoroutineScope()
+        val context = LocalContext.current
 
         val subscriptionInfos = shizukuManager.getSubscriptionInfos()
 
@@ -103,6 +101,7 @@ class WidgetConfigureActivity : ComponentActivity() {
                             }
                         }
 
+                        WidgetUpdateWorker.enqueue(context)
                         setResult(RESULT_OK, resultValue)
                         finish()
 
