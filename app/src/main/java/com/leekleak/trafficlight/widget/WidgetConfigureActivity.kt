@@ -101,7 +101,8 @@ class WidgetConfigureActivity : ComponentActivity() {
                             }
                         }
 
-                        WidgetUpdateWorker.enqueue(context)
+                        startAlarmManager(context)
+
                         setResult(RESULT_OK, resultValue)
                         finish()
 

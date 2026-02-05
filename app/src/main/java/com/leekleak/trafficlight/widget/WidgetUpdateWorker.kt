@@ -1,41 +1,33 @@
 package com.leekleak.trafficlight.widget
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
-import androidx.glance.appwidget.GlanceAppWidgetManager
+import android.content.Context.ALARM_SERVICE
+import android.content.Intent
 import androidx.glance.appwidget.updateAll
-import androidx.work.CoroutineWorker
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.WorkerParameters
-import kotlinx.coroutines.runBlocking
-import timber.log.Timber
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class WidgetUpdateWorker(val context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
-    override suspend fun doWork(): Result {
-        Widget().updateAll(context)
-        enqueue(context, ExistingWorkPolicy.APPEND_OR_REPLACE)
-        return Result.success()
-    }
+fun startAlarmManager(context: Context) {
+    val alarmManager = context.getSystemService(ALARM_SERVICE) as AlarmManager
+    val intent = Intent(context, WidgetUpdateReceiver::class.java)
+    val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-    companion object {
-        fun enqueue(context: Context, policy: ExistingWorkPolicy = ExistingWorkPolicy.KEEP) {
-            val manager = GlanceAppWidgetManager(context)
-            val ids = runBlocking { manager.getGlanceIds(Widget::class.java) }
-            if (ids.isEmpty()) return // Only start chain if there are widgets
+    alarmManager.setInexactRepeating(
+        AlarmManager.RTC,
+        System.currentTimeMillis(),
+        1000 * 60,
+        pendingIntent
+    )
+}
 
-            val nextRequest = OneTimeWorkRequestBuilder<WidgetUpdateWorker>()
-                .setInitialDelay(1, TimeUnit.MINUTES)
-                .build()
-
-            Timber.i("Queueing widget update")
-
-            WorkManager.getInstance(context).enqueueUniqueWork(
-                "TrafficLightWidgets",
-                policy,
-                nextRequest
-            )
+class WidgetUpdateReceiver: BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        CoroutineScope(Dispatchers.IO).launch {
+            Widget().updateAll(context)
         }
     }
 }

@@ -13,7 +13,7 @@ import com.leekleak.trafficlight.model.AppIconFetcher
 import com.leekleak.trafficlight.services.UsageService.Companion.NOTIFICATION_CHANNEL_ID
 import com.leekleak.trafficlight.ui.app.App
 import com.leekleak.trafficlight.ui.theme.Theme
-import com.leekleak.trafficlight.widget.WidgetUpdateWorker
+import com.leekleak.trafficlight.widget.startAlarmManager
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import timber.log.Timber
@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity(), KoinComponent {
         enableEdgeToEdge()
         createNotificationChannel()
 
-        WidgetUpdateWorker.enqueue(this@MainActivity)
+        startAlarmManager(this)
 
         setContent {
             setSingletonImageLoaderFactory {

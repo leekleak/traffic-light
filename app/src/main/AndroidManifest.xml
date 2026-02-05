@@ -73,5 +73,10 @@
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>
         </activity>
+        <receiver android:name=".widget.WidgetUpdateReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="com.leekleak.trafficlight.ACTION_ALARM" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
