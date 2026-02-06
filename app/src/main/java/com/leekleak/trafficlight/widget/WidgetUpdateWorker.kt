@@ -14,14 +14,25 @@ import kotlinx.coroutines.launch
 fun startAlarmManager(context: Context) {
     val alarmManager = context.getSystemService(ALARM_SERVICE) as AlarmManager
     val intent = Intent(context, WidgetUpdateReceiver::class.java)
-    val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+    val pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
 
     alarmManager.setInexactRepeating(
         AlarmManager.RTC,
         System.currentTimeMillis(),
-        1000 * 60,
+        1000 * 60 * 3,
         pendingIntent
     )
+}
+
+fun killAlarmManager(context: Context) {
+    val alarmManager = context.getSystemService(ALARM_SERVICE) as AlarmManager
+    val intent = Intent(context, WidgetUpdateReceiver::class.java)
+    val pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
+    alarmManager.cancel(pendingIntent)
 }
 
 class WidgetUpdateReceiver: BroadcastReceiver() {

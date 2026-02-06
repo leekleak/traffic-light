@@ -69,6 +69,7 @@
     <string name="last_reset_day">Last reset day:</string>
     <string name="add_widget">Add widget</string>
     <string name="configured_plans">Configured plans</string>
+    <string name="data_plan_widget_description">Track your data plans on your home screen</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

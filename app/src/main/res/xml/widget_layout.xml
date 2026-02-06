@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/data_plan_widget_description"
     android:initialLayout="@layout/glance_default_loading_layout"
     android:configure="com.leekleak.trafficlight.widget.WidgetConfigureActivity"
     android:resizeMode="horizontal|vertical"
     android:targetCellWidth="4"
     android:targetCellHeight="2"
-    android:minResizeWidth="250dp"
-    android:minResizeHeight="200dp"
+    android:minResizeWidth="100dp"
     android:updatePeriodMillis="0">
 </appwidget-provider>
