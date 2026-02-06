@@ -1,7 +1,7 @@
 <img width="192px" src="https://raw.githubusercontent.com/leekleak/traffic-light/refs/heads/main/branding/icon/icon.svg" alt="Logo">
 
 # Traffic Light
-Traffic Light is an open-source tool to track your network speed and data usage inspired by Internet Speed Meter and GlassWire.
+Traffic Light is an open-source tool for tracking your network usage while ensuring total privacy. Inspired by Internet Speed Meter and GlassWire.
 
 ## Why?
 - Free and open source
@@ -9,6 +9,7 @@ Traffic Light is an open-source tool to track your network speed and data usage 
 - Uses [less battery](https://github.com/leekleak/traffic-light/wiki/Battery-Usage)
 - No tracking
 - Beautiful UI
+- Fast and modern
 
 ## Downloads
 
