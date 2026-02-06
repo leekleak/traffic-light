@@ -20,6 +20,7 @@ import com.leekleak.trafficlight.widget.WidgetReceiver
 import com.leekleak.trafficlight.widget.startAlarmManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -40,6 +41,7 @@ class MainActivity : ComponentActivity(), KoinComponent {
         startAlarmManager(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             CoroutineScope(Dispatchers.IO).launch {
+                delay(1000) // Apparently if you refresh previews too soon on app launch they'll be ignored
                 GlanceAppWidgetManager(this@MainActivity).setWidgetPreviews<WidgetReceiver>()
             }
         }

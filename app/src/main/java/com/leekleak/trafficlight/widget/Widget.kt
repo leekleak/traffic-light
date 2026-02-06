@@ -53,7 +53,6 @@ import kotlinx.coroutines.withContext
 import org.koin.mp.KoinPlatform
 import timber.log.Timber
 import java.text.DecimalFormat
-import java.time.LocalDateTime
 
 class Widget: GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
@@ -176,13 +175,6 @@ class Widget: GlanceAppWidget() {
                 Column(GlanceModifier.fillMaxHeight()) {
                     Row(GlanceModifier.padding(16.dp).fillMaxWidth()) {
                         SimIcon(simNumber)
-                        Text(
-                            text = LocalDateTime.now().minute.toString(),
-                            style = TextStyle(
-                                color = GlanceTheme.colors.onSurface,
-                                textAlign = TextAlign.End
-                            )
-                        )
                         Text(
                             modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
                             text = carrierName,

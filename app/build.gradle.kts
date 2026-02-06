@@ -92,4 +92,16 @@ dependencies {
 
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.androidx.glance.material3)
+
+    /**
+     * Not actually used explicitly, however it is used by glance widgets.
+     * The problem is that the version that the latest glance widget release uses is 2.7.1
+     * which _for some reason_ breaks after R8.
+     *
+     * Without this manual import the widget still works fine on debug but on release it never loads
+     * throwing WorkManager errors into the logs.
+     *
+     * Really really stupid and I hope I'll be able to remove this some time in the future.
+     */
+    implementation(libs.androidx.work.runtime.ktx)
 }

@@ -70,6 +70,9 @@
     <string name="add_widget">Add widget</string>
     <string name="configured_plans">Configured plans</string>
     <string name="data_plan_widget_description">Track your data plans on your home screen</string>
+    <string name="widget_warning">Widget support is experimental. If you encounter issues please report them on Github.</string>
+    <string name="no_configured_plans_description">Please ensure that you have granted Shizuku permission and have configured at least 1 data plan.</string>
+    <string name="no_configured_plans">No plans configured</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>
