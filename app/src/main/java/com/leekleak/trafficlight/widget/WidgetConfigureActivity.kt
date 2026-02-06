@@ -40,9 +40,12 @@ import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.widget.Widget.Companion.CARRIER_NAME
 import com.leekleak.trafficlight.widget.Widget.Companion.SIM_NUMBER
 import com.leekleak.trafficlight.widget.Widget.Companion.SUBSCRIBER_ID
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.koin.compose.koinInject
 
@@ -159,7 +162,8 @@ class WidgetConfigureActivity : ComponentActivity() {
                         setResult(RESULT_OK, resultValue)
                         finish()
 
-                        runBlocking {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            delay(1000)
                             startAlarmManager(context)
                             Widget().update(this@WidgetConfigureActivity, glanceId)
                         }
