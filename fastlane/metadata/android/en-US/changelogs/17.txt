@@ -7,7 +7,8 @@ Expressive Fonts:
 - Starting version 2.10 the toggle only applies to the blocky overview font and will be entirely removed once that font is gone.
 
 Enhancements:
-- New app icon.
+- New app icon
+- UI improvements
 
 Bug fixes:
 - Fix date selector janky transition.

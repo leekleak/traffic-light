@@ -45,7 +45,7 @@ fun BarGraph(
     Box(
         modifier = Modifier
             .clip(MaterialTheme.shapes.medium)
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.surface)
     ) {
         BarGraphImpl(
             xAxisData = data.map { it.x },

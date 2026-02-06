@@ -17,15 +17,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -43,12 +41,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -59,15 +54,13 @@ import coil3.compose.rememberAsyncImagePainter
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.ScrollableBarGraph
-import com.leekleak.trafficlight.charts.momoTrustDisplayFont
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
+import com.leekleak.trafficlight.charts.momoTrustDisplayFont
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.model.AppIcon
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.getName
-import com.leekleak.trafficlight.util.px
-import com.leekleak.trafficlight.util.toDp
 import org.koin.compose.koinInject
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -166,22 +159,16 @@ fun History(paddingValues: PaddingValues) {
             state = listState
         ) {
             stickyHeader {
-                var itemHeight by remember { mutableIntStateOf(0) }
-                val padding = 8.dp.px
                 val uid = -100
-                Box {
-                    // Required otherwise item shadows bleed through the sides
-                    Box(
-                        modifier = Modifier
-                            .wrapContentWidth(unbounded = true)
-                            .height((itemHeight - padding.toInt()).toDp)
-                            .width(LocalWindowInfo.current.containerDpSize.width)
-                            .background(colorScheme.surface)
-                    )
+                Box (
+                    Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = colorScheme.surface,
+                            shape = RoundedCornerShape(0.dp, 0.dp, 24.dp, 24.dp)
+                        )
+                ) {
                     AppItem(
-                        modifier = Modifier.onGloballyPositioned { coordinates ->
-                            itemHeight = coordinates.size.height
-                        },
                         totalWifi = selectedUsage?.totalWifi ?: 0L,
                         totalCellular = selectedUsage?.totalCellular ?: 0L,
                         painter = painterResource(R.drawable.data_usage),
@@ -193,7 +180,6 @@ fun History(paddingValues: PaddingValues) {
                         appSelected = if (appSelected != uid) uid else -1
                     }
                 }
-
             }
             if (totalMaximum != null) {
                 items(appList, { it.uid }) { item ->
@@ -257,7 +243,7 @@ fun AppItem(
     val haptic = LocalHapticFeedback.current
     Column (
         modifier = modifier
-            .shadow(1.dp, MaterialTheme.shapes.small)
+            .clip(MaterialTheme.shapes.small)
             .background(colorScheme.surfaceContainer)
             .clickable {
                 onClick()

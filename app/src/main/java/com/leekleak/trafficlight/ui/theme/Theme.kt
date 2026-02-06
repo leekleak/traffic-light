@@ -104,7 +104,6 @@ enum class Theme {
 @Composable
 fun Modifier.card(): Modifier {
     return this
-        .shadow(1.dp, MaterialTheme.shapes.large)
         .clip(MaterialTheme.shapes.large)
         .background(colorScheme.surfaceContainer)
 }

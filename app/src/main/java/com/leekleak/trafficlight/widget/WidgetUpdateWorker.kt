@@ -21,7 +21,7 @@ fun startAlarmManager(context: Context) {
     alarmManager.setInexactRepeating(
         AlarmManager.RTC,
         System.currentTimeMillis(),
-        1000 * 60 * 3,
+        1000 * 60 * 1,
         pendingIntent
     )
 }
