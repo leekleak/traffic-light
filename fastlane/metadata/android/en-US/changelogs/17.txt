@@ -1,0 +1,20 @@
+Widgets (Experimental):
+- Added basic widget support for configured data plans.
+
+Expressive Fonts:
+- Begin deprecating "Expressive Fonts" toggle.
+- Since the app uses a lot of bespoke layouts system fonts very often break them.
+- Starting version 2.10 the toggle only applies to the blocky overview font and will be entirely removed once that font is gone.
+
+Enhancements:
+- New app icon.
+
+Bug fixes:
+- Fix date selector janky transition.
+- Fix date selector allowing to select start dates in the future.
+- Fix plan reset string not showing when using some system fonts.
+- Fix plan reset string not showing when the plan updates daily.
+- Fix overview stats overflowing when using some system fonts.
+
+Translations:
+- Update translations
