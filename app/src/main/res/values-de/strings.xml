@@ -64,4 +64,10 @@
         <item quantity="one">Wird morgen zurückgesetzt</item>
         <item quantity="other">Zurücksetzen in %d Tagen</item>
     </plurals>
+    <string name="expressive_fonts_description">Das Deaktivieren von ausdrucksstarken Schriftarten kann zu Layoutfehlern führen und wird daher nicht mehr empfohlen.</string>
+    <string name="custom">Benutzerdefiniert</string>
+    <string name="period_length_days">Periodendauer (Tage):</string>
+    <string name="last_reset_day">Letzter Rücksetztag:</string>
+    <string name="add_widget">Widget hinzufügen</string>
+    <string name="configured_plans">Konfigurierte Pläne</string>
 </resources>
