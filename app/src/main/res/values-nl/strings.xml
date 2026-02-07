@@ -67,4 +67,7 @@
         <item quantity="one">Reset morgen</item>
         <item quantity="other">Reset in %d dagen</item>
     </plurals>
+    <string name="expressive_fonts_description">Het uitschakelen van expressieve lettertypen kan lay-outs breken en wordt weggehaald.</string>
+    <string name="add_widget">Widget toevoegen</string>
+    <string name="configured_plans">Ingestelde bundels</string>
 </resources>
