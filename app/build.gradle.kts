@@ -41,6 +41,7 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+        aidl = true
     }
     dependenciesInfo {
         // Disables dependency metadata when building APKs.

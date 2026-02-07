@@ -77,14 +77,16 @@ class WidgetConfigureActivity : ComponentActivity() {
         val shizukuManager: ShizukuDataManager = koinInject()
         val context = LocalContext.current
 
-        val subscriptionInfos = shizukuManager.getSubscriptionInfos()
+        val subscriptionInfos = runBlocking { shizukuManager.getSubscriptionInfos() }
 
-        val pairs = subscriptionInfos.mapNotNull { info ->
-            shizukuManager.getSubscriberID(info.subscriptionId)?.let {
-                Pair(
-                    info,
-                    it
-                )
+        val pairs = runBlocking {
+            subscriptionInfos.mapNotNull { info ->
+                shizukuManager.getSubscriberID(info.subscriptionId)?.let {
+                    Pair(
+                        info,
+                        it
+                    )
+                }
             }
         }
 

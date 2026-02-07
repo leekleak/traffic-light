@@ -22,8 +22,12 @@ class OverviewVM : ViewModel(), KoinComponent {
     val shizukuDataManager: ShizukuDataManager by inject()
     val dataPlanDao: DataPlanDao by inject()
 
-    fun getSubscriptionInfos(): List<SubscriptionInfo> = shizukuDataManager.getSubscriptionInfos()
-    fun getSubscriberID(subscriptionId: Int): String? = shizukuDataManager.getSubscriberID(subscriptionId)
+    fun getSubscriptionInfos(): Flow<List<SubscriptionInfo>> = flow {
+        emit(shizukuDataManager.getSubscriptionInfos())
+    }.flowOn(Dispatchers.IO)
+    fun getSubscriberID(subscriptionId: Int): Flow<String?> = flow {
+        emit(shizukuDataManager.getSubscriberID(subscriptionId))
+    }.flowOn(Dispatchers.IO)
 
     fun getSubscriberIDHasDataPlan(subscriberID: String): Flow<Boolean> = flow {
         emit(dataPlanDao.get(subscriberID) != null)

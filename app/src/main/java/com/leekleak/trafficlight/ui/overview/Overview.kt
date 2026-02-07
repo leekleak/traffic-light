@@ -79,7 +79,7 @@ fun Overview(
 
     val permissionManager: PermissionManager = koinInject()
     val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
-    val subscriptionInfos = remember(shizukuPermission) { viewModel.getSubscriptionInfos() }
+    val subscriptionInfos by remember(shizukuPermission) { viewModel.getSubscriptionInfos() }.collectAsState(listOf())
 
     /**
      * Generally the notification service is responsible for updating daily usage,
@@ -110,21 +110,21 @@ fun Overview(
     ) {
         if (shizukuPermission && subscriptionInfos.isNotEmpty()) { categoryTitle(R.string.data_plans) }
         items(subscriptionInfos, { it.subscriptionId }) { subInfo ->
-            val subscriberID = viewModel.getSubscriberID(subInfo.subscriptionId)
-            if (subscriberID != null) {
-                val configured by remember { viewModel.getSubscriberIDHasDataPlan(subscriberID) }.collectAsState(true)
+            val subscriberID by remember { viewModel.getSubscriberID(subInfo.subscriptionId) }.collectAsState(null)
+            subscriberID?.let { subID ->
+                val configured by remember { viewModel.getSubscriberIDHasDataPlan(subID) }.collectAsState(true)
                 AnimatedContent(
                     targetState = configured,
                     transitionSpec = { fadeIn() togetherWith fadeOut() }
                 ) {
                     if (it) {
-                        val dataPlan = remember { viewModel.getDataPlan(subscriberID) }.collectAsState(DataPlan(subscriberID))
+                        val dataPlan = remember { viewModel.getDataPlan(subID) }.collectAsState(DataPlan(subID))
                         ConfiguredDataPlan(subInfo, dataPlan.value) {
-                            backStack.add(PlanConfig(subscriberID))
+                            backStack.add(PlanConfig(subID))
                         }
                     } else {
-                        UnconfiguredDataPlan(subInfo, subscriberID) {
-                            backStack.add(PlanConfig(subscriberID))
+                        UnconfiguredDataPlan(subInfo, subID) {
+                            backStack.add(PlanConfig(subID))
                         }
                     }
                 }
