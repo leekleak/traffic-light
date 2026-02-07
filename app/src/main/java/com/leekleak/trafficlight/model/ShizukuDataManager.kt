@@ -49,10 +49,12 @@ class ShizukuDataManager(): KoinComponent {
         CoroutineScope(Dispatchers.IO).launch {
             permissionManager.shizukuPermissionFlow.collect {
                 enabled = it
+                if (enabled) {
+                    Shizuku.unbindUserService(serviceArgs, connection, true) // Force update service
+                    Shizuku.bindUserService(serviceArgs, connection)
+                }
             }
         }
-        Shizuku.unbindUserService(serviceArgs, connection, true) // Force update service
-        Shizuku.bindUserService(serviceArgs, connection)
     }
 
     suspend fun getSubscriptionInfos(): List<SubscriptionInfo> {
