@@ -7,7 +7,7 @@ composeBom = "2026.01.01"
 
 coreSplashscreen = "1.2.0"
 datastore = "1.2.0"
-kotlin = "2.3.0"
+kotlin = "2.3.10"
 kotlinxSerializationJson = "1.10.0"
 ksp = "2.3.4"
 lifecycle = "2.10.0"
