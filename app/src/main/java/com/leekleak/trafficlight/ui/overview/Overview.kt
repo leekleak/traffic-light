@@ -63,6 +63,7 @@ import com.leekleak.trafficlight.ui.navigation.PlanConfig
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.categoryTitle
+import com.leekleak.trafficlight.widget.Warning
 import kotlinx.coroutines.delay
 import org.koin.compose.koinInject
 import java.time.LocalDate
@@ -79,6 +80,7 @@ fun Overview(
 
     val permissionManager: PermissionManager = koinInject()
     val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
+    val shizukuRunning by permissionManager.shizukuRunningFlow.collectAsState(false)
     val subscriptionInfos by remember(shizukuPermission) { viewModel.getSubscriptionInfos() }.collectAsState(listOf())
 
     /**
@@ -108,7 +110,23 @@ fun Overview(
         contentPadding = paddingValues,
         state = columnState
     ) {
-        if (shizukuPermission && subscriptionInfos.isNotEmpty()) { categoryTitle(R.string.data_plans) }
+        categoryTitle(R.string.data_plans)
+        if (!shizukuPermission) {
+            item {
+                Warning(
+                    title = stringResource(R.string.shizuku_required),
+                    description = stringResource(R.string.shizuku_required_description),
+                )
+            }
+        }
+        else if (!shizukuRunning) {
+            item {
+                Warning(
+                    title = stringResource(R.string.shizuku_not_running),
+                    description = stringResource(R.string.shizuku_not_running_description),
+                )
+            }
+        }
         items(subscriptionInfos, { it.subscriptionId }) { subInfo ->
             val subscriberID by remember { viewModel.getSubscriberID(subInfo.subscriptionId) }.collectAsState(null)
             subscriberID?.let { subID ->

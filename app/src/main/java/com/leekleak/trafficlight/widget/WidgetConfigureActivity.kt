@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -97,50 +99,19 @@ class WidgetConfigureActivity : ComponentActivity() {
         ){
             categoryTitle(R.string.add_widget)
             item {
-                Column (
-                    modifier = Modifier
-                        .card()
-                        .padding(16.dp),
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.warning),
-                            contentDescription = null
-                        )
-                        Text(
-                            text = "Warning",
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Text(stringResource(R.string.widget_warning))
-                }
+                Warning(
+                    title = stringResource(R.string.warning),
+                    description = stringResource(R.string.widget_warning) ,
+                )
             }
             categoryTitleSmall(R.string.configured_plans)
             if (pairs.isEmpty()) {
                 item {
-                    Column (
-                        modifier = Modifier
-                            .card()
-                            .padding(16.dp),
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.help),
-                                contentDescription = null
-                            )
-                            Text(
-                                text = stringResource(R.string.no_configured_plans),
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        Text(stringResource(R.string.no_configured_plans_description))
-                    }
+                    Warning(
+                        title = stringResource(R.string.no_configured_plans),
+                        description = stringResource(R.string.no_configured_plans_description),
+                        painter = painterResource(R.drawable.help),
+                    )
                 }
             }
             items(pairs, {it.second}) {
@@ -173,5 +144,34 @@ class WidgetConfigureActivity : ComponentActivity() {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun Warning(
+    title: String = stringResource(R.string.warning),
+    description: String = "",
+    painter: Painter = painterResource(R.drawable.warning),
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .card()
+            .padding(16.dp),
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painter,
+                contentDescription = null
+            )
+            Text(
+                text = title,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Text(description)
     }
 }

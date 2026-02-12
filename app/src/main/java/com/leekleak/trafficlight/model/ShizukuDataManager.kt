@@ -20,7 +20,7 @@ import rikka.shizuku.SystemServiceHelper.getSystemService
 import timber.log.Timber
 
 
-class ShizukuDataManager(): KoinComponent {
+class ShizukuDataManager : KoinComponent {
     val preferenceRepo: PreferenceRepo by inject()
     val permissionManager: PermissionManager by inject()
     var enabled = false
@@ -68,7 +68,7 @@ class ShizukuDataManager(): KoinComponent {
             val binder = ShizukuBinderWrapper(getSystemService("isub"))
 
             while (binderMine == null) delay(10)
-            val code = binderMine!!.activeSubscriptionInfoList
+            val code = binderMine!!.subscriptionInfoListTransaction
 
             binder.transact(code, data, reply, 0)
             Timber.e("Exception:%s", reply.readException())
