@@ -67,4 +67,14 @@
     <string name="period_length_days">Jangka waktu (hari):</string>
     <string name="last_reset_day">Terakhir diatur ulang:</string>
     <string name="expressive_fonts_description">Menonaktifkan Font Ekspresif dapat merusak tata letak dan sedang dalam proses penonaktifan.</string>
+    <string name="add_widget">Tambah widget</string>
+    <string name="configured_plans">Data yang telah diatur</string>
+    <string name="data_plan_widget_description">Lacak paket data Anda di layar utama</string>
+    <string name="widget_warning">Dukungan widget masih dalam tahap percobaan. Jika Anda menemui masalah, silakan laporkan di GitHub.</string>
+    <string name="no_configured_plans_description">Pastikan Anda telah memberikan izin kepada Shizuku dan telah mengatur setidaknya 1 paket data.</string>
+    <string name="no_configured_plans">Tidak ditemukan paket data yang telah diatur</string>
+    <string name="warning">Peringatan</string>
+    <string name="shizuku_required">Membutuhkan izin Shizuku</string>
+    <string name="shizuku_required_description">Ini dapat diberikan di pengaturan.</string>
+    <string name="shizuku_not_running_description">Shizuku harus berjalan untuk mendapatkan data SIM.</string>
 </resources>
