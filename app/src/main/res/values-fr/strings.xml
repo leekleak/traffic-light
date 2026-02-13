@@ -72,4 +72,7 @@
     <string name="add_widget">Ajouter un widget</string>
     <string name="configured_plans">Forfaits configurés</string>
     <string name="data_plan_widget_description">Suivez votre forfait de données sur votre écran d\'accueil</string>
+    <string name="widget_warning">Le support des widgets est experimental. Si vous rencontrez des problèmes, veuillez les signaler sur GitHub.</string>
+    <string name="no_configured_plans_description">Veuillez vous assurer que vous avez donné l\'autorisation Shizuku et configuré au moins un forfait de données.</string>
+    <string name="no_configured_plans">Aucun forfait configuré</string>
 </resources>
