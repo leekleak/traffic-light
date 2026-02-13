@@ -50,7 +50,7 @@
     <string name="shizuku_not_running">شيزوكو لا يعمل.</string>
     <string name="sim_card">بطاقة SIM</string>
     <string name="data_plans">خطط البيانات</string>
-    <string name="configure_plan">إعداد الخطة</string>
+    <string name="configure_plan">اضبط الخطة</string>
     <string name="background">الخلفية</string>
     <string name="type">النوع</string>
     <string name="selected">محدد</string>
@@ -75,4 +75,11 @@
     <string name="add_widget">أضف ويدجت</string>
     <string name="configured_plans">الخطط المضبوطة</string>
     <string name="data_plan_widget_description">تتبع خطط بياناتك من شاشتك الرئيسية</string>
+    <string name="widget_warning">دعم الأدوات ويدجات لا يزال تجريبيًا. إذا واجهت أي مشاكل، يُرجى الإبلاغ عنها عبر Github.</string>
+    <string name="no_configured_plans_description">يُرجى التأكد من منح Shizuku الإذن وضبطت خطة بيانات واحدة على الأقل.</string>
+    <string name="no_configured_plans">لا توجد خطط مضبوطة</string>
+    <string name="warning">تحذير</string>
+    <string name="shizuku_required">مطلوب إذن Shizuku</string>
+    <string name="shizuku_required_description">يمكن منحها من الإعدادات.</string>
+    <string name="shizuku_not_running_description">يجب أن يكون Shizuku قيد التشغيل للحصول على بيانات شريحة SIM.</string>
 </resources>
