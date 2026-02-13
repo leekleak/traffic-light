@@ -1,0 +1,8 @@
+Enhancements:
+- Improved plan configuration clarity
+- Improved SIM detection reliability
+- Added time setting for custom plan periods.
+- UI improvements
+
+Translations:
+- Update translations
