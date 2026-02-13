@@ -123,6 +123,7 @@ import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.px
+import com.leekleak.trafficlight.util.toDp
 import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -646,7 +647,7 @@ fun PlanSizeConfig(size: Double, onSizeUpdate: (Float) -> Unit) {
                 var intrinsics by remember { mutableIntStateOf(0) }
                 BasicTextField(
                     state = fieldState,
-                    modifier = Modifier.width (with(LocalDensity.current) { intrinsics.toDp() }),
+                    modifier = Modifier.width (intrinsics.toDp),
                     inputTransformation =  InputTransformation {
                         val newText = asCharSequence().toString()
                         if (newText.isEmpty()) {

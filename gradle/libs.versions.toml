@@ -1,5 +1,5 @@
 [versions]
-agp = "9.0.0"
+agp = "9.0.1"
 coilCompose = "3.3.0"
 coreKtx = "1.17.0"
 activityCompose = "1.12.4"

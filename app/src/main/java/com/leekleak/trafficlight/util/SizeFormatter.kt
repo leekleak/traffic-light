@@ -66,7 +66,7 @@ data class DataSize (
     }
 }
 
-class SizeFormatter () {
+class SizeFormatter {
     var asBits = false
 
     fun format(size: Number, precision: Int, speed: Boolean = false): String {
