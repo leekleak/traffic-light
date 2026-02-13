@@ -70,4 +70,8 @@
     <string name="last_reset_day">Letzter Rücksetztag:</string>
     <string name="add_widget">Widget hinzufügen</string>
     <string name="configured_plans">Konfigurierte Pläne</string>
+    <string name="data_plan_widget_description">Verfolge deine Datentarife auf deinem Startbildschirm</string>
+    <string name="widget_warning">Die Widget-Unterstützung ist experimentell. Solltest du auf Probleme stoßen, melde diese bitte auf GitHub.</string>
+    <string name="no_configured_plans_description">Bitte stelle sicher, dass du Shizuku die Berechtigung erteilt und mindestens einen Datentarif konfiguriert hast.</string>
+    <string name="no_configured_plans">Keine Tarife konfiguriert</string>
 </resources>
