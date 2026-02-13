@@ -70,4 +70,8 @@
     <string name="expressive_fonts_description">Het uitschakelen van expressieve lettertypen kan lay-outs breken en wordt weggehaald.</string>
     <string name="add_widget">Widget toevoegen</string>
     <string name="configured_plans">Ingestelde bundels</string>
+    <string name="data_plan_widget_description">Volg je databundels op je startscherm</string>
+    <string name="widget_warning">De widgetondersteuning is experimenteel. Als je problemen ondervindt kun je ze melden op Github.</string>
+    <string name="no_configured_plans_description">Zorg ervoor dat je de Shizuku-machtiging hebt toegestaan en minimaal 1 databundel hebt ingesteld.</string>
+    <string name="no_configured_plans">Geen bundels ingesteld</string>
 </resources>
