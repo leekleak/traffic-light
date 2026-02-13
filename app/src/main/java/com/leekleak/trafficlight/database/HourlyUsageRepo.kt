@@ -72,14 +72,14 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
         val now = LocalDateTime.now()
         val startDate = when (dataPlan.interval) {
             TimeInterval.MONTH -> {
-                var startDate = fromTimestamp(dataPlan.startDate).toLocalDate().atStartOfDay()
+                var startDate = fromTimestamp(dataPlan.startDate)
                 while (startDate <= now) {
                     startDate = startDate.plusMonths(1)
                 }
                 startDate.minusMonths(1)
             }
             TimeInterval.DAY -> {
-                var startDate = fromTimestamp(dataPlan.startDate).toLocalDate().atStartOfDay()
+                var startDate = fromTimestamp(dataPlan.startDate)
                 while (startDate <= now) {
                     startDate = startDate.plusDays(dataPlan.intervalMultiplier?.toLong() ?: 1)
                 }

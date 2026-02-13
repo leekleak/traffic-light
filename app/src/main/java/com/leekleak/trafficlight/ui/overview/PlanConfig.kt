@@ -19,6 +19,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -58,12 +59,15 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDialog
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.getSelectedDate
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberSearchBarState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.toPath
 import androidx.compose.runtime.Composable
@@ -94,7 +98,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -131,6 +134,7 @@ import org.koin.compose.koinInject
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.time.LocalDate
+import java.time.LocalTime
 import java.util.Locale
 import kotlin.math.E
 import kotlin.math.pow
@@ -184,12 +188,12 @@ fun PlanConfig(
                 }
             }
         }
-    ) { paddintValues ->
+    ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .fillMaxSize(),
-            contentPadding = paddintValues
+            contentPadding = paddingValues
         ) {
             categoryTitle(R.string.configure_plan)
             item {
@@ -249,10 +253,6 @@ fun PlanConfig(
                     var selectedMonthDay by remember(newPlan) {
                         mutableIntStateOf(fromTimestamp(newPlan.startDate).dayOfMonth)
                     }
-
-                    var selectedStartDay by remember(newPlan) {
-                        mutableStateOf(fromTimestamp(newPlan.startDate))
-                    }
                     AnimatedContent(interval) { currentInterval ->
                         if (currentInterval == TimeInterval.MONTH) {
                             Column {
@@ -280,92 +280,15 @@ fun PlanConfig(
                                 )
                             }
                         } else {
-                            Column (
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ){
-                                val datePickerState = rememberDatePickerState(
-                                    initialSelectedDateMillis = newPlan.startDate,
-                                    selectableDates = PastOrPresentSelectableDates
-                                )
-                                val textFieldState = rememberTextFieldState((newPlan.intervalMultiplier?:1).toString())
-                                var datePickerVisible by remember { mutableStateOf(false) }
-
-                                LaunchedEffect(textFieldState.text) {
-                                    val number = textFieldState.text.toString().toIntOrNull()
-                                    if (number != null) newPlan = newPlan.copy(intervalMultiplier = number)
-                                }
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.last_reset_day),
-                                        fontSize = 18.sp,
-                                        fontFamily = robotoFlex(0f, 150f, 1000f),
-                                    )
-                                    Button({datePickerVisible = true}) {
-                                        Text(
-                                            text = selectedStartDay.toLocalDate().toString(),
-                                            fontFamily = robotoFlex(0f, 150f, 1000f),
-                                        )
-                                    }
-                                }
-                                Row(
-                                    modifier = Modifier.padding(top = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.period_length_days),
-                                        fontSize = 18.sp,
-                                        fontFamily = robotoFlex(0f, 150f, 1000f),
-                                    )
-                                    BasicTextField(
-                                        modifier = Modifier
-                                            .width(64.dp)
-                                            .clip(MaterialTheme.shapes.medium)
-                                            .background(MaterialTheme.colorScheme.primary)
-                                            .padding(8.dp),
-                                        state = textFieldState,
-                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                        inputTransformation = InputTransformation {
-                                            this.toString().filter { it.isDigit() }
-                                        }.maxLength(3),
-                                        textStyle = TextStyle(
-                                            fontFamily = robotoFlex(0f, 150f, 1000f),
-                                            fontSize = 18.sp,
-                                            textAlign = TextAlign.Center,
-                                            color = MaterialTheme.colorScheme.onPrimary
-                                        ),
-                                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onPrimary),
+                            CustomPlanSetup(
+                                newPlan = newPlan,
+                                onChange = { date, time, multiplier ->
+                                    newPlan = newPlan.copy(
+                                        startDate = date.atStartOfDay().toTimestamp() + time.toSecondOfDay() * 1000,
+                                        intervalMultiplier = multiplier
                                     )
                                 }
-                                if (datePickerVisible) {
-                                    DatePickerDialog (
-                                        onDismissRequest = { datePickerVisible = false },
-                                        confirmButton = {
-                                            Button (
-                                                enabled = datePickerState.getSelectedDate()?.let{it <= LocalDate.now()} ?: false,
-                                                onClick = {
-                                                    datePickerVisible = false
-                                                    newPlan = newPlan.copy(startDate = datePickerState.selectedDateMillis!!)
-                                                }
-                                            ) {
-                                                Text(stringResource(R.string.save))
-                                            }
-                                        }
-                                    ) {
-                                        DatePicker(
-                                            state = datePickerState,
-                                            modifier = Modifier.verticalScroll(rememberScrollState())
-                                        )
-                                    }
-                                }
-                            }
+                            )
                         }
                     }
                 }
@@ -472,6 +395,164 @@ fun PlanConfig(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: LocalTime, multiplier: Int?) -> Unit) {
+    var selectedDate by remember { mutableStateOf(fromTimestamp(newPlan.startDate).toLocalDate()) }
+    var selectedTime by remember { mutableStateOf(fromTimestamp(newPlan.startDate).toLocalTime()) }
+
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = newPlan.startDate,
+        selectableDates = PastOrPresentSelectableDates
+    )
+
+    val timePickerState = rememberTimePickerState(
+        initialHour = selectedTime.hour,
+        initialMinute = selectedTime.minute,
+    )
+
+    val textFieldState = rememberTextFieldState((newPlan.intervalMultiplier ?: 1).toString())
+    var datePickerVisible by remember { mutableStateOf(false) }
+    var timePickerVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(selectedDate, selectedTime, textFieldState.text) {
+        val multiplier = textFieldState.text.toString().toIntOrNull()
+        onChange(selectedDate, selectedTime, multiplier)
+    }
+
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        item {
+            Column {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(painterResource(R.drawable.day), null)
+                    Text(stringResource(R.string.day))
+                }
+                Button(
+                    shape = MaterialTheme.shapes.medium,
+                    onClick = { datePickerVisible = true }
+                ) {
+                    Text(
+                        text = selectedDate.toString(),
+                        fontFamily = robotoFlex(0f, 150f, 1000f),
+                    )
+                }
+            }
+        }
+        item {
+            Column {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(painterResource(R.drawable.clock), null)
+                    Text(stringResource(R.string.time))
+                }
+                Button(
+                    shape = MaterialTheme.shapes.medium,
+                    onClick = { timePickerVisible = true }
+                ) {
+                    Text(
+                        text = selectedTime.toString(),
+                        fontFamily = robotoFlex(0f, 150f, 1000f),
+                    )
+                }
+            }
+        }
+        item {
+            Column(
+                modifier = Modifier.width(IntrinsicSize.Max)
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(painterResource(R.drawable.length), null)
+                    Text(stringResource(R.string.length))
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .clip(MaterialTheme.shapes.medium)
+                        .background(MaterialTheme.colorScheme.primary)
+                        .padding(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)
+                ) {
+                    BasicTextField(
+                        modifier = Modifier.width(IntrinsicSize.Min),
+                        state = textFieldState,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        inputTransformation = InputTransformation {
+                            this.toString().filter { it.isDigit() }
+                        }.maxLength(3),
+                        textStyle = TextStyle(
+                            fontFamily = robotoFlex(0f, 150f, 1000f),
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onPrimary),
+                    )
+                    Text(
+                        text = stringResource(R.string.days),
+                        fontFamily = robotoFlex(0f, 150f, 1000f),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
+        }
+    }
+    if (datePickerVisible) {
+        DatePickerDialog(
+            onDismissRequest = { datePickerVisible = false },
+            confirmButton = {
+                Button(
+                    enabled = datePickerState.getSelectedDate()?.let { it <= LocalDate.now() }
+                        ?: false,
+                    onClick = {
+                        datePickerVisible = false
+                        selectedDate = datePickerState.getSelectedDate()
+                    }
+                ) {
+                    Text(stringResource(R.string.save))
+                }
+            }
+        ) {
+            DatePicker(
+                state = datePickerState,
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            )
+        }
+    } else if (timePickerVisible) {
+        TimePickerDialog(
+            onDismissRequest = { timePickerVisible = false },
+            title = {},
+            confirmButton = {
+                Button(
+                    enabled = datePickerState.getSelectedDate()?.let { it <= LocalDate.now() }
+                        ?: false,
+                    onClick = {
+                        timePickerVisible = false
+                        selectedTime = LocalTime.of(timePickerState.hour, timePickerState.minute)
+                    }
+                ) {
+                    Text(stringResource(R.string.save))
+                }
+            }
+        ) {
+            TimePicker(timePickerState)
         }
     }
 }

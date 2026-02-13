@@ -65,8 +65,10 @@
     <string name="zero_rated_apps">Zero-rated apps</string>
     <string name="save">Save</string>
     <string name="no_apps">No apps</string>
-    <string name="period_length_days">Period length (days):</string>
-    <string name="last_reset_day">Last reset day:</string>
+    <string name="day">Day:</string>
+    <string name="time">Time:</string>
+    <string name="length">Length:</string>
+    <string name="days">days</string>
     <string name="add_widget">Add widget</string>
     <string name="configured_plans">Configured plans</string>
     <string name="data_plan_widget_description">Track your data plans on your home screen</string>
