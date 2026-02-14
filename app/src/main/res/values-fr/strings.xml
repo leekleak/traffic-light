@@ -66,8 +66,6 @@
         <item quantity="other">Réinitialisation dans %d jours</item>
     </plurals>
     <string name="custom">Personnalisé</string>
-    <string name="period_length_days">Durée (jours) :</string>
-    <string name="last_reset_day">Dernière réinitialisation :</string>
     <string name="expressive_fonts_description">La désactivation des polices Expressive peut désorganiser les agencements et devient obsolète.</string>
     <string name="add_widget">Ajouter un widget</string>
     <string name="configured_plans">Forfaits configurés</string>

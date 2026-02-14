@@ -69,8 +69,6 @@
     </plurals>
     <string name="no_apps">لا تطبيقات</string>
     <string name="custom">مخصّص</string>
-    <string name="period_length_days">طول الفترة (بالأيام):</string>
-    <string name="last_reset_day">يوم تصفير الأخير:</string>
     <string name="expressive_fonts_description">تعطيل الخطوط التعبيرية قد يؤدي إلى تلف التنسيقات وسيتم إيقاف العمل بهذا الخيار قريبًا.</string>
     <string name="add_widget">أضف ويدجت</string>
     <string name="configured_plans">الخطط المضبوطة</string>
@@ -82,4 +80,8 @@
     <string name="shizuku_required">مطلوب إذن Shizuku</string>
     <string name="shizuku_required_description">يمكن منحها من الإعدادات.</string>
     <string name="shizuku_not_running_description">يجب أن يكون Shizuku قيد التشغيل للحصول على بيانات شريحة SIM.</string>
+    <string name="day">اليوم:</string>
+    <string name="time">الوقت:</string>
+    <string name="length">الطول:</string>
+    <string name="days">أيام</string>
 </resources>
