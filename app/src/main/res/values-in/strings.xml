@@ -64,8 +64,6 @@
         <item quantity="other">Diatur ulang dalam %d hari</item>
     </plurals>
     <string name="custom">Khusus</string>
-    <string name="period_length_days">Jangka waktu (hari):</string>
-    <string name="last_reset_day">Terakhir diatur ulang:</string>
     <string name="expressive_fonts_description">Menonaktifkan Font Ekspresif dapat merusak tata letak dan sedang dalam proses penonaktifan.</string>
     <string name="add_widget">Tambah widget</string>
     <string name="configured_plans">Data yang telah diatur</string>
