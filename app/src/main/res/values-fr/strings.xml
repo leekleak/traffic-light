@@ -66,8 +66,6 @@
         <item quantity="other">Réinitialisation dans %d jours</item>
     </plurals>
     <string name="custom">Personnalisé</string>
-    <string name="period_length_days">Durée (jours) :</string>
-    <string name="last_reset_day">Dernière réinitialisation :</string>
     <string name="expressive_fonts_description">La désactivation des polices Expressive peut désorganiser les agencements et devient obsolète.</string>
     <string name="add_widget">Ajouter un widget</string>
     <string name="configured_plans">Forfaits configurés</string>
@@ -75,4 +73,12 @@
     <string name="widget_warning">Le support des widgets est experimental. Si vous rencontrez des problèmes, veuillez les signaler sur GitHub.</string>
     <string name="no_configured_plans_description">Veuillez vous assurer que vous avez donné l\'autorisation Shizuku et configuré au moins un forfait de données.</string>
     <string name="no_configured_plans">Aucun forfait configuré</string>
+    <string name="day">Jour :</string>
+    <string name="time">Heure :</string>
+    <string name="length">Durée :</string>
+    <string name="days">jours</string>
+    <string name="warning">Avertissement</string>
+    <string name="shizuku_required">Autorisation Shizuku requise</string>
+    <string name="shizuku_required_description">Elle peut être accordée dans les paramètres.</string>
+    <string name="shizuku_not_running_description">Shizuku doit être lancé pour lire les données SIM.</string>
 </resources>

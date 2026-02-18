@@ -66,12 +66,18 @@
     </plurals>
     <string name="expressive_fonts_description">Das Deaktivieren von ausdrucksstarken Schriftarten kann zu Layoutfehlern führen und wird daher nicht mehr empfohlen.</string>
     <string name="custom">Benutzerdefiniert</string>
-    <string name="period_length_days">Periodendauer (Tage):</string>
-    <string name="last_reset_day">Letzter Rücksetztag:</string>
     <string name="add_widget">Widget hinzufügen</string>
     <string name="configured_plans">Konfigurierte Pläne</string>
     <string name="data_plan_widget_description">Verfolge deine Datentarife auf deinem Startbildschirm</string>
     <string name="widget_warning">Die Widget-Unterstützung ist experimentell. Solltest du auf Probleme stoßen, melde diese bitte auf GitHub.</string>
     <string name="no_configured_plans_description">Bitte stelle sicher, dass du Shizuku die Berechtigung erteilt und mindestens einen Datentarif konfiguriert hast.</string>
     <string name="no_configured_plans">Keine Tarife konfiguriert</string>
+    <string name="day">Tag:</string>
+    <string name="time">Zeit:</string>
+    <string name="length">Zeitraum:</string>
+    <string name="days">Tage</string>
+    <string name="warning">Warnung</string>
+    <string name="shizuku_required">Shizuku Berechtigung erforderlich</string>
+    <string name="shizuku_required_description">Diese Berechtigung kann in den Einstellungen aktiviert werden.</string>
+    <string name="shizuku_not_running_description">Shizuku wird benötigt, um SIM-Daten zu erhalten.</string>
 </resources>

@@ -61,8 +61,6 @@
     <string name="zero_rated_apps">Apps met nultarief</string>
     <string name="save">Opslaan</string>
     <string name="no_apps">Geen apps</string>
-    <string name="period_length_days">Lengte van periode (dagen):</string>
-    <string name="last_reset_day">Laatste resetdag:</string>
     <plurals name="resets_in_days">
         <item quantity="one">Reset morgen</item>
         <item quantity="other">Reset in %d dagen</item>
@@ -74,4 +72,12 @@
     <string name="widget_warning">De widgetondersteuning is experimenteel. Als je problemen ondervindt kun je ze melden op Github.</string>
     <string name="no_configured_plans_description">Zorg ervoor dat je de Shizuku-machtiging hebt toegestaan en minimaal 1 databundel hebt ingesteld.</string>
     <string name="no_configured_plans">Geen bundels ingesteld</string>
+    <string name="day">Dag:</string>
+    <string name="time">Tijd:</string>
+    <string name="length">Duur:</string>
+    <string name="days">dagen</string>
+    <string name="warning">Waarschuwing</string>
+    <string name="shizuku_required">Shizuku-machtiging vereist</string>
+    <string name="shizuku_required_description">Het kan toegestaan worden in de instellingen.</string>
+    <string name="shizuku_not_running_description">Shizuku moet actief zijn om SIM-gegevens te krijgen.</string>
 </resources>
