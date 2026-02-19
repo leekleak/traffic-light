@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Traffic Light</string>
+    <string name="today">Dnes</string>
+    <string name="this_week">Tento týden</string>
+    <string name="history">Historie</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="cellular">Mobilní</string>
+    <string name="grant">Grant</string>
+    <string name="speed">Rychlost: %1$s</string>
+    <string name="settings">Nastavení</string>
+    <string name="battery_optimization">Optimalizace baterie</string>
+    <string name="battery_optimization_description">Musí být vypnuto, aby telefon po chvíli neukončil službu na pozadí.</string>
+    <string name="usage_statistics">Statistiky využití</string>
+    <string name="usage_statistics_description">Vyžadováno pro dlouhodobé sledování využití dat.</string>
+    <string name="notifications">Oznámení</string>
+    <string name="screen_off_update">Aktualizace při vypnutí obrazovky</string>
+    <string name="screen_off_update_description">Umožňuje sledování využití na AOD, ale má vliv na baterii.</string>
+</resources>
