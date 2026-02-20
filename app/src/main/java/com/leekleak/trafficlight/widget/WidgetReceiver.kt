@@ -45,9 +45,13 @@ class WidgetReceiver: GlanceAppWidgetReceiver() {
         }
         runBlocking {
             val newIds = appWidgetIds.filter {
-                val glanceId = GlanceAppWidgetManager(context).getGlanceIdBy(it)
+                val glanceId = try {
+                    GlanceAppWidgetManager(context).getGlanceIdBy(it)
+                } catch (_: Exception) {
+                    return@filter false
+                }
                 val prefs = getAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId)
-                prefs[SUBSCRIBER_ID] != null
+                return@filter prefs[SUBSCRIBER_ID] != null
             }.toIntArray()
 
             super.onUpdate(context, appWidgetManager, newIds)
