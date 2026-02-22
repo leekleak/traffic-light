@@ -12,7 +12,7 @@ val databaseModule = module {
             androidContext(),
             AppDatabase::class.java,
             "database"
-        ).build()
+        ).allowMainThreadQueries().build()
     }
     single { get<AppDatabase>().dataPlanDao() }
 }

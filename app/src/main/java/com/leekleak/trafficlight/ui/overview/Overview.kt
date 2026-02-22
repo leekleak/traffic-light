@@ -84,7 +84,7 @@ fun Overview(
 
     val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
 
-    val activePlans by remember { dataPlanDao.getActiveFlow() }.collectAsState(listOf())
+    val activePlans = remember { dataPlanDao.getActive() }
 
     LaunchedEffect(Unit) {
         CoroutineScope(Dispatchers.IO).launch { shizukuManager.updateSimData() }
