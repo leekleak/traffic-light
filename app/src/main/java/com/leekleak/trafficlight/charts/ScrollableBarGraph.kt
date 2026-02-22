@@ -22,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -75,7 +76,15 @@ fun ScrollableBarGraph(
         selectorOffsetSnapped.snapTo(selectorOffset - selectorOffset % barWidth)
     }
 
-    LaunchedEffect(selectorOffsetSnapped.targetValue, offset.targetValue) {
+    var selectorIndex by remember { mutableIntStateOf(0) }
+    LaunchedEffect(selectorOffsetSnapped.value, offset.value) {
+        val currentSelected = ((selectorOffsetSnapped.value - offset.value)/barWidth).roundToInt()
+        if (currentSelected != selectorIndex) {
+            selectorIndex = currentSelected
+            if (selectorIndex in -1..data.size) {
+                haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+            }
+        }
         onSelect(((selectorOffsetSnapped.targetValue - offset.targetValue)/barWidth).roundToInt())
     }
 
