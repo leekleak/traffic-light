@@ -33,7 +33,6 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlanDao
-import com.leekleak.trafficlight.model.ShizukuDataManager
 import com.leekleak.trafficlight.ui.overview.DataPlanSelectorWidget
 import com.leekleak.trafficlight.ui.theme.Theme
 import com.leekleak.trafficlight.ui.theme.card
@@ -45,8 +44,6 @@ import com.leekleak.trafficlight.widget.Widget.Companion.SUBSCRIBER_ID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.koin.compose.koinInject
@@ -76,21 +73,10 @@ class WidgetConfigureActivity : ComponentActivity() {
     @Composable
     private fun Content(appWidgetId: Int, resultValue: Intent, paddingValues: PaddingValues) {
         val dataPlanDao: DataPlanDao = koinInject()
-        val shizukuManager: ShizukuDataManager = koinInject()
         val context = LocalContext.current
 
-        val subscriptionInfos = runBlocking { shizukuManager.getSubscriptionInfos() }
-
-        val pairs = runBlocking {
-            subscriptionInfos.mapNotNull { info ->
-                shizukuManager.getSubscriberID(info.subscriptionId)?.let {
-                    Pair(
-                        info,
-                        it
-                    )
-                }
-            }
-        }
+        val activePlans by remember { dataPlanDao.getActiveFlow() }.collectAsState(listOf())
+        val configuredPlans = activePlans.filter { it.dataMax != 0L }
 
         LazyColumn (
             modifier = Modifier.padding(horizontal = 16.dp),
@@ -105,7 +91,7 @@ class WidgetConfigureActivity : ComponentActivity() {
                 )
             }
             categoryTitleSmall(R.string.configured_plans)
-            if (pairs.isEmpty()) {
+            if (configuredPlans.isEmpty()) {
                 item {
                     Warning(
                         title = stringResource(R.string.no_configured_plans),
@@ -114,32 +100,26 @@ class WidgetConfigureActivity : ComponentActivity() {
                     )
                 }
             }
-            items(pairs, {it.second}) {
-                val dataPlan by remember {
-                    flow { emit(dataPlanDao.get(it.second)) }.flowOn(Dispatchers.IO)
-                }.collectAsState(null)
-                dataPlan?.let { plan ->
-                    DataPlanSelectorWidget(it.first, plan) {
-                        val subscriberId = it.second
-                        val glanceManager = GlanceAppWidgetManager(this@WidgetConfigureActivity)
-                        val glanceId = glanceManager.getGlanceIdBy(appWidgetId)
+            items(configuredPlans, {it.subscriberID}) {
+                DataPlanSelectorWidget(it) {
+                    val glanceManager = GlanceAppWidgetManager(this@WidgetConfigureActivity)
+                    val glanceId = glanceManager.getGlanceIdBy(appWidgetId)
 
-                        runBlocking {
-                            updateAppWidgetState(this@WidgetConfigureActivity, glanceId) { prefs ->
-                                prefs[SUBSCRIBER_ID] = subscriberId
-                                prefs[SIM_NUMBER] = it.first.simSlotIndex + 1
-                                prefs[CARRIER_NAME] = it.first.carrierName.toString()
-                            }
+                    runBlocking {
+                        updateAppWidgetState(this@WidgetConfigureActivity, glanceId) { prefs ->
+                            prefs[SUBSCRIBER_ID] = it.subscriberID
+                            prefs[SIM_NUMBER] = it.simIndex + 1
+                            prefs[CARRIER_NAME] = it.carrierName
                         }
+                    }
 
-                        setResult(RESULT_OK, resultValue)
-                        finish()
+                    setResult(RESULT_OK, resultValue)
+                    finish()
 
-                        CoroutineScope(Dispatchers.IO).launch {
-                            delay(1000)
-                            startAlarmManager(context)
-                            Widget().update(this@WidgetConfigureActivity, glanceId)
-                        }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        delay(1000)
+                        startAlarmManager(context)
+                        Widget().update(this@WidgetConfigureActivity, glanceId)
                     }
                 }
             }

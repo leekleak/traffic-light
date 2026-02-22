@@ -1,12 +1,8 @@
 package com.leekleak.trafficlight.ui.overview
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -52,11 +48,12 @@ import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.model.BarData
-import com.leekleak.trafficlight.database.DataPlan
+import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.database.HourlyUsageRepo.Companion.dayUsageToBarData
 import com.leekleak.trafficlight.model.PreferenceRepo
+import com.leekleak.trafficlight.model.ShizukuDataManager
 import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.services.UsageService
 import com.leekleak.trafficlight.ui.navigation.PlanConfig
@@ -64,7 +61,10 @@ import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.widget.Warning
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import java.time.LocalDate
 
@@ -79,9 +79,16 @@ fun Overview(
     val weeklyUsage by viewModel.hourlyUsageRepo.weekUsage().collectAsState(listOf())
 
     val permissionManager: PermissionManager = koinInject()
+    val shizukuManager: ShizukuDataManager = koinInject()
+    val dataPlanDao: DataPlanDao = koinInject()
+
     val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
-    val shizukuRunning by permissionManager.shizukuRunningFlow.collectAsState(false)
-    val subscriptionInfos by remember(shizukuPermission) { viewModel.getSubscriptionInfos() }.collectAsState(listOf())
+
+    val activePlans by remember { dataPlanDao.getActiveFlow() }.collectAsState(listOf())
+
+    LaunchedEffect(Unit) {
+        CoroutineScope(Dispatchers.IO).launch { shizukuManager.updateSimData() }
+    }
 
     /**
      * Generally the notification service is responsible for updating daily usage,
@@ -119,32 +126,15 @@ fun Overview(
                 )
             }
         }
-        else if (!shizukuRunning) {
-            item {
-                Warning(
-                    title = stringResource(R.string.shizuku_not_running),
-                    description = stringResource(R.string.shizuku_not_running_description),
-                )
-            }
-        }
-        items(subscriptionInfos, { it.subscriptionId }) { subInfo ->
-            val subscriberID by remember { viewModel.getSubscriberID(subInfo.subscriptionId) }.collectAsState(null)
-            subscriberID?.let { subID ->
-                val configured by remember { viewModel.getSubscriberIDHasDataPlan(subID) }.collectAsState(true)
-                AnimatedContent(
-                    targetState = configured,
-                    transitionSpec = { fadeIn() togetherWith fadeOut() }
-                ) {
-                    if (it) {
-                        val dataPlan = remember { viewModel.getDataPlan(subID) }.collectAsState(DataPlan(subID))
-                        ConfiguredDataPlan(subInfo, dataPlan.value) {
-                            backStack.add(PlanConfig(subID))
-                        }
-                    } else {
-                        UnconfiguredDataPlan(subInfo, subID) {
-                            backStack.add(PlanConfig(subID))
-                        }
-                    }
+
+        items(activePlans, {it.subscriberID}) {
+            if (it.dataMax != 0L) {
+                ConfiguredDataPlan(it) {
+                    backStack.add(PlanConfig(it.subscriberID))
+                }
+            } else {
+                UnconfiguredDataPlan(it) {
+                    backStack.add(PlanConfig(it.subscriberID))
                 }
             }
         }

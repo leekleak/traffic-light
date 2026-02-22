@@ -6,6 +6,8 @@ import android.os.IBinder
 import android.telephony.SubscriptionInfo
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.ITrafficLightShizukuService
+import com.leekleak.trafficlight.database.DataPlan
+import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.services.PermissionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +21,7 @@ import rikka.shizuku.Shizuku
 class ShizukuDataManager : KoinComponent {
     val preferenceRepo: PreferenceRepo by inject()
     val permissionManager: PermissionManager by inject()
+    val dataPlanDao: DataPlanDao by inject()
     var enabled = false
 
     private var binderMine: ITrafficLightShizukuService? = null
@@ -36,7 +39,8 @@ class ShizukuDataManager : KoinComponent {
     }
 
     private val serviceArgs = Shizuku.UserServiceArgs(
-        ComponentName(BuildConfig.APPLICATION_ID, TrafficLightShizukuService::class.java.name))
+        ComponentName(BuildConfig.APPLICATION_ID, TrafficLightShizukuService::class.java.name)
+    )
         .processNameSuffix("traffic_light_shizuku_service")
         .debuggable(BuildConfig.DEBUG)
         .version(BuildConfig.VERSION_CODE)
@@ -53,15 +57,36 @@ class ShizukuDataManager : KoinComponent {
         }
     }
 
-    suspend fun getSubscriptionInfos(): List<SubscriptionInfo> {
+    private suspend fun getSubscriptionInfos(): List<SubscriptionInfo> {
         if (!enabled) return emptyList()
         while (binderMine == null) delay(10)
         return binderMine!!.subscriptionInfos
     }
 
-    suspend fun getSubscriberID(subscriptionId: Int): String? {
+    private suspend fun getSubscriberID(subscriptionId: Int): String? {
         if (!enabled) return null
         while (binderMine == null) delay(10)
         return binderMine!!.getSubscriberID(subscriptionId)
+    }
+
+    suspend fun updateSimData() {
+        val infos = getSubscriptionInfos().sortedBy { it.simSlotIndex }
+        val activeSubscriberIDs = infos.map { getSubscriberID(it.subscriptionId) }
+        var plans = dataPlanDao.getAll()
+        plans = plans.map { plan ->
+            plan.copy(simIndex = activeSubscriberIDs.indexOf(plan.subscriberID))
+        }.toMutableList()
+        activeSubscriberIDs.forEachIndexed { index, activeID ->
+            if (activeID !in plans.map { it.subscriberID }) {
+                plans.add(
+                    DataPlan(
+                        subscriberID = activeID!!,
+                        simIndex = infos[index].simSlotIndex,
+                        carrierName = infos[index].carrierName.toString()
+                    )
+                )
+            }
+        }
+        dataPlanDao.addAll(plans)
     }
 }

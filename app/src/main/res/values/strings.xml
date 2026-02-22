@@ -78,7 +78,6 @@
     <string name="warning">Warning</string>
     <string name="shizuku_required">Shizuku permission required</string>
     <string name="shizuku_required_description">It can be granted in the settings.</string>
-    <string name="shizuku_not_running_description">Shizuku must be running to get SIM data.</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

@@ -3,7 +3,6 @@
 package com.leekleak.trafficlight.ui.overview
 
 import android.annotation.SuppressLint
-import android.telephony.SubscriptionInfo
 import androidx.annotation.FloatRange
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -54,14 +53,12 @@ import com.leekleak.trafficlight.database.resetString
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.DataSizeUnit
-import com.leekleak.trafficlight.util.toTimestamp
 import org.koin.compose.koinInject
 import java.text.DecimalFormat
-import java.time.LocalDateTime
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
-fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: () -> Unit) {
+fun ConfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
 
@@ -75,7 +72,7 @@ fun ConfiguredDataPlan(info: SubscriptionInfo, dataPlan: DataPlan, onConfigure: 
         }
     ) {
         Column {
-            ConfiguredDataPlanContent(dataPlan, info)
+            ConfiguredDataPlanContent(dataPlan)
             AnimatedVisibility(expanded, Modifier.fillMaxWidth()) {
                 ButtonGroup(
                     modifier = Modifier
@@ -137,19 +134,12 @@ private fun BoxBackground(
 
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
-fun UnconfiguredDataPlan(info: SubscriptionInfo, subscriberID: String, onConfigure: () -> Unit) {
+fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
     val hourlyUsageRepo: HourlyUsageRepo = koinInject()
 
-    val dataUsage = remember {
-        hourlyUsageRepo.planUsage(
-            DataPlan(
-                subscriberID = subscriberID,
-                startDate = LocalDateTime.now().withDayOfMonth(1).minusDays(1).toTimestamp()
-            )
-        )
-    }
+    val dataUsage = remember { hourlyUsageRepo.planUsage(dataPlan) }
     val usage = DataSize(dataUsage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
     val formatter = remember { DecimalFormat("0.##") }
     Column(
@@ -161,12 +151,12 @@ fun UnconfiguredDataPlan(info: SubscriptionInfo, subscriberID: String, onConfigu
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row {
-            SimIcon(info.simSlotIndex + 1)
+            SimIcon(dataPlan.simIndex + 1)
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(end = 4.dp),
-                text = info.carrierName.toString(),
+                text = dataPlan.carrierName,
                 fontFamily = carrierFont(),
                 textAlign = TextAlign.End
             )
@@ -221,7 +211,7 @@ fun UnconfiguredDataPlan(info: SubscriptionInfo, subscriberID: String, onConfigu
 }
 
 @Composable
-fun DataPlanSelectorWidget(info: SubscriptionInfo, dataPlan: DataPlan, onClick: () -> Unit) {
+fun DataPlanSelectorWidget(dataPlan: DataPlan, onClick: () -> Unit) {
     val haptic = LocalHapticFeedback.current
     BoxBackground(
         background = backgrounds[dataPlan.uiBackground],
@@ -230,15 +220,12 @@ fun DataPlanSelectorWidget(info: SubscriptionInfo, dataPlan: DataPlan, onClick: 
             onClick()
         }
     ) {
-        ConfiguredDataPlanContent(dataPlan, info)
+        ConfiguredDataPlanContent(dataPlan)
     }
 }
 
 @Composable
-private fun ConfiguredDataPlanContent(
-    dataPlan: DataPlan,
-    info: SubscriptionInfo,
-) {
+private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
     val context = LocalContext.current
     val hourlyUsageRepo: HourlyUsageRepo = koinInject()
     val dataUsage = remember(dataPlan) { hourlyUsageRepo.planUsage(dataPlan) }
@@ -246,12 +233,12 @@ private fun ConfiguredDataPlanContent(
     Column(Modifier.padding(8.dp)) {
         Column(Modifier.height(184.dp)) {
             Row {
-                SimIcon(info.simSlotIndex + 1)
+                SimIcon(dataPlan.simIndex + 1)
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(end = 4.dp),
-                    text = info.carrierName.toString(),
+                    text = dataPlan.carrierName,
                     fontFamily = carrierFont(),
                     textAlign = TextAlign.End
                 )
