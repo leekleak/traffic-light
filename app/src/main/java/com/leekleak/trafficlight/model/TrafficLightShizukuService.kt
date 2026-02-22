@@ -1,8 +1,12 @@
 package com.leekleak.trafficlight.model
 
 import android.annotation.SuppressLint
+import android.os.Parcel
+import android.telephony.SubscriptionInfo
 import androidx.core.text.isDigitsOnly
 import com.leekleak.trafficlight.ITrafficLightShizukuService
+import rikka.shizuku.SystemServiceHelper.getSystemService
+import timber.log.Timber
 import java.lang.reflect.Field
 import kotlin.system.exitProcess
 
@@ -30,6 +34,52 @@ class TrafficLightShizukuService : ITrafficLightShizukuService.Stub() {
             subscriptionInfoListTransaction = getTransactionCode(className, methodName)
         }
         return subscriptionInfoListTransaction ?: 0
+    }
+
+    override fun getSubscriberID(subscriptionId: Int): String? {
+        return transactForType(
+            systemService = "iphonesubinfo",
+            code = getSubscriberIDTransaction(),
+            interfaceName = "com.android.internal.telephony.IPhoneSubInfo",
+            prepareData = { data -> data.writeInt(subscriptionId) },
+            parseReply = { reply -> reply.readString() }
+        )
+    }
+
+    override fun getSubscriptionInfos(): List<SubscriptionInfo> {
+        return transactForType(
+            systemService = "isub",
+            code = getSubscriptionInfoListTransaction(),
+            interfaceName = "com.android.internal.telephony.ISub",
+            parseReply = { reply -> reply.createTypedArrayList(SubscriptionInfo.CREATOR) }
+        ) ?: listOf()
+    }
+
+    fun <T> transactForType(
+        systemService: String,
+        code: Int,
+        interfaceName: String,
+        prepareData: (data: Parcel) -> Unit = {},
+        parseReply: (reply: Parcel) -> T
+    ): T? {
+        val data = Parcel.obtain()
+        val reply = Parcel.obtain()
+        try {
+            val binder = getSystemService(systemService)
+            data.writeInterfaceToken(interfaceName)
+            prepareData(data)
+            data.writeString("com.android.shell")
+
+            binder.transact(code, data, reply, 0)
+            Timber.e("Exception:%s", reply.readException())
+            return parseReply(reply)
+        } catch (e: Exception) {
+            Timber.e(e)
+            return null
+        } finally {
+            data.recycle()
+            reply.recycle()
+        }
     }
 
     fun getTransactionCode(className: String, methodName: String): Int? {

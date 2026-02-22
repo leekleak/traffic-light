@@ -3,7 +3,6 @@ package com.leekleak.trafficlight.model
 import android.content.ComponentName
 import android.content.ServiceConnection
 import android.os.IBinder
-import android.os.Parcel
 import android.telephony.SubscriptionInfo
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.ITrafficLightShizukuService
@@ -15,9 +14,6 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import rikka.shizuku.Shizuku
-import rikka.shizuku.ShizukuBinderWrapper
-import rikka.shizuku.SystemServiceHelper.getSystemService
-import timber.log.Timber
 
 
 class ShizukuDataManager : KoinComponent {
@@ -59,53 +55,13 @@ class ShizukuDataManager : KoinComponent {
 
     suspend fun getSubscriptionInfos(): List<SubscriptionInfo> {
         if (!enabled) return emptyList()
-        val data = Parcel.obtain()
-        val reply = Parcel.obtain()
-        try {
-            data.writeInterfaceToken("com.android.internal.telephony.ISub")
-            data.writeString("com.android.shell")
-
-            val binder = ShizukuBinderWrapper(getSystemService("isub"))
-
-            while (binderMine == null) delay(10)
-            val code = binderMine!!.subscriptionInfoListTransaction
-
-            binder.transact(code, data, reply, 0)
-            Timber.e("Exception:%s", reply.readException())
-            val info = reply.createTypedArrayList(SubscriptionInfo.CREATOR)
-            return info ?: listOf()
-        } catch (e: Exception) {
-            Timber.e(e)
-            return listOf()
-        } finally {
-            data.recycle()
-            reply.recycle()
-        }
+        while (binderMine == null) delay(10)
+        return binderMine!!.subscriptionInfos
     }
 
     suspend fun getSubscriberID(subscriptionId: Int): String? {
         if (!enabled) return null
-        val data = Parcel.obtain()
-        val reply = Parcel.obtain()
-        try {
-            data.writeInterfaceToken("com.android.internal.telephony.IPhoneSubInfo")
-            data.writeInt(subscriptionId)
-            data.writeString("com.android.shell")
-
-            val binder = ShizukuBinderWrapper(getSystemService("iphonesubinfo"))
-
-            while (binderMine == null) delay(10)
-            val code = binderMine!!.subscriberIDTransaction
-
-            binder.transact(code, data, reply, 0)
-            reply.readException()
-            return reply.readString()!!
-        } catch (e: Exception) {
-            Timber.e(e)
-            return null
-        } finally {
-            data.recycle()
-            reply.recycle()
-        }
+        while (binderMine == null) delay(10)
+        return binderMine!!.getSubscriberID(subscriptionId)
     }
 }
