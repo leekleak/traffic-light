@@ -401,7 +401,7 @@ fun PlanConfig(
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: LocalTime, multiplier: Int?) -> Unit) {
+private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: LocalTime, multiplier: Int) -> Unit) {
     var selectedDate by remember { mutableStateOf(fromTimestamp(newPlan.startDate).toLocalDate()) }
     var selectedTime by remember { mutableStateOf(fromTimestamp(newPlan.startDate).toLocalTime()) }
 
@@ -415,12 +415,12 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
         initialMinute = selectedTime.minute,
     )
 
-    val textFieldState = rememberTextFieldState((newPlan.intervalMultiplier ?: 1).toString())
+    val textFieldState = rememberTextFieldState((newPlan.intervalMultiplier).toString())
     var datePickerVisible by remember { mutableStateOf(false) }
     var timePickerVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(selectedDate, selectedTime, textFieldState.text) {
-        val multiplier = textFieldState.text.toString().toIntOrNull()
+        val multiplier = textFieldState.text.toString().toIntOrNull() ?: 1
         onChange(selectedDate, selectedTime, multiplier)
     }
 

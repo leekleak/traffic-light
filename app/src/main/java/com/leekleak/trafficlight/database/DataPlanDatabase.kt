@@ -43,7 +43,7 @@ data class DataPlan(
     @ColumnInfo val recurring: Boolean = true,
     @ColumnInfo val startDate: Long = LocalDate.now().withDayOfMonth(1).atStartOfDay().toTimestamp(), // LocalDate as timestamp
     @ColumnInfo val interval: TimeInterval = TimeInterval.MONTH,
-    @ColumnInfo val intervalMultiplier: Int? = null,
+    @ColumnInfo val intervalMultiplier: Int = 1,
 
     @ColumnInfo val excludedApps: List<Int> = listOf(), // List of excluded app UIDs
     @ColumnInfo val unlimitedDataPeriod: List<Int>? = null, // List of 2 items. Start and end hours of the range in UTC
@@ -92,7 +92,7 @@ interface DataPlanDao {
     suspend fun addAll(plans: List<DataPlan>)
 }
 
-@Database(entities = [DataPlan::class], version = 1)
+@Database(entities = [DataPlan::class], version = 2)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun dataPlanDao(): DataPlanDao
@@ -124,7 +124,7 @@ fun DataPlan.resetString(context: Context): String {
         TimeInterval.DAY -> {
             var startDate = fromTimestamp(startDate).toLocalDate().atStartOfDay()
             while (startDate <= now) {
-                startDate = startDate.plusDays(intervalMultiplier?.toLong() ?: 1)
+                startDate = startDate.plusDays(intervalMultiplier.toLong())
             }
             startDate
         }
