@@ -141,6 +141,7 @@ class UsageService : Service(), KoinComponent {
                 todayUsage = hourlyUsageRepo.singleDayUsage(LocalDate.now())
             }
             try {
+                notificationManager.notify(NOTIFICATION_ID, notification)
                 notification.let {
                     ServiceCompat.startForeground(
                         this,
