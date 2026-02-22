@@ -76,15 +76,15 @@ fun ScrollableBarGraph(
         selectorOffsetSnapped.snapTo(selectorOffset - selectorOffset % barWidth)
     }
 
-    var selectorIndex by remember { mutableIntStateOf(0) }
+    var selectorIndex by remember { mutableIntStateOf(data.size-1) }
     LaunchedEffect(selectorOffsetSnapped.value, offset.value) {
         val currentSelected = ((selectorOffsetSnapped.value - offset.value)/barWidth).roundToInt()
-        if (currentSelected != selectorIndex) {
-            selectorIndex = currentSelected
+        if (abs(currentSelected-selectorIndex) == 1) {
             if (selectorIndex in -1..data.size) {
                 haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
             }
         }
+        selectorIndex = currentSelected
         onSelect(((selectorOffsetSnapped.targetValue - offset.targetValue)/barWidth).roundToInt())
     }
 

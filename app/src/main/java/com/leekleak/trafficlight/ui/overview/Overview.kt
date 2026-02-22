@@ -108,7 +108,7 @@ fun Overview(
         state = columnState
     ) {
         categoryTitle(R.string.data_plans)
-        if (!shizukuPermission) {
+        if (!shizukuPermission && activePlans.isEmpty()) {
             item {
                 Warning(
                     title = stringResource(R.string.shizuku_required),
