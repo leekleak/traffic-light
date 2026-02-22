@@ -53,7 +53,6 @@ import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.database.HourlyUsageRepo.Companion.dayUsageToBarData
 import com.leekleak.trafficlight.model.PreferenceRepo
-import com.leekleak.trafficlight.model.ShizukuDataManager
 import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.services.UsageService
 import com.leekleak.trafficlight.ui.navigation.PlanConfig
@@ -61,10 +60,7 @@ import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.widget.Warning
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import java.time.LocalDate
 
@@ -79,16 +75,11 @@ fun Overview(
     val weeklyUsage by viewModel.hourlyUsageRepo.weekUsage().collectAsState(listOf())
 
     val permissionManager: PermissionManager = koinInject()
-    val shizukuManager: ShizukuDataManager = koinInject()
-    val dataPlanDao: DataPlanDao = koinInject()
-
     val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
 
-    val activePlans = remember { dataPlanDao.getActive() }
+    val dataPlanDao: DataPlanDao = koinInject()
 
-    LaunchedEffect(Unit) {
-        CoroutineScope(Dispatchers.IO).launch { shizukuManager.updateSimData() }
-    }
+    val activePlans = remember { dataPlanDao.getActive() }
 
     /**
      * Generally the notification service is responsible for updating daily usage,
@@ -108,7 +99,6 @@ fun Overview(
     }
 
     val columnState = rememberLazyListState()
-    LaunchedEffect(shizukuPermission) { columnState.scrollToItem(0) }
     LazyColumn(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.surface)

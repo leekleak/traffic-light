@@ -57,19 +57,18 @@ class ShizukuDataManager : KoinComponent {
         }
     }
 
-    private suspend fun getSubscriptionInfos(): List<SubscriptionInfo> {
+    private fun getSubscriptionInfos(): List<SubscriptionInfo> {
         if (!enabled) return emptyList()
-        while (binderMine == null) delay(10)
         return binderMine!!.subscriptionInfos
     }
 
-    private suspend fun getSubscriberID(subscriptionId: Int): String? {
+    private fun getSubscriberID(subscriptionId: Int): String? {
         if (!enabled) return null
-        while (binderMine == null) delay(10)
         return binderMine!!.getSubscriberID(subscriptionId)
     }
 
-    suspend fun updateSimData() {
+    fun updateSimData() = CoroutineScope(Dispatchers.IO).launch {
+        while (binderMine == null) delay(10)
         val infos = getSubscriptionInfos().sortedBy { it.simSlotIndex }
         val activeSubscriberIDs = infos.map { getSubscriberID(it.subscriptionId) }
         var plans = dataPlanDao.getAll()
