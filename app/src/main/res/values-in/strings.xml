@@ -75,4 +75,8 @@
     <string name="shizuku_required">Membutuhkan izin Shizuku</string>
     <string name="shizuku_required_description">Ini dapat diberikan di pengaturan.</string>
     <string name="shizuku_not_running_description">Shizuku harus berjalan untuk mendapatkan data SIM.</string>
+    <string name="day">Hari:</string>
+    <string name="time">Waktu:</string>
+    <string name="length">Durasi:</string>
+    <string name="days">hari</string>
 </resources>
