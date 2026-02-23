@@ -14,7 +14,6 @@ val databaseModule = module {
             AppDatabase::class.java,
             "database"
         )
-            .allowMainThreadQueries()
             .addMigrations(
                 MIGRATION_1_2
             )

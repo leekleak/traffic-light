@@ -79,7 +79,7 @@ fun Overview(
 
     val dataPlanDao: DataPlanDao = koinInject()
 
-    val activePlans = remember { dataPlanDao.getActive() }
+    val activePlans by remember { dataPlanDao.getActiveFlow() }.collectAsState(listOf())
 
     /**
      * Generally the notification service is responsible for updating daily usage,
