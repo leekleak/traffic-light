@@ -83,14 +83,14 @@ class WidgetConfigureActivity : ComponentActivity() {
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = paddingValues
         ){
-            categoryTitle(R.string.add_widget)
+            categoryTitle { stringResource(R.string.add_widget) }
             item {
                 Warning(
                     title = stringResource(R.string.warning),
                     description = stringResource(R.string.widget_warning) ,
                 )
             }
-            categoryTitleSmall(R.string.configured_plans)
+            categoryTitleSmall { stringResource(R.string.configured_plans) }
             if (configuredPlans.isEmpty()) {
                 item {
                     Warning(

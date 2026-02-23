@@ -63,7 +63,7 @@ fun DayOfWeek.getName(style: TextStyle) =
 fun Month.getName(style: TextStyle) =
     this.getDisplayName(style, Locale.getDefault()).replaceFirstChar(Char::titlecase)
 
-fun LazyListScope.categoryTitle(text: Int) = item { CategoryTitleText(stringResource(text)) }
+fun LazyListScope.categoryTitle(text: @Composable (() -> String)) = item { CategoryTitleText(text()) }
 
 @Composable
 fun CategoryTitleText(text: String) {
@@ -75,7 +75,7 @@ fun CategoryTitleText(text: String) {
     )
 }
 
-fun LazyListScope.categoryTitleSmall(text: Int) = item { CategoryTitleSmallText(stringResource(text)) }
+fun LazyListScope.categoryTitleSmall(text: @Composable (() -> String)) = item { CategoryTitleSmallText(text()) }
 
 @Composable
 fun CategoryTitleSmallText(text: String) {

@@ -107,7 +107,7 @@ fun Overview(
         contentPadding = paddingValues,
         state = columnState
     ) {
-        categoryTitle(R.string.data_plans)
+        categoryTitle { stringResource(R.string.data_plans) }
         if (!shizukuPermission && activePlans.isEmpty()) {
             item {
                 Warning(
@@ -153,7 +153,7 @@ fun LazyListScope.overviewTab(
 ) {
     val cellular = data.sumOf { it.y1 }.toLong()
     val wifi = data.sumOf { it.y2 }.toLong()
-    categoryTitle(label)
+    categoryTitle { stringResource(label) }
     item {
         Column (verticalArrangement = Arrangement.spacedBy(8.dp)){
             Row(

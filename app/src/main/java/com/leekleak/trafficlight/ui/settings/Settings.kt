@@ -64,7 +64,7 @@ fun Settings(
         Modifier.background(MaterialTheme.colorScheme.surface),
         contentPadding = paddingValues
     ) {
-        categoryTitle(R.string.settings)
+        categoryTitle { stringResource(R.string.settings) }
         item {
             val usageMode by viewModel.hourlyUsageRepo.usageModeFlow().collectAsState(Unlimited)
             val backgroundPermission by viewModel.permissionManager.backgroundPermissionFlow.collectAsState(true)
@@ -138,7 +138,7 @@ fun Settings(
             }
         }
 
-        categoryTitleSmall(R.string.notifications)
+        categoryTitleSmall { stringResource(R.string.notifications) }
         item {
             val notification by viewModel.preferenceRepo.notification.collectAsState(false)
             val notificationPermission by viewModel.permissionManager.notificationPermissionFlow.collectAsState(true)
@@ -176,7 +176,7 @@ fun Settings(
             }
         }
 
-        categoryTitleSmall(R.string.ui)
+        categoryTitleSmall { stringResource(R.string.ui) }
         item {
             val theme by viewModel.preferenceRepo.theme.collectAsState(Theme.AutoMaterial)
             val scroll = rememberScrollState(0)
@@ -209,7 +209,7 @@ fun Settings(
             )
         }
 
-        categoryTitleSmall(R.string.about)
+        categoryTitleSmall { stringResource(R.string.about) }
         item {
             Preference(
                 title = stringResource(R.string.github),

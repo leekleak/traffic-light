@@ -29,8 +29,8 @@ fun NotificationSettings(paddingValues: PaddingValues) {
             .fillMaxSize(),
         contentPadding = paddingValues
     ) {
-        categoryTitle(R.string.notifications)
-        categoryTitleSmall(R.string.appearance)
+        categoryTitle { stringResource(R.string.notifications) }
+        categoryTitleSmall { stringResource(R.string.appearance) }
         item {
             val bigIcon by preferenceRepo.bigIcon.collectAsState(false)
             SwitchPreference(
@@ -49,7 +49,7 @@ fun NotificationSettings(paddingValues: PaddingValues) {
                 onValueChanged = { preferenceRepo.setSpeedBits(it) }
             )
         }
-        categoryTitleSmall(R.string.behavior)
+        categoryTitleSmall { stringResource(R.string.behavior) }
         item {
             val modeAOD by preferenceRepo.modeAOD.collectAsState(false)
             SwitchPreference(

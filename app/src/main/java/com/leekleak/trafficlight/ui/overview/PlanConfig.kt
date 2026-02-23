@@ -195,7 +195,7 @@ fun PlanConfig(
                 .fillMaxSize(),
             contentPadding = paddingValues
         ) {
-            categoryTitle(R.string.configure_plan)
+            categoryTitle { stringResource(R.string.configure_plan) }
             item {
                 val size by remember { derivedStateOf {
                     DataSize(currentPlan.value.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)
@@ -205,7 +205,7 @@ fun PlanConfig(
                     newPlan = newPlan.copy(dataMax = data.getBitValue())
                 }
             }
-            categoryTitleSmall(R.string.type)
+            categoryTitleSmall { stringResource(R.string.type) }
             item {
                 Column(
                     modifier = Modifier
@@ -294,7 +294,7 @@ fun PlanConfig(
                 }
             }
 
-            categoryTitleSmall(R.string.zero_rated_apps)
+            categoryTitleSmall { stringResource(R.string.zero_rated_apps) }
             item {
                 val appDatabase: AppDatabase = koinInject()
                 val excludedApps by remember { derivedStateOf {
@@ -381,7 +381,7 @@ fun PlanConfig(
 
                 }
             }
-            categoryTitleSmall(R.string.background)
+            categoryTitleSmall { stringResource(R.string.background) }
             item {
                 LazyRow(
                     modifier = Modifier.card(),
