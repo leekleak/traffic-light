@@ -71,7 +71,7 @@ fun Overview(
 ) {
     val viewModel: OverviewVM = viewModel()
 
-    val todayUsage by viewModel.todayUsage.collectAsState(DayUsage())
+    val todayUsage by viewModel.hourlyUsageRepo.todayUsage().collectAsState(listOf())
     val weeklyUsage by viewModel.hourlyUsageRepo.weekUsage().collectAsState(listOf())
 
     val permissionManager: PermissionManager = koinInject()
@@ -131,7 +131,7 @@ fun Overview(
 
         overviewTab(
             label = R.string.today,
-            data = dayUsageToBarData(todayUsage),
+            data = todayUsage
         )
 
         if (weeklyUsage.isNotEmpty()) {

@@ -57,18 +57,6 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
         else UsageMode.Unlimited
     }
 
-    fun singleDayUsage(date: LocalDate): DayUsage {
-        val dayStamp = date.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
-        val hours: MutableMap<Long, HourData> = mutableMapOf()
-
-        for (k in 0..11) {
-            val globalHour = dayStamp + k * 3_600_000L * 2
-            hours[k * 2L] = calculateHourData(globalHour, globalHour + 3_600_000L * 2)
-        }
-
-        return DayUsage(date, hours).also { it.categorizeUsage() }
-    }
-
     fun calculateDayUsageBasic(startDate: LocalDate, endDate: LocalDate = startDate, uid: Int? = null): DayUsage {
         val startStamp = startDate.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
         val endStamp = endDate.plusDays(1).atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
@@ -119,12 +107,12 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
         )
     }
 
-    fun getNetworkDataForType(startTime: Long, endTime: Long, uid: Int?, subscriberId: String?, type: Int): UsageData {
+    fun getNetworkDataForType(startStamp: Long, endStamp: Long, uid: Int?, subscriberId: String?, type: Int): UsageData {
         if (uid == null) {
-            val bucket = networkStatsManager.querySummaryForDevice(type, subscriberId, startTime, endTime)
+            val bucket = networkStatsManager.querySummaryForDevice(type, subscriberId, startStamp, endStamp)
             return UsageData(bucket.txBytes, bucket.rxBytes)
         } else {
-            val stats = networkStatsManager.queryDetailsForUid(type, subscriberId, startTime, endTime, uid)
+            val stats = networkStatsManager.queryDetailsForUid(type, subscriberId, startStamp, endStamp, uid)
             var totalUp = 0L
             var totalDown = 0L
             while (stats.hasNextBucket()) {
@@ -201,27 +189,42 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
         emit(data.toList())
     }.flowOn(Dispatchers.IO)
 
+    fun todayUsage(): Flow<List<BarData>> = flow {
+        val data: MutableList<BarData> = MutableList(12) { i ->
+            val x = padHour(i * 2)
+            BarData(x, 0.0, 0.0)
+        }
+        val now = LocalDate.now().atStartOfDay()
+
+        for (i in 0..11) {
+            val startStamp = now.plusHours(i * 2L).toTimestamp()
+            val endStamp = now.plusHours((i + 1L) * 2).toTimestamp()
+            val wifi = getNetworkDataForType(startStamp, endStamp, null, null, NETWORK_TYPE_WIFI)
+            val mobile = getNetworkDataForType(startStamp, endStamp, null, null, NETWORK_TYPE_MOBILE)
+
+            data[i] += BarData(
+                "",
+                mobile.total.toDouble(),
+                wifi.total.toDouble()
+            )
+        }
+        emit(data.toList())
+    }.flowOn(Dispatchers.IO)
+
+    fun singleDayUsage(date: LocalDate): DayUsage {
+        val dayStamp = date.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
+        val hours: MutableMap<Long, HourData> = mutableMapOf()
+
+        for (k in 0..11) {
+            val globalHour = dayStamp + k * 3_600_000L * 2
+            hours[k * 2L] = calculateHourData(globalHour, globalHour + 3_600_000L * 2)
+        }
+
+        return DayUsage(date, hours).also { it.categorizeUsage() }
+    }
+
     companion object {
         const val NETWORK_TYPE_MOBILE = 0
         const val NETWORK_TYPE_WIFI = 1
-        fun dayUsageToBarData(usage: DayUsage): List<BarData> {
-            val data: MutableList<BarData> = mutableListOf()
-            val hours = usage.hours
-            for (i in 0..22 step 2) {
-                data.add(BarData(padHour(i), 0.0, 0.0))
-            }
-
-            if (hours.isNotEmpty()) {
-                for (i in hours.entries) {
-                    val ii = i.key.toInt() / 2
-                    data[ii] = BarData(
-                        padHour(ii * 2),
-                        i.value.cellular.toDouble(),
-                        i.value.wifi.toDouble()
-                    )
-                }
-            }
-            return data
-        }
     }
 }
