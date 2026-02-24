@@ -151,7 +151,7 @@ fun Settings(
                 ActivityResultContracts.RequestPermission()
             ) {
                 scope.launch {
-                    viewModel.setNotifications(it, context)
+                    viewModel.runUsageService(it, context)
                 }
             }
 
@@ -167,7 +167,8 @@ fun Settings(
                         )
                     } else {
                         scope.launch {
-                            viewModel.setNotifications(it, context)
+                            preferenceRepo.setNotification(it)
+                            viewModel.runUsageService(it, context)
                         }
                     }
                 },
