@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -17,11 +18,13 @@ import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 @Composable
 fun NotificationSettings(paddingValues: PaddingValues) {
     val preferenceRepo: PreferenceRepo = koinInject()
+    val scope = rememberCoroutineScope()
 
     LazyColumn(
         Modifier
@@ -38,7 +41,7 @@ fun NotificationSettings(paddingValues: PaddingValues) {
                 summary = stringResource(R.string.oversample_icon_description),
                 icon = painterResource(R.drawable.oversample),
                 value = bigIcon,
-                onValueChanged = { preferenceRepo.setBigIcon(it) }
+                onValueChanged = { scope.launch { preferenceRepo.setBigIcon(it) } }
             )
             val speedBits by preferenceRepo.speedBits.collectAsState(false)
             SwitchPreference(
@@ -46,7 +49,7 @@ fun NotificationSettings(paddingValues: PaddingValues) {
                 summary = null,
                 icon = painterResource(R.drawable.speed),
                 value = speedBits,
-                onValueChanged = { preferenceRepo.setSpeedBits(it) }
+                onValueChanged = { scope.launch { preferenceRepo.setSpeedBits(it) } }
             )
         }
         categoryTitleSmall { stringResource(R.string.behavior) }
@@ -57,7 +60,7 @@ fun NotificationSettings(paddingValues: PaddingValues) {
                 summary = stringResource(R.string.screen_off_update_description),
                 icon = painterResource(R.drawable.aod),
                 value = modeAOD,
-                onValueChanged = { preferenceRepo.setModeAOD(it) }
+                onValueChanged = { scope.launch { preferenceRepo.setModeAOD(it) } }
             )
             val altVpn by preferenceRepo.altVpn.collectAsState(false)
             SwitchPreference(
@@ -65,7 +68,7 @@ fun NotificationSettings(paddingValues: PaddingValues) {
                 summary = stringResource(R.string.alt_vpn_workaround_description),
                 icon = painterResource(R.drawable.vpn),
                 value = altVpn,
-                onValueChanged = { preferenceRepo.setAltVpn(it) }
+                onValueChanged = { scope.launch { preferenceRepo.setAltVpn(it) } }
             )
             val forceFallback by preferenceRepo.forceFallback.collectAsState(false)
             val doesFallbackWork = remember { TrafficSnapshot.doesFallbackWork() }
@@ -76,7 +79,7 @@ fun NotificationSettings(paddingValues: PaddingValues) {
                 icon = painterResource(R.drawable.fallback),
                 value = forceFallback,
                 enabled = doesFallbackWork,
-                onValueChanged = { preferenceRepo.setForceFallback(it) }
+                onValueChanged = { scope.launch { preferenceRepo.setForceFallback(it) } }
             )
         }
     }

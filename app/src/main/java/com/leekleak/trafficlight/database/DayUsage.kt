@@ -87,7 +87,7 @@ data class TrafficSnapshot (
                     fallbackUpdateSnapshot()
                 } catch (e: Exception) {
                     Timber.e("Fallback unsupported: $e")
-                    preferenceRepo.setForceFallback(false)
+                    CoroutineScope(Dispatchers.Default).launch { preferenceRepo.setForceFallback(false) }
                     useFallback = false
                 }
             } else {

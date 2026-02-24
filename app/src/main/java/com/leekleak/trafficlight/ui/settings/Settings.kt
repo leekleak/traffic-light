@@ -1,6 +1,7 @@
 package com.leekleak.trafficlight.ui.settings
 
 import android.Manifest
+import android.os.Build
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -34,9 +35,11 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.database.UsageMode.Limited
 import com.leekleak.trafficlight.database.UsageMode.NoPermission
 import com.leekleak.trafficlight.database.UsageMode.Unlimited
+import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.NotificationSettings
 import com.leekleak.trafficlight.ui.theme.Theme
@@ -55,7 +58,9 @@ fun Settings(
     backstack: NavBackStack<NavKey>,
 ) {
     val viewModel: SettingsVM = viewModel()
+    val preferenceRepo: PreferenceRepo = koinInject()
     val permissionManager: PermissionManager = koinInject()
+    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
     val activity = LocalActivity.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -66,8 +71,8 @@ fun Settings(
     ) {
         categoryTitle { stringResource(R.string.settings) }
         item {
-            val usageMode by viewModel.hourlyUsageRepo.usageModeFlow().collectAsState(Unlimited)
-            val backgroundPermission by viewModel.permissionManager.backgroundPermissionFlow.collectAsState(true)
+            val usageMode by hourlyUsageRepo.usageModeFlow().collectAsState(Unlimited)
+            val backgroundPermission by permissionManager.backgroundPermissionFlow.collectAsState(true)
             val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
             val shizukuRunning by permissionManager.shizukuRunningFlow.collectAsState(false)
 
@@ -83,7 +88,7 @@ fun Settings(
                         title = stringResource(R.string.battery_optimization),
                         description = stringResource(R.string.battery_optimization_description),
                         icon = painterResource(R.drawable.battery),
-                        onClick = { viewModel.permissionManager.askBackgroundPermission(activity) }
+                        onClick = { permissionManager.askBackgroundPermission(activity) }
                     )
                 }
                 if (usageMode == NoPermission) {
@@ -91,7 +96,7 @@ fun Settings(
                         title = stringResource(R.string.usage_statistics),
                         description = stringResource(R.string.usage_statistics_description),
                         icon = painterResource(R.drawable.usage),
-                        onClick = { viewModel.permissionManager.askUsagePermission(activity) }
+                        onClick = { permissionManager.askUsagePermission(activity) }
                     ) {
                         PermissionButton(
                             icon = painterResource(R.drawable.help),
@@ -100,7 +105,7 @@ fun Settings(
                                 containerColor = MaterialTheme.colorScheme.surface,
                                 contentColor = MaterialTheme.colorScheme.onSurface,
                             ),
-                            onClick = { viewModel.permissionManager.openUsagePermissionHelp(activity) }
+                            onClick = { permissionManager.openUsagePermissionHelp(activity) }
                         )
                     }
                 }
@@ -140,8 +145,8 @@ fun Settings(
 
         categoryTitleSmall { stringResource(R.string.notifications) }
         item {
-            val notification by viewModel.preferenceRepo.notification.collectAsState(false)
-            val notificationPermission by viewModel.permissionManager.notificationPermissionFlow.collectAsState(true)
+            val notification by preferenceRepo.notification.collectAsState(false)
+            val notificationPermission by permissionManager.notificationPermissionFlow.collectAsState(true)
             val notificationPermissionCallback = rememberLauncherForActivityResult(
                 ActivityResultContracts.RequestPermission()
             ) {
@@ -156,7 +161,7 @@ fun Settings(
                 icon = painterResource(R.drawable.notification),
                 value = notification,
                 onValueChanged = {
-                    if (!notificationPermission) {
+                    if (!notificationPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         notificationPermissionCallback.launch(
                             Manifest.permission.POST_NOTIFICATIONS
                         )
@@ -178,7 +183,7 @@ fun Settings(
 
         categoryTitleSmall { stringResource(R.string.ui) }
         item {
-            val theme by viewModel.preferenceRepo.theme.collectAsState(Theme.AutoMaterial)
+            val theme by preferenceRepo.theme.collectAsState(Theme.AutoMaterial)
             val scroll = rememberScrollState(0)
 
             val panelWidth = 272.dp.px.toInt() // Just a guess lol. Calculate the actual size if I ever add more themes
@@ -194,18 +199,18 @@ fun Settings(
                     .padding(start = 8.dp, end = 8.dp, bottom = 8.dp, top = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                ThemePreferenceContainer(theme, true) { viewModel.preferenceRepo.setTheme(it) }
-                ThemePreferenceContainer(theme, false) { viewModel.preferenceRepo.setTheme(it) }
+                ThemePreferenceContainer(theme, true) { scope.launch { preferenceRepo.setTheme(it) } }
+                ThemePreferenceContainer(theme, false) { scope.launch { preferenceRepo.setTheme(it) } }
             }
         }
         item {
-            val expressiveFonts by viewModel.preferenceRepo.expressiveFonts.collectAsState(true)
+            val expressiveFonts by preferenceRepo.expressiveFonts.collectAsState(true)
             SwitchPreference(
                 title = stringResource(R.string.expressive_fonts),
                 summary = stringResource(R.string.expressive_fonts_description),
                 icon = painterResource(R.drawable.expressive),
                 value = expressiveFonts,
-                onValueChanged = { viewModel.preferenceRepo.setExpressiveFonts(it) }
+                onValueChanged = { scope.launch { preferenceRepo.setExpressiveFonts(it) } }
             )
         }
 

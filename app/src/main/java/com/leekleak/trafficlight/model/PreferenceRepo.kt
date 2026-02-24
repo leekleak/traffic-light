@@ -10,23 +10,16 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.ui.theme.Theme
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import kotlin.getValue
 
-class PreferenceRepo (
-    private val context: Context
-): KoinComponent {
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+
+class PreferenceRepo (private val context: Context): KoinComponent {
     val permissionManager: PermissionManager by inject()
-    val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
-    private val scope = CoroutineScope(Job() + Dispatchers.Default)
     val data get() = context.dataStore.data
 
     val notification: Flow<Boolean> = combine(
@@ -36,28 +29,28 @@ class PreferenceRepo (
         return@combine (settings[NOTIFICATION] ?: false) && permission
     }
 
-    fun setNotification(value: Boolean) = scope.launch { context.dataStore.edit { it[NOTIFICATION] = value } }
+    suspend fun setNotification(value: Boolean) = context.dataStore.edit { it[NOTIFICATION] = value }
 
-    val modeAOD: Flow<Boolean> = context.dataStore.data.map { it[MODE_AOD] ?: false }
-    fun setModeAOD(value: Boolean) = scope.launch { context.dataStore.edit { it[MODE_AOD] = value } }
+    val modeAOD: Flow<Boolean> = data.map { it[MODE_AOD] ?: false }
+    suspend fun setModeAOD(value: Boolean) = context.dataStore.edit { it[MODE_AOD] = value }
 
-    val bigIcon: Flow<Boolean> = context.dataStore.data.map { it[BIG_ICON] ?: false }
-    fun setBigIcon(value: Boolean) = scope.launch { context.dataStore.edit { it[BIG_ICON] = value } }
+    val bigIcon: Flow<Boolean> = data.map { it[BIG_ICON] ?: false }
+    suspend fun setBigIcon(value: Boolean) = context.dataStore.edit { it[BIG_ICON] = value }
 
-    val speedBits: Flow<Boolean> = context.dataStore.data.map { it[SPEED_BITS] ?: false }
-    fun setSpeedBits(value: Boolean) = scope.launch { context.dataStore.edit { it[SPEED_BITS] = value } }
+    val speedBits: Flow<Boolean> = data.map { it[SPEED_BITS] ?: false }
+    suspend fun setSpeedBits(value: Boolean) = context.dataStore.edit { it[SPEED_BITS] = value }
 
     val forceFallback: Flow<Boolean> = context.dataStore.data.map { it[FORCE_FALLBACK] ?: false }
-    fun setForceFallback(value: Boolean) = scope.launch { context.dataStore.edit { it[FORCE_FALLBACK] = value } }
+    suspend fun setForceFallback(value: Boolean) = context.dataStore.edit { it[FORCE_FALLBACK] = value }
 
-    val altVpn: Flow<Boolean> = context.dataStore.data.map { it[ALT_VPN_WORKAROUND] ?: false }
-    fun setAltVpn(value: Boolean) = scope.launch { context.dataStore.edit { it[ALT_VPN_WORKAROUND] = value } }
+    val altVpn: Flow<Boolean> = data.map { it[ALT_VPN_WORKAROUND] ?: false }
+    suspend fun setAltVpn(value: Boolean) = context.dataStore.edit { it[ALT_VPN_WORKAROUND] = value }
 
-    val theme: Flow<Theme> = context.dataStore.data.map { Theme.valueOf(it[THEME] ?: Theme.AutoMaterial.name ) }
-    fun setTheme(value: Theme) = scope.launch { context.dataStore.edit { it[THEME] = value.name } }
+    val theme: Flow<Theme> = data.map { Theme.valueOf(it[THEME] ?: Theme.AutoMaterial.name ) }
+    suspend fun setTheme(value: Theme) = context.dataStore.edit { it[THEME] = value.name }
 
     val expressiveFonts: Flow<Boolean> = context.dataStore.data.map { it[EXPRESSIVE_FONTS] ?: true }
-    fun setExpressiveFonts(value: Boolean) = scope.launch { context.dataStore.edit { it[EXPRESSIVE_FONTS] = value} }
+    suspend fun setExpressiveFonts(value: Boolean) = context.dataStore.edit { it[EXPRESSIVE_FONTS] = value}
 
     private companion object {
         val NOTIFICATION = booleanPreferencesKey("notification")
