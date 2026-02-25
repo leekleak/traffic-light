@@ -35,6 +35,8 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.preview.ExperimentalGlancePreviewApi
+import androidx.glance.preview.Preview
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
@@ -127,17 +129,24 @@ class Widget: GlanceAppWidget() {
     override suspend fun providePreview(context: Context, widgetCategory: Int) {
         provideContent {
             GlanceTheme {
-                WidgetContent(
-                    dataPlan = DataPlan("", uiBackground = 2),
-                    simNumber = 1,
-                    carrierName = "AT&T",
-                    usageString = "8.5",
-                    quotaString = "20",
-                    progress = 8.5/20.0,
-                    resetString = "Resets in 8 days"
-                )
+                Preview()
             }
         }
+    }
+
+    @OptIn(ExperimentalGlancePreviewApi::class)
+    @Composable
+    @Preview(widthDp = 400, heightDp = 200)
+    private fun Preview() {
+        WidgetContent(
+            dataPlan = DataPlan("", uiBackground = 2),
+            simNumber = 1,
+            carrierName = "AT&T",
+            usageString = "8.5",
+            quotaString = "20",
+            progress = 8.5 / 20.0,
+            resetString = "Resets in 8 days"
+        )
     }
 
     @Composable

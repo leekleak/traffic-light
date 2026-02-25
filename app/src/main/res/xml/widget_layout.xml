@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:description="@string/data_plan_widget_description"
+    android:initialKeyguardLayout="@layout/glance_default_loading_layout"
     android:initialLayout="@layout/glance_default_loading_layout"
+    android:previewImage="@drawable/widget_preview"
     android:configure="com.leekleak.trafficlight.widget.WidgetConfigureActivity"
     android:resizeMode="horizontal|vertical"
     android:targetCellWidth="4"
     android:targetCellHeight="2"
     android:minResizeWidth="100dp"
+    android:minResizeHeight="100dp"
+    android:minWidth="100dp"
+    android:minHeight="100dp"
+    android:widgetCategory="home_screen|keyguard"
     android:updatePeriodMillis="0">
 </appwidget-provider>

@@ -81,7 +81,7 @@ class ShizukuDataManager : KoinComponent {
                     DataPlan(
                         subscriberID = activeID!!,
                         simIndex = infos[index].simSlotIndex,
-                        carrierName = infos[index].carrierName.toString()
+                        carrierName = infos[index].carrierName?.toString() ?: ""
                     )
                 )
             }

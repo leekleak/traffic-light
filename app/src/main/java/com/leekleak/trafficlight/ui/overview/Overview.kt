@@ -49,9 +49,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.DataPlanDao
-import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HourlyUsageRepo
-import com.leekleak.trafficlight.database.HourlyUsageRepo.Companion.dayUsageToBarData
 import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.services.UsageService
