@@ -50,7 +50,6 @@
     <string name="warning">Aviso</string>
     <string name="shizuku_required">Permissão do Shizuku necessária</string>
     <string name="shizuku_required_description">Conceda esta permissão nas configurações.</string>
-    <string name="shizuku_not_running_description">O Shizuku deve estar em execução para obter os dados do SIM.</string>
     <plurals name="resets_in_days">
         <item quantity="one">Reiniciará amanhã</item>
         <item quantity="many">Reiniciará em %d dias</item>

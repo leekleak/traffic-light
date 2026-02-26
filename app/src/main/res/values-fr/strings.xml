@@ -80,5 +80,4 @@
     <string name="warning">Avertissement</string>
     <string name="shizuku_required">Autorisation Shizuku requise</string>
     <string name="shizuku_required_description">Elle peut être accordée dans les paramètres.</string>
-    <string name="shizuku_not_running_description">Shizuku doit être lancé pour lire les données SIM.</string>
 </resources>

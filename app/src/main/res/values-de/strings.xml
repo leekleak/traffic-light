@@ -79,5 +79,4 @@
     <string name="warning">Warnung</string>
     <string name="shizuku_required">Shizuku Berechtigung erforderlich</string>
     <string name="shizuku_required_description">Diese Berechtigung kann in den Einstellungen aktiviert werden.</string>
-    <string name="shizuku_not_running_description">Shizuku wird benötigt, um SIM-Daten zu erhalten.</string>
 </resources>

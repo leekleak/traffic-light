@@ -75,7 +75,6 @@
     <string name="warning">Avertizare</string>
     <string name="shizuku_required">Este necesară permisiunea Shizuku</string>
     <string name="shizuku_required_description">Poate fi acordată în setări.</string>
-    <string name="shizuku_not_running_description">Shizuku trebuie să ruleze pentru a obține datele SIM.</string>
     <plurals name="resets_in_days">
         <item quantity="one">Se va reseta mâine</item>
         <item quantity="few">Se va reseta în %d zile</item>
