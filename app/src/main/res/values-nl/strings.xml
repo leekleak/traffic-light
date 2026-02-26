@@ -79,5 +79,4 @@
     <string name="warning">Waarschuwing</string>
     <string name="shizuku_required">Shizuku-machtiging vereist</string>
     <string name="shizuku_required_description">Het kan toegestaan worden in de instellingen.</string>
-    <string name="shizuku_not_running_description">Shizuku moet actief zijn om SIM-gegevens te krijgen.</string>
 </resources>
