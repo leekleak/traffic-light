@@ -72,6 +72,5 @@
     <string name="warning">警告</string>
     <string name="shizuku_required">需要Shizuku许可</string>
     <string name="shizuku_required_description">可以在设置中获得授权。</string>
-    <string name="shizuku_not_running_description">为了取得SIM数据，Shizuku必须运行。</string>
     <string name="no_apps">没有应用</string>
 </resources>
