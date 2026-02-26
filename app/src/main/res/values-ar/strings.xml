@@ -79,7 +79,6 @@
     <string name="warning">تحذير</string>
     <string name="shizuku_required">مطلوب إذن Shizuku</string>
     <string name="shizuku_required_description">يمكن منحها من الإعدادات.</string>
-    <string name="shizuku_not_running_description">يجب أن يكون Shizuku قيد التشغيل للحصول على بيانات شريحة SIM.</string>
     <string name="day">اليوم:</string>
     <string name="time">الوقت:</string>
     <string name="length">الطول:</string>
