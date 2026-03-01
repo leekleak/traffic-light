@@ -1,0 +1,15 @@
+Enhancements:
+- Added support for one basic data plan without Shizuku permission
+- Rewritten Shizuku implementation
+- Minor UX improvements
+- Performance improvements
+- Added widget preview fallback for older launchers
+
+Bug fixes:
+- Fix delayed notification start
+- Fix crash on widget add
+- Fix widget not appearing on older Xiaomi devices
+
+Translations:
+- New language: Galician
+- Update translations

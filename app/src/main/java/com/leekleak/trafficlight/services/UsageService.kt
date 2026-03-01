@@ -10,12 +10,12 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.net.ConnectivityManager
 import android.os.IBinder
 import androidx.collection.LruCache
-import androidx.compose.ui.graphics.NativeCanvas
 import androidx.compose.ui.unit.Density
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
@@ -282,7 +282,7 @@ class UsageService : Service(), KoinComponent {
             bitmap?.eraseColor(Color.TRANSPARENT)
         }
 
-        val canvas = NativeCanvas(bitmap!!)
+        val canvas = Canvas(bitmap!!)
 
         paint.apply {
             textSize = 72f * multiplier

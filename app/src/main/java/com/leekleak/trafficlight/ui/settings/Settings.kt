@@ -151,6 +151,7 @@ fun Settings(
                 ActivityResultContracts.RequestPermission()
             ) {
                 scope.launch {
+                    preferenceRepo.setNotification(it)
                     viewModel.runUsageService(it, context)
                 }
             }
