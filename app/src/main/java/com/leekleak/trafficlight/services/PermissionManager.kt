@@ -98,9 +98,7 @@ class PermissionManager(
         _shizukuRunning.value = Shizuku.pingBinder()
         if (_shizukuRunning.value) {
             _shizukuPermission.value = Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
-            if (_shizukuPermission.value) {
-                shizukuManager.updateSimData()
-            }
         }
+        shizukuManager.updateSimData()
     }
 }

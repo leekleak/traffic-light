@@ -86,11 +86,12 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
 
         val startStamp = startDate.toTimestamp()
         val endStamp = now.toTimestamp()
+        val subscriberId = if (dataPlan.subscriberID == "null") null else dataPlan.subscriberID
 
-        var stats = getNetworkDataForType(startStamp, endStamp, null, dataPlan.subscriberID, NETWORK_TYPE_MOBILE).total
+        var stats = getNetworkDataForType(startStamp, endStamp, null, subscriberId, NETWORK_TYPE_MOBILE).total
 
         for (uid in dataPlan.excludedApps) {
-            stats -= getNetworkDataForType(startStamp, endStamp, uid, dataPlan.subscriberID, NETWORK_TYPE_MOBILE).total
+            stats -= getNetworkDataForType(startStamp, endStamp, uid, subscriberId, NETWORK_TYPE_MOBILE).total
         }
 
         return DayUsage(startDate.toLocalDate(), mutableMapOf(), 0, stats)

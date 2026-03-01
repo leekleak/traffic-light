@@ -19,7 +19,6 @@ import rikka.shizuku.Shizuku
 
 
 class ShizukuDataManager : KoinComponent {
-    val preferenceRepo: PreferenceRepo by inject()
     val permissionManager: PermissionManager by inject()
     val dataPlanDao: DataPlanDao by inject()
     var enabled = false
@@ -68,24 +67,40 @@ class ShizukuDataManager : KoinComponent {
     }
 
     fun updateSimData() = CoroutineScope(Dispatchers.IO).launch {
-        while (binderMine == null) delay(10)
-        val infos = getSubscriptionInfos().sortedBy { it.simSlotIndex }
-        val activeSubscriberIDs = infos.map { getSubscriberID(it.subscriptionId) }
-        var plans = dataPlanDao.getAll()
-        plans = plans.map { plan ->
-            plan.copy(simIndex = activeSubscriberIDs.indexOf(plan.subscriberID))
-        }.toMutableList()
-        activeSubscriberIDs.forEachIndexed { index, activeID ->
-            if (activeID !in plans.map { it.subscriberID }) {
+        if (enabled) {
+            while (binderMine == null) delay(10)
+            val infos = getSubscriptionInfos().sortedBy { it.simSlotIndex }
+            val activeSubscriberIDs = infos.map { getSubscriberID(it.subscriptionId) }
+            var plans = dataPlanDao.getAll()
+            plans = plans.map { plan ->
+                plan.copy(simIndex = activeSubscriberIDs.indexOf(plan.subscriberID))
+            }.toMutableList()
+            activeSubscriberIDs.forEachIndexed { index, activeID ->
+                if (activeID !in plans.map { it.subscriberID }) {
+                    plans.add(
+                        DataPlan(
+                            subscriberID = activeID!!,
+                            simIndex = infos[index].simSlotIndex,
+                            carrierName = infos[index].carrierName?.toString() ?: ""
+                        )
+                    )
+                }
+            }
+            dataPlanDao.addAll(plans)
+        } else if (dataPlanDao.getActive().isEmpty()) {
+            var plans = dataPlanDao.getActive()
+            plans = plans.map { plan ->
+                 plan.copy(simIndex = if (plan.subscriberID != "null") -1 else 0)
+            }.toMutableList()
+            if (plans.indexOfFirst { it.subscriberID == "null" } == -1) {
                 plans.add(
                     DataPlan(
-                        subscriberID = activeID!!,
-                        simIndex = infos[index].simSlotIndex,
-                        carrierName = infos[index].carrierName?.toString() ?: ""
+                        subscriberID = "null",
+                        simIndex = 0
                     )
                 )
             }
+            dataPlanDao.addAll(plans)
         }
-        dataPlanDao.addAll(plans)
     }
 }
