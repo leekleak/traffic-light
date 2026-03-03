@@ -32,6 +32,7 @@ data class AppUsage(
     val uid: Int,
     val name: String,
     val packageName: String,
+    val drawableResource: Int? = null
 )
 
 data class HourData(

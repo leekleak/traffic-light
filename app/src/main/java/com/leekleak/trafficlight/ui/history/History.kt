@@ -184,12 +184,15 @@ fun History(paddingValues: PaddingValues) {
             if (totalMaximum != null) {
                 items(appList, { it.uid }) { item ->
                     Box(Modifier.animateItem()) {
-                        val painter = rememberAsyncImagePainter(AppIcon(item.packageName))
+                        var icon = false
+                        val painter = item.drawableResource?.let { icon = true; painterResource(it) } ?:
+                            rememberAsyncImagePainter(AppIcon(item.packageName))
                         AppItem(
                             totalWifi = item.usage.totalWifi,
                             totalCellular = item.usage.totalCellular,
                             painter = painter,
                             name = item.name,
+                            icon = icon,
                             selected = item.uid == appSelected,
                             maximum = totalMaximum
                         ) {

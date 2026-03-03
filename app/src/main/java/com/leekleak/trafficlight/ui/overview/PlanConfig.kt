@@ -1,7 +1,6 @@
 package com.leekleak.trafficlight.ui.overview
 
 import android.annotation.SuppressLint
-import android.content.pm.ApplicationInfo
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -116,6 +115,7 @@ import com.leekleak.trafficlight.charts.GraphTheme.wifiShape
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.TimeInterval
+import com.leekleak.trafficlight.model.App
 import com.leekleak.trafficlight.model.AppDatabase
 import com.leekleak.trafficlight.model.AppIcon
 import com.leekleak.trafficlight.ui.theme.backgrounds
@@ -348,7 +348,7 @@ fun PlanConfig(
                         var query by remember { mutableStateOf("") }
                         val searchResults by remember { derivedStateOf {
                             if (query.isEmpty()) includedApps.sortedByDescending { specialApps.indexOf(it.packageName) }
-                            else includedApps.filter { appDatabase.getLabel(it).lowercase().contains(query.lowercase()) }
+                            else includedApps.filter { it.label.lowercase().contains(query.lowercase()) }
                         } }
 
                         Column(
@@ -560,18 +560,16 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppSelector(
-    uids: List<ApplicationInfo>,
+    uids: List<App>,
     modifier: Modifier = Modifier,
     onClick: (uid: Int) -> Unit
 ) {
-    val appDatabase: AppDatabase = koinInject()
     val haptic = LocalHapticFeedback.current
 
     LazyRow(modifier, contentPadding = PaddingValues(horizontal = 8.dp)) {
         item ("holder") {  }
         items(uids, {it.uid}) {
             val painter = rememberAsyncImagePainter(AppIcon(it.packageName))
-            val label = appDatabase.getLabel(it)
             TooltipBox(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.medium)
@@ -585,7 +583,7 @@ fun AppSelector(
                     4.dp
                 ),
                 tooltip = {
-                    PlainTooltip { Text(label) }
+                    PlainTooltip { Text(it.label) }
                 },
                 state = rememberTooltipState(),
             ) {
@@ -599,7 +597,7 @@ fun AppSelector(
                         contentDescription = null,
                     )
                     Text(
-                        text = label,
+                        text = it.label,
                         fontFamily = robotoFlex(0f, 25f, 500f),
                         fontSize = 12.sp,
                         maxLines = 1,

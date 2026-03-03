@@ -1,11 +1,9 @@
 package com.leekleak.trafficlight.model
 
 import android.content.Context
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import org.koin.core.component.KoinComponent
-import kotlin.collections.contains
 
 
 class AppDatabase(context: Context): KoinComponent {
@@ -22,8 +20,19 @@ class AppDatabase(context: Context): KoinComponent {
         allApps.filter { app ->
             val pi = packageManager.getPackageInfo(app.packageName, PackageManager.GET_PERMISSIONS)
             (pi.requestedPermissions?.contains("android.permission.INTERNET") ?: true)
-        }.distinctBy { it.uid }
+        }.distinctBy { it.uid }.map {
+            App(
+                uid = it.uid,
+                packageName = it.packageName,
+                label = it.loadLabel(packageManager).toString()
+            )
+        }
     }
-
-    fun getLabel(app: ApplicationInfo): String = app.loadLabel(packageManager).toString()
 }
+
+data class App(
+    val uid: Int,
+    val packageName: String,
+    val label: String,
+    val drawableResource: Int? = null
+)

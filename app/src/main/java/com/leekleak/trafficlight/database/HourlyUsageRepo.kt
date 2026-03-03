@@ -1,11 +1,15 @@
 package com.leekleak.trafficlight.database
 
 import android.app.usage.NetworkStats
+import android.app.usage.NetworkStats.Bucket.UID_REMOVED
+import android.app.usage.NetworkStats.Bucket.UID_TETHERING
 import android.app.usage.NetworkStatsManager
 import android.content.Context
 import android.content.Context.NETWORK_STATS_SERVICE
+import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
+import com.leekleak.trafficlight.model.App
 import com.leekleak.trafficlight.model.AppDatabase
 import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.util.fromTimestamp
@@ -44,7 +48,7 @@ data class UsageData(
         get() = upload + download
 }
 
-class HourlyUsageRepo(context: Context) : KoinComponent {
+class HourlyUsageRepo(val context: Context) : KoinComponent {
     private var networkStatsManager: NetworkStatsManager = context.getSystemService(NETWORK_STATS_SERVICE) as NetworkStatsManager
     private val permissionManager: PermissionManager by inject()
     private val appDatabase: AppDatabase by inject()
@@ -130,15 +134,17 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
         flow {
             coroutineScope {
                 val requestSemaphore = Semaphore(permits = 3)
-                val jobs = appDatabase.suspiciousApps.map { app ->
+                val additionalApps = listOf(getTetheringApp(context), getRemovedApp(context))
+                val jobs = appDatabase.suspiciousApps.union(additionalApps).map { app ->
                     async(Dispatchers.IO) {
                         requestSemaphore.withPermit {
                             val dayUsage = calculateDayUsageBasic(startDate, endDate, app.uid)
                             return@async AppUsage(
                                 usage = dayUsage,
                                 uid = app.uid,
-                                name = appDatabase.getLabel(app),
+                                name = app.label,
                                 packageName = app.packageName,
+                                drawableResource = app.drawableResource
                             )
                         }
                     }
@@ -227,5 +233,21 @@ class HourlyUsageRepo(context: Context) : KoinComponent {
     companion object {
         const val NETWORK_TYPE_MOBILE = 0
         const val NETWORK_TYPE_WIFI = 1
+
+        fun getTetheringApp(context: Context): App =
+            App(
+                uid = UID_TETHERING,
+                label = context.getString(R.string.tethering),
+                packageName = "",
+                drawableResource = R.drawable.hotspot
+            )
+
+        fun getRemovedApp(context: Context): App =
+            App(
+                uid = UID_REMOVED,
+                label = context.getString(R.string.removed_apps),
+                packageName = "",
+                drawableResource = R.drawable.deleted
+            )
     }
 }
