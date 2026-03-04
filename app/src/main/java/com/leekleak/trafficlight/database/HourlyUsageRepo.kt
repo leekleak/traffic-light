@@ -11,11 +11,13 @@ import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.model.App
 import com.leekleak.trafficlight.model.AppDatabase
+import com.leekleak.trafficlight.model.HoltWintersTripleExponential
 import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.getName
 import com.leekleak.trafficlight.util.padHour
 import com.leekleak.trafficlight.util.toTimestamp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -24,6 +26,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import org.koin.core.component.KoinComponent
@@ -31,6 +34,7 @@ import org.koin.core.component.inject
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
 
@@ -51,6 +55,7 @@ data class UsageData(
 class HourlyUsageRepo(val context: Context) : KoinComponent {
     private var networkStatsManager: NetworkStatsManager = context.getSystemService(NETWORK_STATS_SERVICE) as NetworkStatsManager
     private val permissionManager: PermissionManager by inject()
+    private val historicalDataDao: HistoricalDataDao by inject()
     private val appDatabase: AppDatabase by inject()
 
     fun usageModeFlow(): Flow<UsageMode> = permissionManager.usagePermissionFlow.map {
@@ -228,6 +233,40 @@ class HourlyUsageRepo(val context: Context) : KoinComponent {
         }
 
         return DayUsage(date, hours).also { it.categorizeUsage() }
+    }
+
+    fun predictUsage(predictHours: Int): Flow<Double> = flow {
+        val alpha = 0.04398965471871171
+        val beta = 0.0006227714063965939
+        val gamma = 0.033027304992884844
+        val period = 24
+
+        val data = historicalDataDao.getAll().map { it.usage }
+
+        if (data.size < 1000) {
+            emit(0.0)
+        } else {
+            val prediction: DoubleArray = HoltWintersTripleExponential.forecast(data.toLongArray(), alpha, beta, gamma, period, predictHours)
+            emit(prediction.drop(data.size).sum())
+        }
+    }.flowOn(Dispatchers.IO)
+
+    fun populateHistoryCache() = CoroutineScope(Dispatchers.IO).launch {
+        val lastHour = LocalDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.HOURS)
+        val n = 24 * 80
+
+        for (i in n downTo 0) {
+            val stamp = lastHour.minusHours(i.toLong()).toTimestamp()
+            if (historicalDataDao.contains(stamp)) continue
+
+            val data = getNetworkDataForType(stamp, stamp + 3_600_000, null, null, NETWORK_TYPE_MOBILE)
+            historicalDataDao.add(
+                HistoricalData(
+                    stamp = stamp,
+                    usage = data.total,
+                )
+            )
+        }
     }
 
     companion object {

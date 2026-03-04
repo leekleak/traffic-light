@@ -49,6 +49,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.DataPlanDao
+import com.leekleak.trafficlight.database.HistoricalDataDao
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.services.PermissionManager
@@ -76,6 +77,7 @@ fun Overview(
     val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
 
     val dataPlanDao: DataPlanDao = koinInject()
+    val historicalDataDao: HistoricalDataDao = koinInject()
 
     val activePlans by remember { dataPlanDao.getActiveFlow() }.collectAsState(listOf())
 
@@ -96,6 +98,12 @@ fun Overview(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.hourlyUsageRepo.populateHistoryCache()
+    }
+
+    val size by remember { historicalDataDao.getAllFlow() }.collectAsState(listOf())
+
     val columnState = rememberLazyListState()
     LazyColumn(
         modifier = Modifier
@@ -113,6 +121,13 @@ fun Overview(
                     description = stringResource(R.string.shizuku_required_description),
                 )
             }
+        }
+
+        item {
+            Text(size.size.toString())
+            val prediction by remember { viewModel.hourlyUsageRepo.predictUsage(24) }.collectAsState(0.0)
+
+            Text(DataSize(prediction).toString())
         }
 
         items(activePlans, {it.subscriberID}) {
