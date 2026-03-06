@@ -67,4 +67,20 @@
     </plurals>
     <string name="no_apps">Programėlių nėra</string>
     <string name="custom">Pasirinktinis</string>
+    <string name="expressive_fonts_description">Galimybė išjungti išraiškingus šriftus yra nepalaikoma ir bus panaikinta.</string>
+    <string name="day">Diena:</string>
+    <string name="time">Laikas:</string>
+    <string name="length">Ilgis:</string>
+    <string name="days">dienos</string>
+    <string name="add_widget">Pridėti valdiklį</string>
+    <string name="configured_plans">Sukonfigūruoti planai</string>
+    <string name="data_plan_widget_description">Sekite savo duomenų planus pradiniame ekrane</string>
+    <string name="widget_warning">Valdiklių palaikymas yra eksperimentinis. Iškilus problemoms, praneškite apie jas per Github.</string>
+    <string name="no_configured_plans_description">Užtikrinkite, kad programėlė turi prieigą prie Shizuku ir yra bent vienas sukonfigūruotas duomenų planas.</string>
+    <string name="no_configured_plans">Sukonfigūruotų planų nėra</string>
+    <string name="warning">Įspėjimas</string>
+    <string name="shizuku_required">Reikalingas Shizuku leidimas</string>
+    <string name="shizuku_required_description">Tai galima suteikti programėlės nustatymuose.</string>
+    <string name="tethering">Mobilusis interneto prieigos taškas</string>
+    <string name="removed_apps">Panaikintos programėlės</string>
 </resources>
