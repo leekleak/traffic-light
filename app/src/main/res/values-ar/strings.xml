@@ -83,4 +83,6 @@
     <string name="time">الوقت:</string>
     <string name="length">الطول:</string>
     <string name="days">أيام</string>
+    <string name="tethering">نقطة اتصال الهاتف</string>
+    <string name="removed_apps">التطبيقات المُزالة</string>
 </resources>

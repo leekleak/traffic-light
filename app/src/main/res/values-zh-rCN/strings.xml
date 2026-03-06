@@ -73,4 +73,9 @@
     <string name="shizuku_required">需要Shizuku许可</string>
     <string name="shizuku_required_description">可以在设置中获得授权。</string>
     <string name="no_apps">没有应用</string>
+    <string name="resets_on">每月 %1$d 号重置</string>
+    <string name="zero_rated_apps">免流应用</string>
+    <plurals name="resets_in_days">
+        <item quantity="other">%d 天后重置</item>
+    </plurals>
 </resources>
