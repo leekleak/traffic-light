@@ -79,4 +79,6 @@
     <string name="warning">Waarschuwing</string>
     <string name="shizuku_required">Shizuku-machtiging vereist</string>
     <string name="shizuku_required_description">Het kan toegestaan worden in de instellingen.</string>
+    <string name="tethering">Mobiele hotspot</string>
+    <string name="removed_apps">Verwijderde apps</string>
 </resources>
