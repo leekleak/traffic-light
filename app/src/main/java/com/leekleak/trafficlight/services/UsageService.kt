@@ -28,6 +28,7 @@ import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.database.UsageMode
+import com.leekleak.trafficlight.database.databaseModule
 import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.clipAndPad
@@ -138,7 +139,7 @@ class UsageService : Service(), KoinComponent {
         if (job == null) {
             Timber.i("Starting foreground service")
             if (!limitedMode) {
-                todayUsage = hourlyUsageRepo.singleDayUsage(LocalDate.now())
+                updateTodayUsage()
             }
             try {
                 notificationManager.notify(NOTIFICATION_ID, notification)
@@ -184,7 +185,7 @@ class UsageService : Service(), KoinComponent {
 
                 if (!limitedMode) {
                     if (updateCounter == DATA_UPDATE_FREQ) {
-                        updateDatabase()
+                        updateTodayUsage()
                         updateCounter = 0
                     } else {
                         updateCounter++
@@ -199,34 +200,8 @@ class UsageService : Service(), KoinComponent {
         }
     }
 
-    private fun updateDatabase() {
-        if (todayUsage.date != LocalDate.now()) {
-            todayUsage = hourlyUsageRepo.singleDayUsage(LocalDate.now())
-        } else {
-            val time = LocalDateTime.now()
-
-            val stampNow = time.toTimestamp()
-            var hour = time.truncatedTo(ChronoUnit.HOURS)
-            if (hour.hour % 2 == 1) hour = hour.minusHours(1)
-            val stampHourStart = hour.toTimestamp()
-
-            val newHour = (stampNow - stampHourStart) < (DATA_UPDATE_FREQ * 1000)
-
-            if (newHour) updateTodayUsage(stampHourStart - 3_600_000, stampHourStart)
-            updateTodayUsage(stampHourStart, stampNow)
-        }
-    }
-
-    private fun updateTodayUsage(stamp: Long, stampNow: Long) {
-        if (todayUsage.hours.containsKey(stamp)) {
-            todayUsage = todayUsage.copy(
-                hours = todayUsage.hours.apply {
-                    this[stamp] = hourlyUsageRepo.calculateHourData(stamp, stampNow)
-                }
-            ).also { it.categorizeUsage() }
-        } else {
-            todayUsage = hourlyUsageRepo.singleDayUsage(LocalDate.now())
-        }
+    private fun updateTodayUsage() {
+        todayUsage = hourlyUsageRepo.calculateDayUsageBasic(LocalDate.now(), LocalDate.now(), null)
     }
 
     private var lastTitle: String = ""

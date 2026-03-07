@@ -17,15 +17,10 @@ import kotlin.math.max
 
 data class DayUsage(
     val date: LocalDate = LocalDate.now(),
-    val hours: MutableMap<Long, HourData> = mutableMapOf(),
+    val hours: HourData = HourData(),
     var totalWifi: Long = 0,
     var totalCellular: Long = 0,
-) {
-    fun categorizeUsage() {
-        totalWifi = hours.map { it.value.wifi }.sum()
-        totalCellular = hours.map { it.value.cellular }.sum()
-    }
-}
+)
 
 data class AppUsage(
     val usage: DayUsage,
@@ -39,7 +34,8 @@ data class HourData(
     var upload: Long = 0,
     var download: Long = 0,
     var wifi: Long = 0,
-    var cellular: Long = 0
+    var cellular: Long = 0,
+    val uid: Int? = null
 ) {
     val total: Long
         get() = upload + download

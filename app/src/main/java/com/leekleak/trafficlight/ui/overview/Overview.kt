@@ -50,18 +50,13 @@ import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.HistoricalDataDao
-import com.leekleak.trafficlight.database.HourlyUsageRepo
-import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.services.PermissionManager
-import com.leekleak.trafficlight.services.UsageService
 import com.leekleak.trafficlight.ui.navigation.PlanConfig
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.widget.Warning
-import kotlinx.coroutines.delay
 import org.koin.compose.koinInject
-import java.time.LocalDate
 
 @Composable
 fun Overview(
@@ -70,7 +65,6 @@ fun Overview(
 ) {
     val viewModel: OverviewVM = viewModel()
 
-    val todayUsage by viewModel.hourlyUsageRepo.todayUsage().collectAsState(listOf())
     val weeklyUsage by viewModel.hourlyUsageRepo.weekUsage().collectAsState(listOf())
 
     val permissionManager: PermissionManager = koinInject()
@@ -80,23 +74,6 @@ fun Overview(
     val historicalDataDao: HistoricalDataDao = koinInject()
 
     val activePlans by remember { dataPlanDao.getActiveFlow() }.collectAsState(listOf())
-
-    /**
-     * Generally the notification service is responsible for updating daily usage,
-     * however some people may prefer to use the app exclusively for historical data tracking
-     * so if the notification is disabled the app should still periodically update the usage.
-     */
-    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
-    val preferenceRepo: PreferenceRepo = koinInject()
-    val notification by preferenceRepo.notification.collectAsState(true)
-    LaunchedEffect(notification) {
-        if (!notification) {
-            while (true) {
-                UsageService.todayUsage = hourlyUsageRepo.singleDayUsage(LocalDate.now())
-                delay(5000)
-            }
-        }
-    }
 
     LaunchedEffect(Unit) {
         viewModel.hourlyUsageRepo.populateHistoryCache()
@@ -141,11 +118,6 @@ fun Overview(
                 }
             }
         }
-
-        overviewTab(
-            label = R.string.today,
-            data = todayUsage
-        )
 
         if (weeklyUsage.isNotEmpty()) {
             overviewTab(

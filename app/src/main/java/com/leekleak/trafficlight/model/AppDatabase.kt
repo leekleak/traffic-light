@@ -1,12 +1,16 @@
 package com.leekleak.trafficlight.model
 
+import android.app.usage.NetworkStats.Bucket.UID_REMOVED
+import android.app.usage.NetworkStats.Bucket.UID_TETHERING
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import com.leekleak.trafficlight.R
 import org.koin.core.component.KoinComponent
+import timber.log.Timber
 
 
-class AppDatabase(context: Context): KoinComponent {
+class AppDatabase(val context: Context): KoinComponent {
     private var packageManager: PackageManager = context.packageManager
     val allApps by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -27,6 +31,44 @@ class AppDatabase(context: Context): KoinComponent {
                 label = it.loadLabel(packageManager).toString()
             )
         }
+    }
+
+    fun getNameForUID(uid: Int): String? {
+        when (uid) {
+            UID_TETHERING -> return context.getString(R.string.tethering)
+            UID_REMOVED -> return  context.getString(R.string.removed_apps)
+            else -> {
+                val packageName = getPackageNamesForUID(uid) ?: return null
+                for (name in packageName) {
+                    try {
+                        val info = packageManager.getPackageInfo(name, 0).applicationInfo ?: return ""
+                        return packageManager.getApplicationLabel(info).toString()
+                    } catch (_: Exception) { }
+                }
+                Timber.e("Failed to get name for UID $uid, packageName ${packageName.firstOrNull()}")
+                return packageName.firstOrNull()
+            }
+        }
+    }
+
+    fun getDrawableResourceForUID(uid: Int): Int? {
+        return when (uid) {
+            UID_TETHERING -> R.drawable.hotspot
+            UID_REMOVED -> R.drawable.deleted
+            else -> null
+        }
+    }
+
+    fun getPackageNamesForUID(uid: Int): List<String>? {
+        return when (uid) {
+            UID_TETHERING -> listOf("")
+            UID_REMOVED -> listOf("")
+            else -> packageManager . getPackagesForUid (uid)?.toList()
+        }
+    }
+
+    companion object {
+        val specialUIDs = listOf(UID_REMOVED, UID_TETHERING)
     }
 }
 
