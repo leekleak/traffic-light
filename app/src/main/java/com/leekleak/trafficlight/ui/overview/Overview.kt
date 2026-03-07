@@ -42,7 +42,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.R
@@ -50,6 +49,8 @@ import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.HistoricalDataDao
+import com.leekleak.trafficlight.database.HourlyUsageRepo
+import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.PlanConfig
 import com.leekleak.trafficlight.ui.theme.card
@@ -63,9 +64,9 @@ fun Overview(
     paddingValues: PaddingValues,
     backStack: NavBackStack<NavKey>
 ) {
-    val viewModel: OverviewVM = viewModel()
+    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
 
-    val weeklyUsage by viewModel.hourlyUsageRepo.weekUsage().collectAsState(listOf())
+    val weeklyUsage by hourlyUsageRepo.weekUsage().collectAsState(listOf())
 
     val permissionManager: PermissionManager = koinInject()
     val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
@@ -76,7 +77,7 @@ fun Overview(
     val activePlans by remember { dataPlanDao.getActiveFlow() }.collectAsState(listOf())
 
     LaunchedEffect(Unit) {
-        viewModel.hourlyUsageRepo.populateHistoryCache()
+        hourlyUsageRepo.populateHistoryCache()
     }
 
     val size by remember { historicalDataDao.getAllFlow() }.collectAsState(listOf())
@@ -102,7 +103,7 @@ fun Overview(
 
         item {
             Text(size.size.toString())
-            val prediction by remember { viewModel.hourlyUsageRepo.predictUsage(24) }.collectAsState(0.0)
+            val prediction by remember { hourlyUsageRepo.predictUsage(24) }.collectAsState(0.0)
 
             Text(DataSize(prediction).toString())
         }
@@ -203,8 +204,8 @@ fun RowScope.SummaryItem(
         horizontalArrangement = Arrangement.Center,
     ) {
         val text = DataSize(value = data().toDouble(), precision = 2).toStringParts()
-        val viewModel: OverviewVM = viewModel()
-        val expressiveFonts by viewModel.preferenceRepo.expressiveFonts.collectAsState(true)
+        val preferenceRepo: PreferenceRepo = koinInject()
+        val expressiveFonts by preferenceRepo.expressiveFonts.collectAsState(true)
         Text(
             fontSize = if (expressiveFonts) 64.sp else 48.sp,
             text = text[0],
@@ -247,8 +248,8 @@ fun RowScope.SummaryItem(
 @OptIn(ExperimentalTextApi::class)
 @Composable
 fun chonkyFont(animation: Float): FontFamily? {
-    val viewModel: OverviewVM = viewModel()
-    val expressiveFonts by viewModel.preferenceRepo.expressiveFonts.collectAsState(true)
+    val preferenceRepo: PreferenceRepo = koinInject()
+    val expressiveFonts by preferenceRepo.expressiveFonts.collectAsState(true)
 
     return if (expressiveFonts) {
         FontFamily(

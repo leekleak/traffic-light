@@ -13,7 +13,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.net.ConnectivityManager
 import android.os.IBinder
 import androidx.collection.LruCache
 import androidx.compose.ui.unit.Density
@@ -28,36 +27,30 @@ import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.database.UsageMode
-import com.leekleak.trafficlight.database.databaseModule
 import com.leekleak.trafficlight.model.PreferenceRepo
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.clipAndPad
-import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import org.koin.core.component.inject
 import timber.log.Timber
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 
 class UsageService : Service(), KoinComponent {
     private val serviceScope = CoroutineScope(Dispatchers.IO)
     private var job: Job? = null
-
-    private val connectivityManager: ConnectivityManager by lazy { getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager }
-    private val hourlyUsageRepo: HourlyUsageRepo by inject()
-    private val preferenceRepo: PreferenceRepo by inject()
-    private val notificationManager: NotificationManager by lazy { getSystemService(NOTIFICATION_SERVICE) as NotificationManager }
+    private val hourlyUsageRepo: HourlyUsageRepo by lazy { get() }
+    private val preferenceRepo: PreferenceRepo by lazy { get() }
+    private val notificationManager: NotificationManager by lazy { get() }
     private lateinit var notificationBuilder: NotificationCompat.Builder
     private lateinit var notification: Notification
 
@@ -161,7 +154,7 @@ class UsageService : Service(), KoinComponent {
 
     private fun startJob() {
         job = serviceScope.launch {
-            val trafficSnapshot = TrafficSnapshot(connectivityManager)
+            val trafficSnapshot = TrafficSnapshot()
             trafficSnapshot.updateSnapshot()
             trafficSnapshot.setCurrentAsLast()
 
@@ -298,7 +291,6 @@ class UsageService : Service(), KoinComponent {
         const val DATA_UPDATE_FREQ = 5
 
         private val _todayUsageFlow = MutableStateFlow(DayUsage())
-        val todayUsageFlow = _todayUsageFlow.asStateFlow()
         var todayUsage: DayUsage
             get() = _todayUsageFlow.value
             set(value) {

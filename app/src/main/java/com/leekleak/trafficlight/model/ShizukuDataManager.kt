@@ -14,15 +14,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import rikka.shizuku.Shizuku
 
 
-class ShizukuDataManager : KoinComponent {
-    val permissionManager: PermissionManager by inject()
-    val dataPlanDao: DataPlanDao by inject()
-    var enabled = false
-
+class ShizukuDataManager(
+    private val permissionManager: PermissionManager,
+    private val dataPlanDao: DataPlanDao
+) : KoinComponent {
+    private var enabled = false
     private var binderMine: ITrafficLightShizukuService? = null
 
     private val connection = object : ServiceConnection {

@@ -2,8 +2,6 @@ package com.leekleak.trafficlight.database
 
 import android.app.usage.NetworkStats
 import android.app.usage.NetworkStatsManager
-import android.content.Context
-import android.content.Context.NETWORK_STATS_SERVICE
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.model.AppDatabase
@@ -22,7 +20,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -45,11 +42,12 @@ data class UsageData(
         get() = upload + download
 }
 
-class HourlyUsageRepo(val context: Context) : KoinComponent {
-    private var networkStatsManager: NetworkStatsManager = context.getSystemService(NETWORK_STATS_SERVICE) as NetworkStatsManager
-    private val permissionManager: PermissionManager by inject()
-    private val historicalDataDao: HistoricalDataDao by inject()
-    private val appDatabase: AppDatabase by inject()
+class HourlyUsageRepo(
+    private var networkStatsManager: NetworkStatsManager,
+    private val permissionManager: PermissionManager,
+    private val historicalDataDao: HistoricalDataDao,
+    private val appDatabase: AppDatabase,
+) : KoinComponent {
 
     fun usageModeFlow(): Flow<UsageMode> = permissionManager.usagePermissionFlow.map {
         val millis = System.currentTimeMillis()

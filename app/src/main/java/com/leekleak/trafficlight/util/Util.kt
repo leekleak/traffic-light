@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -43,11 +42,6 @@ inline val Dp.px: Float
 
 inline val Int.toDp: Dp
     @Composable get() = with(LocalDensity.current) { this@toDp.toDp() }
-
-fun padHour(time: Number): String {
-    if (time.toLong() % 6 == 0L) return time.toString().padStart(2, '0')
-    return ""
-}
 
 fun LocalDateTime.toTimestamp(): Long = toInstant(currentTimezone()).toEpochMilli()
 fun fromTimestamp(stamp: Long): LocalDateTime {

@@ -9,7 +9,7 @@ import org.koin.core.component.inject
 
 class AutoStarter : BroadcastReceiver(), KoinComponent
 {
-    val permissionManager: PermissionManager by inject()
+    private val permissionManager: PermissionManager by inject()
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
             context?.let {

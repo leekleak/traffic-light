@@ -44,13 +44,13 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.database.UsageMode
 import com.leekleak.trafficlight.ui.history.History
 import com.leekleak.trafficlight.ui.overview.Overview
@@ -60,13 +60,14 @@ import com.leekleak.trafficlight.ui.settings.Settings
 import com.leekleak.trafficlight.ui.theme.navBarShadow
 import com.leekleak.trafficlight.util.WideScreenWrapper
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NavigationManager() {
-    val viewModel: NavigationManagerVM = viewModel()
-    val usageMode by viewModel.hourlyUsageRepo.usageModeFlow().collectAsState(UsageMode.Unlimited)
+    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
+    val usageMode by hourlyUsageRepo.usageModeFlow().collectAsState(UsageMode.Unlimited)
 
     val backStack = rememberNavBackStack(Blank)
     var showBottomBar by remember { mutableStateOf(false) }

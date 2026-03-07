@@ -29,22 +29,22 @@ object HoltWintersTripleExponential {
         period: Int,
         m: Int,
     ): DoubleArray {
-        val St = DoubleArray(y.size)
-        val Bt = DoubleArray(y.size)
-        val It = DoubleArray(y.size)
-        val Ft = DoubleArray(y.size + m)
+        val st = DoubleArray(y.size)
+        val bt = DoubleArray(y.size)
+        val it = DoubleArray(y.size)
+        val ft = DoubleArray(y.size + m)
 
 
         //Initialize base values
-        St[1] = a0
-        Bt[1] = b0
+        st[1] = a0
+        bt[1] = b0
 
         for (i in 0..<period) {
-            It[i] = initialSeasonalIndices[i]
+            it[i] = initialSeasonalIndices[i]
         }
 
-        Ft[m] = (St[0] + (m * Bt[0])) * It[0] //This is actually 0 since Bt[0] = 0
-        Ft[m + 1] = (St[1] + (m * Bt[1])) * It[1] //Forecast starts from period + 2
+        ft[m] = (st[0] + (m * bt[0])) * it[0] //This is actually 0 since Bt[0] = 0
+        ft[m + 1] = (st[1] + (m * bt[1])) * it[1] //Forecast starts from period + 2
 
 
         //Start calculations
@@ -52,29 +52,29 @@ object HoltWintersTripleExponential {
             //Calculate overall smoothing
 
             if ((i - period) >= 0) {
-                St[i] = alpha * y[i] / It[i - period] + (1.0 - alpha) * (St[i - 1] + Bt[i - 1])
+                st[i] = alpha * y[i] / it[i - period] + (1.0 - alpha) * (st[i - 1] + bt[i - 1])
             } else {
-                St[i] = alpha * y[i] + (1.0 - alpha) * (St[i - 1] + Bt[i - 1])
+                st[i] = alpha * y[i] + (1.0 - alpha) * (st[i - 1] + bt[i - 1])
             }
 
 
             //Calculate trend smoothing
-            Bt[i] = gamma * (St[i] - St[i - 1]) + (1 - gamma) * Bt[i - 1]
+            bt[i] = gamma * (st[i] - st[i - 1]) + (1 - gamma) * bt[i - 1]
 
 
             //Calculate seasonal smoothing
             if ((i - period) >= 0) {
-                It[i] = beta * y[i] / St[i] + (1.0 - beta) * It[i - period]
+                it[i] = beta * y[i] / st[i] + (1.0 - beta) * it[i - period]
             }
 
 
             //Calculate forecast
             if (((i + m) >= period)) {
-                Ft[i + m] = (St[i] + (m * Bt[i])) * It[i - period + m]
+                ft[i + m] = (st[i] + (m * bt[i])) * it[i - period + m]
             }
         }
 
-        return Ft
+        return ft
     }
 
     private fun calculateInitialLevel(y: LongArray): Double = y[0].toDouble()

@@ -23,16 +23,17 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.model.PreferenceRepo
+import org.koin.compose.koinInject
 
 
 @Composable
 fun Theme(
     content: @Composable () -> Unit
 ) {
-    val viewModel: ThemeVM = viewModel()
-    val theme by viewModel.preferenceRepo.theme.collectAsState(Theme.AutoMaterial)
+    val preferenceRepo: PreferenceRepo = koinInject()
+    val theme by preferenceRepo.theme.collectAsState(Theme.AutoMaterial)
     val isDark = theme.isDark()
 
     val view = LocalView.current

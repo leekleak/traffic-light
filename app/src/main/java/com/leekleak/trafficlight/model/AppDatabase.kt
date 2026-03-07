@@ -1,5 +1,6 @@
 package com.leekleak.trafficlight.model
 
+import android.annotation.SuppressLint
 import android.app.usage.NetworkStats.Bucket.UID_REMOVED
 import android.app.usage.NetworkStats.Bucket.UID_TETHERING
 import android.content.Context
@@ -10,7 +11,10 @@ import org.koin.core.component.KoinComponent
 import timber.log.Timber
 
 
-class AppDatabase(val context: Context): KoinComponent {
+@SuppressLint("QueryPermissionsNeeded")
+class AppDatabase(
+    private val context: Context
+): KoinComponent {
     private var packageManager: PackageManager = context.packageManager
     val allApps by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

@@ -13,7 +13,7 @@ class TrafficLightApplication : Application() {
 
         startKoin {
             androidContext(this@TrafficLightApplication)
-            modules(databaseModule, preferenceRepoModule, permissionManagerModule)
+            modules(systemServiceModule, databaseModule, preferenceRepoModule, permissionManagerModule)
         }
     }
 }

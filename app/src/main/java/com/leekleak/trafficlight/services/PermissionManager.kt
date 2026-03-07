@@ -23,8 +23,6 @@ import rikka.shizuku.Shizuku
 class PermissionManager(
     private val context: Context
 ) : KoinComponent {
-    val shizukuManager: ShizukuDataManager by inject()
-
     private val _backgroundPermission = MutableStateFlow(false)
     val backgroundPermissionFlow = _backgroundPermission.asStateFlow()
 
@@ -99,6 +97,7 @@ class PermissionManager(
         if (_shizukuRunning.value) {
             _shizukuPermission.value = Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
         }
+        val shizukuManager: ShizukuDataManager by inject()
         shizukuManager.updateSimData()
     }
 }

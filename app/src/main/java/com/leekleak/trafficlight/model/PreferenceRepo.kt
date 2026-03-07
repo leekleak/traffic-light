@@ -14,12 +14,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
-class PreferenceRepo (private val context: Context): KoinComponent {
-    val permissionManager: PermissionManager by inject()
+class PreferenceRepo (
+    private val context: Context,
+    permissionManager: PermissionManager
+): KoinComponent {
     val data get() = context.dataStore.data
 
     val notification: Flow<Boolean> = combine(
@@ -53,13 +54,13 @@ class PreferenceRepo (private val context: Context): KoinComponent {
     suspend fun setExpressiveFonts(value: Boolean) = context.dataStore.edit { it[EXPRESSIVE_FONTS] = value}
 
     private companion object {
-        val NOTIFICATION = booleanPreferencesKey("notification")
-        val MODE_AOD = booleanPreferencesKey("mode_aod")
-        val BIG_ICON = booleanPreferencesKey("big_icon")
-        val SPEED_BITS = booleanPreferencesKey("speed_bits")
-        val FORCE_FALLBACK = booleanPreferencesKey("force_fallback")
-        val ALT_VPN_WORKAROUND = booleanPreferencesKey("alt_vpn_workaround")
-        val THEME = stringPreferencesKey("theme")
-        val EXPRESSIVE_FONTS = booleanPreferencesKey("expressive_fonts")
+        private val NOTIFICATION = booleanPreferencesKey("notification")
+        private val MODE_AOD = booleanPreferencesKey("mode_aod")
+        private val BIG_ICON = booleanPreferencesKey("big_icon")
+        private val SPEED_BITS = booleanPreferencesKey("speed_bits")
+        private val FORCE_FALLBACK = booleanPreferencesKey("force_fallback")
+        private val ALT_VPN_WORKAROUND = booleanPreferencesKey("alt_vpn_workaround")
+        private val THEME = stringPreferencesKey("theme")
+        private val EXPRESSIVE_FONTS = booleanPreferencesKey("expressive_fonts")
     }
 }

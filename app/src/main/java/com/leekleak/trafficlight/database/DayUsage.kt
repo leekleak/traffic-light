@@ -42,13 +42,13 @@ data class HourData(
 }
 
 data class TrafficSnapshot (
-    val connectivityManager: ConnectivityManager,
     var lastDown: Long = 0,
     var lastUp: Long = 0,
     var currentDown: Long = 0,
     var currentUp: Long = 0,
 ) : KoinComponent {
     private val preferenceRepo: PreferenceRepo by inject()
+    private val connectivityManager: ConnectivityManager by inject()
     private var useFallback: Boolean = TrafficStats.getTotalTxBytes() == TrafficStats.UNSUPPORTED.toLong()
     private var altVpnWorkaround: Boolean = false
 
