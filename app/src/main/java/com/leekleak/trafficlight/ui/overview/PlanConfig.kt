@@ -120,6 +120,8 @@ import com.leekleak.trafficlight.model.AppDatabase
 import com.leekleak.trafficlight.model.AppIcon
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.ui.theme.card
+import com.leekleak.trafficlight.ui.theme.doHyeonFont
+import com.leekleak.trafficlight.ui.theme.robotoFlex
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.DataSizeUnit
 import com.leekleak.trafficlight.util.categoryTitle

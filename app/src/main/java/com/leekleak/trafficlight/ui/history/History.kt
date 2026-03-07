@@ -55,10 +55,10 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.ScrollableBarGraph
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
-import com.leekleak.trafficlight.charts.momoTrustDisplayFont
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.model.AppIcon
 import com.leekleak.trafficlight.ui.theme.card
+import com.leekleak.trafficlight.ui.theme.momoTrustDisplayFont
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.getName
 import org.koin.compose.koinInject

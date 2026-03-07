@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -23,7 +22,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -51,12 +49,11 @@ import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.HistoricalDataDao
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.model.PreferenceRepo
-import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.PlanConfig
 import com.leekleak.trafficlight.ui.theme.card
+import com.leekleak.trafficlight.ui.theme.jetbrainsMono
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.categoryTitle
-import com.leekleak.trafficlight.widget.Warning
 import org.koin.compose.koinInject
 
 @Composable
@@ -65,22 +62,10 @@ fun Overview(
     backStack: NavBackStack<NavKey>
 ) {
     val hourlyUsageRepo: HourlyUsageRepo = koinInject()
+    val dataPlanDao: DataPlanDao = koinInject()
 
     val weeklyUsage by hourlyUsageRepo.weekUsage().collectAsState(listOf())
-
-    val permissionManager: PermissionManager = koinInject()
-    val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
-
-    val dataPlanDao: DataPlanDao = koinInject()
-    val historicalDataDao: HistoricalDataDao = koinInject()
-
     val activePlans by remember { dataPlanDao.getActiveFlow() }.collectAsState(listOf())
-
-    LaunchedEffect(Unit) {
-        hourlyUsageRepo.populateHistoryCache()
-    }
-
-    val size by remember { historicalDataDao.getAllFlow() }.collectAsState(listOf())
 
     val columnState = rememberLazyListState()
     LazyColumn(
@@ -91,22 +76,13 @@ fun Overview(
         contentPadding = paddingValues,
         state = columnState
     ) {
-        categoryTitle { stringResource(R.string.data_plans) }
-        if (!shizukuPermission && activePlans.isEmpty()) {
-            item {
-                Warning(
-                    title = stringResource(R.string.shizuku_required),
-                    description = stringResource(R.string.shizuku_required_description),
-                )
+        categoryTitle { stringResource(R.string.today) }
+        item {
+            Row{
+                PredictionCard()
             }
         }
-
-        item {
-            Text(size.size.toString())
-            val prediction by remember { hourlyUsageRepo.predictUsage(24) }.collectAsState(0.0)
-
-            Text(DataSize(prediction).toString())
-        }
+        categoryTitle { stringResource(R.string.data_plans) }
 
         items(activePlans, {it.subscriberID}) {
             if (it.dataMax != 0L) {
@@ -131,45 +107,66 @@ fun Overview(
     }
 }
 
+@Composable
+private fun RowScope.PredictionCard() {
+    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
+    val historicalDataDao: HistoricalDataDao = koinInject()
+    Column(
+        modifier = Modifier
+            .card()
+            .padding(16.dp)
+            .weight(1f),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        val prediction by remember { hourlyUsageRepo.predictUsage() }.collectAsState(0.0)
+        val size by remember { historicalDataDao.getAllFlow() }.collectAsState(listOf())
+        val string = DataSize(prediction).toStringParts()
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                painterResource(R.drawable.query_stats),
+                contentDescription = null
+            )
+            Text(stringResource(R.string.prediction) + size.size)
+        }
+        Row {
+            Text(
+                modifier = Modifier.alignByBaseline(),
+                text = string[0] + "." + string[1],
+                fontFamily = jetbrainsMono(),
+                fontSize = 32.sp
+            )
+            Text(
+                modifier = Modifier.alignByBaseline(),
+                text = string[2],
+                fontFamily = jetbrainsMono(),
+                fontSize = 20.sp
+            )
+        }
+    }
+}
+
 fun LazyListScope.overviewTab(
     label: Int,
     data: List<BarData>,
     finalGridPoint: String = "24",
     centerLabels: Boolean = false
 ) {
-    val cellular = data.sumOf { it.y1 }.toLong()
-    val wifi = data.sumOf { it.y2 }.toLong()
     categoryTitle { stringResource(label) }
     item {
-        Column (verticalArrangement = Arrangement.spacedBy(8.dp)){
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
-            ) {
-                SummaryItem(
-                    painter = painterResource(R.drawable.wifi),
-                    contentDescription = stringResource(R.string.wifi),
-                    tint = MaterialTheme.colorScheme.primary,
-                    data = { wifi }
-                )
-                SummaryItem(
-                    painter = painterResource(R.drawable.cellular),
-                    contentDescription = stringResource(R.string.cellular),
-                    tint = MaterialTheme.colorScheme.tertiary,
-                    data = { cellular }
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .card()
-                    .padding(6.dp)
-            ) {
-                BarGraph(
-                    data = data,
-                    finalGridPoint = finalGridPoint,
-                    centerLabels = centerLabels
-                )
-            }
+        Box(
+            modifier = Modifier
+                .card()
+                .padding(6.dp)
+        ) {
+            BarGraph(
+                data = data,
+                finalGridPoint = finalGridPoint,
+                centerLabels = centerLabels
+            )
         }
     }
 }

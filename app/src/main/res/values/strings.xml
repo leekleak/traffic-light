@@ -80,6 +80,7 @@
     <string name="shizuku_required_description">It can be granted in the settings.</string>
     <string name="tethering">Mobile Hotspot</string>
     <string name="removed_apps">Removed apps</string>
+    <string name="prediction">Prediction</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

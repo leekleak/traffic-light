@@ -12,12 +12,10 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.ui.theme.momoTrustDisplayFont
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.px
 
@@ -115,13 +113,4 @@ fun LineGraph(
             brush = brush2,
         )
     }
-}
-
-@Composable
-fun momoTrustDisplayFont(): FontFamily {
-    return FontFamily(
-        Font(
-            R.font.momo_trust_display
-        ),
-    )
 }

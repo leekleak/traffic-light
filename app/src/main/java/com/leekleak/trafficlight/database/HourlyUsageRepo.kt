@@ -11,14 +11,12 @@ import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.getName
 import com.leekleak.trafficlight.util.toTimestamp
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -211,23 +209,27 @@ class HourlyUsageRepo(
         emit(data.toList())
     }.flowOn(Dispatchers.IO)
 
-    fun predictUsage(predictHours: Int): Flow<Double> = flow {
+    fun predictUsage(): Flow<Double> = flow {
         val alpha = 0.04398965471871171
         val beta = 0.0006227714063965939
         val gamma = 0.033027304992884844
         val period = 24
 
+        val hoursLeft = 24 - LocalDateTime.now().hour
+
+        populateHistoryCache()
+        val todayUsage = calculateDayUsageBasic(LocalDate.now(), LocalDate.now())
         val data = historicalDataDao.getAll().map { it.usage }
 
         if (data.size < 1000) {
-            emit(0.0)
+            emit(todayUsage.totalCellular.toDouble())
         } else {
-            val prediction: DoubleArray = HoltWintersTripleExponential.forecast(data.toLongArray(), alpha, beta, gamma, period, predictHours)
-            emit(prediction.drop(data.size).sum())
+            val prediction: DoubleArray = HoltWintersTripleExponential.forecast(data.toLongArray(), alpha, beta, gamma, period, hoursLeft)
+            emit(prediction.drop(data.size).sum() + todayUsage.totalCellular.toDouble())
         }
     }.flowOn(Dispatchers.IO)
 
-    fun populateHistoryCache() = CoroutineScope(Dispatchers.IO).launch {
+    fun populateHistoryCache() {
         val lastHour = LocalDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.HOURS)
         val n = 24 * 80
 
@@ -235,7 +237,7 @@ class HourlyUsageRepo(
             val stamp = lastHour.minusHours(i.toLong()).toTimestamp()
             if (historicalDataDao.contains(stamp)) continue
 
-            val data = getNetworkDataForType(stamp, stamp + 3_600_000, null, NETWORK_TYPE_MOBILE).sumOf { it.total }
+            val data = getNetworkDataForType(stamp - 3_600_000, stamp, null, NETWORK_TYPE_MOBILE).sumOf { it.total }
             historicalDataDao.add(
                 HistoricalData(
                     stamp = stamp,

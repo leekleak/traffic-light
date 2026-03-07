@@ -3,7 +3,6 @@
 package com.leekleak.trafficlight.ui.overview
 
 import android.annotation.SuppressLint
-import androidx.annotation.FloatRange
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -38,10 +37,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,6 +45,9 @@ import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.database.resetString
 import com.leekleak.trafficlight.ui.theme.backgrounds
+import com.leekleak.trafficlight.ui.theme.carrierFont
+import com.leekleak.trafficlight.ui.theme.doHyeonFont
+import com.leekleak.trafficlight.ui.theme.robotoFlex
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.DataSizeUnit
 import org.koin.compose.koinInject
@@ -315,36 +313,4 @@ fun SimIcon(number: Int) {
             fontFamily = robotoFlex(0f,25f,500f)
         )
     }
-}
-
-@Composable
-fun carrierFont(): FontFamily = robotoFlex(-10f,25f,675f)
-
-@OptIn(ExperimentalTextApi::class)
-@Composable
-fun doHyeonFont(): FontFamily {
-    return FontFamily(
-        Font(
-            R.font.do_hyeon,
-        ),
-    )
-}
-
-@OptIn(ExperimentalTextApi::class)
-@Composable
-fun robotoFlex(
-    @FloatRange(-10.0, 0.0) slant: Float,
-    @FloatRange(25.0, 151.0) width: Float,
-    @FloatRange(100.0, 1000.0) weight: Float
-): FontFamily {
-    return FontFamily(
-        Font(
-            R.font.roboto_flex,
-            variationSettings = FontVariation.Settings(
-                FontVariation.Setting("slnt", slant),
-                FontVariation.Setting("wdth", width),
-                FontVariation.Setting("wght", weight)
-            )
-        ),
-    )
 }
