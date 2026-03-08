@@ -22,9 +22,7 @@ import java.time.LocalDateTime
 
 enum class TimeInterval {
     DAY,
-    WEEK,
-    MONTH,
-    YEAR
+    MONTH
 }
 
 @Entity
@@ -128,7 +126,6 @@ fun DataPlan.resetString(context: Context): String {
             }
             startDate
         }
-        else -> throw Exception("Unsupported time interval")
     }
     val duration = Duration.between(now, startDate).toDays().toInt() + 1
     return context.resources.getQuantityString(R.plurals.resets_in_days, duration, duration)

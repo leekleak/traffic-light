@@ -56,6 +56,9 @@ data class DataSize (
     }
 
     fun toStringParts(uppercase: Boolean = true): List<String> {
+        if (value.isNaN()) {
+            return listOf("Nan", "", "")
+        }
         val newValue = value.toBigDecimal().setScale(precision, RoundingMode.HALF_UP).toString()
         val newUnit = unit.toString().let { if (!uppercase) it.replace("B", "b") else it }
         return listOf(

@@ -15,7 +15,7 @@ object HoltWintersTripleExponential {
             initialSeasonalIndices, period, m
         )
 
-        return forecast
+        return forecast.map { if (it.isNaN()) 0.0 else it }.toDoubleArray()
     }
 
     private fun calculateHoltWinters(

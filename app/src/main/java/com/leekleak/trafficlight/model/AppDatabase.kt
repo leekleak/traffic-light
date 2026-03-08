@@ -67,7 +67,7 @@ class AppDatabase(
         return when (uid) {
             UID_TETHERING -> listOf("")
             UID_REMOVED -> listOf("")
-            else -> packageManager . getPackagesForUid (uid)?.toList()
+            else -> packageManager.getPackagesForUid(uid)?.toList()
         }
     }
 

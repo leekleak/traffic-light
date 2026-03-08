@@ -79,7 +79,6 @@ class HourlyUsageRepo(
                 }
                 startDate.minusDays(dataPlan.intervalMultiplier.toLong())
             }
-            else -> throw Exception("Unsupported time interval")
         }
 
         val startStamp = startDate.toTimestamp()

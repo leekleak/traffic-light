@@ -57,12 +57,12 @@ class ShizukuDataManager(
 
     private fun getSubscriptionInfos(): List<SubscriptionInfo> {
         if (!enabled) return emptyList()
-        return binderMine!!.subscriptionInfos
+        return binderMine?.subscriptionInfos ?: emptyList()
     }
 
     private fun getSubscriberID(subscriptionId: Int): String? {
         if (!enabled) return null
-        return binderMine!!.getSubscriberID(subscriptionId)
+        return binderMine?.getSubscriberID(subscriptionId)
     }
 
     fun updateSimData() = CoroutineScope(Dispatchers.IO).launch {
@@ -87,19 +87,12 @@ class ShizukuDataManager(
             }
             dataPlanDao.addAll(plans)
         } else if (dataPlanDao.getActive().isEmpty()) {
-            var plans = dataPlanDao.getActive()
-            plans = plans.map { plan ->
-                 plan.copy(simIndex = if (plan.subscriberID != "null") -1 else 0)
-            }.toMutableList()
-            if (plans.indexOfFirst { it.subscriberID == "null" } == -1) {
-                plans.add(
-                    DataPlan(
-                        subscriberID = "null",
-                        simIndex = 0
-                    )
+            dataPlanDao.add(
+                DataPlan(
+                    subscriberID = "null",
+                    simIndex = 0
                 )
-            }
-            dataPlanDao.addAll(plans)
+            )
         }
     }
 }
