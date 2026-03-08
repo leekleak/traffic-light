@@ -8,6 +8,7 @@ import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.ITrafficLightShizukuService
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
+import com.leekleak.trafficlight.database.HourlyUsageRepo.Companion.NULL_SUBSCRIBER
 import com.leekleak.trafficlight.services.PermissionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -75,10 +76,10 @@ class ShizukuDataManager(
                 plan.copy(simIndex = activeSubscriberIDs.indexOf(plan.subscriberID))
             }.toMutableList()
             activeSubscriberIDs.forEachIndexed { index, activeID ->
-                if (activeID !in plans.map { it.subscriberID }) {
+                if (activeID !in plans.map { it.subscriberID } && activeID != null) {
                     plans.add(
                         DataPlan(
-                            subscriberID = activeID!!,
+                            subscriberID = activeID,
                             simIndex = infos[index].simSlotIndex,
                             carrierName = infos[index].carrierName?.toString() ?: ""
                         )
@@ -89,7 +90,7 @@ class ShizukuDataManager(
         } else if (dataPlanDao.getActive().isEmpty()) {
             dataPlanDao.add(
                 DataPlan(
-                    subscriberID = "null",
+                    subscriberID = NULL_SUBSCRIBER,
                     simIndex = 0
                 )
             )

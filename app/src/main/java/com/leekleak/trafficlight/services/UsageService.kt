@@ -38,11 +38,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.component.inject
 import timber.log.Timber
+import java.lang.ref.WeakReference
 import java.time.LocalDate
 
 class UsageService : Service(), KoinComponent {
@@ -81,7 +84,7 @@ class UsageService : Service(), KoinComponent {
 
     override fun onCreate() {
         super.onCreate()
-        instance = this
+        instance = WeakReference(this)
         Timber.i("Creating UsageService")
         
         notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
@@ -228,6 +231,7 @@ class UsageService : Service(), KoinComponent {
 
     private var cachedIcons = LruCache<String, IconCompat>(50)
     private var bitmap: Bitmap? = null
+    private val bitmapMutex = Mutex()
     suspend fun createIcon(snapshot: TrafficSnapshot): IconCompat = withContext(Dispatchers.Default) {
         val density = Density(this@UsageService)
         val multiplier = 24 * density.density / 96f * if (bigIcon) 2f else 1f
@@ -244,51 +248,53 @@ class UsageService : Service(), KoinComponent {
 
         cachedIcons[iconTag]?.let { return@withContext it }
 
-        if (bitmap == null || bitmap!!.height != height) {
-            bitmap = createBitmap(height, height, Bitmap.Config.ALPHA_8)
-        } else {
-            bitmap?.eraseColor(Color.TRANSPARENT)
-        }
+        bitmapMutex.withLock {
+            if (bitmap == null || bitmap!!.height != height) {
+                bitmap = createBitmap(height, height, Bitmap.Config.ALPHA_8)
+            } else {
+                bitmap?.eraseColor(Color.TRANSPARENT)
+            }
 
-        val canvas = Canvas(bitmap!!)
+            val canvas = Canvas(bitmap!!)
 
-        paint.apply {
-            textSize = 72f * multiplier
-            letterSpacing = -0.05f * multiplier
-        }
-        canvas.drawText(speed, 48f * multiplier, 56f * multiplier, paint)
+            paint.apply {
+                textSize = 72f * multiplier
+                letterSpacing = -0.05f * multiplier
+            }
+            canvas.drawText(speed, 48f * multiplier, 56f * multiplier, paint)
 
-        paint.apply {
-            textSize = 46f * multiplier
-            letterSpacing = 0f * multiplier
-        }
-        canvas.drawText(unit, 48f * multiplier, 96f * multiplier, paint)
+            paint.apply {
+                textSize = 46f * multiplier
+                letterSpacing = 0f * multiplier
+            }
+            canvas.drawText(unit, 48f * multiplier, 96f * multiplier, paint)
 
-        /**
-         * Don't cache numbers with many digits as they appear much more often and are unlikely
-         * to be worth the cost of creating a new bitmap
-         *
-         * Mostly there to avoid re-rendering common values like 0KB/s, <1KB/s or other small values
-         * caused by many background processes.
-         *
-         * Making caching more aggressive is probably a bad idea as duplicating bitmaps is quite
-         * expensive and not worth it if the value appears once a day.
-          */
-        if (speed.count(Char::isDigit) == 1) {
-            cachedIcons.put(
-                iconTag,
-                IconCompat.createWithBitmap(bitmap!!.copy(Bitmap.Config.ALPHA_8, false)),
-            )
-            return@withContext cachedIcons[iconTag]!!
-        } else {
-            return@withContext IconCompat.createWithBitmap(bitmap!!)
+            /**
+             * Don't cache numbers with many digits as they appear much more often and are unlikely
+             * to be worth the cost of creating a new bitmap
+             *
+             * Mostly there to avoid re-rendering common values like 0KB/s, <1KB/s or other small values
+             * caused by many background processes.
+             *
+             * Making caching more aggressive is probably a bad idea as duplicating bitmaps is quite
+             * expensive and not worth it if the value appears once a day.
+              */
+            if (speed.count(Char::isDigit) == 1) {
+                cachedIcons.put(
+                    iconTag,
+                    IconCompat.createWithBitmap(bitmap!!.copy(Bitmap.Config.ALPHA_8, false)),
+                )
+                return@withContext cachedIcons[iconTag]!!
+            } else {
+                return@withContext IconCompat.createWithBitmap(bitmap!!)
+            }
         }
     }
 
     companion object : KoinComponent {
         const val NOTIFICATION_ID = 228
         const val NOTIFICATION_CHANNEL_ID = "PersistentNotification"
-        const val DATA_UPDATE_FREQ = 5
+        const val DATA_UPDATE_FREQ = 4
 
         private val _todayUsageFlow = MutableStateFlow(DayUsage())
         var todayUsage: DayUsage
@@ -297,10 +303,10 @@ class UsageService : Service(), KoinComponent {
                 _todayUsageFlow.value = value
             }
 
-        private var instance: UsageService? = null
+        private var instance: WeakReference<UsageService?> = WeakReference(null)
 
         fun isInstanceCreated(): Boolean {
-            return instance != null
+            return instance.get() != null
         }
 
         fun startService(context: Context) {
@@ -316,10 +322,8 @@ class UsageService : Service(), KoinComponent {
         }
 
         fun stopService() {
-            if (isInstanceCreated()) {
-                instance?.stopSelf()
-                instance = null
-            }
+            instance.get()?.stopSelf()
+            instance.clear()
         }
     }
 }

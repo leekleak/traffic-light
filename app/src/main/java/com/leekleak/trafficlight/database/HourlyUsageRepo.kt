@@ -83,7 +83,7 @@ class HourlyUsageRepo(
 
         val startStamp = startDate.toTimestamp()
         val endStamp = now.toTimestamp()
-        val subscriberId = if (dataPlan.subscriberID == "null") null else dataPlan.subscriberID
+        val subscriberId = if (dataPlan.subscriberID == NULL_SUBSCRIBER) null else dataPlan.subscriberID
 
         var stats = getNetworkDataForType(startStamp, endStamp, subscriberId, NETWORK_TYPE_MOBILE).sumOf { it.total }
         stats -= getNetworkDataForType(startStamp, endStamp, subscriberId, NETWORK_TYPE_MOBILE)
@@ -114,18 +114,19 @@ class HourlyUsageRepo(
     }
 
     fun getNetworkDataForType(startStamp: Long, endStamp: Long, subscriberId: String?, type: Int): List<UsageData> {
-        val stats = networkStatsManager.querySummary(type, subscriberId, startStamp, endStamp)
-        val list = mutableListOf<UsageData>()
-        while (stats.hasNextBucket()) {
-            val bucket = NetworkStats.Bucket()
-            stats.getNextBucket(bucket)
-            val item = list.find { it.uid == bucket.uid }
-            item?.let {
-                list.add(UsageData(it.upload + bucket.txBytes, it.download + bucket.rxBytes, bucket.uid))
-                list.remove(item)
-            } ?: list.add(UsageData(bucket.txBytes, bucket.rxBytes, bucket.uid))
+        networkStatsManager.querySummary(type, subscriberId, startStamp, endStamp).use { summary ->
+            val list = mutableListOf<UsageData>()
+            while (summary.hasNextBucket()) {
+                val bucket = NetworkStats.Bucket()
+                summary.getNextBucket(bucket)
+                val item = list.find { it.uid == bucket.uid }
+                item?.let {
+                    list.add(UsageData(it.upload + bucket.txBytes, it.download + bucket.rxBytes, bucket.uid))
+                    list.remove(item)
+                } ?: list.add(UsageData(bucket.txBytes, bucket.rxBytes, bucket.uid))
+            }
+            return list.toList()
         }
-        return list.toList()
     }
 
     fun getAllAppUsage(startDate: LocalDate, endDate: LocalDate = startDate): Flow<List<AppUsage>> =
@@ -231,10 +232,11 @@ class HourlyUsageRepo(
     fun populateHistoryCache() {
         val lastHour = LocalDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.HOURS)
         val n = 24 * 80
+        val allData = historicalDataDao.getAll()
 
         for (i in n downTo 0) {
             val stamp = lastHour.minusHours(i.toLong()).toTimestamp()
-            if (historicalDataDao.contains(stamp)) continue
+            if (allData.find { it.stamp == stamp } != null) continue
 
             val data = getNetworkDataForType(stamp - 3_600_000, stamp, null, NETWORK_TYPE_MOBILE).sumOf { it.total }
             historicalDataDao.add(
@@ -249,5 +251,6 @@ class HourlyUsageRepo(
     companion object {
         const val NETWORK_TYPE_MOBILE = 0
         const val NETWORK_TYPE_WIFI = 1
+        const val NULL_SUBSCRIBER = "null"
     }
 }
