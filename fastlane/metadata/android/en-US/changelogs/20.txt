@@ -1,0 +1,6 @@
+Enhancements:
+- Removed QUERY_ALL_PACKAGES permission
+- Added hotspot and deleted app tracking support
+
+Bug fixes:
+- Fix widget being cut off on small grids
