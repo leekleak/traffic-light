@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Traffic Light</string>
+    <string name="app_name">Traffic Light: Network Tracker</string>
     <string name="today">Today</string>
     <string name="this_week">This Week</string>
     <string name="history">History</string>
@@ -73,7 +73,7 @@
     <string name="configured_plans">Configured plans</string>
     <string name="data_plan_widget_description">Track your data plans on your home screen</string>
     <string name="widget_warning">Widget support is experimental. If you encounter issues please report them on Github.</string>
-    <string name="no_configured_plans_description">Please ensure that you have granted Shizuku permission and have configured at least 1 data plan.</string>
+    <string name="no_configured_plans_description">Please ensure that you have configured at least 1 data plan.</string>
     <string name="no_configured_plans">No plans configured</string>
     <string name="warning">Warning</string>
     <string name="shizuku_required">Shizuku permission required</string>

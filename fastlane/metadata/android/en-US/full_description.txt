@@ -1,10 +1,9 @@
-<p>Traffic Light is an open-source tool for tracking your network usage while ensuring total privacy. Inspired by Internet Speed Meter and GlassWire.</p>
-<h2>Why?</h2>
-<ul>
-<li>Free and open source</li>
-<li>Uses few <a href="https://github.com/leekleak/traffic-light/wiki/Permission-Comparison">permissions</a></li>
-<li>Uses <a href="https://github.com/leekleak/traffic-light/wiki/Battery-Usage">less battery</a></li>
-<li>No tracking</li>
-<li>Beautiful UI</li>
-<li>Fast and modern</li>
-</ul>
+Traffic Light is an open-source tool for tracking your network usage while ensuring total privacy. Inspired by Internet Speed Meter and GlassWire.
+
+Features:
+- Free and open source
+- Uses few permissions
+- Uses less battery
+- No tracking
+- Beautiful UI
+- Fast and modern
