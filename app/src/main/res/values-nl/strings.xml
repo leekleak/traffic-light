@@ -81,4 +81,8 @@
     <string name="shizuku_required_description">Het kan toegestaan worden in de instellingen.</string>
     <string name="tethering">Mobiele hotspot</string>
     <string name="removed_apps">Verwijderde apps</string>
+    <string name="prediction">Voorspelling</string>
+    <string name="trend">Trend</string>
+    <string name="data_intensive_apps">Gegevensintensieve apps</string>
+    <string name="mobile_data">Mobiele gegevens</string>
 </resources>

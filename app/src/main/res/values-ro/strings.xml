@@ -80,4 +80,10 @@
         <item quantity="few">Se va reseta în %d zile</item>
         <item quantity="other">Se va reseta în %d de zile</item>
     </plurals>
+    <string name="tethering">Hotspot mobil</string>
+    <string name="removed_apps">Aplicații eliminate</string>
+    <string name="prediction">Predicție</string>
+    <string name="trend">Tendinţă</string>
+    <string name="data_intensive_apps">Aplicații cu date intensive</string>
+    <string name="mobile_data">Date mobile</string>
 </resources>

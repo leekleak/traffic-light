@@ -82,4 +82,8 @@
     <string name="shizuku_required_description">Elle peut être accordée dans les paramètres.</string>
     <string name="tethering">Point d\'accès mobile</string>
     <string name="removed_apps">Applications supprimées</string>
+    <string name="prediction">Prédiction</string>
+    <string name="trend">Tendance</string>
+    <string name="data_intensive_apps">Applications consommatrices</string>
+    <string name="mobile_data">Données mobiles</string>
 </resources>
