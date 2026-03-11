@@ -6,7 +6,6 @@ import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.model.AppDatabase
 import com.leekleak.trafficlight.model.AppDatabase.Companion.specialUIDs
-import com.leekleak.trafficlight.model.HoltWintersTripleExponential
 import com.leekleak.trafficlight.services.PermissionManager
 import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.getName
@@ -209,23 +208,27 @@ class HourlyUsageRepo(
     }.flowOn(Dispatchers.IO)
 
     fun predictUsage(): Flow<Double> = flow {
-        val alpha = 0.04398965471871171
-        val beta = 0.0006227714063965939
-        val gamma = 0.033027304992884844
-        val period = 24
-
-        val hoursLeft = 24 - LocalDateTime.now().hour
+        val hour = LocalDateTime.now().hour
 
         populateHistoryCache()
         val todayUsage = calculateDayUsageBasic(LocalDate.now(), LocalDate.now())
         val data = historicalDataDao.getAll().map { it.usage }
+        val todayIndex = data.size - hour
 
-        if (data.size < 1000) {
-            emit(todayUsage.totalCellular.toDouble())
-        } else {
-            val prediction: DoubleArray = HoltWintersTripleExponential.forecast(data.toLongArray(), alpha, beta, gamma, period, hoursLeft)
-            emit(prediction.drop(data.size).sum() + todayUsage.totalCellular.toDouble())
+        var hourSum = 0.0
+        var daySum = 0.0
+
+        for (i in 1..4) {
+            val dayIndex = todayIndex - i * 24 * 7
+            for (k in 0..23) {
+                daySum += data[dayIndex + k]
+                if (k <= hour) hourSum += data[dayIndex + k]
+            }
         }
+
+        val multiplier = if (hourSum != 0.0) daySum / hourSum else 1.0
+        emit(todayUsage.totalCellular * multiplier)
+
     }.flowOn(Dispatchers.IO)
 
     fun populateHistoryCache() {
@@ -237,11 +240,12 @@ class HourlyUsageRepo(
             val stamp = lastHour.minusHours(i.toLong()).toTimestamp()
             if (allData.find { it.stamp == stamp } != null) continue
 
-            val data = getNetworkDataForType(stamp - 3_600_000, stamp, null, NETWORK_TYPE_MOBILE).sumOf { it.total }
+            // We need to use querySummaryForDevice because regular querySummary is not very accurate hour-wise
+            val bucket = networkStatsManager.querySummaryForDevice(NETWORK_TYPE_MOBILE, null, stamp - 3_600_000, stamp)
             historicalDataDao.add(
                 HistoricalData(
                     stamp = stamp,
-                    usage = data,
+                    usage = bucket.rxBytes + bucket.txBytes,
                 )
             )
         }
