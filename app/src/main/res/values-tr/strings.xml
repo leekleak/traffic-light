@@ -79,4 +79,10 @@
     </plurals>
     <string name="zero_rated_apps">Puanlanmamış uygulamalar</string>
     <string name="configured_plans">Ayarlanmış planlar</string>
+    <string name="tethering">Mobil Paylaşım Noktası</string>
+    <string name="removed_apps">Silinmiş uygulamalar</string>
+    <string name="prediction">Tahmin</string>
+    <string name="trend">Eğilim</string>
+    <string name="data_intensive_apps">Yoğun veri kullanan uygulamalar</string>
+    <string name="mobile_data">Hücresel veri</string>
 </resources>
