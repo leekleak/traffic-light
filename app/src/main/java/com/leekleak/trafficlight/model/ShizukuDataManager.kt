@@ -9,19 +9,16 @@ import com.leekleak.trafficlight.ITrafficLightShizukuService
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.HourlyUsageRepo.Companion.NULL_SUBSCRIBER
-import com.leekleak.trafficlight.services.PermissionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
 import rikka.shizuku.Shizuku
 
 
 class ShizukuDataManager(
-    private val permissionManager: PermissionManager,
     private val dataPlanDao: DataPlanDao
-) : KoinComponent {
+) {
     private var enabled = false
     private var binderMine: ITrafficLightShizukuService? = null
 
@@ -44,16 +41,13 @@ class ShizukuDataManager(
         .debuggable(BuildConfig.DEBUG)
         .version(BuildConfig.VERSION_CODE)
 
-    init {
-        CoroutineScope(Dispatchers.IO).launch {
-            permissionManager.shizukuPermissionFlow.collect {
-                enabled = it
-                if (enabled) {
-                    Shizuku.unbindUserService(serviceArgs, connection, true) // Force update service
-                    Shizuku.bindUserService(serviceArgs, connection)
-                }
-            }
+    fun setEnabled(value: Boolean) {
+        if (enabled == value) return
+        if (value) {
+            Shizuku.unbindUserService(serviceArgs, connection, true) // Force update service
+            Shizuku.bindUserService(serviceArgs, connection)
         }
+        enabled = value
     }
 
     private fun getSubscriptionInfos(): List<SubscriptionInfo> {

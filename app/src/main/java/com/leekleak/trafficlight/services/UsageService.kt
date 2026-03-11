@@ -48,7 +48,7 @@ import timber.log.Timber
 import java.lang.ref.WeakReference
 import java.time.LocalDate
 
-class UsageService : Service(), KoinComponent {
+class UsageService : Service() {
     private val serviceScope = CoroutineScope(Dispatchers.IO)
     private var job: Job? = null
     private val hourlyUsageRepo: HourlyUsageRepo by lazy { get() }

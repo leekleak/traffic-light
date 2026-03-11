@@ -4,5 +4,5 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val permissionManagerModule = module {
-    single{ PermissionManager(androidContext()) }
+    single{ PermissionManager(androidContext(), get()) }
 }

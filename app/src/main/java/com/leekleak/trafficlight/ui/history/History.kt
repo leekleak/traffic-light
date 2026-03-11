@@ -49,7 +49,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.rememberAsyncImagePainter
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
@@ -61,6 +60,7 @@ import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.momoTrustDisplayFont
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.getName
+import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -73,7 +73,7 @@ val imageWidth = 32.dp
 @Composable
 fun History(paddingValues: PaddingValues) {
     val hourlyUsageRepo: HourlyUsageRepo = koinInject()
-    val viewModel: HistoryVM = viewModel()
+    val viewModel: HistoryVM = koinViewModel()
     val haptic = LocalHapticFeedback.current
 
     var appDay by remember { mutableStateOf( LocalDate.now()) }

@@ -5,6 +5,6 @@ import org.koin.dsl.module
 val preferenceRepoModule = module {
     single { PreferenceRepo(get(), get()) }
     single { AppDatabase(get()) }
-    single { ShizukuDataManager(get(), get()) }
+    single { ShizukuDataManager(get()) }
     factory { AppIconFetcher.Factory(get()) }
 }

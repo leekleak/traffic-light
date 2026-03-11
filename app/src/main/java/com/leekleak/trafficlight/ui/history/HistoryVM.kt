@@ -13,12 +13,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import java.time.LocalDate
 
-class HistoryVM: ViewModel(), KoinComponent {
-    private val hourlyUsageRepo: HourlyUsageRepo by inject()
+class HistoryVM(
+    private val hourlyUsageRepo: HourlyUsageRepo
+): ViewModel() {
     private val dateParams = MutableStateFlow(DateParams(LocalDate.now(), false))
 
     @OptIn(ExperimentalCoroutinesApi::class)

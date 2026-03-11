@@ -30,7 +30,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.BuildConfig
@@ -49,6 +48,7 @@ import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.util.px
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import rikka.shizuku.Shizuku
 
@@ -57,7 +57,7 @@ fun Settings(
     paddingValues: PaddingValues,
     backstack: NavBackStack<NavKey>,
 ) {
-    val viewModel: SettingsVM = viewModel()
+    val viewModel: SettingsVM = koinViewModel()
     val preferenceRepo: PreferenceRepo = koinInject()
     val permissionManager: PermissionManager = koinInject()
     val hourlyUsageRepo: HourlyUsageRepo = koinInject()

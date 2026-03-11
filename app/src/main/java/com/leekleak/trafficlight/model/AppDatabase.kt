@@ -7,14 +7,13 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import com.leekleak.trafficlight.R
-import org.koin.core.component.KoinComponent
 import timber.log.Timber
 
 
 @SuppressLint("QueryPermissionsNeeded")
 class AppDatabase(
     private val context: Context
-): KoinComponent {
+) {
     private var packageManager: PackageManager = context.packageManager
     val allApps by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

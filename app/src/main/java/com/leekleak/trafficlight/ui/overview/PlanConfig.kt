@@ -132,6 +132,7 @@ import com.leekleak.trafficlight.util.toDp
 import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import java.text.DecimalFormat
 import java.text.NumberFormat
@@ -149,7 +150,7 @@ fun PlanConfig(
     subscriberId: String,
     backStack: NavBackStack<NavKey>
 ) {
-    val viewModel: OverviewVM = viewModel()
+    val viewModel: OverviewVM = koinViewModel()
     val scope = rememberCoroutineScope()
 
     val context = LocalContext.current

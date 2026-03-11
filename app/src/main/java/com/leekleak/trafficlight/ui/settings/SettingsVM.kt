@@ -8,9 +8,8 @@ import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import com.leekleak.trafficlight.services.UsageService
 import kotlinx.coroutines.delay
-import org.koin.core.component.KoinComponent
 
-class SettingsVM : ViewModel(), KoinComponent {
+class SettingsVM : ViewModel() {
     suspend fun runUsageService(value: Boolean, context: Context) {
         delay(50) // Give time for database to update
         if (value) {

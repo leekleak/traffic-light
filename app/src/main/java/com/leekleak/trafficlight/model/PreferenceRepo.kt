@@ -13,14 +13,13 @@ import com.leekleak.trafficlight.ui.theme.Theme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import org.koin.core.component.KoinComponent
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class PreferenceRepo (
     private val context: Context,
     permissionManager: PermissionManager
-): KoinComponent {
+) {
     private val dataStore get() = context.dataStore
     private val data get() = dataStore.data
 

@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import org.koin.core.component.KoinComponent
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -45,7 +44,7 @@ class HourlyUsageRepo(
     private val permissionManager: PermissionManager,
     private val historicalDataDao: HistoricalDataDao,
     private val appDatabase: AppDatabase,
-) : KoinComponent {
+) {
 
     fun usageModeFlow(): Flow<UsageMode> = permissionManager.usagePermissionFlow.map {
         val millis = System.currentTimeMillis()

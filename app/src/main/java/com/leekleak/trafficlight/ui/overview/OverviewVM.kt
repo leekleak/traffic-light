@@ -7,11 +7,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import org.koin.core.component.KoinComponent
 
 class OverviewVM(
     private val dataPlanDao: DataPlanDao,
-) : ViewModel(), KoinComponent {
+) : ViewModel() {
     fun getDataPlan(subscriberID: String): Flow<DataPlan> = flow {
         emit(dataPlanDao.get(subscriberID) ?: DataPlan(subscriberID))
     }.flowOn(Dispatchers.IO)

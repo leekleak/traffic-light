@@ -4,6 +4,7 @@ import android.app.Application
 import com.leekleak.trafficlight.database.databaseModule
 import com.leekleak.trafficlight.model.preferenceRepoModule
 import com.leekleak.trafficlight.services.permissionManagerModule
+import com.leekleak.trafficlight.ui.viewModelModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
 
@@ -13,7 +14,13 @@ class TrafficLightApplication : Application() {
 
         startKoin {
             androidContext(this@TrafficLightApplication)
-            modules(systemServiceModule, databaseModule, preferenceRepoModule, permissionManagerModule)
+            modules(
+                systemServiceModule,
+                databaseModule,
+                preferenceRepoModule,
+                permissionManagerModule,
+                viewModelModule,
+            )
         }
     }
 }

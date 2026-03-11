@@ -16,13 +16,12 @@ import androidx.core.net.toUri
 import com.leekleak.trafficlight.model.ShizukuDataManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import rikka.shizuku.Shizuku
 
 class PermissionManager(
-    private val context: Context
-) : KoinComponent {
+    private val context: Context,
+    private val shizukuManager: ShizukuDataManager
+) {
     private val _backgroundPermission = MutableStateFlow(false)
     val backgroundPermissionFlow = _backgroundPermission.asStateFlow()
 
@@ -96,8 +95,8 @@ class PermissionManager(
         _shizukuRunning.value = Shizuku.pingBinder()
         if (_shizukuRunning.value) {
             _shizukuPermission.value = Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+            shizukuManager.setEnabled(_shizukuPermission.value)
         }
-        val shizukuManager: ShizukuDataManager by inject()
         shizukuManager.updateSimData()
     }
 }
