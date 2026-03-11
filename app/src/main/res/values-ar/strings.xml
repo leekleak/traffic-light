@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">إشارة المرور</string>
+    <string name="app_name">إشارة المرور: متتبع الشبكة</string>
     <string name="today">اليوم</string>
     <string name="this_week">هذا الأسبوع</string>
     <string name="history">التاريخ</string>
@@ -19,7 +19,7 @@
     <string name="oversample_icon">أيقونة ذات دقة عالية</string>
     <string name="oversample_icon_description">عرض الأيقونة بدقة أعلى إذا كانت غير واضحة.</string>
     <string name="wi_fi">واي فاي: %1$s</string>
-    <string name="mobile">الجوال: %1$s</string>
+    <string name="mobile">الجوّال: %1$s</string>
     <string name="about">حول</string>
     <string name="speed_in_bits">أظهر السرعة بالبت</string>
     <string name="github_description">متابعة التطوير أو الإبلاغ عن المشكلات.</string>
@@ -74,7 +74,7 @@
     <string name="configured_plans">الخطط المضبوطة</string>
     <string name="data_plan_widget_description">تتبع خطط بياناتك من شاشتك الرئيسية</string>
     <string name="widget_warning">دعم الأدوات ويدجات لا يزال تجريبيًا. إذا واجهت أي مشاكل، يُرجى الإبلاغ عنها عبر Github.</string>
-    <string name="no_configured_plans_description">يُرجى التأكد من منح Shizuku الإذن وضبطت خطة بيانات واحدة على الأقل.</string>
+    <string name="no_configured_plans_description">يُرجى التأكد أنك ضبطت خطة بيانات واحدة على الأقل.</string>
     <string name="no_configured_plans">لا توجد خطط مضبوطة</string>
     <string name="warning">تحذير</string>
     <string name="shizuku_required">مطلوب إذن Shizuku</string>
@@ -83,6 +83,10 @@
     <string name="time">الوقت:</string>
     <string name="length">الطول:</string>
     <string name="days">أيام</string>
-    <string name="tethering">نقطة اتصال الهاتف</string>
+    <string name="tethering">نقطة اتصال الجوّال</string>
     <string name="removed_apps">التطبيقات المُزالة</string>
+    <string name="prediction">التوقع</string>
+    <string name="trend">رائج</string>
+    <string name="data_intensive_apps">تطبيقات كثيفة البيانات</string>
+    <string name="mobile_data">بيانات الجوّال</string>
 </resources>
