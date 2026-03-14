@@ -120,17 +120,17 @@ data class TrafficSnapshot (
     }
 
     private fun fallbackUpdateSnapshot() {
-        val mobileUp = if (mobileTxFile.canRead()) mobileTxFile.readText().trim().toLong() else 0
-        val mobileDown = if (mobileRxFile.canRead()) mobileRxFile.readText().trim().toLong() else 0
-        val wifiUp = (if (wifiTxFile.canRead()) wifiTxFile.readText().trim().toLong() else 0) +
-                     (if (ethTxFile.canRead()) ethTxFile.readText().trim().toLong() else 0)
-        val wifiDown = (if (wifiRxFile.canRead()) wifiRxFile.readText().trim().toLong() else 0) +
-                       (if (ethRxFile.canRead()) ethRxFile.readText().trim().toLong() else 0)
+        val mobileUp = mobileTxFile.readLongOrZero()
+        val mobileDown = mobileRxFile.readLongOrZero()
+        val wifiUp = wifiTxFile.readLongOrZero() + ethTxFile.readLongOrZero()
+        val wifiDown = wifiRxFile.readLongOrZero() + ethRxFile.readLongOrZero()
         currentUp = mobileUp + wifiUp
         currentDown = mobileDown + wifiDown
     }
 
     fun isCurrentSameAsLast(): Boolean = lastDown == currentDown && lastUp == currentUp
+
+    private fun File.readLongOrZero() = if (canRead()) readText().trim().toLong() else 0L
 
     companion object {
         private val mobileRxFile: File by lazy { File("/sys/class/net/rmnet0/statistics/rx_bytes") }
