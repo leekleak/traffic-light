@@ -33,7 +33,6 @@
     <string name="limited_mode">Ограниченный Режим</string>
     <string name="limited_mode_description">К сожалению, ваша операционная система не поддерживает долгосрочное отслеживание данных.</string>
     <string name="auto">Автоматически</string>
-    <string name="expressive_fonts">Выразительные Шрифты</string>
     <string name="default_theme">По умолчанию</string>
     <string name="help">Помощь</string>
     <string name="advanced_settings">Дополнительные настройки</string>
