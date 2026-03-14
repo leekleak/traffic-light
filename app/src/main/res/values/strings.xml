@@ -34,8 +34,6 @@
     <string name="auto">Auto</string>
     <string name="light">Light</string>
     <string name="dark">Dark</string>
-    <string name="expressive_fonts">Expressive Fonts</string>
-    <string name="expressive_fonts_description">Disabling Expressive Fonts may break layouts and is being deprecated.</string>
     <string name="material_theme" translatable="false">Material You</string>
     <string name="default_theme">Default</string>
     <string name="help">Help</string>
@@ -76,8 +74,6 @@
     <string name="no_configured_plans_description">Please ensure that you have configured at least 1 data plan.</string>
     <string name="no_configured_plans">No plans configured</string>
     <string name="warning">Warning</string>
-    <string name="shizuku_required">Shizuku permission required</string>
-    <string name="shizuku_required_description">It can be granted in the settings.</string>
     <string name="tethering">Mobile Hotspot</string>
     <string name="removed_apps">Removed apps</string>
     <string name="prediction">Prediction</string>

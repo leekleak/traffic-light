@@ -205,16 +205,6 @@ fun Settings(
                 ThemePreferenceContainer(theme, false) { scope.launch { preferenceRepo.setTheme(it) } }
             }
         }
-        item {
-            val expressiveFonts by preferenceRepo.expressiveFonts.collectAsState(true)
-            SwitchPreference(
-                title = stringResource(R.string.expressive_fonts),
-                summary = stringResource(R.string.expressive_fonts_description),
-                icon = painterResource(R.drawable.expressive),
-                value = expressiveFonts,
-                onValueChanged = { scope.launch { preferenceRepo.setExpressiveFonts(it) } }
-            )
-        }
 
         categoryTitleSmall { stringResource(R.string.about) }
         item {

@@ -50,9 +50,6 @@ class PreferenceRepo (
     val theme: Flow<Theme> = data.map { Theme.valueOf(it[THEME] ?: Theme.AutoMaterial.name ) }
     suspend fun setTheme(value: Theme) = dataStore.edit { it[THEME] = value.name }
 
-    val expressiveFonts: Flow<Boolean> = data.map { it[EXPRESSIVE_FONTS] ?: true }
-    suspend fun setExpressiveFonts(value: Boolean) = dataStore.edit { it[EXPRESSIVE_FONTS] = value}
-
     private companion object {
         private val NOTIFICATION = booleanPreferencesKey("notification")
         private val MODE_AOD = booleanPreferencesKey("mode_aod")
@@ -61,6 +58,5 @@ class PreferenceRepo (
         private val FORCE_FALLBACK = booleanPreferencesKey("force_fallback")
         private val ALT_VPN_WORKAROUND = booleanPreferencesKey("alt_vpn_workaround")
         private val THEME = stringPreferencesKey("theme")
-        private val EXPRESSIVE_FONTS = booleanPreferencesKey("expressive_fonts")
     }
 }
