@@ -33,7 +33,6 @@
     <string name="auto">تلقائي</string>
     <string name="light">فاتح</string>
     <string name="dark">داكن</string>
-    <string name="expressive_fonts">خطوط تعبيرية</string>
     <string name="default_theme">افتراضي</string>
     <string name="help">مساعدة</string>
     <string name="advanced_settings">إعدادات متقدمة</string>
@@ -69,7 +68,6 @@
     </plurals>
     <string name="no_apps">لا تطبيقات</string>
     <string name="custom">مخصّص</string>
-    <string name="expressive_fonts_description">تعطيل الخطوط التعبيرية قد يؤدي إلى تلف التنسيقات وسيتم إيقاف العمل بهذا الخيار قريبًا.</string>
     <string name="add_widget">أضف ويدجت</string>
     <string name="configured_plans">الخطط المضبوطة</string>
     <string name="data_plan_widget_description">تتبع خطط بياناتك من شاشتك الرئيسية</string>
@@ -77,8 +75,6 @@
     <string name="no_configured_plans_description">يُرجى التأكد أنك ضبطت خطة بيانات واحدة على الأقل.</string>
     <string name="no_configured_plans">لا توجد خطط مضبوطة</string>
     <string name="warning">تحذير</string>
-    <string name="shizuku_required">مطلوب إذن Shizuku</string>
-    <string name="shizuku_required_description">يمكن منحها من الإعدادات.</string>
     <string name="day">اليوم:</string>
     <string name="time">الوقت:</string>
     <string name="length">الطول:</string>
