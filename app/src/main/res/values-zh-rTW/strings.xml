@@ -17,12 +17,12 @@
     <string name="days">日</string>
     <string name="add_widget">新增小工具</string>
     <string name="widget_warning">小工具尚在測試階段，若遇到任何問題請於Github回報。</string>
-    <string name="no_configured_plans_description">請確認您已授予Shizuku權限，且已設定至少一種資費方案。</string>
+    <string name="no_configured_plans_description">請確認您已設定至少一種資費方案。</string>
     <string name="warning">警告</string>
     <string name="shizuku_required">需要Shizuku權限</string>
     <string name="shizuku_required_description">能在設定內授權。</string>
     <string name="screen_off_update">於螢幕關閉時持續更新</string>
-    <string name="screen_off_update_description">讓AOD顯示時持續更新使用量，但影響電池續航。</string>
+    <string name="screen_off_update_description">讓AOD顯示時也能持續更新使用量，但影響電池續航。</string>
     <string name="oversample_icon">圖示過取樣</string>
     <string name="oversample_icon_description">以更高解析度繪製圖示以改善模糊。</string>
     <string name="selected">已選取</string>
@@ -38,7 +38,7 @@
     <string name="removed_apps">已移除程式</string>
     <string name="tethering">行動無線基地台</string>
     <string name="no_configured_plans">尚未設定資費方案</string>
-    <string name="data_plan_widget_description">在主畫面上即時追蹤數據使用量</string>
+    <string name="data_plan_widget_description">在主畫面上即時監控數據使用量</string>
     <string name="configured_plans">已設定資費方案</string>
     <plurals name="resets_in_days">
         <item quantity="other">於%d日後重設</item>
@@ -66,11 +66,11 @@
     <string name="total_usage">總計使用量</string>
     <string name="notification_description">於狀態列中顯示網路速度。</string>
     <string name="auto">自動</string>
-    <string name="limited_mode_description">很遺憾，您的系統不支援追蹤長期數據使用量。</string>
-    <string name="force_fallback">強制啟用後備性網路速度追蹤方法</string>
-    <string name="allows_in_depth_data_plan_tracking">允許更深入的資料用量追蹤。</string>
+    <string name="limited_mode_description">很遺憾，您的系統不支援監控長期數據使用量。</string>
+    <string name="force_fallback">強制啟用後備性的網路速度監控方法</string>
+    <string name="allows_in_depth_data_plan_tracking">允許更深入的資料用量監控。</string>
     <string name="github_description">參與開發或回報問題。</string>
-    <string name="app_name">紅綠燈</string>
+    <string name="app_name">紅綠燈(Traffic Light)：一款網路流量監控工具</string>
     <string name="today">今日</string>
     <string name="this_week">本週</string>
     <string name="history">歷史紀錄</string>
@@ -82,6 +82,6 @@
     <string name="battery_optimization">電池效能最佳化設定</string>
     <string name="battery_optimization_description">需忽略此設定，避免背景服務遭系統強制終止。</string>
     <string name="usage_statistics">使用量資料存取</string>
-    <string name="usage_statistics_description">長期數據使用量追蹤所需之權限。</string>
+    <string name="usage_statistics_description">長期監控數據使用量所需要的權限。</string>
     <string name="notifications">顯示通知</string>
 </resources>
