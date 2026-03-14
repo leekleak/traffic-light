@@ -19,8 +19,6 @@
     <string name="widget_warning">小工具尚在測試階段，若遇到任何問題請於Github回報。</string>
     <string name="no_configured_plans_description">請確認您已設定至少一種資費方案。</string>
     <string name="warning">警告</string>
-    <string name="shizuku_required">需要Shizuku權限</string>
-    <string name="shizuku_required_description">能在設定內授權。</string>
     <string name="screen_off_update">於螢幕關閉時持續更新</string>
     <string name="screen_off_update_description">讓AOD顯示時也能持續更新使用量，但影響電池續航。</string>
     <string name="oversample_icon">圖示過取樣</string>
@@ -51,8 +49,6 @@
     <string name="limited_mode">功能受限制</string>
     <string name="light">淺色模式</string>
     <string name="dark">深色模式</string>
-    <string name="expressive_fonts">Expressive字型</string>
-    <string name="expressive_fonts_description">關閉此選項可能導致排版問題，且已不再受支援。</string>
     <string name="default_theme">預設</string>
     <string name="help">說明</string>
     <string name="advanced_settings">進階設定</string>
