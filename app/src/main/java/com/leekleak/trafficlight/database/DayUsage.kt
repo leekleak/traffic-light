@@ -122,10 +122,10 @@ data class TrafficSnapshot (
     private fun fallbackUpdateSnapshot() {
         val mobileUp = if (mobileTxFile.canRead()) mobileTxFile.readText().trim().toLong() else 0
         val mobileDown = if (mobileRxFile.canRead()) mobileRxFile.readText().trim().toLong() else 0
-        val wifiUp = if (wifiTxFile.canRead()) wifiTxFile.readText().trim().toLong() else 0 +
-                     if (ethTxFile.canRead()) ethTxFile.readText().trim().toLong() else 0
-        val wifiDown = if (wifiRxFile.canRead()) wifiRxFile.readText().trim().toLong() else 0 +
-                       if (ethRxFile.canRead()) ethRxFile.readText().trim().toLong() else 0
+        val wifiUp = (if (wifiTxFile.canRead()) wifiTxFile.readText().trim().toLong() else 0) +
+                     (if (ethTxFile.canRead()) ethTxFile.readText().trim().toLong() else 0)
+        val wifiDown = (if (wifiRxFile.canRead()) wifiRxFile.readText().trim().toLong() else 0) +
+                       (if (ethRxFile.canRead()) ethRxFile.readText().trim().toLong() else 0)
         currentUp = mobileUp + wifiUp
         currentDown = mobileDown + wifiDown
     }
