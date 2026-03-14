@@ -33,7 +33,6 @@
     <string name="auto">Automatisch</string>
     <string name="light">Licht</string>
     <string name="dark">Donker</string>
-    <string name="expressive_fonts">Expressieve lettertypes</string>
     <string name="default_theme">Standaard</string>
     <string name="help">Hulp</string>
     <string name="advanced_settings">Geavanceerde instellingen</string>
@@ -65,7 +64,6 @@
         <item quantity="one">Reset morgen</item>
         <item quantity="other">Reset in %d dagen</item>
     </plurals>
-    <string name="expressive_fonts_description">Het uitschakelen van expressieve lettertypen kan lay-outs breken en wordt weggehaald.</string>
     <string name="add_widget">Widget toevoegen</string>
     <string name="configured_plans">Ingestelde bundels</string>
     <string name="data_plan_widget_description">Volg je databundels op je startscherm</string>
@@ -77,8 +75,6 @@
     <string name="length">Duur:</string>
     <string name="days">dagen</string>
     <string name="warning">Waarschuwing</string>
-    <string name="shizuku_required">Shizuku-machtiging vereist</string>
-    <string name="shizuku_required_description">Het kan toegestaan worden in de instellingen.</string>
     <string name="tethering">Mobiele hotspot</string>
     <string name="removed_apps">Verwijderde apps</string>
     <string name="prediction">Voorspelling</string>
