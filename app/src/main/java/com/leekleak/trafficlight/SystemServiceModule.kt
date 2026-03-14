@@ -6,6 +6,9 @@ import android.content.Context
 import android.content.Context.CONNECTIVITY_SERVICE
 import android.content.Context.NOTIFICATION_SERVICE
 import android.net.ConnectivityManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -21,4 +24,6 @@ val systemServiceModule = module {
     single<NotificationManager> {
         androidContext().getSystemService(NOTIFICATION_SERVICE) as NotificationManager
     }
+
+    single { CoroutineScope(Dispatchers.Default + SupervisorJob()) }
 }

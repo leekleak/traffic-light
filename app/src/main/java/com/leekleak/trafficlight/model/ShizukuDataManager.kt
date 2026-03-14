@@ -9,10 +9,7 @@ import com.leekleak.trafficlight.ITrafficLightShizukuService
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.HourlyUsageRepo.Companion.NULL_SUBSCRIBER
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import rikka.shizuku.Shizuku
 
 
@@ -60,7 +57,7 @@ class ShizukuDataManager(
         return binderMine?.getSubscriberID(subscriptionId)
     }
 
-    fun updateSimData() = CoroutineScope(Dispatchers.IO).launch {
+    suspend fun updateSimData() {
         if (enabled) {
             while (binderMine == null) delay(10)
             val infos = getSubscriptionInfos().sortedBy { it.simSlotIndex }

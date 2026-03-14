@@ -38,6 +38,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -157,7 +158,7 @@ class UsageService : Service() {
 
     private fun startJob() {
         job = serviceScope.launch {
-            val trafficSnapshot = TrafficSnapshot()
+            val trafficSnapshot = TrafficSnapshot(serviceScope)
             trafficSnapshot.updateSnapshot()
             trafficSnapshot.setCurrentAsLast()
 
@@ -311,13 +312,11 @@ class UsageService : Service() {
 
         fun startService(context: Context) {
             val preferenceRepo: PreferenceRepo by inject()
-            CoroutineScope(Dispatchers.Default).launch {
-                val enabled = preferenceRepo.notification.first()
-                if (!isInstanceCreated() && enabled) {
-                    val intent = Intent(context, UsageService::class.java)
-                    context.startService(intent)
-                    Timber.i("Started service")
-                }
+            val enabled = runBlocking { preferenceRepo.notification.first() }
+            if (!isInstanceCreated() && enabled) {
+                val intent = Intent(context, UsageService::class.java)
+                context.startService(intent)
+                Timber.i("Started service")
             }
         }
 

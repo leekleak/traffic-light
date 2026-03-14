@@ -6,7 +6,8 @@ import android.net.TrafficStats
 import android.os.Build
 import com.leekleak.trafficlight.model.PreferenceRepo
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -41,7 +42,8 @@ data class HourData(
         get() = upload + download
 }
 
-data class TrafficSnapshot (
+class TrafficSnapshot (
+    val scope: CoroutineScope,
     var lastDown: Long = 0,
     var lastUp: Long = 0,
     var currentDown: Long = 0,
@@ -53,15 +55,10 @@ data class TrafficSnapshot (
     private var altVpnWorkaround: Boolean = false
 
     init {
-        CoroutineScope(Dispatchers.IO).launch {
-            preferenceRepo.forceFallback.collect {
-                useFallback = if (it) true
-                else TrafficStats.getTotalTxBytes() == TrafficStats.UNSUPPORTED.toLong()
-            }
-        }
-        CoroutineScope(Dispatchers.IO).launch {
-            preferenceRepo.altVpn.collect { altVpnWorkaround = it }
-        }
+        combine(preferenceRepo.forceFallback, preferenceRepo.altVpn) { force, alt ->
+            useFallback = force || TrafficStats.getTotalTxBytes() == TrafficStats.UNSUPPORTED.toLong()
+            altVpnWorkaround = alt
+        }.launchIn(scope)
     }
     val totalSpeed: Long
         get() = upSpeed + downSpeed
@@ -84,7 +81,7 @@ data class TrafficSnapshot (
                     fallbackUpdateSnapshot()
                 } catch (e: Exception) {
                     Timber.e("Fallback unsupported: $e")
-                    CoroutineScope(Dispatchers.Default).launch { preferenceRepo.setForceFallback(false) }
+                    scope.launch { preferenceRepo.setForceFallback(false) }
                     useFallback = false
                 }
             } else {

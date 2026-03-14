@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
@@ -41,11 +42,7 @@ import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.widget.Widget.Companion.CARRIER_NAME
 import com.leekleak.trafficlight.widget.Widget.Companion.SIM_NUMBER
 import com.leekleak.trafficlight.widget.Widget.Companion.SUBSCRIBER_ID
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.koin.compose.koinInject
 
 class WidgetConfigureActivity : ComponentActivity() {
@@ -74,6 +71,7 @@ class WidgetConfigureActivity : ComponentActivity() {
     private fun Content(appWidgetId: Int, resultValue: Intent, paddingValues: PaddingValues) {
         val dataPlanDao: DataPlanDao = koinInject()
         val context = LocalContext.current
+        val scope = rememberCoroutineScope()
 
         val activePlans by remember { dataPlanDao.getActiveFlow() }.collectAsState(listOf())
         val configuredPlans = activePlans.filter { it.dataMax != 0L }
@@ -105,21 +103,17 @@ class WidgetConfigureActivity : ComponentActivity() {
                     val glanceManager = GlanceAppWidgetManager(this@WidgetConfigureActivity)
                     val glanceId = glanceManager.getGlanceIdBy(appWidgetId)
 
-                    runBlocking {
+                    scope.launch {
                         updateAppWidgetState(this@WidgetConfigureActivity, glanceId) { prefs ->
                             prefs[SUBSCRIBER_ID] = it.subscriberID
                             prefs[SIM_NUMBER] = it.simIndex + 1
                             prefs[CARRIER_NAME] = it.carrierName
                         }
-                    }
 
-                    setResult(RESULT_OK, resultValue)
-                    finish()
-
-                    CoroutineScope(Dispatchers.IO).launch {
-                        delay(1000)
+                        setResult(RESULT_OK, resultValue)
                         startAlarmManager(context)
                         Widget().update(this@WidgetConfigureActivity, glanceId)
+                        finish()
                     }
                 }
             }

@@ -2,6 +2,7 @@ package com.leekleak.trafficlight.database
 
 import android.app.usage.NetworkStats
 import android.app.usage.NetworkStatsManager
+import android.net.ConnectivityManager
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.model.AppDatabase
@@ -272,8 +273,8 @@ class HourlyUsageRepo(
     }
 
     companion object {
-        const val NETWORK_TYPE_MOBILE = 0
-        const val NETWORK_TYPE_WIFI = 1
+        const val NETWORK_TYPE_MOBILE = ConnectivityManager.TYPE_MOBILE
+        const val NETWORK_TYPE_WIFI = ConnectivityManager.TYPE_WIFI
         const val NULL_SUBSCRIBER = "null"
     }
 }
