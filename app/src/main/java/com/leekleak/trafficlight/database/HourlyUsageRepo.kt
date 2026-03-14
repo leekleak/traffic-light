@@ -237,6 +237,16 @@ class HourlyUsageRepo(
         emit(last24HourUsage * (multiplier - 1) + todayUsage)
     }.flowOn(Dispatchers.IO)
 
+    fun getTrend(): Flow<Double> = flow {
+        populateHistoryCache()
+
+        val nowStamp = LocalDateTime.now().toTimestamp()
+        val last24HourAverage = getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, NETWORK_TYPE_MOBILE).sumOf { it.total } / 24.0
+        val data = historicalDataDao.getAll().map { it.usage }.takeLast(24 * 7).average()
+
+        emit((last24HourAverage / data - 1) * 100.0) // Return trend in percentage
+    }.flowOn(Dispatchers.IO)
+
     fun populateHistoryCache() {
         val lastHour = LocalDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.HOURS)
         val n = 24 * 80

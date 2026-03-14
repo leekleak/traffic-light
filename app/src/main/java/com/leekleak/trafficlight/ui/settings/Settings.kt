@@ -95,7 +95,7 @@ fun Settings(
                     PermissionCard(
                         title = stringResource(R.string.usage_statistics),
                         description = stringResource(R.string.usage_statistics_description),
-                        icon = painterResource(R.drawable.usage),
+                        icon = painterResource(R.drawable.query_stats),
                         onClick = { permissionManager.askUsagePermission(activity) }
                     ) {
                         PermissionButton(

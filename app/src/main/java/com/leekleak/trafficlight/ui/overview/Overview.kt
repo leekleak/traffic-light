@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -32,7 +33,6 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.DataPlanDao
-import com.leekleak.trafficlight.database.HistoricalDataDao
 import com.leekleak.trafficlight.database.HourlyUsageRepo
 import com.leekleak.trafficlight.ui.navigation.PlanConfig
 import com.leekleak.trafficlight.ui.theme.card
@@ -63,8 +63,9 @@ fun Overview(
     ) {
         categoryTitle { stringResource(R.string.today) }
         item {
-            Row{
+            Row (horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 PredictionCard()
+                TrendCard()
             }
         }
         categoryTitle { stringResource(R.string.data_plans) }
@@ -95,7 +96,6 @@ fun Overview(
 @Composable
 private fun RowScope.PredictionCard() {
     val hourlyUsageRepo: HourlyUsageRepo = koinInject()
-    val historicalDataDao: HistoricalDataDao = koinInject()
     Column(
         modifier = Modifier
             .card()
@@ -104,7 +104,6 @@ private fun RowScope.PredictionCard() {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         val prediction by remember { hourlyUsageRepo.predictUsage() }.collectAsState(0.0)
-        val size by remember { historicalDataDao.getAllFlow() }.collectAsState(listOf())
         val string = DataSize(prediction).toStringParts()
 
         Row(
@@ -115,20 +114,63 @@ private fun RowScope.PredictionCard() {
                 painterResource(R.drawable.query_stats),
                 contentDescription = null
             )
-            Text(stringResource(R.string.prediction) + size.size)
+            Text(stringResource(R.string.prediction))
         }
         Row {
             Text(
                 modifier = Modifier.alignByBaseline(),
                 text = string[0] + "." + string[1],
                 fontFamily = jetbrainsMono(),
-                fontSize = 32.sp
+                fontSize = 24.sp
             )
             Text(
                 modifier = Modifier.alignByBaseline(),
                 text = string[2],
                 fontFamily = jetbrainsMono(),
                 fontSize = 20.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun RowScope.TrendCard() {
+    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
+    val trend by remember { hourlyUsageRepo.getTrend() }.collectAsState(0.0)
+    Column(
+        modifier = Modifier
+            .card()
+            .then(
+                when {
+                    trend > 50 -> Modifier.background(colorScheme.errorContainer)
+                    trend < -25 -> Modifier.background(colorScheme.primaryContainer)
+                    else -> Modifier
+                }
+            )
+            .padding(16.dp)
+            .weight(1f),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                painter = when {
+                    trend > 50 -> painterResource(R.drawable.trending_up)
+                    trend < -25 -> painterResource(R.drawable.trending_down)
+                    else -> painterResource(R.drawable.trending_flat)
+                },
+                contentDescription = null
+            )
+            Text(stringResource(R.string.trend))
+        }
+        Row {
+            Text(
+                modifier = Modifier.alignByBaseline(),
+                text = (if (trend > 0.0) "+" else "") +"${trend.toInt()}%",
+                fontFamily = jetbrainsMono(),
+                fontSize = 24.sp
             )
         }
     }
