@@ -33,7 +33,6 @@
     <string name="auto">Automático</string>
     <string name="light">Claro</string>
     <string name="dark">Escuro</string>
-    <string name="expressive_fonts">Fontes Expressivas</string>
     <string name="default_theme">Tema padrão</string>
     <string name="help">Ajuda</string>
     <string name="advanced_settings">Configurações Avançadas</string>
@@ -48,14 +47,11 @@
     <string name="no_configured_plans_description">Certifique-se de que você concedeu permissão ao Shizuku e configurou pelo menos 1 plano de dados.</string>
     <string name="no_configured_plans">Nenhum plano configurado</string>
     <string name="warning">Aviso</string>
-    <string name="shizuku_required">Permissão do Shizuku necessária</string>
-    <string name="shizuku_required_description">Conceda esta permissão nas configurações.</string>
     <plurals name="resets_in_days">
         <item quantity="one">Reiniciará amanhã</item>
         <item quantity="many">Reiniciará em %d dias</item>
         <item quantity="other">Reiniciará em %d dias</item>
     </plurals>
-    <string name="expressive_fonts_description">Desativar as Fontes Expressivas pode quebrar layouts; esta opção será descontinuada.</string>
     <string name="unknown">Desconhecido</string>
     <string name="appearance">Aparência</string>
     <string name="behavior">Comportamento</string>
