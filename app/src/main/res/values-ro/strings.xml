@@ -27,7 +27,6 @@
     <string name="auto">Automat</string>
     <string name="light">Luminos</string>
     <string name="dark">Întunecat</string>
-    <string name="expressive_fonts">Fonturi Expresive</string>
     <string name="default_theme">Implicit</string>
     <string name="help">Ajutor</string>
     <string name="advanced_settings">Configurări Avansate</string>
@@ -46,7 +45,6 @@
     <string name="alt_vpn_workaround">Soluții alternative pentru VPN</string>
     <string name="alt_vpn_workaround_description">Reduce precizia de măsurare, dar acomodează tuneluri divizate.</string>
     <string name="support_development">Sprijinină dezvoltarea aplicației</string>
-    <string name="expressive_fonts_description">Dezactivarea fonturilor expresive poate degrada aspectul și este dezaprobată.</string>
     <string name="allows_in_depth_data_plan_tracking">Permite urmărirea aprofundată a planului de date.</string>
     <string name="shizuku_not_running">Shizuku nu rulează.</string>
     <string name="sim_card">Card SIM</string>
@@ -73,8 +71,6 @@
     <string name="no_configured_plans_description">Asigură-te că ai acordat permisiunea Shizuku și că ai configurat cel puțin un plan de date.</string>
     <string name="no_configured_plans">Niciun plan configurat</string>
     <string name="warning">Avertizare</string>
-    <string name="shizuku_required">Este necesară permisiunea Shizuku</string>
-    <string name="shizuku_required_description">Poate fi acordată în setări.</string>
     <plurals name="resets_in_days">
         <item quantity="one">Se va reseta mâine</item>
         <item quantity="few">Se va reseta în %d zile</item>
