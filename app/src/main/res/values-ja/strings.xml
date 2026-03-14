@@ -32,7 +32,6 @@
     <string name="auto">自動</string>
     <string name="light">ライト</string>
     <string name="dark">ダーク</string>
-    <string name="expressive_fonts">表現力豊かなフォント</string>
     <string name="default_theme">標準</string>
     <string name="help">ヘルプ</string>
     <string name="advanced_settings">詳細設定</string>
@@ -45,7 +44,6 @@
     <string name="alt_vpn_workaround">代替VPNの回避策</string>
     <string name="behavior">行動</string>
     <string name="appearance">外観</string>
-    <string name="expressive_fonts_description">表現豊かなフォントを無効にするとレイアウトが壊れる可能性があるため、非推奨となっています。</string>
     <string name="support_development">開発をサポートする</string>
     <string name="allows_in_depth_data_plan_tracking">詳細なデータプラン追跡が可能になります。</string>
     <string name="shizuku_not_running">Shizukuは実行されていません。</string>
@@ -73,8 +71,6 @@
     <string name="no_configured_plans_description">Shizuku に権限を付与し、少なくとも 1 つのデータ プランを設定していることを確認してください。</string>
     <string name="no_configured_plans">プランが設定されていません</string>
     <string name="warning">警告</string>
-    <string name="shizuku_required">Shizukuの許可が必要です</string>
-    <string name="shizuku_required_description">設定で許可できます。</string>
     <string name="tethering">モバイルホットスポット</string>
     <string name="removed_apps">削除されたアプリ</string>
     <string name="prediction">予測</string>
