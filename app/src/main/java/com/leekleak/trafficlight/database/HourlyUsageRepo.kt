@@ -44,7 +44,6 @@ class HourlyUsageRepo(
     private val historicalDataDao: HistoricalDataDao,
     private val appDatabase: AppDatabase,
 ) {
-
     fun usageModeFlow(): Flow<UsageMode> = permissionManager.usagePermissionFlow.map {
         val millis = System.currentTimeMillis()
 
@@ -208,27 +207,34 @@ class HourlyUsageRepo(
     }.flowOn(Dispatchers.IO)
 
     fun predictUsage(): Flow<Double> = flow {
-        val hour = LocalDateTime.now().hour
-
         populateHistoryCache()
-        val todayUsage = calculateDayUsageBasic(LocalDate.now(), LocalDate.now())
+
+        val hour = LocalDateTime.now().hour
+        val hoursLeft = 23 - hour
+        val nowStamp = LocalDateTime.now().toTimestamp()
+        val last24HourUsage = getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, NETWORK_TYPE_MOBILE).sumOf { it.total }
+        val todayUsage = getNetworkDataForType(nowStamp - hour * 3_600_000, nowStamp, null, NETWORK_TYPE_MOBILE).sumOf { it.total }
         val data = historicalDataDao.getAll().map { it.usage }
-        val todayIndex = data.size - hour
+
+        if (data.size < 5 * 24 * 7) { emit(todayUsage.toDouble()); return@flow }
 
         var hourSum = 0.0
         var daySum = 0.0
 
         for (i in 1..4) {
-            val dayIndex = todayIndex - i * 24 * 7
-            for (k in 0..23) {
-                daySum += data[dayIndex + k]
-                if (k <= hour) hourSum += data[dayIndex + k]
+            val offsetIndex = data.size - i * 24 * 7
+            for (k in -24..hoursLeft) {
+                daySum += data[offsetIndex + k]
+                if (k <= 0) hourSum += data[offsetIndex + k]
             }
         }
 
-        val multiplier = if (hourSum != 0.0) daySum / hourSum else 1.0
-        emit(todayUsage.totalCellular * multiplier)
-
+        if (hourSum == 0.0) {
+            emit(todayUsage.toDouble())
+            return@flow
+        }
+        val multiplier = daySum / hourSum
+        emit(last24HourUsage * (multiplier - 1) + todayUsage)
     }.flowOn(Dispatchers.IO)
 
     fun populateHistoryCache() {
