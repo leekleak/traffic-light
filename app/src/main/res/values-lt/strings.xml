@@ -33,7 +33,6 @@
     <string name="auto">Auto</string>
     <string name="light">Šviesi</string>
     <string name="dark">Tamsi</string>
-    <string name="expressive_fonts">Išraiškingi šriftai</string>
     <string name="default_theme">Pagrindinė</string>
     <string name="help">Pagalba</string>
     <string name="advanced_settings">Papildomi nustatymai</string>
@@ -67,7 +66,6 @@
     </plurals>
     <string name="no_apps">Programėlių nėra</string>
     <string name="custom">Pasirinktinis</string>
-    <string name="expressive_fonts_description">Galimybė išjungti išraiškingus šriftus yra nepalaikoma ir bus panaikinta.</string>
     <string name="day">Diena:</string>
     <string name="time">Laikas:</string>
     <string name="length">Ilgis:</string>
@@ -79,8 +77,6 @@
     <string name="no_configured_plans_description">Užtikrinkite, kad programėlė turi prieigą prie Shizuku ir yra bent vienas sukonfigūruotas duomenų planas.</string>
     <string name="no_configured_plans">Sukonfigūruotų planų nėra</string>
     <string name="warning">Įspėjimas</string>
-    <string name="shizuku_required">Reikalingas Shizuku leidimas</string>
-    <string name="shizuku_required_description">Tai galima suteikti programėlės nustatymuose.</string>
     <string name="tethering">Mobilusis interneto prieigos taškas</string>
     <string name="removed_apps">Panaikintos programėlės</string>
 </resources>

@@ -33,7 +33,6 @@
     <string name="auto">Otomatis</string>
     <string name="light">Terang</string>
     <string name="dark">Gelap</string>
-    <string name="expressive_fonts">Font Ekspresif</string>
     <string name="default_theme">Bawaan</string>
     <string name="help">Bantuan</string>
     <string name="advanced_settings">Pengaturan Lanjutan</string>
@@ -64,7 +63,6 @@
         <item quantity="other">Diatur ulang dalam %d hari</item>
     </plurals>
     <string name="custom">Khusus</string>
-    <string name="expressive_fonts_description">Menonaktifkan Font Ekspresif dapat merusak tata letak dan sedang dalam proses penonaktifan.</string>
     <string name="add_widget">Tambah widget</string>
     <string name="configured_plans">Data yang telah diatur</string>
     <string name="data_plan_widget_description">Lacak paket data Anda di layar utama</string>
@@ -72,8 +70,6 @@
     <string name="no_configured_plans_description">Pastikan Anda telah memberikan izin kepada Shizuku dan telah mengatur setidaknya 1 paket data.</string>
     <string name="no_configured_plans">Tidak ditemukan paket data yang telah diatur</string>
     <string name="warning">Peringatan</string>
-    <string name="shizuku_required">Membutuhkan izin Shizuku</string>
-    <string name="shizuku_required_description">Ini dapat diberikan di pengaturan.</string>
     <string name="day">Hari:</string>
     <string name="time">Waktu:</string>
     <string name="length">Durasi:</string>

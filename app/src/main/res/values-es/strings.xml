@@ -33,13 +33,11 @@
     <string name="auto">Automático</string>
     <string name="light">Claro</string>
     <string name="dark">Oscuro</string>
-    <string name="expressive_fonts">Fuentes expresivas</string>
     <string name="default_theme">Predeterminado</string>
     <string name="help">Ayuda</string>
     <string name="advanced_settings">Configuraciones Avanzadas</string>
     <string name="notification_description">Ver velocidad de red en la barra de estado.</string>
     <string name="missing_permissions">Permisos Faltantes</string>
-    <string name="expressive_fonts_description">Desactivar las Fuentes Expresivas puede romper la interfaz y está obsoleto.</string>
     <string name="total_usage">Uso total</string>
     <string name="unknown">Desconocido</string>
     <string name="appearance">Apariencia</string>
@@ -73,8 +71,6 @@
     <string name="no_configured_plans_description">Asegúrese de haber otorgado permiso a Shizuku y de haber configurado al menos 1 plan de datos.</string>
     <string name="no_configured_plans">No hay planes configurados</string>
     <string name="warning">Advertencia</string>
-    <string name="shizuku_required">Se requiere permiso de Shizuku</string>
-    <string name="shizuku_required_description">Se puede conceder en las configuraciones.</string>
     <plurals name="resets_in_days">
         <item quantity="one">Reiniciará mañana</item>
         <item quantity="many">Reiniciará en %d días</item>

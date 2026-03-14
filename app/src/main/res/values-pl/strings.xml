@@ -33,8 +33,6 @@
     <string name="auto">Automatyczne</string>
     <string name="light">Jasny</string>
     <string name="dark">Ciemny</string>
-    <string name="expressive_fonts">Wyraziste czcionki</string>
-    <string name="expressive_fonts_description">Wyłączenie wyrazistych czcionek może spowodować uszkodzenie wyglądu aplikacji i jest obecnie wycofywane.</string>
     <string name="default_theme">Domyślny</string>
     <string name="help">Pomoc</string>
     <string name="advanced_settings">Ustawienia zaawansowane</string>
@@ -73,8 +71,6 @@
     <string name="no_configured_plans_description">Upewnij się, że udzieliłeś Shizuku odpowiednich uprawnień i skonfigurowałeś co najmniej 1 pakiet danych.</string>
     <string name="no_configured_plans">Brak skonfigurowanych pakietów</string>
     <string name="warning">Ostrzeżenie</string>
-    <string name="shizuku_required">Wymagane pozwolenie Shizuku</string>
-    <string name="shizuku_required_description">Można je przyznać w ustawieniach.</string>
     <string name="tethering">Mobilny hotspot</string>
     <string name="removed_apps">Usunięte aplikacje</string>
     <string name="prediction">Prognoza</string>
