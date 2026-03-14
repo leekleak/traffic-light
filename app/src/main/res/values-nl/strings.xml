@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Traffic Light</string>
+    <string name="app_name">Traffic Light: Netwerktracker</string>
     <string name="today">Vandaag</string>
     <string name="this_week">Deze week</string>
     <string name="history">Geschiedenis</string>
@@ -70,7 +70,7 @@
     <string name="configured_plans">Ingestelde bundels</string>
     <string name="data_plan_widget_description">Volg je databundels op je startscherm</string>
     <string name="widget_warning">De widgetondersteuning is experimenteel. Als je problemen ondervindt kun je ze melden op Github.</string>
-    <string name="no_configured_plans_description">Zorg ervoor dat je de Shizuku-machtiging hebt toegestaan en minimaal 1 databundel hebt ingesteld.</string>
+    <string name="no_configured_plans_description">Zorg ervoor dat je minimaal 1 databundel hebt ingesteld.</string>
     <string name="no_configured_plans">Geen bundels ingesteld</string>
     <string name="day">Dag:</string>
     <string name="time">Tijd:</string>
