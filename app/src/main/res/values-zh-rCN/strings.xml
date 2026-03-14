@@ -33,13 +33,11 @@
     <string name="auto">自动</string>
     <string name="light">浅色</string>
     <string name="dark">深色</string>
-    <string name="expressive_fonts">视效增强字体</string>
     <string name="default_theme">默认</string>
     <string name="help">帮助</string>
     <string name="advanced_settings">高级设置</string>
     <string name="notification_description">在状态栏显示网速</string>
     <string name="missing_permissions">缺少权限</string>
-    <string name="expressive_fonts_description">禁用 Expressive 字体可能会破坏布局，即将废弃。</string>
     <string name="total_usage">总用量</string>
     <string name="unknown">未知</string>
     <string name="appearance">外观</string>
@@ -70,8 +68,6 @@
     <string name="no_configured_plans_description">请确保已得Shizuku授权，并至少配置了一个数据计划。</string>
     <string name="no_configured_plans">尚未配置计划</string>
     <string name="warning">警告</string>
-    <string name="shizuku_required">需要Shizuku许可</string>
-    <string name="shizuku_required_description">可以在设置中获得授权。</string>
     <string name="no_apps">没有应用</string>
     <string name="resets_on">每月 %1$d 号重置</string>
     <string name="zero_rated_apps">免流应用</string>
