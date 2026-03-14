@@ -62,3 +62,18 @@ fun jetbrainsMono(
         ),
     )
 }
+
+@OptIn(ExperimentalTextApi::class)
+@Composable
+fun outfit(
+    @FloatRange(100.0, 900.0) weight: Float = 500f
+): FontFamily {
+    return FontFamily(
+        Font(
+            R.font.outfit,
+            variationSettings = FontVariation.Settings(
+                FontVariation.Setting("wght", weight)
+            )
+        ),
+    )
+}

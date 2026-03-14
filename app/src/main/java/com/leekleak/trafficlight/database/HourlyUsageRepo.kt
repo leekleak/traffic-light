@@ -59,6 +59,10 @@ class HourlyUsageRepo(
         return DayUsage(startDate, HourData(), stats.wifi, stats.cellular)
     }
 
+    fun todayMobileUsage() = flow {
+        emit(calculateDayUsageBasic(LocalDate.now(), LocalDate.now()).totalCellular)
+    }.flowOn(Dispatchers.IO)
+
     fun planUsage(dataPlan: DataPlan): DayUsage {
         val now = LocalDateTime.now()
         val startDate = when (dataPlan.interval) {
