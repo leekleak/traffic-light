@@ -215,12 +215,12 @@ class HourlyUsageRepo(
 
         val hour = LocalDateTime.now().hour
         val hoursLeft = 23 - hour
-        val nowStamp = LocalDateTime.now().toTimestamp()
-        val last24HourUsage = getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, NETWORK_TYPE_MOBILE).sumOf { it.total }
-        val todayUsage = getNetworkDataForType(nowStamp - hour * 3_600_000, nowStamp, null, NETWORK_TYPE_MOBILE).sumOf { it.total }
+        val nowStamp = LocalDateTime.now().toTimestamp() + 3_600_000
+        val last24HourUsage = getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, NETWORK_TYPE_MOBILE).sumOf { it.total }.toDouble()
+        val todayUsage = calculateDayUsageBasic(LocalDate.now(), LocalDate.now()).totalCellular.toDouble()
         val data = historicalDataDao.getAll().map { it.usage }
 
-        if (data.size < 5 * 24 * 7) { emit(todayUsage.toDouble()); return@flow }
+        if (data.size < 5 * 24 * 7) { emit(0.0); return@flow }
 
         var hourSum = 0.0
         var daySum = 0.0
@@ -234,7 +234,7 @@ class HourlyUsageRepo(
         }
 
         if (hourSum == 0.0) {
-            emit(todayUsage.toDouble())
+            emit(todayUsage)
             return@flow
         }
         val multiplier = daySum / hourSum
@@ -246,7 +246,7 @@ class HourlyUsageRepo(
 
         val nowStamp = LocalDateTime.now().toTimestamp()
         val last24HourAverage = getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, NETWORK_TYPE_MOBILE).sumOf { it.total } / 24.0
-        val data = historicalDataDao.getAll().map { it.usage }.takeLast(24 * 7).average()
+        val data = historicalDataDao.getAll().takeLast(24 * 7).map { it.usage }.average()
 
         emit((last24HourAverage / data - 1) * 100.0) // Return trend in percentage
     }.flowOn(Dispatchers.IO)
@@ -257,8 +257,8 @@ class HourlyUsageRepo(
         val allData = historicalDataDao.getAll()
 
         for (i in n downTo 0) {
-            val stamp = lastHour.minusHours(i.toLong()).toTimestamp()
-            if (allData.find { it.stamp == stamp } != null) continue
+            val stamp = lastHour.minusHours(i - 1L).toTimestamp()
+            if (allData.find { it.stamp == stamp } != null && i > 1) continue
 
             // We need to use querySummaryForDevice because regular querySummary is not very accurate hour-wise
             val bucket = networkStatsManager.querySummaryForDevice(NETWORK_TYPE_MOBILE, null, stamp - 3_600_000, stamp)
