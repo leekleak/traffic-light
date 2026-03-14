@@ -1,16 +1,15 @@
 [versions]
 agp = "9.1.0"
 coilCompose = "3.4.0"
-coreKtx = "1.17.0"
-activityCompose = "1.12.4"
-composeBom = "2026.02.01"
+coreKtx = "1.18.0"
+activityCompose = "1.13.0"
+composeBom = "2026.03.00"
 
 coreSplashscreen = "1.2.0"
-datastore = "1.2.0"
+datastore = "1.2.1"
 kotlin = "2.3.10"
 kotlinxSerializationJson = "1.10.0"
 ksp = "2.3.4"
-lifecycle = "2.10.0"
 koin-bom = "4.1.1"
 material3 = "1.5.0-alpha15"
 
@@ -33,10 +32,6 @@ androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", versi
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3"}
-
-# Lifecycle
-androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
-androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 
 # Koin
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
