@@ -33,7 +33,6 @@
     <string name="auto">Auto</string>
     <string name="light">Hell</string>
     <string name="dark">Dunkel</string>
-    <string name="expressive_fonts">Ausdrucksstarke Schriftarten</string>
     <string name="default_theme">Standard</string>
     <string name="help">Hilfe</string>
     <string name="advanced_settings">Erweiterte Einstellungen</string>
@@ -64,7 +63,6 @@
         <item quantity="one">Wird morgen zurückgesetzt</item>
         <item quantity="other">Zurücksetzen in %d Tagen</item>
     </plurals>
-    <string name="expressive_fonts_description">Das Deaktivieren von ausdrucksstarken Schriftarten kann zu Layoutfehlern führen und wird daher nicht mehr empfohlen.</string>
     <string name="custom">Benutzerdefiniert</string>
     <string name="add_widget">Widget hinzufügen</string>
     <string name="configured_plans">Konfigurierte Pläne</string>
@@ -77,8 +75,6 @@
     <string name="length">Zeitraum:</string>
     <string name="days">Tage</string>
     <string name="warning">Warnung</string>
-    <string name="shizuku_required">Shizuku Berechtigung erforderlich</string>
-    <string name="shizuku_required_description">Diese Berechtigung kann in den Einstellungen aktiviert werden.</string>
     <string name="tethering">Mobiler Hotspot</string>
     <string name="removed_apps">Entfernte Apps</string>
     <string name="prediction">Vorhersage</string>
