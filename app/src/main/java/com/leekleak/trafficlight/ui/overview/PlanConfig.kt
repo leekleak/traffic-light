@@ -543,8 +543,6 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
             title = {},
             confirmButton = {
                 Button(
-                    enabled = datePickerState.getSelectedDate()?.let { it <= LocalDate.now() }
-                        ?: false,
                     onClick = {
                         timePickerVisible = false
                         selectedTime = LocalTime.of(timePickerState.hour, timePickerState.minute)
