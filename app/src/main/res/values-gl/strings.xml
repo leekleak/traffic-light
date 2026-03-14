@@ -33,8 +33,6 @@
     <string name="auto">Automático</string>
     <string name="light">Claro</string>
     <string name="dark">Escuro</string>
-    <string name="expressive_fonts">Tipos de letra expresivos</string>
-    <string name="expressive_fonts_description">Desactivar os tipos de letra expresivos pode afectar aos deseños e vaise descontinuar.</string>
     <string name="default_theme">Predeterminado</string>
     <string name="help">Axuda</string>
     <string name="advanced_settings">Axustes avanzados</string>
@@ -73,8 +71,6 @@
     <string name="no_configured_plans_description">Asegúrate de ter concedido permiso a Shizuku e de ter configurado polo menos 1 plan de datos.</string>
     <string name="no_configured_plans">Sen plans configurados</string>
     <string name="warning">Aviso</string>
-    <string name="shizuku_required">Requírese permiso de Shizuku</string>
-    <string name="shizuku_required_description">Pode concederse nos axustes.</string>
     <plurals name="resets_in_days">
         <item quantity="one">Reiníciase mañá</item>
         <item quantity="other">Reiníciase dentro de %d días</item>
