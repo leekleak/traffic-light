@@ -629,7 +629,7 @@ fun BackgroundSelector(i: Int, newPlan: DataPlan, onClick: () -> Unit) {
             .height(128.dp)
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.background)
-            .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium)
+            .border(1.dp, MaterialTheme.colorScheme.primaryContainer, MaterialTheme.shapes.medium)
             .clickable {
                 onClick()
                 haptic.performHapticFeedback(HapticFeedbackType.Confirm)

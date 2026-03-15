@@ -42,8 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
-import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.database.resetString
+import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.ui.theme.carrierFont
 import com.leekleak.trafficlight.ui.theme.doHyeonFont
@@ -112,7 +112,7 @@ private fun BoxBackground(
         .fillMaxWidth()
         .clip(MaterialTheme.shapes.medium)
         .clickable { onClick() }
-        .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium)
+        .border(1.dp, MaterialTheme.colorScheme.primaryContainer, MaterialTheme.shapes.medium)
     ) {
         background?.let { background ->
             Image(
@@ -143,7 +143,7 @@ fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
         modifier = Modifier
             .height(200.dp)
             .clip(MaterialTheme.shapes.medium)
-            .border(1.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium)
+            .border(1.dp, MaterialTheme.colorScheme.primaryContainer, MaterialTheme.shapes.medium)
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

@@ -44,8 +44,8 @@ import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
-import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.database.resetString
+import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.DataSizeUnit
@@ -161,8 +161,8 @@ class Widget: GlanceAppWidget() {
         val cornerRadius = 24.dp
         Column(
             modifier = GlanceModifier
-                .background(GlanceTheme.colors.primary)
-                .padding(1.dp)
+                .background(GlanceTheme.colors.primaryContainer)
+                .padding(1.5.dp)
                 .cornerRadius(cornerRadius)
                 .clickable(actionStartActivity<MainActivity>()),
         ) {

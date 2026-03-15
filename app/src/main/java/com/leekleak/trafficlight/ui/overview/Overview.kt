@@ -96,7 +96,7 @@ fun Overview(
                 ) {
                     Icon(
                         painterResource(R.drawable.settings),
-                        contentDescription = null
+                        contentDescription = stringResource(R.string.settings)
                     )
                 }
             }
