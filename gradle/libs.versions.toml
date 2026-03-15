@@ -11,7 +11,7 @@ kotlin = "2.3.10"
 kotlinxSerializationJson = "1.10.0"
 ksp = "2.3.4"
 koin-bom = "4.1.1"
-material3 = "1.5.0-alpha15"
+material3 = "1.5.0-alpha14" # alpha15 breaks search bar as keyboard no longer openssssss
 
 nav3Core = "1.0.1"
 room = "2.8.4"
