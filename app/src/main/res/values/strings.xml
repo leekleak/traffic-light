@@ -80,6 +80,7 @@
     <string name="trend">Trend</string>
     <string name="data_intensive_apps">Data intensive apps</string>
     <string name="mobile_data">Mobile data</string>
+    <string name="notification_channels">Notification Channel Settings</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

@@ -36,4 +36,13 @@ class SettingsVM : ViewModel() {
             )
         )
     }
+
+    fun openNotificationChannelSettings(activity: Activity?, channel: String) {
+        activity?.startActivity(
+            Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
+                putExtra(Settings.EXTRA_APP_PACKAGE, activity.packageName)
+                putExtra(Settings.EXTRA_CHANNEL_ID, channel)
+            }
+        )
+    }
 }

@@ -13,6 +13,9 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.IBinder
 import androidx.collection.LruCache
 import androidx.compose.ui.unit.Density
@@ -24,9 +27,9 @@ import androidx.core.graphics.drawable.IconCompat
 import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DayUsage
-import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.database.PreferenceRepo
 import com.leekleak.trafficlight.database.TrafficSnapshot
+import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.model.UsageMode
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.clipAndPad
@@ -49,12 +52,14 @@ import timber.log.Timber
 import java.lang.ref.WeakReference
 import java.time.LocalDate
 
+
 class UsageService : Service() {
     private val serviceScope = CoroutineScope(Dispatchers.IO)
     private var job: Job? = null
     private val networkUsageManager: NetworkUsageManager by lazy { get() }
     private val preferenceRepo: PreferenceRepo by lazy { get() }
     private val notificationManager: NotificationManager by lazy { get() }
+    private val connectivityManager: ConnectivityManager by lazy { get() }
     private lateinit var notificationBuilder: NotificationCompat.Builder
     private lateinit var notification: Notification
 
@@ -87,24 +92,8 @@ class UsageService : Service() {
         super.onCreate()
         instance = WeakReference(this)
         Timber.i("Creating UsageService")
-        
-        notificationBuilder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("Traffic Light")
-            .setOngoing(true)
-            .setSilent(true)
-            .setLocalOnly(true)
-            .setOnlyAlertOnce(true)
-            .setWhen(Long.MAX_VALUE) // Keep above other notifications
-            .setShowWhen(false) // Hide timestamp
-            .setContentIntent(
-                PendingIntent.getActivity(
-                    this, 0, Intent(this, MainActivity::class.java).apply {
-                        flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    }, PendingIntent.FLAG_IMMUTABLE
-                )
-            )
-        notification = notificationBuilder.build()
+
+        updateBaseNotification()
 
         registerReceiver(screenStateReceiver, IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_ON)
@@ -213,6 +202,8 @@ class UsageService : Service() {
             getString(R.string.wi_fi, formatter.format(todayUsage.totalWifi, 2)).clipAndPad(spacing) +
             getString(R.string.mobile, formatter.format(todayUsage.totalCellular, 2))
 
+
+        updateBaseNotification()
         notification = notificationBuilder
             .setSmallIcon(createIcon(trafficSnapshot))
             .setContentTitle(title)
@@ -292,9 +283,52 @@ class UsageService : Service() {
         }
     }
 
+    private fun isNetworkAvailable(): Boolean {
+        val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            capabilities?.run {
+                hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                        hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                        hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
+            } ?: false
+        } else {
+            connectivityManager.activeNetworkInfo?.run {
+                when (type) {
+                    ConnectivityManager.TYPE_WIFI -> true
+                    ConnectivityManager.TYPE_MOBILE -> true
+                    ConnectivityManager.TYPE_ETHERNET -> true
+                    else -> false
+                }
+            } ?: false
+        }
+    }
+
+    private fun updateBaseNotification() {
+        val networkAvailable = isNetworkAvailable()
+        val channel = if (networkAvailable) NOTIFICATION_CHANNEL_ID else NOTIFICATION_CHANNEL_ID_SILENT
+        notificationBuilder = NotificationCompat.Builder(this, channel)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle("Traffic Light")
+            .setOngoing(true)
+            .setSilent(true)
+            .setLocalOnly(true)
+            .setOnlyAlertOnce(true)
+            .setWhen(Long.MAX_VALUE) // Keep above other notifications
+            .setShowWhen(false) // Hide timestamp
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    this, 0, Intent(this, MainActivity::class.java).apply {
+                        flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    }, PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+        notification = notificationBuilder.build()
+    }
+
     companion object : KoinComponent {
         const val NOTIFICATION_ID = 228
         const val NOTIFICATION_CHANNEL_ID = "PersistentNotification"
+        const val NOTIFICATION_CHANNEL_ID_SILENT = "PersistentNotification (Silent)"
         const val DATA_UPDATE_FREQ = 4
 
         private val _todayUsageFlow = MutableStateFlow(DayUsage())

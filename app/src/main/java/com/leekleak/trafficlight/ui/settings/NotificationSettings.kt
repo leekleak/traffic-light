@@ -1,5 +1,6 @@
 package com.leekleak.trafficlight.ui.settings
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,16 +15,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.database.PreferenceRepo
+import com.leekleak.trafficlight.database.TrafficSnapshot
+import com.leekleak.trafficlight.services.UsageService.Companion.NOTIFICATION_CHANNEL_ID
+import com.leekleak.trafficlight.services.UsageService.Companion.NOTIFICATION_CHANNEL_ID_SILENT
 import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
 @Composable
 fun NotificationSettings(paddingValues: PaddingValues) {
     val preferenceRepo: PreferenceRepo = koinInject()
+    val viewModel: SettingsVM = koinViewModel()
+    val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
 
     LazyColumn(
@@ -43,6 +49,8 @@ fun NotificationSettings(paddingValues: PaddingValues) {
                 value = bigIcon,
                 onValueChanged = { scope.launch { preferenceRepo.setBigIcon(it) } }
             )
+        }
+        item {
             val speedBits by preferenceRepo.speedBits.collectAsState(false)
             SwitchPreference(
                 title = stringResource(R.string.speed_in_bits),
@@ -52,6 +60,7 @@ fun NotificationSettings(paddingValues: PaddingValues) {
                 onValueChanged = { scope.launch { preferenceRepo.setSpeedBits(it) } }
             )
         }
+
         categoryTitleSmall { stringResource(R.string.behavior) }
         item {
             val modeAOD by preferenceRepo.modeAOD.collectAsState(false)
@@ -62,6 +71,8 @@ fun NotificationSettings(paddingValues: PaddingValues) {
                 value = modeAOD,
                 onValueChanged = { scope.launch { preferenceRepo.setModeAOD(it) } }
             )
+        }
+        item {
             val altVpn by preferenceRepo.altVpn.collectAsState(false)
             SwitchPreference(
                 title = stringResource(R.string.alt_vpn_workaround),
@@ -70,6 +81,8 @@ fun NotificationSettings(paddingValues: PaddingValues) {
                 value = altVpn,
                 onValueChanged = { scope.launch { preferenceRepo.setAltVpn(it) } }
             )
+        }
+        item {
             val forceFallback by preferenceRepo.forceFallback.collectAsState(false)
             val doesFallbackWork = remember { TrafficSnapshot.doesFallbackWork() }
             SwitchPreference(
@@ -80,6 +93,22 @@ fun NotificationSettings(paddingValues: PaddingValues) {
                 value = forceFallback,
                 enabled = doesFallbackWork,
                 onValueChanged = { scope.launch { preferenceRepo.setForceFallback(it) } }
+            )
+        }
+
+        categoryTitleSmall { stringResource(R.string.notification_channels) }
+        item {
+            Preference(
+                title = "Connected to network",
+                icon = painterResource(R.drawable.bigtop_updates),
+                onClick = { viewModel.openNotificationChannelSettings(activity, NOTIFICATION_CHANNEL_ID) },
+            )
+        }
+        item {
+            Preference(
+                title = "Disconnected from network",
+                icon = painterResource(R.drawable.signal_disconnected),
+                onClick = { viewModel.openNotificationChannelSettings(activity, NOTIFICATION_CHANNEL_ID_SILENT) },
             )
         }
     }

@@ -2,6 +2,8 @@ package com.leekleak.trafficlight
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.NotificationManager.IMPORTANCE_DEFAULT
+import android.app.NotificationManager.IMPORTANCE_NONE
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -15,6 +17,7 @@ import coil3.compose.setSingletonImageLoaderFactory
 import coil3.request.crossfade
 import com.leekleak.trafficlight.model.AppIconFetcher
 import com.leekleak.trafficlight.services.UsageService.Companion.NOTIFICATION_CHANNEL_ID
+import com.leekleak.trafficlight.services.UsageService.Companion.NOTIFICATION_CHANNEL_ID_SILENT
 import com.leekleak.trafficlight.ui.app.App
 import com.leekleak.trafficlight.ui.theme.Theme
 import com.leekleak.trafficlight.widget.WidgetReceiver
@@ -62,12 +65,13 @@ class MainActivity : ComponentActivity(), KoinComponent {
     }
 
     private fun createNotificationChannel() {
-        val name = "Traffic Light Service"
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID, name, importance).apply {
+        val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID, "Persistent Notification", IMPORTANCE_DEFAULT).apply {
+            setShowBadge(false)
+        }
+        val channelSilent = NotificationChannel(NOTIFICATION_CHANNEL_ID_SILENT, "Persistent Notification (Disconnected)", IMPORTANCE_NONE).apply {
             setShowBadge(false)
         }
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(channel)
+        notificationManager.createNotificationChannels(listOf(channel, channelSilent))
     }
 }
