@@ -1,0 +1,12 @@
+Overview redesign:
+- Streamlined data presentation
+- Added data usage prediction
+- Added data usage trend analysis
+
+Enhancements:
+- Significantly improved app usage loading times and data accuracy
+
+Bug fixes:
+- Fix several scope leaks
+- Fix fallback ignoring ethernet usage when wlan is availiable
+- Fix keyboard not opening when trying to search for apps
