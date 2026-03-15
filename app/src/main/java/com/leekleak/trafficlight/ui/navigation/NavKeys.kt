@@ -15,7 +15,7 @@ data object History : NavKey
 @Serializable
 data object Settings : NavKey
 
-val mainScreens = listOf(Blank, Overview, History, Settings)
+val mainScreens = listOf(Blank, Overview, History)
 
 /**
  * Settings

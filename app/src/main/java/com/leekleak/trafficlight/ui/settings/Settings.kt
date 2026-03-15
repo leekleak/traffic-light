@@ -69,7 +69,7 @@ fun Settings(
         Modifier.background(MaterialTheme.colorScheme.surface),
         contentPadding = paddingValues
     ) {
-        categoryTitle { stringResource(R.string.settings) }
+        categoryTitle ({ backstack.removeAt(backstack.lastIndex) }) { stringResource(R.string.settings) }
         item {
             val usageMode by networkUsageManager.usageModeFlow().collectAsState(Unlimited)
             val backgroundPermission by permissionManager.backgroundPermissionFlow.collectAsState(true)

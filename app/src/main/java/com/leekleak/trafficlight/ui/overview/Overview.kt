@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialShapes.Companion.Cookie12Sided
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
@@ -33,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -54,9 +56,11 @@ import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.navigation.PlanConfig
+import com.leekleak.trafficlight.ui.navigation.Settings
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.jetbrainsMono
 import com.leekleak.trafficlight.ui.theme.outfit
+import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.px
@@ -83,7 +87,20 @@ fun Overview(
         contentPadding = paddingValues,
         state = columnState
     ) {
-        categoryTitle { stringResource(R.string.today) }
+        item {
+            Box (Modifier.fillMaxWidth()) {
+                CategoryTitleText(stringResource(R.string.today))
+                IconButton(
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                    onClick = { backStack.add(Settings) }
+                ) {
+                    Icon(
+                        painterResource(R.drawable.settings),
+                        contentDescription = null
+                    )
+                }
+            }
+        }
         item {
             OverviewHero()
         }
@@ -157,6 +174,7 @@ private fun OverviewHero() {
         modifier = Modifier
             .aspectRatio(1f)
             .fillMaxWidth()
+            .clipToBounds()
             .drawBehind {
                 val a = size.width / 5
                 val b = a * 4

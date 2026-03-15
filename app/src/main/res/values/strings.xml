@@ -84,6 +84,7 @@
     <string name="go_back">Go back</string>
     <string name="connected_to_network">Connected to network</string>
     <string name="disconnected_from_network">Disconnected from network</string>
+    <string name="overview">Overview</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>
