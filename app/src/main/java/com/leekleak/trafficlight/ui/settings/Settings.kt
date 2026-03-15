@@ -34,12 +34,12 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.database.HourlyUsageRepo
-import com.leekleak.trafficlight.database.UsageMode.Limited
-import com.leekleak.trafficlight.database.UsageMode.NoPermission
-import com.leekleak.trafficlight.database.UsageMode.Unlimited
-import com.leekleak.trafficlight.model.PreferenceRepo
-import com.leekleak.trafficlight.services.PermissionManager
+import com.leekleak.trafficlight.model.NetworkUsageManager
+import com.leekleak.trafficlight.model.UsageMode.Limited
+import com.leekleak.trafficlight.model.UsageMode.NoPermission
+import com.leekleak.trafficlight.model.UsageMode.Unlimited
+import com.leekleak.trafficlight.database.PreferenceRepo
+import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.NotificationSettings
 import com.leekleak.trafficlight.ui.theme.Theme
 import com.leekleak.trafficlight.ui.theme.card
@@ -60,7 +60,7 @@ fun Settings(
     val viewModel: SettingsVM = koinViewModel()
     val preferenceRepo: PreferenceRepo = koinInject()
     val permissionManager: PermissionManager = koinInject()
-    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
+    val networkUsageManager: NetworkUsageManager = koinInject()
     val activity = LocalActivity.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -71,7 +71,7 @@ fun Settings(
     ) {
         categoryTitle { stringResource(R.string.settings) }
         item {
-            val usageMode by hourlyUsageRepo.usageModeFlow().collectAsState(Unlimited)
+            val usageMode by networkUsageManager.usageModeFlow().collectAsState(Unlimited)
             val backgroundPermission by permissionManager.backgroundPermissionFlow.collectAsState(true)
             val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
             val shizukuRunning by permissionManager.shizukuRunningFlow.collectAsState(false)

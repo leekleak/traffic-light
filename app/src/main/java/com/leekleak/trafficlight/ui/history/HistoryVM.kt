@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DayUsage
-import com.leekleak.trafficlight.database.HourlyUsageRepo
+import com.leekleak.trafficlight.model.NetworkUsageManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
 
 class HistoryVM(
-    private val hourlyUsageRepo: HourlyUsageRepo
+    private val networkUsageManager: NetworkUsageManager
 ): ViewModel() {
     private val dateParams = MutableStateFlow(DateParams(LocalDate.now(), false))
 
@@ -24,11 +24,11 @@ class HistoryVM(
     val appList: StateFlow<List<AppUsage>> = dateParams
         .flatMapLatest { (day, isMonth) ->
             if (!isMonth) {
-                hourlyUsageRepo.getAllAppUsage(day, day)
+                networkUsageManager.getAllAppUsage(day, day)
             } else {
                 val start = day.withDayOfMonth(1)
                 val end = start.plusMonths(1).minusDays(1)
-                hourlyUsageRepo.getAllAppUsage(start, end)
+                networkUsageManager.getAllAppUsage(start, end)
             }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -39,11 +39,11 @@ class HistoryVM(
             flow {
                 val (day, isMonth) = dateParams.value
                 if (!isMonth) {
-                    emit(hourlyUsageRepo.calculateDayUsageBasic(day, day))
+                    emit(networkUsageManager.calculateDayUsageBasic(day, day))
                 } else {
                     val start = day.withDayOfMonth(1)
                     val end = start.plusMonths(1).minusDays(1)
-                    emit(hourlyUsageRepo.calculateDayUsageBasic(start, end))
+                    emit(networkUsageManager.calculateDayUsageBasic(start, end))
                 }
             }
         }

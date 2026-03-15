@@ -15,7 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.TrafficSnapshot
-import com.leekleak.trafficlight.model.PreferenceRepo
+import com.leekleak.trafficlight.database.PreferenceRepo
 import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import kotlinx.coroutines.launch

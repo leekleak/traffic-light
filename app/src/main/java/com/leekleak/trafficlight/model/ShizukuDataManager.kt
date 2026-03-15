@@ -8,7 +8,8 @@ import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.ITrafficLightShizukuService
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
-import com.leekleak.trafficlight.database.HourlyUsageRepo.Companion.NULL_SUBSCRIBER
+import com.leekleak.trafficlight.model.NetworkUsageManager.Companion.NULL_SUBSCRIBER
+import com.leekleak.trafficlight.services.TrafficLightShizukuService
 import kotlinx.coroutines.delay
 import rikka.shizuku.Shizuku
 

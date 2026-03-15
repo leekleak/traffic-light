@@ -20,4 +20,4 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class com.leekleak.trafficlight.model.TrafficLightShizukuService { *; }
+-keep class com.leekleak.trafficlight.services.TrafficLightShizukuService { *; }

@@ -6,7 +6,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val databaseModule = module {
-    single { HourlyUsageRepo(get(), get(), get(), get()) }
+    single { PreferenceRepo(get(), get()) }
 
     single {
         Room.databaseBuilder(

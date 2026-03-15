@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
-import com.leekleak.trafficlight.database.HourlyUsageRepo
+import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.database.resetString
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.ui.theme.carrierFont
@@ -134,9 +134,9 @@ private fun BoxBackground(
 fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
-    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
+    val networkUsageManager: NetworkUsageManager = koinInject()
 
-    val dataUsage = remember { hourlyUsageRepo.planUsage(dataPlan) }
+    val dataUsage = remember { networkUsageManager.planUsage(dataPlan) }
     val usage = DataSize(dataUsage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
     val formatter = remember { DecimalFormat("0.##") }
     Column(
@@ -224,8 +224,8 @@ fun DataPlanSelectorWidget(dataPlan: DataPlan, onClick: () -> Unit) {
 @Composable
 private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
     val context = LocalContext.current
-    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
-    val dataUsage = remember(dataPlan) { hourlyUsageRepo.planUsage(dataPlan) }
+    val networkUsageManager: NetworkUsageManager = koinInject()
+    val dataUsage = remember(dataPlan) { networkUsageManager.planUsage(dataPlan) }
 
     Column(Modifier.padding(8.dp)) {
         Column(Modifier.height(184.dp)) {

@@ -52,7 +52,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.DataPlanDao
-import com.leekleak.trafficlight.database.HourlyUsageRepo
+import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.navigation.PlanConfig
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.jetbrainsMono
@@ -68,10 +68,10 @@ fun Overview(
     paddingValues: PaddingValues,
     backStack: NavBackStack<NavKey>
 ) {
-    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
+    val networkUsageManager: NetworkUsageManager = koinInject()
     val dataPlanDao: DataPlanDao = koinInject()
 
-    val weeklyUsage by hourlyUsageRepo.weekUsage().collectAsState(listOf())
+    val weeklyUsage by networkUsageManager.weekUsage().collectAsState(listOf())
     val activePlans by remember { dataPlanDao.getActiveFlow() }.collectAsState(listOf())
 
     val columnState = rememberLazyListState()
@@ -121,7 +121,7 @@ fun Overview(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun OverviewHero() {
-    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
+    val networkUsageManager: NetworkUsageManager = koinInject()
 
     val scheme = colorScheme
     val shape1 = Cookie12Sided.toPath()
@@ -168,7 +168,7 @@ private fun OverviewHero() {
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            val todayUsage by remember { hourlyUsageRepo.todayMobileUsage() }.collectAsState(0L)
+            val todayUsage by remember { networkUsageManager.todayMobileUsage() }.collectAsState(0L)
             val string = DataSize(todayUsage.toDouble()).toStringParts()
             Row {
                 Text(
@@ -193,7 +193,7 @@ private fun OverviewHero() {
 
 @Composable
 private fun RowScope.PredictionCard() {
-    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
+    val networkUsageManager: NetworkUsageManager = koinInject()
     Column(
         modifier = Modifier
             .card()
@@ -201,7 +201,7 @@ private fun RowScope.PredictionCard() {
             .weight(1f),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        val prediction by remember { hourlyUsageRepo.predictUsage() }.collectAsState(0.0)
+        val prediction by remember { networkUsageManager.predictUsage() }.collectAsState(0.0)
         val string = DataSize(prediction).toStringParts()
 
         Row(
@@ -233,8 +233,8 @@ private fun RowScope.PredictionCard() {
 
 @Composable
 private fun RowScope.TrendCard() {
-    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
-    val trend by remember { hourlyUsageRepo.getTrend() }.collectAsState(0.0)
+    val networkUsageManager: NetworkUsageManager = koinInject()
+    val trend by remember { networkUsageManager.getTrend() }.collectAsState(0.0)
     Column(
         modifier = Modifier
             .card()

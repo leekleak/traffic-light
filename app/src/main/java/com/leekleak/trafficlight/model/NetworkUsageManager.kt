@@ -1,13 +1,18 @@
-package com.leekleak.trafficlight.database
+package com.leekleak.trafficlight.model
 
 import android.app.usage.NetworkStats
 import android.app.usage.NetworkStatsManager
 import android.net.ConnectivityManager
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
-import com.leekleak.trafficlight.model.AppDatabase
-import com.leekleak.trafficlight.model.AppDatabase.Companion.specialUIDs
-import com.leekleak.trafficlight.services.PermissionManager
+import com.leekleak.trafficlight.database.AppUsage
+import com.leekleak.trafficlight.database.DataPlan
+import com.leekleak.trafficlight.database.DayUsage
+import com.leekleak.trafficlight.database.HistoricalData
+import com.leekleak.trafficlight.database.HistoricalDataDao
+import com.leekleak.trafficlight.database.HourData
+import com.leekleak.trafficlight.database.TimeInterval
+import com.leekleak.trafficlight.model.AppManager.Companion.specialUIDs
 import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.getName
 import com.leekleak.trafficlight.util.toTimestamp
@@ -39,11 +44,11 @@ data class UsageData(
         get() = upload + download
 }
 
-class HourlyUsageRepo(
+class NetworkUsageManager(
     private var networkStatsManager: NetworkStatsManager,
     private val permissionManager: PermissionManager,
     private val historicalDataDao: HistoricalDataDao,
-    private val appDatabase: AppDatabase,
+    private val appManager: AppManager,
 ) {
     fun usageModeFlow(): Flow<UsageMode> = permissionManager.usagePermissionFlow.map {
         val millis = System.currentTimeMillis()
@@ -144,8 +149,8 @@ class HourlyUsageRepo(
                 val list = uids.map { uid ->
                     val uidMobile = mobileData.find { it.uid == uid } ?: UsageData()
                     val uidWifi = wifiData.find { it.uid == uid } ?: UsageData()
-                    val name = appDatabase.getNameForUID(uid)
-                    val packageName = appDatabase.getPackageNamesForUID(uid)?.firstOrNull()
+                    val name = appManager.getNameForUID(uid)
+                    val packageName = appManager.getPackageNamesForUID(uid)?.firstOrNull()
                     if (name == null || packageName == null) return@map null
                     AppUsage(
                         usage = DayUsage(
@@ -162,7 +167,7 @@ class HourlyUsageRepo(
                         uid = uid,
                         name = name,
                         packageName = packageName,
-                        drawableResource = appDatabase.getDrawableResourceForUID(uid)
+                        drawableResource = appManager.getDrawableResourceForUID(uid)
                     )
                 }.filterNotNull().toMutableList()
 

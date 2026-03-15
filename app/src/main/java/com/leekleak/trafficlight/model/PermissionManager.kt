@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.services
+package com.leekleak.trafficlight.model
 
 import android.Manifest.permission.POST_NOTIFICATIONS
 import android.annotation.SuppressLint
@@ -13,7 +13,6 @@ import android.os.PowerManager
 import android.os.Process.myUid
 import android.provider.Settings
 import androidx.core.net.toUri
-import com.leekleak.trafficlight.model.ShizukuDataManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

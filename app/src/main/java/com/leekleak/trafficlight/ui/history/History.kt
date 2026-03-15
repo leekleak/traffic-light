@@ -54,7 +54,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.ScrollableBarGraph
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
-import com.leekleak.trafficlight.database.HourlyUsageRepo
+import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.model.AppIcon
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.momoTrustDisplayFont
@@ -72,7 +72,7 @@ val imageWidth = 32.dp
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun History(paddingValues: PaddingValues) {
-    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
+    val networkUsageManager: NetworkUsageManager = koinInject()
     val viewModel: HistoryVM = koinViewModel()
     val haptic = LocalHapticFeedback.current
 
@@ -87,7 +87,7 @@ fun History(paddingValues: PaddingValues) {
     var appSelected by remember { mutableIntStateOf(-1) }
 
     val days = remember { getDatesForTimespan() }
-    val usageFlow = remember { hourlyUsageRepo.daysUsage(days.first, days.second) }
+    val usageFlow = remember { networkUsageManager.daysUsage(days.first, days.second) }
     val usage: List<ScrollableBarData> by usageFlow.collectAsState(List(MAX_DAYS) {
         ScrollableBarData(LocalDate.now())
     })

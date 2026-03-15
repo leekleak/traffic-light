@@ -50,8 +50,8 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.database.HourlyUsageRepo
-import com.leekleak.trafficlight.database.UsageMode
+import com.leekleak.trafficlight.model.NetworkUsageManager
+import com.leekleak.trafficlight.model.UsageMode
 import com.leekleak.trafficlight.ui.history.History
 import com.leekleak.trafficlight.ui.overview.Overview
 import com.leekleak.trafficlight.ui.overview.PlanConfig
@@ -66,8 +66,8 @@ import org.koin.compose.koinInject
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NavigationManager() {
-    val hourlyUsageRepo: HourlyUsageRepo = koinInject()
-    val usageMode by hourlyUsageRepo.usageModeFlow().collectAsState(UsageMode.Unlimited)
+    val networkUsageManager: NetworkUsageManager = koinInject()
+    val usageMode by networkUsageManager.usageModeFlow().collectAsState(UsageMode.Unlimited)
 
     val backStack = rememberNavBackStack(Blank)
     var showBottomBar by remember { mutableStateOf(false) }

@@ -115,7 +115,7 @@ import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.model.App
-import com.leekleak.trafficlight.model.AppDatabase
+import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.AppIcon
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.ui.theme.card
@@ -298,12 +298,12 @@ fun PlanConfig(
 
             categoryTitleSmall { stringResource(R.string.zero_rated_apps) }
             item {
-                val appDatabase: AppDatabase = koinInject()
+                val appManager: AppManager = koinInject()
                 val excludedApps by remember { derivedStateOf {
-                    appDatabase.suspiciousApps.filter { newPlan.excludedApps.contains(it.uid) }
+                    appManager.suspiciousApps.filter { newPlan.excludedApps.contains(it.uid) }
                 } }
                 val includedApps by remember { derivedStateOf {
-                    appDatabase.suspiciousApps.filter { !newPlan.excludedApps.contains(it.uid) }
+                    appManager.suspiciousApps.filter { !newPlan.excludedApps.contains(it.uid) }
                 } }
                 Column(
                     modifier = Modifier

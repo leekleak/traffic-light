@@ -24,7 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.model.PreferenceRepo
+import com.leekleak.trafficlight.database.PreferenceRepo
 import org.koin.compose.koinInject
 
 

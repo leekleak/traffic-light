@@ -6,15 +6,21 @@ import android.app.usage.NetworkStats.Bucket.UID_TETHERING
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import coil3.ImageLoader
+import coil3.asImage
+import coil3.decode.DataSource
+import coil3.fetch.FetchResult
+import coil3.fetch.Fetcher
+import coil3.fetch.ImageFetchResult
+import coil3.request.Options
 import com.leekleak.trafficlight.R
 import timber.log.Timber
 
-
 @SuppressLint("QueryPermissionsNeeded")
-class AppDatabase(
+class AppManager(
     private val context: Context
 ) {
-    private var packageManager: PackageManager = context.packageManager
+    private val packageManager: PackageManager = context.packageManager
     val allApps by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             packageManager.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0L))
@@ -81,3 +87,26 @@ data class App(
     val label: String,
     val drawableResource: Int? = null
 )
+
+data class AppIcon(val packageName: String)
+
+class AppIconFetcher(
+    private val data: AppIcon,
+    private val context: Context
+) : Fetcher {
+    override suspend fun fetch(): FetchResult {
+        val drawable = context.packageManager.getApplicationIcon(data.packageName)
+
+        return ImageFetchResult(
+            image = drawable.asImage(),
+            isSampled = false,
+            dataSource = DataSource.DISK
+        )
+    }
+
+    class Factory(private val context: Context) : Fetcher.Factory<AppIcon> {
+        override fun create(data: AppIcon, options: Options, imageLoader: ImageLoader): Fetcher {
+            return AppIconFetcher(data, context)
+        }
+    }
+}

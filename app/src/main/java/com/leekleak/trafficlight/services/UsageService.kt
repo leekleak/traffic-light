@@ -24,10 +24,10 @@ import androidx.core.graphics.drawable.IconCompat
 import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DayUsage
-import com.leekleak.trafficlight.database.HourlyUsageRepo
+import com.leekleak.trafficlight.model.NetworkUsageManager
+import com.leekleak.trafficlight.database.PreferenceRepo
 import com.leekleak.trafficlight.database.TrafficSnapshot
-import com.leekleak.trafficlight.database.UsageMode
-import com.leekleak.trafficlight.model.PreferenceRepo
+import com.leekleak.trafficlight.model.UsageMode
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.clipAndPad
 import kotlinx.coroutines.CoroutineScope
@@ -52,7 +52,7 @@ import java.time.LocalDate
 class UsageService : Service() {
     private val serviceScope = CoroutineScope(Dispatchers.IO)
     private var job: Job? = null
-    private val hourlyUsageRepo: HourlyUsageRepo by lazy { get() }
+    private val networkUsageManager: NetworkUsageManager by lazy { get() }
     private val preferenceRepo: PreferenceRepo by lazy { get() }
     private val notificationManager: NotificationManager by lazy { get() }
     private lateinit var notificationBuilder: NotificationCompat.Builder
@@ -120,7 +120,7 @@ class UsageService : Service() {
             preferenceRepo.speedBits.collect { formatter.asBits = it }
         }
         serviceScope.launch {
-            hourlyUsageRepo.usageModeFlow().collect { limitedMode = it != UsageMode.Unlimited }
+            networkUsageManager.usageModeFlow().collect { limitedMode = it != UsageMode.Unlimited }
         }
     }
 
@@ -198,7 +198,7 @@ class UsageService : Service() {
     }
 
     private fun updateTodayUsage() {
-        todayUsage = hourlyUsageRepo.calculateDayUsageBasic(LocalDate.now(), LocalDate.now(), null)
+        todayUsage = networkUsageManager.calculateDayUsageBasic(LocalDate.now(), LocalDate.now(), null)
     }
 
     private var lastTitle: String = ""

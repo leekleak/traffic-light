@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.model
+package com.leekleak.trafficlight.database
 
 
 import android.content.Context
@@ -8,7 +8,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.leekleak.trafficlight.services.PermissionManager
+import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.theme.Theme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine

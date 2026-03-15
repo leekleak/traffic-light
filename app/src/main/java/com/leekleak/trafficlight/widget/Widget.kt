@@ -44,7 +44,7 @@ import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
-import com.leekleak.trafficlight.database.HourlyUsageRepo
+import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.database.resetString
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.util.DataSize
@@ -68,14 +68,14 @@ class Widget: GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val koinInstance = KoinPlatform.getKoin()
-        val hourlyUsageRepo: HourlyUsageRepo = koinInstance.get()
+        val networkUsageManager: NetworkUsageManager = koinInstance.get()
         val dataPlanDao: DataPlanDao = koinInstance.get()
 
         val state = getAppWidgetState(context, stateDefinition, id)
         val subscriberID = state[SUBSCRIBER_ID] ?: return
 
         val dataPlan = withContext(Dispatchers.IO) { dataPlanDao.get(subscriberID) }!!
-        val usage = hourlyUsageRepo.planUsage(dataPlan)
+        val usage = networkUsageManager.planUsage(dataPlan)
         val usageSize = DataSize(usage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
         val dataMax = DataSize(dataPlan.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)
         val formatter = DecimalFormat("0.##")
