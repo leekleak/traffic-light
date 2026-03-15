@@ -14,6 +14,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.PreferenceRepo
 import com.leekleak.trafficlight.database.TrafficSnapshot
@@ -26,7 +28,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
 @Composable
-fun NotificationSettings(paddingValues: PaddingValues) {
+fun NotificationSettings(paddingValues: PaddingValues, backStack: NavBackStack<NavKey>) {
     val preferenceRepo: PreferenceRepo = koinInject()
     val viewModel: SettingsVM = koinViewModel()
     val activity = LocalActivity.current
@@ -38,7 +40,7 @@ fun NotificationSettings(paddingValues: PaddingValues) {
             .fillMaxSize(),
         contentPadding = paddingValues
     ) {
-        categoryTitle { stringResource(R.string.notifications) }
+        categoryTitle ({ backStack.removeAt(backStack.lastIndex) }) { stringResource(R.string.notifications) }
         categoryTitleSmall { stringResource(R.string.appearance) }
         item {
             val bigIcon by preferenceRepo.bigIcon.collectAsState(false)
@@ -98,15 +100,15 @@ fun NotificationSettings(paddingValues: PaddingValues) {
 
         categoryTitleSmall { stringResource(R.string.notification_channels) }
         item {
-            Preference(
-                title = "Connected to network",
+            NavigatePreference(
+                title = stringResource(R.string.connected_to_network),
                 icon = painterResource(R.drawable.bigtop_updates),
                 onClick = { viewModel.openNotificationChannelSettings(activity, NOTIFICATION_CHANNEL_ID) },
             )
         }
         item {
-            Preference(
-                title = "Disconnected from network",
+            NavigatePreference(
+                title = stringResource(R.string.disconnected_from_network),
                 icon = painterResource(R.drawable.signal_disconnected),
                 onClick = { viewModel.openNotificationChannelSettings(activity, NOTIFICATION_CHANNEL_ID_SILENT) },
             )

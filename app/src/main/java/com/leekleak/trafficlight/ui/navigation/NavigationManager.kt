@@ -136,7 +136,7 @@ fun NavigationManager() {
                     entry<Settings> { Settings(paddingValues, backStack) }
 
                     entry<PlanConfig> { PlanConfig(it.subscriberId, backStack) }
-                    entry<NotificationSettings> { NotificationSettings(paddingValues) }
+                    entry<NotificationSettings> { NotificationSettings(paddingValues, backStack) }
                 },
                 transitionSpec = {
                     if (backStack.size == 1) fadeIn() togetherWith fadeOut()

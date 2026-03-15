@@ -120,6 +120,29 @@ fun Preference(
 }
 
 @Composable
+fun NavigatePreference(
+    title: String,
+    summary: String? = null,
+    icon: Painter? = null,
+    onClick: () -> Unit = {},
+    enabled: Boolean = true,
+) {
+    Preference(
+        title = title,
+        summary = summary,
+        icon = icon,
+        onClick = onClick,
+        enabled = enabled,
+        controls = {
+            Icon(
+                painter = painterResource(R.drawable.arrow_forward),
+                contentDescription = null,
+            )
+        }
+    )
+}
+
+@Composable
 fun SwitchPreference(
     title: String,
     icon: Painter? = null,

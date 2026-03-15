@@ -81,6 +81,9 @@
     <string name="data_intensive_apps">Data intensive apps</string>
     <string name="mobile_data">Mobile data</string>
     <string name="notification_channels">Notification Channel Settings</string>
+    <string name="go_back">Go back</string>
+    <string name="connected_to_network">Connected to network</string>
+    <string name="disconnected_from_network">Disconnected from network</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

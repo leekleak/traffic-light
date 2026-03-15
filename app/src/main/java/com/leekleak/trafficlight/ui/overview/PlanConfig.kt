@@ -115,8 +115,8 @@ import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.model.App
-import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.AppIcon
+import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.doHyeonFont
@@ -197,7 +197,7 @@ fun PlanConfig(
                 .fillMaxSize(),
             contentPadding = paddingValues
         ) {
-            categoryTitle { stringResource(R.string.configure_plan) }
+            categoryTitle ({ backStack.removeAt(backStack.lastIndex) }) { stringResource(R.string.configure_plan) }
             item {
                 val size by remember { derivedStateOf {
                     DataSize(currentPlan.value.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)

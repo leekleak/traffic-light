@@ -34,12 +34,12 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.database.PreferenceRepo
 import com.leekleak.trafficlight.model.NetworkUsageManager
+import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.model.UsageMode.Limited
 import com.leekleak.trafficlight.model.UsageMode.NoPermission
 import com.leekleak.trafficlight.model.UsageMode.Unlimited
-import com.leekleak.trafficlight.database.PreferenceRepo
-import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.NotificationSettings
 import com.leekleak.trafficlight.ui.theme.Theme
 import com.leekleak.trafficlight.ui.theme.card
@@ -175,7 +175,7 @@ fun Settings(
                 },
             )
             if (notification) {
-                Preference(
+                NavigatePreference(
                     title = stringResource(R.string.advanced_settings),
                     icon = painterResource(R.drawable.notification_settings),
                     onClick = { backstack.add(NotificationSettings) }
@@ -208,7 +208,7 @@ fun Settings(
 
         categoryTitleSmall { stringResource(R.string.about) }
         item {
-            Preference(
+            NavigatePreference(
                 title = stringResource(R.string.github),
                 summary = stringResource(R.string.github_description),
                 icon = painterResource(R.drawable.github),
@@ -216,14 +216,14 @@ fun Settings(
             )
         }
         item {
-            Preference(
+            NavigatePreference(
                 title = stringResource(R.string.support_development),
                 icon = painterResource(R.drawable.donate),
                 onClick = { viewModel.openLink(activity, "https://github.com/sponsors/leekleak") },
             )
         }
         item {
-            Preference(
+            NavigatePreference(
                 title = stringResource(R.string.version, BuildConfig.VERSION_NAME),
                 icon = painterResource(R.drawable.version),
                 onClick = { viewModel.openAppSettings(activity) },
