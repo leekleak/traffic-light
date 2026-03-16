@@ -30,7 +30,6 @@ import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.PreferenceRepo
 import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.model.NetworkUsageManager
-import com.leekleak.trafficlight.model.UsageMode
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.clipAndPad
 import kotlinx.coroutines.CoroutineScope
@@ -81,7 +80,6 @@ class UsageService : Service() {
 
     private var bigIcon = false
     private var aodMode = false
-    private var limitedMode = true // For cases where the NetworkStatsManager is broken
     private val formatter by lazy { SizeFormatter() }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -108,9 +106,6 @@ class UsageService : Service() {
         serviceScope.launch {
             preferenceRepo.speedBits.collect { formatter.asBits = it }
         }
-        serviceScope.launch {
-            networkUsageManager.usageModeFlow().collect { limitedMode = it != UsageMode.Unlimited }
-        }
     }
 
     override fun onDestroy() {
@@ -124,9 +119,7 @@ class UsageService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (job == null) {
             Timber.i("Starting foreground service")
-            if (!limitedMode) {
-                updateTodayUsage()
-            }
+            updateTodayUsage()
             try {
                 notificationManager.notify(NOTIFICATION_ID, notification)
                 notification.let {
@@ -169,13 +162,11 @@ class UsageService : Service() {
                     trafficSnapshot.updateSnapshot()
                 }
 
-                if (!limitedMode) {
-                    if (updateCounter == DATA_UPDATE_FREQ) {
-                        updateTodayUsage()
-                        updateCounter = 0
-                    } else {
-                        updateCounter++
-                    }
+                if (updateCounter == DATA_UPDATE_FREQ) {
+                    updateTodayUsage()
+                    updateCounter = 0
+                } else {
+                    updateCounter++
                 }
 
                 updateNotification(trafficSnapshot)
@@ -207,7 +198,7 @@ class UsageService : Service() {
         notification = notificationBuilder
             .setSmallIcon(createIcon(trafficSnapshot))
             .setContentTitle(title)
-            .run { if (!limitedMode) this.setContentText(messageShort) else this }
+            .setContentText(messageShort)
             .build()
         notification.flags = Notification.FLAG_ONGOING_EVENT or Notification.FLAG_NO_CLEAR
         notificationManager.notify(NOTIFICATION_ID, notification)

@@ -21,19 +21,12 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
-
-enum class UsageMode {
-    Unlimited,
-    NoPermission,
-    Limited
-}
 
 data class UsageData(
     val upload: Long = 0,
@@ -50,14 +43,6 @@ class NetworkUsageManager(
     private val historicalDataDao: HistoricalDataDao,
     private val appManager: AppManager,
 ) {
-    fun usageModeFlow(): Flow<UsageMode> = permissionManager.usagePermissionFlow.map {
-        val millis = System.currentTimeMillis()
-
-        if (!it) UsageMode.NoPermission
-        else if (calculateHourData(millis - 2_592_000_000L, millis).total == 0L) UsageMode.Limited
-        else UsageMode.Unlimited
-    }
-
     fun calculateDayUsageBasic(startDate: LocalDate, endDate: LocalDate = startDate, uid: Int? = null): DayUsage {
         val startStamp = startDate.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
         val endStamp = endDate.plusDays(1).atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()

@@ -14,6 +14,8 @@ data object Overview : NavKey
 data object History : NavKey
 @Serializable
 data object Settings : NavKey
+@Serializable
+data object UsagePermissionRequest : NavKey
 
 val mainScreens = listOf(Blank, Overview, History)
 

@@ -16,9 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,18 +26,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.PreferenceRepo
-import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.model.PermissionManager
-import com.leekleak.trafficlight.model.UsageMode.Limited
-import com.leekleak.trafficlight.model.UsageMode.NoPermission
-import com.leekleak.trafficlight.model.UsageMode.Unlimited
 import com.leekleak.trafficlight.ui.navigation.NotificationSettings
 import com.leekleak.trafficlight.ui.theme.Theme
 import com.leekleak.trafficlight.ui.theme.card
@@ -60,7 +53,6 @@ fun Settings(
     val viewModel: SettingsVM = koinViewModel()
     val preferenceRepo: PreferenceRepo = koinInject()
     val permissionManager: PermissionManager = koinInject()
-    val networkUsageManager: NetworkUsageManager = koinInject()
     val activity = LocalActivity.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -71,12 +63,11 @@ fun Settings(
     ) {
         categoryTitle ({ backstack.removeAt(backstack.lastIndex) }) { stringResource(R.string.settings) }
         item {
-            val usageMode by networkUsageManager.usageModeFlow().collectAsState(Unlimited)
             val backgroundPermission by permissionManager.backgroundPermissionFlow.collectAsState(true)
             val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
             val shizukuRunning by permissionManager.shizukuRunningFlow.collectAsState(false)
 
-            if (usageMode != Unlimited || !backgroundPermission) {
+            if (!backgroundPermission) {
                 CategoryTitleSmallText(stringResource(R.string.missing_permissions))
             }
 
@@ -90,44 +81,6 @@ fun Settings(
                         icon = painterResource(R.drawable.battery),
                         onClick = { permissionManager.askBackgroundPermission(activity) }
                     )
-                }
-                if (usageMode == NoPermission) {
-                    PermissionCard(
-                        title = stringResource(R.string.usage_statistics),
-                        description = stringResource(R.string.usage_statistics_description),
-                        icon = painterResource(R.drawable.query_stats),
-                        onClick = { permissionManager.askUsagePermission(activity) }
-                    ) {
-                        PermissionButton(
-                            icon = painterResource(R.drawable.help),
-                            contentDescription = stringResource(R.string.help),
-                            colors = IconButtonDefaults.filledIconButtonColors(
-                                containerColor = MaterialTheme.colorScheme.surface,
-                                contentColor = MaterialTheme.colorScheme.onSurface,
-                            ),
-                            onClick = { permissionManager.openUsagePermissionHelp(activity) }
-                        )
-                    }
-                }
-                if (usageMode == Limited) {
-                    Column(
-                        modifier = Modifier
-                            .padding(vertical = 8.dp)
-                            .card()
-                            .padding(16.dp)
-                    ) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = stringResource(R.string.limited_mode),
-                            fontWeight = FontWeight(800),
-                            color = MaterialTheme.colorScheme.error,
-                        )
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = stringResource(R.string.limited_mode_description),
-                            color = MaterialTheme.colorScheme.error,
-                        )
-                    }
                 }
 
                 if (!shizukuPermission || !shizukuRunning) {

@@ -51,13 +51,13 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.model.NetworkUsageManager
-import com.leekleak.trafficlight.model.UsageMode
+import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.history.History
 import com.leekleak.trafficlight.ui.overview.Overview
 import com.leekleak.trafficlight.ui.overview.PlanConfig
 import com.leekleak.trafficlight.ui.settings.NotificationSettings
 import com.leekleak.trafficlight.ui.settings.Settings
+import com.leekleak.trafficlight.ui.settings.UsagePermissionRequest
 import com.leekleak.trafficlight.ui.theme.navBarShadow
 import com.leekleak.trafficlight.util.WideScreenWrapper
 import org.koin.compose.koinInject
@@ -66,8 +66,8 @@ import org.koin.compose.koinInject
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NavigationManager() {
-    val networkUsageManager: NetworkUsageManager = koinInject()
-    val usageMode by networkUsageManager.usageModeFlow().collectAsState(UsageMode.Unlimited)
+    val permissionManager: PermissionManager = koinInject()
+    val usagePermission by remember { permissionManager.usagePermissionFlow }.collectAsState(false)
 
     val backStack = rememberNavBackStack(Blank)
     var showBottomBar by remember { mutableStateOf(false) }
@@ -76,13 +76,10 @@ fun NavigationManager() {
         showBottomBar = mainScreens.contains(backStack.last())
     }
 
-    LaunchedEffect(usageMode) {
-        backStack.clear().also {
-            if (usageMode != UsageMode.Unlimited) backStack.add(Settings) else backStack.add(Overview)
-        }
+    LaunchedEffect(usagePermission) {
+        backStack.clear().also { backStack.add(if (!usagePermission) UsagePermissionRequest else Overview) }
     }
 
-    val toolbarVisible = usageMode == UsageMode.Unlimited && showBottomBar
     val toolbarOffset =
         FloatingToolbarDefaults.ContainerSize +
         FloatingToolbarDefaults.ScreenOffset
@@ -94,7 +91,7 @@ fun NavigationManager() {
             start = 16.dp,
             end = 16.dp,
             top = topPadding,
-            bottom = bottomPadding + if (toolbarVisible) toolbarOffset else 8.dp
+            bottom = bottomPadding + if (showBottomBar) toolbarOffset else 8.dp
         )
 
     Scaffold(
@@ -108,7 +105,7 @@ fun NavigationManager() {
                 contentAlignment = Alignment.Center
             ) {
                 AnimatedVisibility(
-                    visible = toolbarVisible,
+                    visible = showBottomBar,
                     enter = slideInVertically {it} + fadeIn(),
                     exit = slideOutVertically {it} + fadeOut()
                 ) {
@@ -134,6 +131,7 @@ fun NavigationManager() {
                     entry<History> { History(paddingValues) }
                     entry<Settings> { Settings(paddingValues, backStack) }
 
+                    entry<UsagePermissionRequest> { UsagePermissionRequest(paddingValues) }
                     entry<PlanConfig> { PlanConfig(it.subscriberId, backStack) }
                     entry<NotificationSettings> { NotificationSettings(paddingValues, backStack) }
                 },
