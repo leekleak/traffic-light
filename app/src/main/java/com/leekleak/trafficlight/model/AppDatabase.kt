@@ -66,7 +66,12 @@ class AppDatabase(
         return when (uid) {
             UID_TETHERING -> listOf("")
             UID_REMOVED -> listOf("")
-            else -> packageManager.getPackagesForUid(uid)?.toList()
+            else -> try {
+                packageManager.getPackagesForUid(uid)?.toList()
+            } catch (e: Exception) {
+                Timber.w(e, "Failed to get package names for UID $uid")
+                null
+            }
         }
     }
 
