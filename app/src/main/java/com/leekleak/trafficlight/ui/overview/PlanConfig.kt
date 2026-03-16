@@ -143,23 +143,24 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "LocalContextGetResourceValueCall")
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun PlanConfig(
     subscriberId: String,
     backStack: NavBackStack<NavKey>
 ) {
     val viewModel: OverviewVM = koinViewModel()
+    val appManager: AppManager = koinInject()
+    val dataPlanDao: DataPlanDao = koinInject()
     val scope = rememberCoroutineScope()
 
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
 
-    val dataPlanDao: DataPlanDao = koinInject()
-    val currentPlan = remember { viewModel.getDataPlan(subscriberId) }.collectAsState(DataPlan(subscriberId))
+    val currentPlan by remember { viewModel.getDataPlan(subscriberId) }.collectAsState(DataPlan(subscriberId))
     var newPlan by remember { mutableStateOf(DataPlan(subscriberId, uiBackground = 3)) }
-    LaunchedEffect(currentPlan.value) {
-        newPlan = currentPlan.value
+    LaunchedEffect(currentPlan) {
+        newPlan = currentPlan
     }
 
     Scaffold(
@@ -200,7 +201,7 @@ fun PlanConfig(
             categoryTitle ({ backStack.removeAt(backStack.lastIndex) }) { stringResource(R.string.configure_plan) }
             item {
                 val size by remember { derivedStateOf {
-                    DataSize(currentPlan.value.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)
+                    DataSize(currentPlan.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)
                 } }
                 PlanSizeConfig (size = size) {
                     val data = DataSize(it.toDouble(), unit = DataSizeUnit.GB)
@@ -298,13 +299,15 @@ fun PlanConfig(
 
             categoryTitleSmall { stringResource(R.string.zero_rated_apps) }
             item {
-                val appManager: AppManager = koinInject()
+                val suspiciousApps by remember { appManager.suspiciousApps }.collectAsState(emptyList())
+
                 val excludedApps by remember { derivedStateOf {
-                    appManager.suspiciousApps.filter { newPlan.excludedApps.contains(it.uid) }
+                    suspiciousApps.filter { newPlan.excludedApps.contains(it.uid) }
                 } }
                 val includedApps by remember { derivedStateOf {
-                    appManager.suspiciousApps.filter { !newPlan.excludedApps.contains(it.uid) }
+                    suspiciousApps.filter { !newPlan.excludedApps.contains(it.uid) }
                 } }
+
                 Column(
                     modifier = Modifier
                         .card()

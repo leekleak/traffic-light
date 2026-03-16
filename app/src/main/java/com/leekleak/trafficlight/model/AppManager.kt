@@ -14,6 +14,9 @@ import coil3.fetch.Fetcher
 import coil3.fetch.ImageFetchResult
 import coil3.request.Options
 import com.leekleak.trafficlight.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import timber.log.Timber
 
 @SuppressLint("QueryPermissionsNeeded")
@@ -29,18 +32,20 @@ class AppManager(
         }
     }
 
-    val suspiciousApps by lazy {
-        allApps.filter { app ->
-            val pi = packageManager.getPackageInfo(app.packageName, PackageManager.GET_PERMISSIONS)
-            (pi.requestedPermissions?.contains("android.permission.INTERNET") ?: true)
-        }.distinctBy { it.uid }.map {
-            App(
-                uid = it.uid,
-                packageName = it.packageName,
-                label = it.loadLabel(packageManager).toString()
-            )
-        }
-    }
+    val suspiciousApps = flow {
+        emit(
+            allApps.filter { app ->
+                val pi = packageManager.getPackageInfo(app.packageName, PackageManager.GET_PERMISSIONS)
+                (pi.requestedPermissions?.contains("android.permission.INTERNET") ?: true)
+            }.distinctBy { it.uid }.map {
+                App(
+                    uid = it.uid,
+                    packageName = it.packageName,
+                    label = it.loadLabel(packageManager).toString()
+                )
+            }
+        )
+    }.flowOn(Dispatchers.IO)
 
     fun getNameForUID(uid: Int): String? {
         when (uid) {
