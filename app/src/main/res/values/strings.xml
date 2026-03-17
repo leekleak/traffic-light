@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Traffic Light: Network Tracker</string>
+    <string name="app_name_short">Traffic Light</string>
     <string name="today">Today</string>
     <string name="this_week">This Week</string>
     <string name="history">History</string>
