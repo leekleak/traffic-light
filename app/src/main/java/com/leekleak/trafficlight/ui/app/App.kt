@@ -20,7 +20,7 @@ fun App() {
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
+            if (event == Lifecycle.Event.ON_RESUME || event == Lifecycle.Event.ON_START) {
                 permissionManager.update()
                 UsageService.startService(context)
             }

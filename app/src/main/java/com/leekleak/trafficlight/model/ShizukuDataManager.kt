@@ -8,22 +8,29 @@ import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.ITrafficLightShizukuService
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
-import com.leekleak.trafficlight.model.NetworkUsageManager.Companion.NULL_SUBSCRIBER
+import com.leekleak.trafficlight.database.PreferenceRepo
 import com.leekleak.trafficlight.services.TrafficLightShizukuService
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 import rikka.shizuku.Shizuku
+import timber.log.Timber
 
 
 class ShizukuDataManager(
-    private val dataPlanDao: DataPlanDao
+    private val dataPlanDao: DataPlanDao,
+    private val preferenceRepo: PreferenceRepo,
+    private val permissionManager: PermissionManager,
+    private val scope: CoroutineScope,
 ) {
-    private var enabled = false
     private var binderMine: ITrafficLightShizukuService? = null
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, binder: IBinder?) {
             if (binder != null && binder.pingBinder()) {
                 binderMine = ITrafficLightShizukuService.Stub.asInterface(binder)
+                updateSimData()
             }
         }
 
@@ -39,53 +46,85 @@ class ShizukuDataManager(
         .debuggable(BuildConfig.DEBUG)
         .version(BuildConfig.VERSION_CODE)
 
-    fun setEnabled(value: Boolean) {
-        if (enabled == value) return
-        if (value) {
-            Shizuku.unbindUserService(serviceArgs, connection, true) // Force update service
-            Shizuku.bindUserService(serviceArgs, connection)
+    init {
+        scope.launch {
+            combine(
+                preferenceRepo.shizukuTracking,
+                permissionManager.shizukuPermissionFlow,
+                permissionManager.shizukuRunningFlow
+            ) { setting, permission, running ->
+                return@combine Triple(setting, permission, running)
+            }.collectLatest {
+                val setting = it.first
+                val permission = it.second
+                val running = it.third
+                if (setting && permission && running) {
+                    Shizuku.bindUserService(serviceArgs, connection)
+                } else if (!setting) {
+                    if (binderMine != null) {
+                        Shizuku.unbindUserService(serviceArgs, connection, true)
+                    }
+                    updateSimDataBasic()
+                }
+            }
         }
-        enabled = value
     }
 
     private fun getSubscriptionInfos(): List<SubscriptionInfo> {
-        if (!enabled) return emptyList()
-        return binderMine?.subscriptionInfos ?: emptyList()
+        try {
+            return binderMine?.subscriptionInfos ?: emptyList()
+        } catch (e: Exception) {
+            Timber.w(e)
+            return emptyList()
+        }
     }
 
     private fun getSubscriberID(subscriptionId: Int): String? {
-        if (!enabled) return null
-        return binderMine?.getSubscriberID(subscriptionId)
+        try {
+            return binderMine?.getSubscriberID(subscriptionId)
+        } catch (e: Exception) {
+            Timber.w(e)
+            return null
+        }
     }
 
-    suspend fun updateSimData() {
-        if (enabled) {
-            while (binderMine == null) delay(10)
-            val infos = getSubscriptionInfos().sortedBy { it.simSlotIndex }
-            val activeSubscriberIDs = infos.map { getSubscriberID(it.subscriptionId) }
-            var plans = dataPlanDao.getAll()
-            plans = plans.map { plan ->
-                plan.copy(simIndex = activeSubscriberIDs.indexOf(plan.subscriberID))
-            }.toMutableList()
-            activeSubscriberIDs.forEachIndexed { index, activeID ->
-                if (activeID !in plans.map { it.subscriberID } && activeID != null) {
-                    plans.add(
-                        DataPlan(
-                            subscriberID = activeID,
-                            simIndex = infos[index].simSlotIndex,
-                            carrierName = infos[index].carrierName?.toString() ?: ""
-                        )
+    fun updateSimData() = scope.launch {
+        val infos = getSubscriptionInfos().sortedBy { it.simSlotIndex }
+        val activeSubscriberIDs = infos.map { getSubscriberID(it.subscriptionId) }
+        var plans = dataPlanDao.getAll()
+        plans = plans.map { plan ->
+            plan.copy(simIndex = activeSubscriberIDs.indexOf(plan.subscriberID))
+        }.toMutableList()
+        activeSubscriberIDs.forEachIndexed { index, activeID ->
+            if (activeID !in plans.map { it.subscriberID } && activeID != null) {
+                plans.add(
+                    DataPlan(
+                        subscriberID = activeID,
+                        simIndex = infos[index].simSlotIndex,
+                        carrierName = infos[index].carrierName?.toString() ?: ""
                     )
-                }
+                )
             }
-            dataPlanDao.addAll(plans)
-        } else if (dataPlanDao.getActive().isEmpty()) {
-            dataPlanDao.add(
+        }
+        dataPlanDao.addAll(plans)
+    }
+
+    fun updateSimDataBasic() = scope.launch {
+        val plans = dataPlanDao.getAll().toMutableList()
+        if (plans.count { it.subscriberID == "null" } == 0) {
+            plans.add(
                 DataPlan(
-                    subscriberID = NULL_SUBSCRIBER,
+                    subscriberID = "null",
                     simIndex = 0
                 )
             )
         }
+        dataPlanDao.addAll(
+            plans.map {
+                it.copy(
+                    simIndex = if (it.subscriberID == "null") 0 else -1
+                )
+            }
+        )
     }
 }

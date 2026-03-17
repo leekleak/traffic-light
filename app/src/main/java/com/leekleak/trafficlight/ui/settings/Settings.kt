@@ -9,7 +9,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -64,35 +63,15 @@ fun Settings(
         categoryTitle ({ backstack.removeAt(backstack.lastIndex) }) { stringResource(R.string.settings) }
         item {
             val backgroundPermission by permissionManager.backgroundPermissionFlow.collectAsState(true)
-            val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
-            val shizukuRunning by permissionManager.shizukuRunningFlow.collectAsState(false)
 
             if (!backgroundPermission) {
                 CategoryTitleSmallText(stringResource(R.string.missing_permissions))
-            }
-
-            Column (
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                if (!backgroundPermission) {
-                    PermissionCard(
-                        title = stringResource(R.string.battery_optimization),
-                        description = stringResource(R.string.battery_optimization_description),
-                        icon = painterResource(R.drawable.battery),
-                        onClick = { permissionManager.askBackgroundPermission(activity) }
-                    )
-                }
-
-                if (!shizukuPermission || !shizukuRunning) {
-                    PermissionCard (
-                        title = stringResource(R.string.shizuku),
-                        enabled = shizukuRunning,
-                        description = stringResource(R.string.allows_in_depth_data_plan_tracking) +
-                                if (!shizukuRunning) " " + stringResource(R.string.shizuku_not_running) else "",
-                        icon = painterResource(R.drawable.version),
-                        onClick = { Shizuku.requestPermission(12199) },
-                    )
-                }
+                PermissionCard(
+                    title = stringResource(R.string.battery_optimization),
+                    description = stringResource(R.string.battery_optimization_description),
+                    icon = painterResource(R.drawable.battery),
+                    onClick = { permissionManager.askBackgroundPermission(activity) }
+                )
             }
         }
 
@@ -134,6 +113,30 @@ fun Settings(
                     onClick = { backstack.add(NotificationSettings) }
                 )
             }
+        }
+
+        categoryTitleSmall { stringResource(R.string.data_plans) }
+        item {
+            val shizukuTracking by preferenceRepo.shizukuTracking.collectAsState(false)
+            val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
+            val shizukuRunning by permissionManager.shizukuRunningFlow.collectAsState(false)
+
+            SwitchPreference (
+                title = stringResource(R.string.multi_sim_tracking),
+                summary = if (shizukuRunning) stringResource(R.string.shizuku_required) else stringResource(R.string.shizuku_not_running),
+                icon = painterResource(R.drawable.version),
+                value = shizukuTracking,
+                enabled = shizukuRunning,
+                onValueChanged = {
+                    if (shizukuPermission) {
+                        scope.launch {
+                            preferenceRepo.setShizukuTracking(it)
+                        }
+                    } else {
+                        Shizuku.requestPermission(12199)
+                    }
+                },
+            )
         }
 
         categoryTitleSmall { stringResource(R.string.ui) }

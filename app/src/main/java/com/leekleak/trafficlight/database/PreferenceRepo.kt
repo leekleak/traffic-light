@@ -50,6 +50,15 @@ class PreferenceRepo (
     val theme: Flow<Theme> = data.map { Theme.valueOf(it[THEME] ?: Theme.AutoMaterial.name ) }
     suspend fun setTheme(value: Theme) = dataStore.edit { it[THEME] = value.name }
 
+//    val shizukuTracking: Flow<Boolean> = combine(
+//    context.dataStore.data,
+//    permissionManager.shizukuPermissionFlow
+//    ) { settings, permission ->
+//        return@combine (settings[SHIZUKU_TRACKING] ?: false) && permission
+//    }
+    val shizukuTracking: Flow<Boolean> = data.map { it[SHIZUKU_TRACKING] ?: false }
+    suspend fun setShizukuTracking(value: Boolean) = dataStore.edit { it[SHIZUKU_TRACKING] = value }
+
     private companion object {
         private val NOTIFICATION = booleanPreferencesKey("notification")
         private val MODE_AOD = booleanPreferencesKey("mode_aod")
@@ -58,5 +67,6 @@ class PreferenceRepo (
         private val FORCE_FALLBACK = booleanPreferencesKey("force_fallback")
         private val ALT_VPN_WORKAROUND = booleanPreferencesKey("alt_vpn_workaround")
         private val THEME = stringPreferencesKey("theme")
+        private val SHIZUKU_TRACKING = booleanPreferencesKey("shizuku_tracking")
     }
 }

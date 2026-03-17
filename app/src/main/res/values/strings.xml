@@ -47,9 +47,8 @@
     <string name="alt_vpn_workaround">Alternate VPN workaround</string>
     <string name="alt_vpn_workaround_description">Reduces measurement accuracy but accommodates split tunneling.</string>
     <string name="support_development">Support development</string>
-    <string name="shizuku" translatable="false">Shizuku (Experimental)</string>
     <string name="allows_in_depth_data_plan_tracking">Allows in-depth data plan tracking.</string>
-    <string name="shizuku_not_running">Shizuku not running.</string>
+    <string name="shizuku_not_running">Shizuku is not running</string>
     <string name="sim_card">SIM card</string>
     <string name="data_plans">Data Plans</string>
     <string name="configure_plan">Configure Plan</string>
@@ -85,6 +84,8 @@
     <string name="connected_to_network">Connected to network</string>
     <string name="disconnected_from_network">Disconnected from network</string>
     <string name="overview">Overview</string>
+    <string name="multi_sim_tracking">Multi-SIM tracking</string>
+    <string name="shizuku_required">Shizuku required</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

@@ -13,16 +13,12 @@ import android.os.PowerManager
 import android.os.Process.myUid
 import android.provider.Settings
 import androidx.core.net.toUri
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import rikka.shizuku.Shizuku
 
 class PermissionManager(
     private val context: Context,
-    private val scope: CoroutineScope,
-    private val shizukuManager: ShizukuDataManager
 ) {
     private val _backgroundPermission = MutableStateFlow(false)
     val backgroundPermissionFlow = _backgroundPermission.asStateFlow()
@@ -97,10 +93,6 @@ class PermissionManager(
         _shizukuRunning.value = Shizuku.pingBinder()
         if (_shizukuRunning.value) {
             _shizukuPermission.value = Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
-            shizukuManager.setEnabled(_shizukuPermission.value)
-        }
-        scope.launch {
-            shizukuManager.updateSimData()
         }
     }
 }
