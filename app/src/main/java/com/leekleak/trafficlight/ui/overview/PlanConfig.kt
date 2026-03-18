@@ -601,7 +601,6 @@ fun AppSelector(
                     )
                     Text(
                         text = it.label,
-                        fontFamily = robotoFlex(0f, 25f, 500f),
                         fontSize = 12.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -729,7 +728,7 @@ fun PlanSizeConfig(size: Double, onSizeUpdate: (Float) -> Unit) {
                 var intrinsics by remember { mutableIntStateOf(0) }
                 BasicTextField(
                     state = fieldState,
-                    modifier = Modifier.width (intrinsics.toDp),
+                    modifier = Modifier.width (intrinsics.toDp).alignByBaseline(),
                     inputTransformation =  InputTransformation {
                         val newText = asCharSequence().toString()
                         if (newText.isEmpty()) {
@@ -756,6 +755,7 @@ fun PlanSizeConfig(size: Double, onSizeUpdate: (Float) -> Unit) {
                     lineLimits = TextFieldLineLimits.SingleLine,
                 )
                 Text(
+                    modifier = Modifier.alignByBaseline(),
                     fontFamily = doHyeonFont(),
                     fontSize = 30.sp * (1 + scale.value/2),
                     maxLines = 1,

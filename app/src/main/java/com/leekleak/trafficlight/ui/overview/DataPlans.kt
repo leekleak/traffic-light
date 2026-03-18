@@ -139,13 +139,12 @@ fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
     val dataUsage = remember { networkUsageManager.planUsage(dataPlan) }
     val usage = DataSize(dataUsage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
     val formatter = remember { DecimalFormat("0.##") }
-    Column(
+    Box (
         modifier = Modifier
             .height(200.dp)
             .clip(MaterialTheme.shapes.medium)
             .border(1.dp, MaterialTheme.colorScheme.primaryContainer, MaterialTheme.shapes.medium)
             .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row {
             SimIcon(dataPlan.simIndex + 1)
@@ -158,32 +157,36 @@ fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
                 textAlign = TextAlign.End
             )
         }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 12.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
+        Column(
+            modifier = Modifier.align(Alignment.Center).padding(bottom = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Text(
+                    modifier = Modifier.alignByBaseline(),
+                    text = formatter.format(usage),
+                    fontFamily = doHyeonFont(),
+                    fontSize = 64.sp,
+                )
+                Text(
+                    modifier = Modifier.alignByBaseline(),
+                    text = "GB",
+                    fontFamily = doHyeonFont(),
+                    fontSize = 36.sp,
+                )
+            }
             Text(
-                text = formatter.format(usage),
-                fontFamily = doHyeonFont(),
-                fontSize = 64.sp,
-            )
-            Text(
-                text = "GB",
-                fontFamily = doHyeonFont(),
-                fontSize = 36.sp,
-                lineHeight = 48.sp
+                text = stringResource(R.string.this_month),
+                fontSize = 18.sp,
+                fontFamily = robotoFlex(0f, 150f, 1000f)
             )
         }
-        Text(
-            text = stringResource(R.string.this_month),
-            fontSize = 18.sp,
-            fontFamily = robotoFlex(0f,150f,1000f)
-        )
         ButtonGroup(
             modifier = Modifier
+                .align(Alignment.BottomCenter)
                 .padding(top = 8.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
@@ -228,8 +231,8 @@ private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
     val dataUsage = remember(dataPlan) { networkUsageManager.planUsage(dataPlan) }
 
     Column(Modifier.padding(8.dp)) {
-        Column(Modifier.height(184.dp)) {
-            Row {
+        Box(Modifier.height(184.dp)) {
+            Row(Modifier.fillMaxWidth()) {
                 SimIcon(dataPlan.simIndex + 1)
                 Text(
                     modifier = Modifier
@@ -247,13 +250,14 @@ private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
             }
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 32.dp),
+                    .align(Alignment.Center)
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.Bottom
             ) {
                 val formatter = remember { DecimalFormat("0.##") }
                 Text(
+                    modifier = Modifier.alignByBaseline(),
                     text = formatter.format(usage),
                     fontFamily = doHyeonFont(),
                     fontSize = 64.sp,
@@ -266,15 +270,16 @@ private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
                     }
                 }
                 Text(
+                    modifier = Modifier.alignByBaseline(),
                     text = "/${data}GB",
                     fontFamily = doHyeonFont(),
                     fontSize = 36.sp,
-                    lineHeight = 48.sp
                 )
             }
 
             Column(
                 modifier = Modifier
+                    .align(Alignment.BottomCenter)
                     .padding(8.dp)
                     .height(48.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Bottom),
