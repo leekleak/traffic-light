@@ -392,14 +392,15 @@ fun ThemeAutoPreference(theme: Theme, enabled: Boolean, onClick: () -> Unit) {
 
 @Composable
 fun PermissionCard(
+    modifier: Modifier = Modifier,
     title: String,
     description: String,
     icon: Painter,
-    onClick: () -> Unit,
+    onHelp: (() -> Unit)? = null,
+    actionButton: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
-    extraButton: @Composable (() -> Unit)? = null
 ) {
-    Row (modifier = Modifier
+    Row (modifier = modifier
         .card()
         .padding(16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -418,13 +419,23 @@ fun PermissionCard(
             }
             Text(modifier = Modifier.fillMaxWidth(), text = description)
         }
-        extraButton?.invoke()
-        PermissionButton(
-            icon = painterResource(R.drawable.grant),
-            contentDescription = stringResource(R.string.grant),
-            enabled = enabled,
-            onClick = onClick
-        )
+        Column (verticalArrangement = Arrangement.spacedBy(8.dp)){
+            if (onHelp != null) {
+                FilledIconButton(
+                    modifier = Modifier.size(56.dp),
+                    colors = IconButtonDefaults.filledTonalIconButtonColors(),
+                    enabled = enabled,
+                    shape = MaterialTheme.shapes.large,
+                    onClick = onHelp,
+                ) {
+                    Icon(
+                        painterResource(R.drawable.help),
+                        contentDescription = stringResource(R.string.help),
+                    )
+                }
+            }
+            actionButton?.invoke()
+        }
     }
 }
 

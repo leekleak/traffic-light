@@ -1,5 +1,7 @@
 package com.leekleak.trafficlight.util
 
+import android.app.Activity
+import android.content.Intent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import com.leekleak.trafficlight.R
 import java.time.DayOfWeek
 import java.time.Instant
@@ -115,4 +118,13 @@ fun WideScreenWrapper(content: @Composable () -> Unit) {
 }
 
 fun currentTimezone(): ZoneOffset = ZoneId.systemDefault().rules.getOffset(Instant.now())
+
+fun openLink(activity: Activity?, link: String) {
+    activity?.startActivity(
+        Intent(
+            Intent.ACTION_VIEW,
+            link.toUri()
+        )
+    )
+}
 

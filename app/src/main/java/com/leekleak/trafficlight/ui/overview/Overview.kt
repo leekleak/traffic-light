@@ -1,5 +1,6 @@
 package com.leekleak.trafficlight.ui.overview
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
@@ -32,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -54,16 +56,21 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.DataPlanDao
+import com.leekleak.trafficlight.database.PreferenceRepo
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.navigation.PlanConfig
 import com.leekleak.trafficlight.ui.navigation.Settings
+import com.leekleak.trafficlight.ui.settings.PermissionButton
+import com.leekleak.trafficlight.ui.settings.PermissionCard
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.jetbrainsMono
 import com.leekleak.trafficlight.ui.theme.outfit
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.categoryTitle
+import com.leekleak.trafficlight.util.openLink
 import com.leekleak.trafficlight.util.px
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 
@@ -74,9 +81,16 @@ fun Overview(
 ) {
     val networkUsageManager: NetworkUsageManager = koinInject()
     val dataPlanDao: DataPlanDao = koinInject()
+    val preferenceRepo: PreferenceRepo = koinInject()
+
+    val scope = rememberCoroutineScope()
+    val activity = LocalActivity.current
 
     val weeklyUsage by networkUsageManager.weekUsage().collectAsState(listOf())
     val activePlans by remember { dataPlanDao.getActiveFlow() }.collectAsState(listOf())
+
+    val shizukuHint by remember { preferenceRepo.shizukuHint }.collectAsState(false)
+    val shizukuTracking by remember { preferenceRepo.shizukuTracking }.collectAsState(true)
 
     val columnState = rememberLazyListState()
     LazyColumn(
@@ -121,6 +135,25 @@ fun Overview(
                 UnconfiguredDataPlan(it) {
                     backStack.add(PlanConfig(it.subscriberID))
                 }
+            }
+        }
+
+        if (shizukuHint && !shizukuTracking) {
+            item {
+                PermissionCard(
+                    modifier = Modifier.animateItem(),
+                    title = stringResource(R.string.shizuku_hint),
+                    description = stringResource(R.string.shizuku_hint_description),
+                    icon = painterResource(R.drawable.warning),
+                    onHelp = { openLink(activity, "https://github.com/leekleak/traffic-light/wiki/Setting-up-Shizuku-for-multi%E2%80%90SIM-tracking") },
+                    actionButton = {
+                        PermissionButton(
+                            icon = painterResource(R.drawable.close),
+                            contentDescription = stringResource(R.string.close),
+                            onClick = { scope.launch { preferenceRepo.setShizukuHint(false) } }
+                        )
+                    }
+                )
             }
         }
 

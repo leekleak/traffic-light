@@ -38,6 +38,7 @@ import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.CategoryTitleSmallText
 import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
+import com.leekleak.trafficlight.util.openLink
 import com.leekleak.trafficlight.util.px
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -70,7 +71,13 @@ fun Settings(
                     title = stringResource(R.string.battery_optimization),
                     description = stringResource(R.string.battery_optimization_description),
                     icon = painterResource(R.drawable.battery),
-                    onClick = { permissionManager.askBackgroundPermission(activity) }
+                    actionButton = {
+                        PermissionButton(
+                            icon = painterResource(R.drawable.grant),
+                            contentDescription = stringResource(R.string.grant),
+                            onClick = { permissionManager.askBackgroundPermission(activity) },
+                        )
+                    }
                 )
             }
         }
@@ -125,7 +132,7 @@ fun Settings(
                 title = stringResource(R.string.multi_sim_tracking),
                 summary = if (shizukuRunning) stringResource(R.string.shizuku_required) else stringResource(R.string.shizuku_not_running),
                 icon = painterResource(R.drawable.version),
-                value = shizukuTracking,
+                value = shizukuTracking && shizukuPermission,
                 enabled = shizukuRunning,
                 onValueChanged = {
                     if (shizukuPermission) {
@@ -168,14 +175,14 @@ fun Settings(
                 title = stringResource(R.string.github),
                 summary = stringResource(R.string.github_description),
                 icon = painterResource(R.drawable.github),
-                onClick = { viewModel.openLink(activity, "https://github.com/leekleak/traffic-light") },
+                onClick = { openLink(activity, "https://github.com/leekleak/traffic-light") },
             )
         }
         item {
             NavigatePreference(
                 title = stringResource(R.string.support_development),
                 icon = painterResource(R.drawable.donate),
-                onClick = { viewModel.openLink(activity, "https://github.com/sponsors/leekleak") },
+                onClick = { openLink(activity, "https://github.com/sponsors/leekleak") },
             )
         }
         item {

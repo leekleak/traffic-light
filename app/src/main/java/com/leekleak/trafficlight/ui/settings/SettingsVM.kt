@@ -19,15 +19,6 @@ class SettingsVM : ViewModel() {
         }
     }
 
-    fun openLink(activity: Activity?, link: String) {
-        activity?.startActivity(
-            Intent(
-                Intent.ACTION_VIEW,
-                link.toUri()
-            )
-        )
-    }
-
     fun openAppSettings(activity: Activity?) {
         activity?.startActivity(
             Intent(

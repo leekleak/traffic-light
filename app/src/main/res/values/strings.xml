@@ -87,6 +87,9 @@
     <string name="overview">Overview</string>
     <string name="multi_sim_tracking">Multi-SIM tracking</string>
     <string name="shizuku_required">Shizuku required</string>
+    <string name="close">Close</string>
+    <string name="shizuku_hint">Want to track multiple SIM cards?</string>
+    <string name="shizuku_hint_description">To achieve that, you\'ll need to set up Shizuku and enable the feature in the settings.</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>
