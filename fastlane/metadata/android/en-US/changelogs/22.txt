@@ -1,0 +1,2 @@
+Bug fixes:
+- Fix history crash
