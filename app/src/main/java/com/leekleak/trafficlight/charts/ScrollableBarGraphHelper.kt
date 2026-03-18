@@ -30,6 +30,8 @@ import com.leekleak.trafficlight.util.NetworkType
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.getName
 import java.time.format.TextStyle
+import java.time.temporal.WeekFields
+import java.util.Locale
 
 internal data class ScrollableBarGraphMetrics(
     val gridHeight: Float,
@@ -214,9 +216,10 @@ internal class ScrollableBarGraphHelper(
     internal fun drawTextLabelsOverXAndYAxis(color: Color, background: Color, textMeasurer: TextMeasurer) {
         scope.run {
             val monthPadding = 4.dp.toPx().toLong()
+            val firstDayValue = WeekFields.of(Locale.getDefault()).firstDayOfWeek.value
             for (i in visibleIndices) {
                 val xBottomLabel = xItemSpacing * (i + 0.5f)
-                if (data[i].x.dayOfWeek.value == 1) {
+                if (data[i].x.dayOfWeek.value == firstDayValue) {
                     drawRoundRect(
                         color = onBackgroundColor,
                         topLeft = Offset(xItemSpacing * i + xOffset, size.height-12.sp.toPx()),

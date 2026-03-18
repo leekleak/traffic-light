@@ -21,12 +21,13 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
+import java.time.temporal.WeekFields
+import java.util.Locale
 
 data class UsageData(
     val upload: Long = 0,
@@ -183,16 +184,18 @@ class NetworkUsageManager(
     }.flowOn(Dispatchers.IO)
 
     fun weekUsage(): Flow<List<BarData>> = flow {
+        val firstDay = WeekFields.of(Locale.getDefault()).firstDayOfWeek
         val data: MutableList<BarData> = MutableList(7) { i ->
-            val x = DayOfWeek.entries[i].getName(TextStyle.SHORT_STANDALONE)
+            val x = firstDay.plus(i.toLong()).getName(TextStyle.SHORT_STANDALONE)
             BarData(x, 0.0, 0.0)
         }
         val now = LocalDate.now()
+        val daysPassed = (8 - firstDay.value) % 7 + now.dayOfWeek.value
 
-        for (i in 0..<now.dayOfWeek.value) {
+        for (i in 0..<daysPassed) {
             val usage = calculateDayUsageBasic(now.minusDays(i.toLong()))
 
-            data[now.dayOfWeek.value - i - 1] += BarData(
+            data[daysPassed - i - 1] += BarData(
                 "",
                 usage.totalCellular.toDouble(),
                 usage.totalWifi.toDouble()
