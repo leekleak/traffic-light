@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Šviesoforas</string>
+    <string name="app_name">Šviesoforas: Duomenų prižiūrėtojas</string>
     <string name="grant">Suteikti</string>
     <string name="today">Šiandien</string>
     <string name="this_week">Ši savaitė</string>
@@ -74,9 +74,18 @@
     <string name="configured_plans">Sukonfigūruoti planai</string>
     <string name="data_plan_widget_description">Sekite savo duomenų planus pradiniame ekrane</string>
     <string name="widget_warning">Valdiklių palaikymas yra eksperimentinis. Iškilus problemoms, praneškite apie jas per Github.</string>
-    <string name="no_configured_plans_description">Užtikrinkite, kad programėlė turi prieigą prie Shizuku ir yra bent vienas sukonfigūruotas duomenų planas.</string>
+    <string name="no_configured_plans_description">Užtikrinkite, kad sukonfigūruotas bent vienas duomenų planas.</string>
     <string name="no_configured_plans">Sukonfigūruotų planų nėra</string>
     <string name="warning">Įspėjimas</string>
     <string name="tethering">Mobilusis interneto prieigos taškas</string>
     <string name="removed_apps">Panaikintos programėlės</string>
+    <string name="prediction">Prognozė</string>
+    <string name="trend">Tendencija</string>
+    <string name="data_intensive_apps">Daug duomenų naudojančios programėlės</string>
+    <string name="mobile_data">Mobilieji duomenis</string>
+    <string name="notification_channels">Pranešimo kanalų nustatymai</string>
+    <string name="go_back">Grįžti</string>
+    <string name="connected_to_network">Prisijungta prie tinklo</string>
+    <string name="disconnected_from_network">Atsijungta nuo tinklo</string>
+    <string name="overview">Apžvalga</string>
 </resources>

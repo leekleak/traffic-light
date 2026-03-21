@@ -11,7 +11,7 @@
     <string name="settings">Einstellungen</string>
     <string name="battery_optimization">Batterieoptimierung</string>
     <string name="battery_optimization_description">Muss deaktiviert werden, damit das Telefon den Hintergrunddienst nicht nach einer Weile beendet.</string>
-    <string name="usage_statistics">Nutzungs-Statistiken</string>
+    <string name="usage_statistics">Nutzungsberechtigung</string>
     <string name="usage_statistics_description">Wird zur langfristigen Erfassung der Datennutzung benötigt.</string>
     <string name="notifications">Benachrichtigung</string>
     <string name="screen_off_update">Aktualisieren wenn Bildschirm aus ist</string>
@@ -46,7 +46,7 @@
     <string name="alt_vpn_workaround_description">Verringert die Messgenauigkeit, ermöglicht jedoch Split-Tunneling.</string>
     <string name="support_development">Entwicklung unterstützen</string>
     <string name="allows_in_depth_data_plan_tracking">Ermöglicht eine detaillierte Nachverfolgung des Datenplans.</string>
-    <string name="shizuku_not_running">Shizuku läuft nicht.</string>
+    <string name="shizuku_not_running">Shizuku läuft nicht</string>
     <string name="sim_card">SIM-Karte</string>
     <string name="data_plans">Datenpläne</string>
     <string name="configure_plan">Plan konfigurieren</string>
@@ -81,4 +81,15 @@
     <string name="trend">Trend</string>
     <string name="data_intensive_apps">Datenintensive Apps</string>
     <string name="mobile_data">Mobile Daten</string>
+    <string name="go_back">Zurück</string>
+    <string name="app_name_short">Traffic Light</string>
+    <string name="notification_channels">Einstellungen für Benachrichtigungskanäle</string>
+    <string name="connected_to_network">Mit dem Netzwerk verbunden</string>
+    <string name="disconnected_from_network">Verbindung zum Netzwerk unterbrochen</string>
+    <string name="overview">Überblick</string>
+    <string name="multi_sim_tracking">Multi-SIM Tracking</string>
+    <string name="shizuku_required">Shizuku benötigte</string>
+    <string name="close">Schließen</string>
+    <string name="shizuku_hint">Möchtest du mehrere SIM-Karten verfolgen?</string>
+    <string name="shizuku_hint_description">Dazu musst du Shizuku einrichten und die Funktion in den Einstellungen aktivieren.</string>
 </resources>
