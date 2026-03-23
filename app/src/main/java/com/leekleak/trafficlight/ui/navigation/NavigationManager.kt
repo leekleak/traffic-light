@@ -131,7 +131,7 @@ fun NavigationManager() {
                     entry<History> { History(paddingValues) }
                     entry<Settings> { Settings(paddingValues, backStack) }
 
-                    entry<UsagePermissionRequest> { UsagePermissionRequest(paddingValues) }
+                    entry<UsagePermissionRequest> { UsagePermissionRequest(paddingValues, backStack) }
                     entry<PlanConfig> { PlanConfig(it.subscriberId, backStack) }
                     entry<NotificationSettings> { NotificationSettings(paddingValues, backStack) }
                 },

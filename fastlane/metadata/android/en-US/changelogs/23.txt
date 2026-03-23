@@ -1,0 +1,15 @@
+Enhancements:
+- Reworked new user experience
+- Added hints on how to track multiple SIM cards
+- Added options to allow hiding notification when disconnected
+- Improved accessibility
+- Reverted to shorter app name
+
+Bug fixes:
+- Fix stutter on entering plan configuration
+- Fix app not respecting first day of week for locale
+- Fix incorrect history labels in RTL
+
+Translations:
+- New Language: Kurdish (Central)
+- Updated translations
