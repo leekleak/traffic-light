@@ -8,6 +8,7 @@ assignees: ''
 ---
 
 **Sanity Check**
+All of the following must be done to ensure the issue is not a waste of time:
 - [ ] This bug is present in the latest GitHub release.
 - [ ] I have looked through all open and recently closed issues and can verify that none cover this bug.
 
