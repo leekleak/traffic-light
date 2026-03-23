@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Traffic Light</string>
+    <string name="app_name">Traffic Light: Rastreador de red</string>
     <string name="today">Hoy</string>
     <string name="this_week">Esta semana</string>
     <string name="history">Historial</string>
@@ -11,7 +11,7 @@
     <string name="settings">Configuración</string>
     <string name="battery_optimization">Optimización de la batería</string>
     <string name="battery_optimization_description">Debe desactivarse para evitar que el teléfono elimine el servicio en segundo plano después de un tiempo.</string>
-    <string name="usage_statistics">Estadísticas de Uso</string>
+    <string name="usage_statistics">Permiso de uso</string>
     <string name="usage_statistics_description">Necesario para el seguimiento de datos a largo plazo.</string>
     <string name="notifications">Notificacioń</string>
     <string name="screen_off_update">Actualizar mientras la pantalla este apagada</string>
@@ -76,4 +76,5 @@
         <item quantity="many">Reiniciará en %d días</item>
         <item quantity="other">Reiniciará en %d días</item>
     </plurals>
+    <string name="app_name_short">Traffic Light</string>
 </resources>
