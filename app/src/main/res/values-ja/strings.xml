@@ -10,7 +10,7 @@
     <string name="settings">設定</string>
     <string name="battery_optimization">バッテリーの最適化</string>
     <string name="battery_optimization_description">一定時間後にスマホがバックグラウンドサービスを強制終了するのを防ぐためには、無効にする必要があります。</string>
-    <string name="usage_statistics">使用状況統計</string>
+    <string name="usage_statistics">使用許可</string>
     <string name="usage_statistics_description">長期的なデータ使用量の追跡に必要です。</string>
     <string name="notifications">通知</string>
     <string name="screen_off_update">画面がオフのときに更新する</string>
@@ -39,14 +39,14 @@
     <string name="missing_permissions">権限がありません</string>
     <string name="total_usage">総使用量</string>
     <string name="unknown">不明</string>
-    <string name="app_name">信号機</string>
+    <string name="app_name">Traffic Light：ネットワークトラッカー</string>
     <string name="alt_vpn_workaround_description">測定精度は低下しますが、スプリット トンネリングに対応します。</string>
     <string name="alt_vpn_workaround">代替VPNの回避策</string>
     <string name="behavior">行動</string>
     <string name="appearance">外観</string>
     <string name="support_development">開発をサポートする</string>
     <string name="allows_in_depth_data_plan_tracking">詳細なデータプラン追跡が可能になります。</string>
-    <string name="shizuku_not_running">Shizukuは実行されていません。</string>
+    <string name="shizuku_not_running">Shizukuが起動していません</string>
     <string name="sim_card">SIMカード</string>
     <string name="data_plans">データプラン</string>
     <string name="configure_plan">プランを構成する</string>
@@ -68,7 +68,7 @@
     <string name="configured_plans">構成されたプラン</string>
     <string name="data_plan_widget_description">ホーム画面でデータプランを追跡する</string>
     <string name="widget_warning">ウィジェットのサポートは試験段階です。問題が発生した場合は、Github でご報告ください。</string>
-    <string name="no_configured_plans_description">Shizuku に権限を付与し、少なくとも 1 つのデータ プランを設定していることを確認してください。</string>
+    <string name="no_configured_plans_description">少なくとも1つのデータプランが設定されていることを確認してください。</string>
     <string name="no_configured_plans">プランが設定されていません</string>
     <string name="warning">警告</string>
     <string name="tethering">モバイルホットスポット</string>
@@ -80,4 +80,15 @@
     <plurals name="resets_in_days">
         <item quantity="other">%d日後にリセットされます</item>
     </plurals>
+    <string name="app_name_short">Traffic Light</string>
+    <string name="notification_channels">通知チャンネル設定</string>
+    <string name="go_back">戻る</string>
+    <string name="connected_to_network">ネットワークに接続済み</string>
+    <string name="disconnected_from_network">ネットワークから切断されました</string>
+    <string name="overview">概要</string>
+    <string name="multi_sim_tracking">複数SIMトラッキング</string>
+    <string name="shizuku_required">Shizukuが必要</string>
+    <string name="close">閉じる</string>
+    <string name="shizuku_hint">複数のSIMカードを追跡したいですか？</string>
+    <string name="shizuku_hint_description">それを実現するには、Shizukuをセットアップし、設定でその機能を有効にする必要があります。</string>
 </resources>
