@@ -25,9 +25,9 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Logs**
-If the issue is a crash, please provide logs.
+If the issue is a crash, please provide logs. If you're not sure how, follow the [guide](https://github.com/leekleak/traffic-light/wiki/Capturing-logs).
 
 **Device info:**
  - Device: 
  - OS: [Specify both the skin name and the Android version e.g One UI 8, Android 16]
- - App Version:
+ - App Version: 
