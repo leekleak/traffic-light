@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -44,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -244,57 +246,59 @@ fun AppItem(
     onClick: () -> Unit = {},
 ) {
     val haptic = LocalHapticFeedback.current
-    Column (
-        modifier = modifier
-            .clip(MaterialTheme.shapes.small)
-            .background(colorScheme.surfaceContainer)
-            .clickable {
-                onClick()
-                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-            }
-    ) {
-        Row(
-            modifier = Modifier.padding(4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+        Column(
+            modifier = modifier
+                .clip(MaterialTheme.shapes.small)
+                .background(colorScheme.surfaceContainer)
+                .clickable {
+                    onClick()
+                    haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                }
         ) {
-            if (icon) {
-                Icon(
-                    modifier = Modifier.size(imageWidth),
-                    painter = painter,
-                    contentDescription = name
-                )
-            } else {
-                Image(
-                    modifier = Modifier.size(imageWidth),
-                    painter = painter,
-                    contentDescription = name
-                )
+            Row(
+                modifier = Modifier.padding(4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                if (icon) {
+                    Icon(
+                        modifier = Modifier.size(imageWidth),
+                        painter = painter,
+                        contentDescription = name
+                    )
+                } else {
+                    Image(
+                        modifier = Modifier.size(imageWidth),
+                        painter = painter,
+                        contentDescription = name
+                    )
+                }
+                AnimatedContent(selected) { selected ->
+                    if (!selected) {
+                        LineGraph(
+                            maximum = maximum,
+                            data = Pair(totalWifi, totalCellular)
+                        )
+                    } else {
+                        Text(
+                            text = name,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
             }
-            AnimatedContent(selected) { selected ->
-                if (!selected) {
+            AnimatedVisibility(
+                visible = selected,
+                enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
+                exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
+            ) {
+                LineGraphHeader {
                     LineGraph(
                         maximum = maximum,
                         data = Pair(totalWifi, totalCellular)
                     )
-                } else {
-                    Text(
-                        text = name,
-                        fontWeight = FontWeight.Bold
-                    )
                 }
-            }
-        }
-        AnimatedVisibility (
-            visible = selected,
-            enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
-            exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
-        ) {
-            LineGraphHeader {
-                LineGraph(
-                    maximum = maximum,
-                    data = Pair(totalWifi, totalCellular)
-                )
             }
         }
     }
