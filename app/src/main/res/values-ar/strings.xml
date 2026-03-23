@@ -11,7 +11,7 @@
     <string name="settings">الإعدادات</string>
     <string name="battery_optimization">تحسين البطارية</string>
     <string name="battery_optimization_description">يجب تعطيله لمنع الهاتف من إنهاء الخدمة الخلفية بعد فترة.</string>
-    <string name="usage_statistics">إحصائيات الاستخدام</string>
+    <string name="usage_statistics">إذن الاستخدام</string>
     <string name="usage_statistics_description">مطلوب لتتبع استخدام البيانات على المدى الطويل.</string>
     <string name="notifications">إشعار</string>
     <string name="screen_off_update">تحديث عندما تكون الشاشة مغلقة</string>
@@ -46,7 +46,7 @@
     <string name="alt_vpn_workaround_description">يقلل دقة القياس لكنه يدعم التقسيم النفقي.</string>
     <string name="support_development">ادعم التطوير</string>
     <string name="allows_in_depth_data_plan_tracking">يتيح تتبعًا دقيقًا لخطة البيانات.</string>
-    <string name="shizuku_not_running">شيزوكو لا يعمل.</string>
+    <string name="shizuku_not_running">Shizuku لا يعمل</string>
     <string name="sim_card">بطاقة SIM</string>
     <string name="data_plans">خطط البيانات</string>
     <string name="configure_plan">اضبط الخطة</string>
@@ -85,4 +85,15 @@
     <string name="trend">رائج</string>
     <string name="data_intensive_apps">تطبيقات كثيفة البيانات</string>
     <string name="mobile_data">بيانات الجوّال</string>
+    <string name="notification_channels">إعدادات قنوات الإشعارات</string>
+    <string name="go_back">ارجع</string>
+    <string name="connected_to_network">متصل بالشبكة</string>
+    <string name="disconnected_from_network">غير متصل بالشبكة</string>
+    <string name="overview">نظرة عامة</string>
+    <string name="app_name_short">إشارة مرور</string>
+    <string name="multi_sim_tracking">تتبع شرائح الاتصال المتعددة</string>
+    <string name="shizuku_required">يتطلب Shizuku</string>
+    <string name="close">أغلِق</string>
+    <string name="shizuku_hint">أتريد تتبع عدة شرائح SIM؟</string>
+    <string name="shizuku_hint_description">لتحقيق ذلك، ستحتاج إلى إعداد Shizuku وتفعيل الميزة من الإعدادات.</string>
 </resources>

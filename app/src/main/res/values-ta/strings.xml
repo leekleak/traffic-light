@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name_short">ட்ராஃபிக் லைட்</string>
+    <string name="today">இன்று</string>
+    <string name="this_week">இந்த வாரம்</string>
+    <string name="history">வரலாறு</string>
+    <string name="wifi">அருகலை</string>
+    <string name="cellular">அலைபேசி</string>
+    <string name="grant">அனுமதி</string>
+    <string name="settings">அமைப்புகள்</string>
+    <string name="battery_optimization">மின்கலன் உகப்பாக்கம்</string>
+    <string name="battery_optimization_description">பின்னணிச் செயல்பாட்டைத் தடுக்காமல் இருக்க, இதை முடக்க வேண்டும்.</string>
+    <string name="usage_statistics">பயன்பாட்டு அனுமதி</string>
+    <string name="usage_statistics_description">நீண்ட கால தரவு பயன்பாட்டைக் கண்காணிக்க இது தேவைப்படுகிறது.</string>
+    <string name="notifications">அறிவிப்பு</string>
+    <string name="screen_off_update">திரை அணைந்திருக்கும்போது புதுப்பிக்கவும்</string>
+    <string name="screen_off_update_description">AOD-இல் பயன்பாட்டைக் கண்காணிக்க அனுமதிக்கும், ஆனால் பேட்டரி பயன்பாடு அதிகரிக்கும்.</string>
+    <string name="oversample_icon_description">மங்கலாக இருந்தால், சின்னத்தை உயர்தரத்தில் காட்டவும்.</string>
+    <string name="speed_in_bits">வேகத்தை பிட்களில் காட்டவும்</string>
+</resources>

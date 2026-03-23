@@ -7,7 +7,7 @@
     <string name="wifi">Wi-Fi</string>
     <string name="settings">Réglages</string>
     <string name="battery_optimization">Optimisation de la batterie</string>
-    <string name="usage_statistics">Statistiques d\'utilisation</string>
+    <string name="usage_statistics">Autorisation d\'utilisation</string>
     <string name="screen_off_update">Mettre à jour quand l\'écran est éteint</string>
     <string name="light">Clair</string>
     <string name="dark">Sombre</string>
@@ -46,7 +46,7 @@
     <string name="alt_vpn_workaround_description">Diminue la précision des mesures, mais admet les tunnels.</string>
     <string name="support_development">Soutenez le développement</string>
     <string name="allows_in_depth_data_plan_tracking">Autorise le suivi précis du forfait données.</string>
-    <string name="shizuku_not_running">Shizuku n\'est pas lancé.</string>
+    <string name="shizuku_not_running">Shizuku n\'est pas lancé</string>
     <string name="sim_card">Carte SIM</string>
     <string name="data_plans">Forfaits de données</string>
     <string name="configure_plan">Configurer le plan</string>
@@ -82,4 +82,15 @@
     <string name="trend">Tendance</string>
     <string name="data_intensive_apps">Applications consommatrices</string>
     <string name="mobile_data">Données mobiles</string>
+    <string name="notification_channels">Réglages du canal de notification</string>
+    <string name="go_back">Revenir</string>
+    <string name="connected_to_network">Connecté au réseau</string>
+    <string name="disconnected_from_network">Déconnecté du réseau</string>
+    <string name="overview">Aperçu</string>
+    <string name="app_name_short">Traffic Light</string>
+    <string name="multi_sim_tracking">Suivi multi-SIM</string>
+    <string name="shizuku_required">Shizuku requis</string>
+    <string name="close">Fermer</string>
+    <string name="shizuku_hint">Vous souhaitez suivre plusieurs cartes SIM ?</string>
+    <string name="shizuku_hint_description">Pour y arriver, vous aurez besoin de paramétrer Shizuku et d\'autoriser la fonctionnalité dans les réglages.</string>
 </resources>

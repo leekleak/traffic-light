@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Šviesoforas</string>
+    <string name="app_name">Šviesoforas: Duomenų prižiūrėtojas</string>
     <string name="grant">Suteikti</string>
     <string name="today">Šiandien</string>
     <string name="this_week">Ši savaitė</string>
@@ -11,7 +11,7 @@
     <string name="speed">Greitis: %1$s</string>
     <string name="battery_optimization">Akumuliatoriaus optimizacija</string>
     <string name="battery_optimization_description">Jei įjungta, sistema gali sustabdyti programėlės procesą.</string>
-    <string name="usage_statistics">Naudojimo Statistika</string>
+    <string name="usage_statistics">Naudojimo statistikos prieiga</string>
     <string name="usage_statistics_description">Reikalinga istorinių duomenų rinkimui.</string>
     <string name="notifications">Pranešimas</string>
     <string name="screen_off_update">Atnaujinti išjungus ekraną</string>
@@ -46,7 +46,7 @@
     <string name="alt_vpn_workaround_description">Prastesnis matavimų tikslumas, tačiau palaiko kelių tunelių konfigūracijas.</string>
     <string name="support_development">Paremti kūrimą</string>
     <string name="allows_in_depth_data_plan_tracking">Leidžia detaliai sekti duomenų planus.</string>
-    <string name="shizuku_not_running">Shizuku nepaleistas.</string>
+    <string name="shizuku_not_running">Shizuku nepaleistas</string>
     <string name="sim_card">SIM kortelė</string>
     <string name="data_plans">Duomenų Planai</string>
     <string name="configure_plan">Konfigūruoti planą</string>
@@ -74,9 +74,24 @@
     <string name="configured_plans">Sukonfigūruoti planai</string>
     <string name="data_plan_widget_description">Sekite savo duomenų planus pradiniame ekrane</string>
     <string name="widget_warning">Valdiklių palaikymas yra eksperimentinis. Iškilus problemoms, praneškite apie jas per Github.</string>
-    <string name="no_configured_plans_description">Užtikrinkite, kad programėlė turi prieigą prie Shizuku ir yra bent vienas sukonfigūruotas duomenų planas.</string>
+    <string name="no_configured_plans_description">Užtikrinkite, kad sukonfigūruotas bent vienas duomenų planas.</string>
     <string name="no_configured_plans">Sukonfigūruotų planų nėra</string>
     <string name="warning">Įspėjimas</string>
     <string name="tethering">Mobilusis interneto prieigos taškas</string>
     <string name="removed_apps">Panaikintos programėlės</string>
+    <string name="prediction">Prognozė</string>
+    <string name="trend">Tendencija</string>
+    <string name="data_intensive_apps">Daug duomenų naudojančios programėlės</string>
+    <string name="mobile_data">Mobilieji duomenis</string>
+    <string name="notification_channels">Pranešimo kanalų nustatymai</string>
+    <string name="go_back">Grįžti</string>
+    <string name="connected_to_network">Prisijungta prie tinklo</string>
+    <string name="disconnected_from_network">Atsijungta nuo tinklo</string>
+    <string name="overview">Apžvalga</string>
+    <string name="app_name_short">Šviesoforas</string>
+    <string name="multi_sim_tracking">Multi-SIM stebėjimas</string>
+    <string name="shizuku_required">Reikalinga Shizuku</string>
+    <string name="close">Uždaryti</string>
+    <string name="shizuku_hint">Norite sekti kelias SIM korteles?</string>
+    <string name="shizuku_hint_description">Norėdami tai pasiekti, reikia įrašyti ir paleisti „Shizuku“ bei įjungti funkciją nustatymuose.</string>
 </resources>

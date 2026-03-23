@@ -11,7 +11,7 @@
     <string name="settings">Instellingen</string>
     <string name="battery_optimization">Batterijoptimalisatie</string>
     <string name="battery_optimization_description">Moet uitgeschakeld zijn om te voorkomen dat de telefoon de achtergrondservice stopt na een tijdje.</string>
-    <string name="usage_statistics">Gebruiksstatistieken</string>
+    <string name="usage_statistics">Gebruiksmachtiging</string>
     <string name="usage_statistics_description">Nodig voor het langdurig volgen van het datagebruik.</string>
     <string name="notifications">Melding</string>
     <string name="screen_off_update">Updaten wanneer het scherm uit is</string>
@@ -46,7 +46,7 @@
     <string name="alt_vpn_workaround_description">Vermindert nauwkeurigheid van metingen, maar werkt met split tunnels.</string>
     <string name="support_development">Ontwikkeling steunen</string>
     <string name="allows_in_depth_data_plan_tracking">Staat het gedetailleerd volgen van databundels toe.</string>
-    <string name="shizuku_not_running">Shizuku loopt niet.</string>
+    <string name="shizuku_not_running">Shizuku loopt niet</string>
     <string name="sim_card">Simkaart</string>
     <string name="data_plans">Databundels</string>
     <string name="configure_plan">Bundel instellen</string>
@@ -81,4 +81,15 @@
     <string name="trend">Trend</string>
     <string name="data_intensive_apps">Gegevensintensieve apps</string>
     <string name="mobile_data">Mobiele gegevens</string>
+    <string name="notification_channels">Instellingen van meldingskanaal</string>
+    <string name="go_back">Terug</string>
+    <string name="connected_to_network">Verbonden met het netwerk</string>
+    <string name="disconnected_from_network">Verbinding met het netwerk verbroken</string>
+    <string name="overview">Overzicht</string>
+    <string name="app_name_short">Traffic Light</string>
+    <string name="multi_sim_tracking">Meerdere SIM\'s volgen</string>
+    <string name="shizuku_required">Shizuku vereist</string>
+    <string name="close">Sluiten</string>
+    <string name="shizuku_hint">Wil je meerdere SIM-kaarten volgen?</string>
+    <string name="shizuku_hint_description">Om dat te bereiken, moet je Shizuku instellen en deze functie aanzetten in de instellingen.</string>
 </resources>

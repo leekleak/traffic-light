@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name_short">Світлофор</string>
+    <string name="today">Сьогодні</string>
+    <string name="this_week">Цього Тижня</string>
+    <string name="history">Історія</string>
+</resources>
