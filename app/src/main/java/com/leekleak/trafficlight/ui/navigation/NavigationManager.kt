@@ -38,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -45,39 +46,44 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.history.History
 import com.leekleak.trafficlight.ui.overview.Overview
-import com.leekleak.trafficlight.ui.overview.PlanConfig
 import com.leekleak.trafficlight.ui.settings.NotificationSettings
 import com.leekleak.trafficlight.ui.settings.Settings
 import com.leekleak.trafficlight.ui.settings.UsagePermissionRequest
 import com.leekleak.trafficlight.ui.theme.navBarShadow
 import com.leekleak.trafficlight.util.WideScreenWrapper
 import org.koin.compose.koinInject
+import org.koin.core.annotation.KoinExperimentalAPI
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, KoinExperimentalAPI::class)
 @Composable
 fun NavigationManager() {
     val permissionManager: PermissionManager = koinInject()
+    val navigator: Navigator = koinInject()
     val usagePermission by remember { permissionManager.usagePermissionFlow }.collectAsState(false)
+    val backStack = navigator.backStack
 
-    val backStack = rememberNavBackStack(Blank)
     var showBottomBar by remember { mutableStateOf(false) }
 
-    LaunchedEffect(backStack.last()) {
-        showBottomBar = mainScreens.contains(backStack.last())
+    LaunchedEffect(navigator.backStack.last()) {
+        showBottomBar = mainScreens.contains(navigator.backStack.last())
     }
 
     LaunchedEffect(usagePermission) {
-        backStack.clear().also { backStack.add(if (!usagePermission) UsagePermissionRequest else Overview) }
+        val currentRoute = navigator.backStack.lastOrNull()
+
+        if (!usagePermission && currentRoute != UsagePermissionRequest) {
+            navigator.setTo(UsagePermissionRequest)
+        } else if (usagePermission && currentRoute == UsagePermissionRequest) {
+            navigator.setTo(Overview)
+        }
     }
 
     val toolbarOffset =
@@ -123,17 +129,17 @@ fun NavigationManager() {
     ) {
         WideScreenWrapper {
             NavDisplay(
-                backStack = backStack,
-                onBack = { backStack.removeLastOrNull() },
+                backStack = navigator.backStack,
+                onBack = { navigator.goBack() },
                 entryProvider = entryProvider {
                     entry<Blank> { Box(modifier = Modifier.fillMaxSize())}
-                    entry<Overview> { Overview(paddingValues, backStack) }
+                    entry<Overview> { Overview(paddingValues) }
                     entry<History> { History(paddingValues) }
-                    entry<Settings> { Settings(paddingValues, backStack) }
+                    entry<Settings> { Settings(paddingValues) }
 
-                    entry<UsagePermissionRequest> { UsagePermissionRequest(paddingValues, backStack) }
-                    entry<PlanConfig> { PlanConfig(it.subscriberId, backStack) }
-                    entry<NotificationSettings> { NotificationSettings(paddingValues, backStack) }
+                    entry<UsagePermissionRequest> { UsagePermissionRequest(paddingValues) }
+                    entry<PlanConfig> { PlanConfig(it.subscriberId) }
+                    entry<NotificationSettings> { NotificationSettings(paddingValues) }
                 },
                 transitionSpec = {
                     if (backStack.size == 1) fadeIn() togetherWith fadeOut()
@@ -157,7 +163,7 @@ fun NavigationManager() {
 
 
 @Composable
-fun NavigationButton(backstack: NavBackStack<NavKey>, route: NavKey, name: String, icon: Int) {
+fun NavigationButton(backstack: SnapshotStateList<NavKey>, route: NavKey, name: String, icon: Int) {
     val haptic = LocalHapticFeedback.current
     Button (
         colors =

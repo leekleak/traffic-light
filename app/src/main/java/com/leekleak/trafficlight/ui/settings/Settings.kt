@@ -26,12 +26,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.PreferenceRepo
 import com.leekleak.trafficlight.model.PermissionManager
+import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.NotificationSettings
 import com.leekleak.trafficlight.ui.theme.Theme
 import com.leekleak.trafficlight.ui.theme.card
@@ -46,13 +45,11 @@ import org.koin.compose.koinInject
 import rikka.shizuku.Shizuku
 
 @Composable
-fun Settings(
-    paddingValues: PaddingValues,
-    backstack: NavBackStack<NavKey>,
-) {
+fun Settings(paddingValues: PaddingValues) {
     val viewModel: SettingsVM = koinViewModel()
     val preferenceRepo: PreferenceRepo = koinInject()
     val permissionManager: PermissionManager = koinInject()
+    val navigator: Navigator = koinInject()
     val activity = LocalActivity.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -61,7 +58,7 @@ fun Settings(
         Modifier.background(MaterialTheme.colorScheme.surface),
         contentPadding = paddingValues
     ) {
-        categoryTitle ({ backstack.removeAt(backstack.lastIndex) }) { stringResource(R.string.settings) }
+        categoryTitle ({ navigator.goBack() }) { stringResource(R.string.settings) }
         item {
             val backgroundPermission by permissionManager.backgroundPermissionFlow.collectAsState(true)
 
@@ -117,7 +114,7 @@ fun Settings(
                 NavigatePreference(
                     title = stringResource(R.string.advanced_settings),
                     icon = painterResource(R.drawable.notification_settings),
-                    onClick = { backstack.add(NotificationSettings) }
+                    onClick = { navigator.goTo(NotificationSettings) }
                 )
             }
         }

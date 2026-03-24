@@ -79,6 +79,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -106,7 +107,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import coil3.compose.rememberAsyncImagePainter
 import com.leekleak.trafficlight.R
@@ -147,7 +147,7 @@ import kotlin.math.roundToInt
 @Composable
 fun PlanConfig(
     subscriberId: String,
-    backStack: NavBackStack<NavKey>
+    backStack: SnapshotStateList<NavKey>
 ) {
     val viewModel: OverviewVM = koinViewModel()
     val appManager: AppManager = koinInject()

@@ -14,13 +14,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.PreferenceRepo
 import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.services.UsageService.Companion.NOTIFICATION_CHANNEL_ID
 import com.leekleak.trafficlight.services.UsageService.Companion.NOTIFICATION_CHANNEL_ID_SILENT
+import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import kotlinx.coroutines.launch
@@ -28,8 +27,9 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
 @Composable
-fun NotificationSettings(paddingValues: PaddingValues, backStack: NavBackStack<NavKey>) {
+fun NotificationSettings(paddingValues: PaddingValues) {
     val preferenceRepo: PreferenceRepo = koinInject()
+    val navigator: Navigator = koinInject()
     val viewModel: SettingsVM = koinViewModel()
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
@@ -40,7 +40,7 @@ fun NotificationSettings(paddingValues: PaddingValues, backStack: NavBackStack<N
             .fillMaxSize(),
         contentPadding = paddingValues
     ) {
-        categoryTitle ({ backStack.removeAt(backStack.lastIndex) }) { stringResource(R.string.notifications) }
+        categoryTitle ({ navigator.goBack() }) { stringResource(R.string.notifications) }
         categoryTitleSmall { stringResource(R.string.appearance) }
         item {
             val bigIcon by preferenceRepo.bigIcon.collectAsState(false)
