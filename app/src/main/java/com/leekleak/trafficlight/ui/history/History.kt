@@ -90,8 +90,10 @@ fun History(paddingValues: PaddingValues) {
 
     val days = remember { getDatesForTimespan() }
 
+    val usageTypes = listOf(Mobile, Wifi)
+
     val usage: List<ScrollableBarData> by remember {
-        networkUsageManager.daysUsage(days.first, days.second, listOf(Mobile, Wifi))
+        networkUsageManager.daysUsage(days.first, days.second, usageTypes)
     }.collectAsState(List(MAX_DAYS) {
         ScrollableBarData(LocalDate.now())
     })
@@ -166,8 +168,8 @@ fun History(paddingValues: PaddingValues) {
                 item {
                     val uid = -100
                     AppItem(
-                        totalWifi = selectedUsage?.usages?.get(Wifi) ?: 0L,
-                        totalCellular = selectedUsage?.usages?.get(Mobile) ?: 0L,
+                        totalWifi = selectedUsage?.usages?.get(usageTypes[1]) ?: 0L,
+                        totalCellular = selectedUsage?.usages?.get(usageTypes[0]) ?: 0L,
                         painter = painterResource(R.drawable.data_usage),
                         icon = true,
                         name = stringResource(R.string.total_usage),
@@ -183,8 +185,8 @@ fun History(paddingValues: PaddingValues) {
                         val painter = item.drawableResource?.let { icon = true; painterResource(it) } ?:
                             rememberAsyncImagePainter(AppIcon(item.packageName))
                         AppItem(
-                            totalWifi = item.usage.usages[Wifi] ?: 0L,
-                            totalCellular = item.usage.usages[Mobile] ?: 0L,
+                            totalWifi = item.usage.usages[usageTypes[1]] ?: 0L,
+                            totalCellular = item.usage.usages[usageTypes[0]] ?: 0L,
                             painter = painter,
                             name = item.name,
                             icon = icon,
@@ -202,8 +204,8 @@ fun History(paddingValues: PaddingValues) {
 
                             Box(Modifier.animateItem()) {
                                 AppItem(
-                                    totalWifi = (it.usages[Wifi] ?: 0L) - (appTotal.usages[Wifi] ?: 0L),
-                                    totalCellular = (it.usages[Mobile] ?: 0L) - (appTotal.usages[Mobile] ?: 0L),
+                                    totalWifi = (it.usages[usageTypes[1]] ?: 0L) - (appTotal.usages[usageTypes[1]] ?: 0L),
+                                    totalCellular = (it.usages[usageTypes[0]] ?: 0L) - (appTotal.usages[usageTypes[0]] ?: 0L),
                                     painter = painterResource(R.drawable.help),
                                     icon = true,
                                     name = stringResource(R.string.unknown),

@@ -20,15 +20,3 @@ object Mobile : DataType {
     override fun getNameResource(): Int = R.string.cellular
     override fun getIconResource(): Int = R.drawable.cellular
 }
-
-object Bluetooth : DataType {
-    override fun getQueryIndex(): Int = ConnectivityManager.TYPE_BLUETOOTH
-    override fun getNameResource(): Int = R.string.cellular
-    override fun getIconResource(): Int = R.drawable.cellular
-}
-
-object Ethernet : DataType {
-    override fun getQueryIndex(): Int = ConnectivityManager.TYPE_ETHERNET
-    override fun getNameResource(): Int = R.string.cellular
-    override fun getIconResource(): Int = R.drawable.cellular
-}
