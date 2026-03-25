@@ -90,7 +90,7 @@ interface DataPlanDao {
     suspend fun addAll(plans: List<DataPlan>)
 }
 
-@Database(entities = [DataPlan::class], version = 2)
+@Database(entities = [DataPlan::class], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun dataPlanDao(): DataPlanDao
