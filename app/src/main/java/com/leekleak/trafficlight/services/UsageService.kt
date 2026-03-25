@@ -178,7 +178,7 @@ class UsageService : Service() {
     }
 
     private fun updateTodayUsage() {
-        todayUsage = networkUsageManager.calculateDayUsageBasic(LocalDate.now(), LocalDate.now(), null)
+        todayUsage = networkUsageManager.calculateDayUsageBasic(LocalDate.now(), LocalDate.now())
     }
 
     private var lastTitle: String = ""

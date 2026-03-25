@@ -30,8 +30,6 @@
     <string name="force_fallback_description">Helpful when using a buggy ROM or ethernet</string>
     <string name="fallback_unsupported">Fallback unsupported</string>
     <string name="ui">Interface</string>
-    <string name="limited_mode">Limited Mode</string>
-    <string name="limited_mode_description">Unfortunately your operating system does not support long term data tracking.</string>
     <string name="auto">Auto</string>
     <string name="light">Light</string>
     <string name="dark">Dark</string>
@@ -48,7 +46,6 @@
     <string name="alt_vpn_workaround">Alternate VPN workaround</string>
     <string name="alt_vpn_workaround_description">Reduces measurement accuracy but accommodates split tunneling.</string>
     <string name="support_development">Support development</string>
-    <string name="allows_in_depth_data_plan_tracking">Allows in-depth data plan tracking.</string>
     <string name="shizuku_not_running">Shizuku is not running</string>
     <string name="sim_card">SIM card</string>
     <string name="data_plans">Data Plans</string>
