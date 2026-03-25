@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -59,7 +58,6 @@ import com.leekleak.trafficlight.charts.ScrollableBarGraph
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.model.AppIcon
 import com.leekleak.trafficlight.model.NetworkUsageManager
-import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.getName
 import org.koin.androidx.compose.koinViewModel
@@ -68,7 +66,7 @@ import java.time.LocalDate
 import java.time.format.TextStyle
 import kotlin.math.max
 
-const val MAX_DAYS = 96
+const val MAX_DAYS = 90
 val imageWidth = 32.dp
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -97,79 +95,72 @@ fun History(paddingValues: PaddingValues) {
     val selectedUsage by remember { viewModel.totalUsage }.collectAsState(null)
     val totalMaximum = remember(selectedUsage) { selectedUsage?.let { it.totalWifi + it.totalCellular } }
     val appTotal = remember(appList) { viewModel.appUsageSum(appList) }
+    val sidePadding = remember(paddingValues) { paddingValues.calculateLeftPadding(LayoutDirection.Ltr) }
 
-    Column (
-        modifier = Modifier
-            .padding(
-                start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
-                end = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
-                top = paddingValues.calculateTopPadding()
-            ),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        CategoryTitleText(stringResource(R.string.history))
-        Box(
+    Column {
+        Column (
             modifier = Modifier
-                .card()
-                .padding(6.dp)
-                .clip(MaterialTheme.shapes.medium)
+                .padding(
+                    start = sidePadding,
+                    end = sidePadding,
+                    top = paddingValues.calculateTopPadding()
+                ),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(colorScheme.background)
-            ) {
-                ScrollableBarGraph(usage) {
-                    appDay = days.first.plusDays(it.toLong())
-                }
+            CategoryTitleText(stringResource(R.string.history))
+            ScrollableBarGraph(usage) {
+                appDay = days.first.plusDays(it.toLong())
             }
-        }
-        Row(Modifier.fillMaxWidth()) {
-            ButtonGroup(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
-                expandedRatio = 0.05f,
-                overflowIndicator = {}
+            Row(
+                Modifier.fillMaxWidth()
+                    .clip(MaterialTheme.shapes.small)
+                    .background(colorScheme.primary)
+                    .padding(horizontal = 4.dp)
             ) {
-                toggleableItem(
-                    onCheckedChange = {
-                        showMonth = true
-                        haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
-                    },
-                    label = appDay.month.getName(TextStyle.FULL),
-                    checked = showMonth,
-                    weight = 3f
-                )
-                toggleableItem(
-                    onCheckedChange = {
-                        showMonth = false
-                        haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
-                    },
-                    label = appDay.dayOfMonth.toString(),
-                    checked = !showMonth,
-                    weight = 1f
-                )
+                ButtonGroup(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        4.dp,
+                        Alignment.CenterHorizontally
+                    ),
+                    expandedRatio = 0.05f,
+                    overflowIndicator = {}
+                ) {
+                    toggleableItem(
+                        onCheckedChange = {
+                            showMonth = true
+                            haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                        },
+                        label = appDay.month.getName(TextStyle.FULL),
+                        checked = !showMonth,
+                        weight = 3f
+                    )
+                    toggleableItem(
+                        onCheckedChange = {
+                            showMonth = false
+                            haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                        },
+                        label = appDay.dayOfMonth.toString(),
+                        checked = showMonth,
+                        weight = 1f
+                    )
+                }
             }
         }
         val listState = rememberLazyListState()
         LazyColumn(
             modifier = Modifier
-                .background(colorScheme.surface)
+                .padding(top = 8.dp)
+                .clip(MaterialTheme.shapes.large)
+                .background(colorScheme.surfaceContainer)
                 .fillMaxSize(),
-            contentPadding = PaddingValues(0.dp, 0.dp, 0.dp, paddingValues.calculateBottomPadding()),
+            contentPadding = PaddingValues(sidePadding, sidePadding, sidePadding, paddingValues.calculateBottomPadding()),
             verticalArrangement = Arrangement.spacedBy(6.dp),
             state = listState
         ) {
-            stickyHeader {
-                val uid = -100
-                Box (
-                    Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = colorScheme.surface,
-                            shape = RoundedCornerShape(0.dp, 0.dp, 24.dp, 24.dp)
-                        )
-                ) {
+            if (totalMaximum != null) {
+                item {
+                    val uid = -100
                     AppItem(
                         totalWifi = selectedUsage?.totalWifi ?: 0L,
                         totalCellular = selectedUsage?.totalCellular ?: 0L,
@@ -177,13 +168,11 @@ fun History(paddingValues: PaddingValues) {
                         icon = true,
                         name = stringResource(R.string.total_usage),
                         selected = uid == appSelected,
-                        maximum = max(totalMaximum ?: 0L, 1)
+                        maximum = max(totalMaximum, 1)
                     ) {
                         appSelected = if (appSelected != uid) uid else -1
                     }
                 }
-            }
-            if (totalMaximum != null) {
                 items(appList, { it.uid }) { item ->
                     Box(Modifier.animateItem()) {
                         var icon = false
@@ -250,7 +239,7 @@ fun AppItem(
         Column(
             modifier = modifier
                 .clip(MaterialTheme.shapes.small)
-                .background(colorScheme.surfaceContainer)
+                .background(colorScheme.surface)
                 .clickable {
                     onClick()
                     haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
