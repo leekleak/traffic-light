@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
+import com.leekleak.trafficlight.database.Mobile
 import com.leekleak.trafficlight.database.resetString
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.theme.backgrounds
@@ -137,7 +138,7 @@ fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
     val networkUsageManager: NetworkUsageManager = koinInject()
 
     val dataUsage = remember { networkUsageManager.planUsage(dataPlan) }
-    val usage = DataSize(dataUsage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
+    val usage = DataSize(dataUsage.usages[Mobile]?.toDouble() ?: 0.0).getAsUnit(DataSizeUnit.GB)
     val formatter = remember { DecimalFormat("0.##") }
     Box (
         modifier = Modifier
@@ -245,7 +246,7 @@ private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
             }
             val usage by remember(dataUsage) {
                 derivedStateOf {
-                    DataSize(dataUsage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
+                    DataSize(dataUsage.usages[Mobile]?.toDouble() ?: 0.0).getAsUnit(DataSizeUnit.GB)
                 }
             }
             Row(

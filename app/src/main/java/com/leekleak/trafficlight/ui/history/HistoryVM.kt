@@ -3,7 +3,10 @@ package com.leekleak.trafficlight.ui.history
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leekleak.trafficlight.database.AppUsage
+import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DayUsage
+import com.leekleak.trafficlight.database.Mobile
+import com.leekleak.trafficlight.database.Wifi
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -39,22 +42,23 @@ class HistoryVM(
             flow {
                 val (day, isMonth) = dateParams.value
                 if (!isMonth) {
-                    emit(networkUsageManager.calculateDayUsageBasic(day, day))
+                    val data = networkUsageManager.calculateDayUsageBasic(day, day, listOf(Mobile, Wifi))
+                    emit(data)
                 } else {
                     val start = day.withDayOfMonth(1)
                     val end = start.plusMonths(1).minusDays(1)
-                    emit(networkUsageManager.calculateDayUsageBasic(start, end))
+                    emit(networkUsageManager.calculateDayUsageBasic(start, end, listOf(Mobile, Wifi)))
                 }
             }
         }
 
     fun appUsageSum(usage: List<AppUsage>): DayUsage {
-        val dayUsage = DayUsage()
+        val map = mutableMapOf<DataType, Long>(Wifi to 0, Mobile to 0)
         for (i in usage) {
-            dayUsage.totalWifi += i.usage.totalWifi
-            dayUsage.totalCellular += i.usage.totalCellular
+            map.merge(Wifi, i.usage.usages[Wifi] ?: 0L, Long::plus)
+            map.merge(Mobile, i.usage.usages[Mobile] ?: 0L, Long::plus)
         }
-        return dayUsage
+        return DayUsage(usages = map)
     }
 
     fun updateQuery(day: LocalDate, showMonth: Boolean) {

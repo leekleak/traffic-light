@@ -17,8 +17,7 @@ import kotlin.math.max
 
 data class DayUsage(
     val date: LocalDate = LocalDate.now(),
-    var totalWifi: Long = 0,
-    var totalCellular: Long = 0,
+    val usages: Map<DataType, Long> = mapOf()
 )
 
 data class AppUsage(

@@ -56,6 +56,8 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.ScrollableBarGraph
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
+import com.leekleak.trafficlight.database.Mobile
+import com.leekleak.trafficlight.database.Wifi
 import com.leekleak.trafficlight.model.AppIcon
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.CategoryTitleText
@@ -87,13 +89,15 @@ fun History(paddingValues: PaddingValues) {
     var appSelected by remember { mutableIntStateOf(-1) }
 
     val days = remember { getDatesForTimespan() }
-    val usageFlow = remember { networkUsageManager.daysUsage(days.first, days.second) }
-    val usage: List<ScrollableBarData> by usageFlow.collectAsState(List(MAX_DAYS) {
+
+    val usage: List<ScrollableBarData> by remember {
+        networkUsageManager.daysUsage(days.first, days.second, listOf(Mobile, Wifi))
+    }.collectAsState(List(MAX_DAYS) {
         ScrollableBarData(LocalDate.now())
     })
 
     val selectedUsage by remember { viewModel.totalUsage }.collectAsState(null)
-    val totalMaximum = remember(selectedUsage) { selectedUsage?.let { it.totalWifi + it.totalCellular } }
+    val totalMaximum = remember(selectedUsage) { selectedUsage?.usages?.values?.sum() }
     val appTotal = remember(appList) { viewModel.appUsageSum(appList) }
     val sidePadding = remember(paddingValues) { paddingValues.calculateLeftPadding(LayoutDirection.Ltr) }
 
@@ -162,8 +166,8 @@ fun History(paddingValues: PaddingValues) {
                 item {
                     val uid = -100
                     AppItem(
-                        totalWifi = selectedUsage?.totalWifi ?: 0L,
-                        totalCellular = selectedUsage?.totalCellular ?: 0L,
+                        totalWifi = selectedUsage?.usages?.get(Wifi) ?: 0L,
+                        totalCellular = selectedUsage?.usages?.get(Mobile) ?: 0L,
                         painter = painterResource(R.drawable.data_usage),
                         icon = true,
                         name = stringResource(R.string.total_usage),
@@ -179,8 +183,8 @@ fun History(paddingValues: PaddingValues) {
                         val painter = item.drawableResource?.let { icon = true; painterResource(it) } ?:
                             rememberAsyncImagePainter(AppIcon(item.packageName))
                         AppItem(
-                            totalWifi = item.usage.totalWifi,
-                            totalCellular = item.usage.totalCellular,
+                            totalWifi = item.usage.usages[Wifi] ?: 0L,
+                            totalCellular = item.usage.usages[Mobile] ?: 0L,
                             painter = painter,
                             name = item.name,
                             icon = icon,
@@ -192,13 +196,14 @@ fun History(paddingValues: PaddingValues) {
                     }
                 }
                 selectedUsage?.let {
-                    if ((appTotal.totalCellular != it.totalCellular || appTotal.totalWifi != it.totalWifi) && appList.isNotEmpty()) {
+                    if ((appTotal.usages[Mobile] != it.usages[Mobile] || appTotal.usages[Wifi] != it.usages[Wifi]) && appList.isNotEmpty()) {
                         item {
                             val uid = -99
+
                             Box(Modifier.animateItem()) {
                                 AppItem(
-                                    totalWifi = it.totalWifi - appTotal.totalWifi,
-                                    totalCellular = it.totalCellular - appTotal.totalCellular,
+                                    totalWifi = (it.usages[Wifi] ?: 0L) - (appTotal.usages[Wifi] ?: 0L),
+                                    totalCellular = (it.usages[Mobile] ?: 0L) - (appTotal.usages[Mobile] ?: 0L),
                                     painter = painterResource(R.drawable.help),
                                     icon = true,
                                     name = stringResource(R.string.unknown),

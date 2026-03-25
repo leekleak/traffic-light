@@ -27,8 +27,10 @@ import androidx.core.graphics.drawable.IconCompat
 import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DayUsage
+import com.leekleak.trafficlight.database.Mobile
 import com.leekleak.trafficlight.database.PreferenceRepo
 import com.leekleak.trafficlight.database.TrafficSnapshot
+import com.leekleak.trafficlight.database.Wifi
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.clipAndPad
@@ -178,7 +180,7 @@ class UsageService : Service() {
     }
 
     private fun updateTodayUsage() {
-        todayUsage = networkUsageManager.calculateDayUsageBasic(LocalDate.now(), LocalDate.now())
+        todayUsage = networkUsageManager.calculateDayUsageBasic(LocalDate.now(), LocalDate.now(), listOf(Mobile, Wifi))
     }
 
     private var lastTitle: String = ""
@@ -190,9 +192,8 @@ class UsageService : Service() {
 
         val spacing = 18
         val messageShort =
-            getString(R.string.wi_fi, formatter.format(todayUsage.totalWifi, 2)).clipAndPad(spacing) +
-            getString(R.string.mobile, formatter.format(todayUsage.totalCellular, 2))
-
+            getString(R.string.wi_fi, formatter.format(todayUsage.usages[Wifi] ?: 0L, 2)).clipAndPad(spacing) +
+            getString(R.string.mobile, formatter.format(todayUsage.usages[Mobile] ?: 0L, 2))
 
         updateBaseNotification()
         notification = notificationBuilder
