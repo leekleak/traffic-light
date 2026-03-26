@@ -40,6 +40,7 @@
     <string name="notification_description">Track network speed in the status bar.</string>
     <string name="missing_permissions">Missing Permissions</string>
     <string name="total_usage">Total usage</string>
+    <string name="total">Total</string>
     <string name="unknown">Unknown</string>
     <string name="appearance">Appearance</string>
     <string name="behavior">Behavior</string>
@@ -73,6 +74,7 @@
     <string name="warning">Warning</string>
     <string name="tethering">Mobile Hotspot</string>
     <string name="removed_apps">Removed apps</string>
+    <string name="all_apps">All apps</string>
     <string name="prediction">Prediction</string>
     <string name="trend">Trend</string>
     <string name="data_intensive_apps">Data intensive apps</string>
@@ -87,6 +89,8 @@
     <string name="close">Close</string>
     <string name="shizuku_hint">Want to track multiple SIM cards?</string>
     <string name="shizuku_hint_description">To achieve that, you\'ll need to set up Shizuku and enable the feature in the settings.</string>
+    <string name="filter">Filter</string>
+    <string name="none">None</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

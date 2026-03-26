@@ -12,6 +12,7 @@ import com.leekleak.trafficlight.database.HistoricalData
 import com.leekleak.trafficlight.database.HistoricalDataDao
 import com.leekleak.trafficlight.database.Mobile
 import com.leekleak.trafficlight.database.TimeInterval
+import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.database.Wifi
 import com.leekleak.trafficlight.model.AppManager.Companion.specialUIDs
 import com.leekleak.trafficlight.util.fromTimestamp
@@ -137,7 +138,12 @@ class NetworkUsageManager(
             }
         }.flowOn(Dispatchers.IO)
 
-    fun daysUsage(startDate: LocalDate, endDate: LocalDate, types: List<DataType>): Flow<List<ScrollableBarData>> = flow {
+    fun daysUsage(
+        startDate: LocalDate,
+        endDate: LocalDate,
+        usageQuery1: UsageQuery?,
+        usageQuery2: UsageQuery? = null
+    ): Flow<List<ScrollableBarData>> = flow {
         val data: MutableList<ScrollableBarData> = mutableListOf()
         val range = startDate.toEpochDay()..<endDate.toEpochDay()
 
@@ -148,10 +154,11 @@ class NetworkUsageManager(
         emit(data.toList())
         for (i in 0..<data.size) {
             val now = LocalDate.ofEpochDay(i + startDate.toEpochDay())
-            val usage = calculateDayUsageBasic(now, now, types)
+            val usage1 = usageQuery1?.let { calculateDayUsageBasic(now, now, it.dataType) }
+            val usage2 = usageQuery2?.let { calculateDayUsageBasic(now, now, it.dataType) }
             data[i] = data[i].copy(
-                y1 = usage.usages[Mobile]?.toDouble() ?: 0.0,
-                y2 = usage.usages[Wifi]?.toDouble() ?: 0.0
+                y1 = usage2?.usages?.values?.sum()?.toDouble() ?: 0.0,
+                y2 = usage1?.usages?.values?.sum()?.toDouble() ?: 0.0
             )
         }
         emit(data.toList())
