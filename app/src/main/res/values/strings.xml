@@ -91,6 +91,11 @@
     <string name="shizuku_hint_description">To achieve that, you\'ll need to set up Shizuku and enable the feature in the settings.</string>
     <string name="filter">Filter</string>
     <string name="none">None</string>
+    <string name="primary">Primary</string>
+    <string name="secondary">Secondary</string>
+    <string name="upload">Upload</string>
+    <string name="download">Download</string>
+    <string name="bidirectional">Bidirectional</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

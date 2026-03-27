@@ -153,7 +153,7 @@ fun History(paddingValues: PaddingValues) {
                                 modifier = Modifier.animateWidth(source),
                                 colors = IconButtonDefaults.iconButtonColors(
                                     containerColor = colorScheme.surfaceContainer,
-                                    contentColor = colorScheme.onSurface
+                                    contentColor = colorScheme.onSurfaceVariant
                                 ),
                                 shape = RoundedCornerShape(cornerRadius),
                                 interactionSource = source,
@@ -281,15 +281,15 @@ fun HistoryFilter(
                 style = MaterialTheme.typography.headlineMedium
             )
             Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 HistoryItemSettings(
-                    "Primary",
+                    stringResource(R.string.primary),
                     1,
                     usageQuery1
                 )
                 HistoryItemSettings(
-                    "Secondary",
+                    stringResource(R.string.secondary),
                     2,
                     usageQuery2
                 )
@@ -298,7 +298,6 @@ fun HistoryFilter(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun RowScope.HistoryItemSettings(
     title: String,
@@ -307,13 +306,14 @@ fun RowScope.HistoryItemSettings(
 ) {
     val hapticFeedback = LocalHapticFeedback.current
     val viewModel: HistoryVM = koinViewModel()
-    Column (Modifier.weight(1f)) {
+    Column (modifier = Modifier.weight(1f)) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium
         )
-        Button(
+        FilterButton(
             n = n,
+            enabled = true,
             onClick = {
                 viewModel.updateQuery(n, query.copy(dataType = query.dataType.getNext()))
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -322,22 +322,36 @@ fun RowScope.HistoryItemSettings(
             Icon(painterResource(query.dataType.getIcon()), null)
             Text(stringResource(query.dataType.getName()))
         }
+        FilterButton(
+            n = n,
+            enabled = query.dataType.isNotEmpty(),
+            onClick = {
+                viewModel.updateQuery(n, query.copy(dataDirection = query.dataDirection.getNext()))
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+            }
+        ) {
+            Icon(painterResource(query.dataDirection.getIcon()), null)
+            Text(stringResource(query.dataDirection.getName()))
+        }
     }
 }
 
 @Composable
-private fun Button(
+private fun FilterButton(
     n: Int,
+    enabled: Boolean,
     onClick: () -> Unit,
     buttonContent: @Composable (() -> Unit)
 ) {
     Button(
         modifier = Modifier.fillMaxWidth(),
+        enabled = enabled,
         shape = MaterialTheme.shapes.small,
         colors = ButtonDefaults.buttonColors(
             containerColor = if (n == 1) colorScheme.primary else colorScheme.tertiary,
             contentColor = if (n == 1) colorScheme.onPrimary else colorScheme.onTertiary
         ),
+        contentPadding = PaddingValues(),
         onClick = onClick
     ) {
         Row(

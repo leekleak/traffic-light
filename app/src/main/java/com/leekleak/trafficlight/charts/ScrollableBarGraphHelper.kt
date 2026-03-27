@@ -88,7 +88,7 @@ internal class ScrollableBarGraphHelper(
         for (i in 0 until data.size) {
             val x1 = xItemSpacing * i + xOffset
             val x2 = x1 + xItemSpacing
-            val error = 32.dp.toPx()
+            val error = 64.dp.toPx()
 
             if (data[i].x.dayOfMonth == 1 || i == 0) {
                 monthList.add(
@@ -252,7 +252,7 @@ internal class ScrollableBarGraphHelper(
                 val snap = lastVisibility != -1 && metrics.monthList[i].visible == -1
                 var xOffset = if (snap && lastOffset != 0f) 0f else metrics.monthList[i].xOffset
 
-                val diffVsLast = xOffset + result.size.width.toFloat() - lastOffset
+                val diffVsLast = xOffset + result.size.width.toFloat() - lastOffset + 16.dp.toPx()
                 if (diffVsLast >= 0) xOffset -= diffVsLast
 
                 lastVisibility = metrics.monthList[i].visible

@@ -24,13 +24,30 @@ object Mobile : DataType {
 enum class DataDirection {
     Upload,
     Download,
-    Both
+    Bidirectional
+}
+
+fun DataDirection.getNext(): DataDirection {
+    val nextIndex = (ordinal + 1) % DataDirection.entries.size
+    return DataDirection.entries[nextIndex]
+}
+
+fun DataDirection.getName(): Int = when(this) {
+    DataDirection.Upload -> R.string.upload
+    DataDirection.Download -> R.string.download
+    DataDirection.Bidirectional -> R.string.bidirectional
+}
+
+fun DataDirection.getIcon(): Int = when(this) {
+    DataDirection.Upload -> R.drawable.arrow_upward_alt
+    DataDirection.Download -> R.drawable.arrow_downward_alt
+    DataDirection.Bidirectional -> R.drawable.mobiledata_arrows
 }
 
 data class UsageQuery (
     val dataType: List<DataType>,
-    val dataDirection: DataDirection,
-    val dataUID: Int?
+    val dataDirection: DataDirection = DataDirection.Bidirectional,
+    val dataUID: Int? = null
 )
 
 fun List<DataType>.getName(): Int {

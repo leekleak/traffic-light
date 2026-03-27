@@ -32,14 +32,14 @@ class HistoryVM(
     private val query1 = MutableStateFlow(
         UsageQuery(
             dataType = listOf(Wifi),
-            dataDirection = DataDirection.Both,
+            dataDirection = DataDirection.Bidirectional,
             dataUID = null
         )
     )
     private val query2 = MutableStateFlow(
         UsageQuery(
             dataType = listOf(Mobile),
-            dataDirection = DataDirection.Both,
+            dataDirection = DataDirection.Bidirectional,
             dataUID = null
         )
     )
@@ -88,12 +88,12 @@ class HistoryVM(
             flow {
                 val (day, isMonth) = dateParams.value
                 if (!isMonth) {
-                    val data = networkUsageManager.calculateDayUsageBasic(day, day, listOf(Mobile, Wifi))
+                    val data = networkUsageManager.calculateDayUsageBasic(day, day, UsageQuery(listOf(Mobile, Wifi)))
                     emit(data)
                 } else {
                     val start = day.withDayOfMonth(1)
                     val end = start.plusMonths(1).minusDays(1)
-                    emit(networkUsageManager.calculateDayUsageBasic(start, end, listOf(Mobile, Wifi)))
+                    emit(networkUsageManager.calculateDayUsageBasic(start, end, UsageQuery(listOf(Mobile, Wifi))))
                 }
             }
         }

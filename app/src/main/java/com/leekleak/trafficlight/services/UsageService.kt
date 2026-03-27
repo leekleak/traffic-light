@@ -30,6 +30,7 @@ import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.Mobile
 import com.leekleak.trafficlight.database.PreferenceRepo
 import com.leekleak.trafficlight.database.TrafficSnapshot
+import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.database.Wifi
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.SizeFormatter
@@ -180,7 +181,8 @@ class UsageService : Service() {
     }
 
     private fun updateTodayUsage() {
-        todayUsage = networkUsageManager.calculateDayUsageBasic(LocalDate.now(), LocalDate.now(), listOf(Mobile, Wifi))
+        todayUsage = networkUsageManager.calculateDayUsageBasic(LocalDate.now(), LocalDate.now(),
+            UsageQuery(listOf(Mobile, Wifi)))
     }
 
     private var lastTitle: String = ""
