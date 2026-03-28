@@ -28,8 +28,6 @@
     <string name="force_fallback_description">Útil cando se emprega unha ROM con erros ou conexión por cable</string>
     <string name="fallback_unsupported">Modo alternativo non compatible</string>
     <string name="ui">Interface</string>
-    <string name="limited_mode">Modo limitado</string>
-    <string name="limited_mode_description">Desafortunadamente, o teu sistema operativo non admite o seguimento de datos a longo prazo.</string>
     <string name="auto">Automático</string>
     <string name="light">Claro</string>
     <string name="dark">Escuro</string>
@@ -45,7 +43,6 @@
     <string name="alt_vpn_workaround">Solución alternativa pra a VPN</string>
     <string name="alt_vpn_workaround_description">Reduce a precisión das medicións, pero admite o túnel dividido (Split Tunneling).</string>
     <string name="support_development">Apoiar o desenvolvemento</string>
-    <string name="allows_in_depth_data_plan_tracking">Permite un seguimento detallado do plan de datos.</string>
     <string name="shizuku_not_running">Shizuku non está en execución.</string>
     <string name="sim_card">Tarxeta SIM</string>
     <string name="data_plans">Plans de datos</string>
