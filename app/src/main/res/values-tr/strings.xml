@@ -28,8 +28,6 @@
     <string name="force_fallback_description">Hatalı ROM veya ethernet kullanırken yardımcı olur</string>
     <string name="fallback_unsupported">Yedek (fallback) desteklenmiyor</string>
     <string name="ui">Arayüz</string>
-    <string name="limited_mode">Kısıtlı Mod</string>
-    <string name="limited_mode_description">Ne yazık ki işletim sisteminiz uzun süreli veri takibini desteklemiyor.</string>
     <string name="auto">Otomatik</string>
     <string name="light">Aydınlık</string>
     <string name="dark">Karanlık</string>
@@ -45,7 +43,6 @@
     <string name="alt_vpn_workaround">Alternatif VPN geçici çözümü</string>
     <string name="alt_vpn_workaround_description">Ölçüm doğruluğunu azaltır fakat bölünmüş tünellemeyi destekler.</string>
     <string name="support_development">Gelişmesine destek ol</string>
-    <string name="allows_in_depth_data_plan_tracking">Ayrıntılı veri planı takibine olanak tanır.</string>
     <string name="shizuku_not_running">Shizuku aktif değil.</string>
     <string name="sim_card">SIM kart</string>
     <string name="data_plans">Veri Planları</string>
