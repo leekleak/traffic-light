@@ -28,8 +28,6 @@
     <string name="fallback_unsupported">不支持</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="ui">用户界面</string>
-    <string name="limited_mode">功能受限</string>
-    <string name="limited_mode_description">无法从您的设备获取流量累计使用情况数据。</string>
     <string name="auto">自动</string>
     <string name="light">浅色</string>
     <string name="dark">深色</string>
@@ -45,7 +43,6 @@
     <string name="alt_vpn_workaround">替代性VPN计算方法</string>
     <string name="alt_vpn_workaround_description">降低了测量精度，但兼容隧道分离。</string>
     <string name="support_development">支持开发</string>
-    <string name="allows_in_depth_data_plan_tracking">支持深入的数据计划跟踪。</string>
     <string name="shizuku_not_running">Shizuku未运行。</string>
     <string name="sim_card">SIM卡</string>
     <string name="data_plans">数据计划</string>
@@ -74,4 +71,7 @@
     <plurals name="resets_in_days">
         <item quantity="other">%d 天后重置</item>
     </plurals>
+    <string name="removed_apps">已删除的软件</string>
+    <string name="shizuku_hint">要追踪多个SIM卡吗？</string>
+    <string name="close">关闭</string>
 </resources>
