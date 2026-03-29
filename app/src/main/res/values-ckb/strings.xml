@@ -29,8 +29,6 @@
     <string name="force_fallback_description">بەسوودە لە کاتی بەکارهێنانی ڕۆمێکی پڕکێشە یان ئیسەرنێت</string>
     <string name="fallback_unsupported">جێگرەوە پشتگیری ناکرێت</string>
     <string name="ui">ڕووکار</string>
-    <string name="limited_mode">دۆخی سنووردار</string>
-    <string name="limited_mode_description">بەداخەوە، سیستەمی کارپێکردنەکەت پشتگیری لە بەدواداچوونی درێژخایەنی داتا ناکات.</string>
     <string name="auto">خۆکار</string>
     <string name="light">ڕووناک</string>
     <string name="dark">تاریک</string>
@@ -46,7 +44,6 @@
     <string name="alt_vpn_workaround">ڕێگەچارەی جێگرەوەی VPN</string>
     <string name="alt_vpn_workaround_description">وردیی پێوانەکردن کەمدەکاتەوە بەڵام ڕێگە بە تونێلکردنی جیاکەرەوە دەدات.</string>
     <string name="support_development">پاڵپشتی گەشەپێدان بکە</string>
-    <string name="allows_in_depth_data_plan_tracking">ڕێگە دەدات بە چاودێریکردنی وردی پلانی داتا.</string>
     <string name="shizuku_not_running">شیزوکو کار ناکات</string>
     <string name="sim_card">سیم کارد</string>
     <string name="data_plans">پلانەکانی داتا</string>

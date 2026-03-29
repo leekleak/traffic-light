@@ -27,8 +27,6 @@
     <string name="force_fallback_description">バグのあるROMやイーサネットを使用する際に役立ちます</string>
     <string name="fallback_unsupported">フォールバックはサポートされていません</string>
     <string name="ui">インターフェース</string>
-    <string name="limited_mode">制限モード</string>
-    <string name="limited_mode_description">残念ながら、お使いのオペレーティング システムは長期のデータ追跡をサポートしていません。</string>
     <string name="auto">自動</string>
     <string name="light">ライト</string>
     <string name="dark">ダーク</string>
@@ -45,7 +43,6 @@
     <string name="behavior">行動</string>
     <string name="appearance">外観</string>
     <string name="support_development">開発をサポートする</string>
-    <string name="allows_in_depth_data_plan_tracking">詳細なデータプラン追跡が可能になります。</string>
     <string name="shizuku_not_running">Shizukuが起動していません</string>
     <string name="sim_card">SIMカード</string>
     <string name="data_plans">データプラン</string>

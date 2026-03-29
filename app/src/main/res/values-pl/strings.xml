@@ -28,8 +28,6 @@
     <string name="force_fallback_description">Pomocne podczas korzystania z wadliwego ROM-u lub sieci Ethernet</string>
     <string name="fallback_unsupported">Nieobsługiwane rozwiązanie awaryjne</string>
     <string name="ui">Interfejs</string>
-    <string name="limited_mode">Tryb ograniczony</string>
-    <string name="limited_mode_description">Niestety, Twój system operacyjny nie obsługuje długoterminowego śledzenia danych.</string>
     <string name="auto">Automatyczne</string>
     <string name="light">Jasny</string>
     <string name="dark">Ciemny</string>
@@ -45,7 +43,6 @@
     <string name="alt_vpn_workaround">Alternatywne obejście VPN</string>
     <string name="alt_vpn_workaround_description">Zmniejsza dokładność pomiarów, ale umożliwia stosowanie tunelowania dzielonego.</string>
     <string name="support_development">Wspieraj rozwój</string>
-    <string name="allows_in_depth_data_plan_tracking">Umożliwia szczegółowe śledzenie planu sieci komórkowej.</string>
     <string name="shizuku_not_running">Shizuku nie jest uruchomione.</string>
     <string name="sim_card">Karta SIM</string>
     <string name="data_plans">Pakiety danych</string>

@@ -28,8 +28,6 @@
     <string name="force_fallback_description">Útil ao utilizar uma ROM instável ou ligação via ethernet</string>
     <string name="fallback_unsupported">Método não suportado</string>
     <string name="ui">Interface</string>
-    <string name="limited_mode">Modo Limitado</string>
-    <string name="limited_mode_description">Infelizmente, o seu sistema operativo não suporta a monitorização de dados a longo prazo.</string>
     <string name="auto">Automático</string>
     <string name="light">Claro</string>
     <string name="dark">Escuro</string>

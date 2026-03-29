@@ -32,8 +32,6 @@
     <string name="force_fallback_description">هنگام استفاده از رام مشکل‌ دار یا اترنت مفید است</string>
     <string name="fallback_unsupported">حالت جایگزین پشتیبانی نمی‌ شود</string>
     <string name="ui">رابط کاربری</string>
-    <string name="limited_mode">حالت محدود</string>
-    <string name="limited_mode_description">متأسفانه سیستم‌ عامل شما از ردیابی بلند مدت داده پشتیبانی نمی‌کند.</string>
     <string name="auto">خودکار</string>
     <string name="default_theme">پیش‌ فرض</string>
     <string name="notification_description">ردیابی سرعت شبکه در نوار وضعیت.</string>
