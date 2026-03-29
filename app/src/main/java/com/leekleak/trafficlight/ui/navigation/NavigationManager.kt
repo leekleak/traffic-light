@@ -82,7 +82,7 @@ fun NavigationManager() {
 
         if (!usagePermission && currentRoute != UsagePermissionRequest) {
             navigator.setTo(UsagePermissionRequest)
-        } else if (usagePermission && currentRoute == UsagePermissionRequest) {
+        } else {
             navigator.setTo(Overview)
         }
     }

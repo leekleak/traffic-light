@@ -5,6 +5,6 @@ import org.koin.dsl.module
 val navigationModule = module {
 
     single {
-        Navigator(startDestination = Overview)
+        Navigator(startDestination = Blank)
     }
 }
