@@ -102,13 +102,11 @@ fun History(paddingValues: PaddingValues) {
     }
 
     val usageTypes = listOf(Mobile, Wifi)
+    val usage: List<ScrollableBarData> by viewModel.usageFlow.collectAsState()
+    val sidePadding = remember(paddingValues) { paddingValues.calculateLeftPadding(LayoutDirection.Ltr) }
 
     val usageQuery1 by viewModel.query1Flow.collectAsState()
     val usageQuery2 by viewModel.query2Flow.collectAsState()
-
-    val usage: List<ScrollableBarData> by viewModel.usageFlow.collectAsState()
-
-    val sidePadding = remember(paddingValues) { paddingValues.calculateLeftPadding(LayoutDirection.Ltr) }
 
     Column {
         Column (
@@ -141,7 +139,7 @@ fun History(paddingValues: PaddingValues) {
                     .padding(horizontal = 4.dp)
             ) {
                 var showFilter by remember { mutableStateOf(false) }
-                if (showFilter) HistoryFilter(usageQuery1, usageQuery2) { showFilter = false }
+                if (showFilter) HistoryFilter { showFilter = false }
                 ButtonGroup(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(
@@ -198,7 +196,7 @@ fun History(paddingValues: PaddingValues) {
                 }
             }
         }
-        AppList(sidePadding, paddingValues, usageQuery1, usageQuery2, usageTypes)
+        AppList(sidePadding, paddingValues, usageTypes)
     }
 }
 
@@ -206,8 +204,6 @@ fun History(paddingValues: PaddingValues) {
 private fun AppList(
     sidePadding: Dp,
     paddingValues: PaddingValues,
-    usageQuery1: UsageQuery,
-    usageQuery2: UsageQuery,
     usageTypes: List<DataType>,
 ) {
     val viewModel: HistoryVM = koinViewModel()
@@ -235,8 +231,6 @@ private fun AppList(
                 AppItem(
                     usage1 = selectedUsage?.usages?.get(usageTypes[1]) ?: 0L,
                     usage2 = selectedUsage?.usages?.get(usageTypes[0]) ?: 0L,
-                    usageQuery1 = usageQuery1,
-                    usageQuery2 = usageQuery2,
                     painter = painterResource(R.drawable.data_usage),
                     icon = true,
                     name = stringResource(R.string.total_usage),
@@ -254,8 +248,6 @@ private fun AppList(
                     AppItem(
                         usage1 = item.usage.usages[usageTypes[1]] ?: 0L,
                         usage2 = item.usage.usages[usageTypes[0]] ?: 0L,
-                        usageQuery1 = usageQuery1,
-                        usageQuery2 = usageQuery2,
                         painter = painter,
                         name = item.name,
                         icon = icon,
@@ -275,8 +267,6 @@ private fun AppList(
                             AppItem(
                                 usage1 = (it.usages[usageTypes[1]] ?: 0L) - (appTotal.usages[usageTypes[1]] ?: 0L),
                                 usage2 = (it.usages[usageTypes[0]] ?: 0L) - (appTotal.usages[usageTypes[0]] ?: 0L),
-                                usageQuery1 = usageQuery1,
-                                usageQuery2 = usageQuery2,
                                 painter = painterResource(R.drawable.help),
                                 icon = true,
                                 name = stringResource(R.string.unknown),
@@ -328,10 +318,12 @@ private fun HistoryLegendItem(
 
 @Composable
 fun HistoryFilter(
-    usageQuery1: UsageQuery,
-    usageQuery2: UsageQuery,
     onDismiss: () -> Unit
 ) {
+    val viewModel: HistoryVM = koinViewModel()
+
+    val usageQuery1 by viewModel.query1Flow.collectAsState()
+    val usageQuery2 by viewModel.query2Flow.collectAsState()
     Dialog(
         onDismissRequest = onDismiss
     ) {
@@ -433,8 +425,6 @@ fun AppItem(
     modifier: Modifier = Modifier,
     usage1: Long,
     usage2: Long,
-    usageQuery1: UsageQuery,
-    usageQuery2: UsageQuery,
     painter: Painter,
     icon: Boolean = false,
     name: String,
@@ -490,7 +480,7 @@ fun AppItem(
                 enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
                 exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
             ) {
-                LineGraphHeader(usageQuery1, usageQuery2) {
+                LineGraphHeader {
                     LineGraph(
                         maximum = maximum,
                         data = Pair(usage1, usage2)
@@ -502,8 +492,13 @@ fun AppItem(
 }
 
 @Composable
-fun LineGraphHeader(query1: UsageQuery, query2: UsageQuery, lineGraph: @Composable (() -> Unit)) {
+fun LineGraphHeader(lineGraph: @Composable (() -> Unit)) {
     val context = LocalContext.current
+    val viewModel: HistoryVM = koinViewModel()
+
+    val usageQuery1 by viewModel.query1Flow.collectAsState()
+    val usageQuery2 by viewModel.query2Flow.collectAsState()
+
     val offset = imageWidth + 12.dp
     Column (
         modifier = Modifier
@@ -514,13 +509,13 @@ fun LineGraphHeader(query1: UsageQuery, query2: UsageQuery, lineGraph: @Composab
         Row {
             Text(
                 modifier = Modifier.weight(1f),
-                text = query1.toString(context),
+                text = usageQuery1.toString(context),
                 style = MaterialTheme.typography.titleMedium,
                 color = colorScheme.tertiary
             )
             Text(
                 modifier = Modifier.weight(1f),
-                text = query2.toString(context),
+                text = usageQuery2.toString(context),
                 textAlign = TextAlign.End,
                 style = MaterialTheme.typography.titleMedium,
                 color = colorScheme.tertiary

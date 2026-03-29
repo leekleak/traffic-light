@@ -63,7 +63,13 @@ class NetworkUsageManager(
         val startStamp = startDate.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
         val endStamp = endDate.plusDays(1).atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
         val out = query.dataType.associateWith { type ->
-            getNetworkDataForType(startStamp, endStamp, null, type).sumOf { it.forDirection(query.dataDirection) }
+            getNetworkDataForType(startStamp, endStamp, null, type).sumOf {
+                if (it.uid == query.dataUID.uid || query.dataUID.uid == null) {
+                    return@sumOf it.forDirection(query.dataDirection)
+                } else {
+                    return@sumOf 0
+                }
+            }
         }
         return DayUsage(startDate, usages = out)
     }
