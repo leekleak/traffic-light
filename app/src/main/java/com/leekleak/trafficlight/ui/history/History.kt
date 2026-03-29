@@ -53,12 +53,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -67,6 +69,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.ScrollableBarGraph
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
+import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.Mobile
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.database.Wifi
@@ -98,9 +101,6 @@ fun History(paddingValues: PaddingValues) {
         viewModel.updateDateQuery(appDay, showMonth)
     }
 
-    val appList by remember { viewModel.appList }.collectAsState()
-    var appSelected by remember { mutableIntStateOf(-1) }
-
     val usageTypes = listOf(Mobile, Wifi)
 
     val usageQuery1 by viewModel.query1Flow.collectAsState()
@@ -108,9 +108,6 @@ fun History(paddingValues: PaddingValues) {
 
     val usage: List<ScrollableBarData> by viewModel.usageFlow.collectAsState()
 
-    val selectedUsage by remember { viewModel.totalUsage }.collectAsState(null)
-    val totalMaximum = remember(selectedUsage) { selectedUsage?.usages?.values?.sum() }
-    val appTotal = remember(appList) { viewModel.appUsageSum(appList) }
     val sidePadding = remember(paddingValues) { paddingValues.calculateLeftPadding(LayoutDirection.Ltr) }
 
     Column {
@@ -201,67 +198,92 @@ fun History(paddingValues: PaddingValues) {
                 }
             }
         }
-        val listState = rememberLazyListState()
-        LazyColumn(
-            modifier = Modifier
-                .padding(top = 8.dp)
-                .clip(MaterialTheme.shapes.large)
-                .background(colorScheme.surfaceContainer)
-                .fillMaxSize(),
-            contentPadding = PaddingValues(sidePadding, sidePadding, sidePadding, paddingValues.calculateBottomPadding()),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-            state = listState
-        ) {
-            if (totalMaximum != null) {
-                item {
-                    val uid = -100
-                    AppItem(
-                        totalWifi = selectedUsage?.usages?.get(usageTypes[1]) ?: 0L,
-                        totalCellular = selectedUsage?.usages?.get(usageTypes[0]) ?: 0L,
-                        painter = painterResource(R.drawable.data_usage),
-                        icon = true,
-                        name = stringResource(R.string.total_usage),
-                        selected = uid == appSelected,
-                        maximum = max(totalMaximum, 1)
-                    ) {
-                        appSelected = if (appSelected != uid) uid else -1
-                    }
-                }
-                items(appList, { it.uid }) { item ->
-                    Box(Modifier.animateItem()) {
-                        var icon = false
-                        val painter = item.drawableResource?.let { icon = true; painterResource(it) } ?:
-                            rememberAsyncImagePainter(AppIcon(item.packageName))
-                        AppItem(
-                            totalWifi = item.usage.usages[usageTypes[1]] ?: 0L,
-                            totalCellular = item.usage.usages[usageTypes[0]] ?: 0L,
-                            painter = painter,
-                            name = item.name,
-                            icon = icon,
-                            selected = item.uid == appSelected,
-                            maximum = totalMaximum
-                        ) {
-                            appSelected = if (appSelected != item.uid) item.uid else -1
-                        }
-                    }
-                }
-                selectedUsage?.let {
-                    if ((appTotal.usages[Mobile] != it.usages[Mobile] || appTotal.usages[Wifi] != it.usages[Wifi]) && appList.isNotEmpty()) {
-                        item {
-                            val uid = -99
+        AppList(sidePadding, paddingValues, usageQuery1, usageQuery2, usageTypes)
+    }
+}
 
-                            Box(Modifier.animateItem()) {
-                                AppItem(
-                                    totalWifi = (it.usages[usageTypes[1]] ?: 0L) - (appTotal.usages[usageTypes[1]] ?: 0L),
-                                    totalCellular = (it.usages[usageTypes[0]] ?: 0L) - (appTotal.usages[usageTypes[0]] ?: 0L),
-                                    painter = painterResource(R.drawable.help),
-                                    icon = true,
-                                    name = stringResource(R.string.unknown),
-                                    selected = uid == appSelected,
-                                    maximum = totalMaximum
-                                ) {
-                                    appSelected = if (appSelected != uid) uid else -1
-                                }
+@Composable
+private fun AppList(
+    sidePadding: Dp,
+    paddingValues: PaddingValues,
+    usageQuery1: UsageQuery,
+    usageQuery2: UsageQuery,
+    usageTypes: List<DataType>,
+) {
+    val viewModel: HistoryVM = koinViewModel()
+
+    val appList by remember { viewModel.appList }.collectAsState()
+    val appTotal = remember(appList) { viewModel.appUsageSum(appList) }
+    var appSelected by remember { mutableIntStateOf(-1) }
+    val selectedUsage by remember { viewModel.totalUsage }.collectAsState(null)
+    val totalMaximum = remember(selectedUsage) { selectedUsage?.usages?.values?.sum() }
+
+    val listState = rememberLazyListState()
+    LazyColumn(
+        modifier = Modifier
+            .padding(top = 8.dp)
+            .clip(MaterialTheme.shapes.large)
+            .background(colorScheme.surfaceContainer)
+            .fillMaxSize(),
+        contentPadding = PaddingValues(sidePadding, sidePadding, sidePadding, paddingValues.calculateBottomPadding()),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        state = listState
+    ) {
+        if (totalMaximum != null) {
+            item {
+                val uid = -100
+                AppItem(
+                    usage1 = selectedUsage?.usages?.get(usageTypes[1]) ?: 0L,
+                    usage2 = selectedUsage?.usages?.get(usageTypes[0]) ?: 0L,
+                    usageQuery1 = usageQuery1,
+                    usageQuery2 = usageQuery2,
+                    painter = painterResource(R.drawable.data_usage),
+                    icon = true,
+                    name = stringResource(R.string.total_usage),
+                    selected = uid == appSelected,
+                    maximum = max(totalMaximum, 1)
+                ) {
+                    appSelected = if (appSelected != uid) uid else -1
+                }
+            }
+            items(appList, { it.uid }) { item ->
+                Box(Modifier.animateItem()) {
+                    var icon = false
+                    val painter = item.drawableResource?.let { icon = true; painterResource(it) }
+                        ?: rememberAsyncImagePainter(AppIcon(item.packageName))
+                    AppItem(
+                        usage1 = item.usage.usages[usageTypes[1]] ?: 0L,
+                        usage2 = item.usage.usages[usageTypes[0]] ?: 0L,
+                        usageQuery1 = usageQuery1,
+                        usageQuery2 = usageQuery2,
+                        painter = painter,
+                        name = item.name,
+                        icon = icon,
+                        selected = item.uid == appSelected,
+                        maximum = totalMaximum
+                    ) {
+                        appSelected = if (appSelected != item.uid) item.uid else -1
+                    }
+                }
+            }
+            selectedUsage?.let {
+                if ((appTotal.usages[Mobile] != it.usages[Mobile] || appTotal.usages[Wifi] != it.usages[Wifi]) && appList.isNotEmpty()) {
+                    item {
+                        val uid = -99
+
+                        Box(Modifier.animateItem()) {
+                            AppItem(
+                                usage1 = (it.usages[usageTypes[1]] ?: 0L) - (appTotal.usages[usageTypes[1]] ?: 0L),
+                                usage2 = (it.usages[usageTypes[0]] ?: 0L) - (appTotal.usages[usageTypes[0]] ?: 0L),
+                                usageQuery1 = usageQuery1,
+                                usageQuery2 = usageQuery2,
+                                painter = painterResource(R.drawable.help),
+                                icon = true,
+                                name = stringResource(R.string.unknown),
+                                selected = uid == appSelected,
+                                maximum = totalMaximum
+                            ) {
+                                appSelected = if (appSelected != uid) uid else -1
                             }
                         }
                     }
@@ -409,8 +431,10 @@ private fun FilterButton(
 @Composable
 fun AppItem(
     modifier: Modifier = Modifier,
-    totalWifi: Long,
-    totalCellular: Long,
+    usage1: Long,
+    usage2: Long,
+    usageQuery1: UsageQuery,
+    usageQuery2: UsageQuery,
     painter: Painter,
     icon: Boolean = false,
     name: String,
@@ -451,7 +475,7 @@ fun AppItem(
                     if (!selected) {
                         LineGraph(
                             maximum = maximum,
-                            data = Pair(totalWifi, totalCellular)
+                            data = Pair(usage1, usage2)
                         )
                     } else {
                         Text(
@@ -466,10 +490,10 @@ fun AppItem(
                 enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
                 exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
             ) {
-                LineGraphHeader {
+                LineGraphHeader(usageQuery1, usageQuery2) {
                     LineGraph(
                         maximum = maximum,
-                        data = Pair(totalWifi, totalCellular)
+                        data = Pair(usage1, usage2)
                     )
                 }
             }
@@ -478,7 +502,8 @@ fun AppItem(
 }
 
 @Composable
-fun LineGraphHeader(lineGraph: @Composable (() -> Unit)) {
+fun LineGraphHeader(query1: UsageQuery, query2: UsageQuery, lineGraph: @Composable (() -> Unit)) {
+    val context = LocalContext.current
     val offset = imageWidth + 12.dp
     Column (
         modifier = Modifier
@@ -489,13 +514,13 @@ fun LineGraphHeader(lineGraph: @Composable (() -> Unit)) {
         Row {
             Text(
                 modifier = Modifier.weight(1f),
-                text = stringResource(R.string.wifi),
+                text = query1.toString(context),
                 style = MaterialTheme.typography.titleMedium,
                 color = colorScheme.tertiary
             )
             Text(
                 modifier = Modifier.weight(1f),
-                text = stringResource(R.string.cellular),
+                text = query2.toString(context),
                 textAlign = TextAlign.End,
                 style = MaterialTheme.typography.titleMedium,
                 color = colorScheme.tertiary

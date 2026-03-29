@@ -1,6 +1,8 @@
 package com.leekleak.trafficlight.database
 
+import android.content.Context
 import android.net.ConnectivityManager
+import android.view.View
 import com.leekleak.trafficlight.R
 
 /**
@@ -102,4 +104,18 @@ data class UsageQuery (
     val dataType: List<DataType>,
     val dataDirection: DataDirection = DataDirection.Bidirectional,
     val dataUID: DataUID = DataUID()
-)
+) {
+    fun toString(context: Context): String {
+        if (dataType.isEmpty()) return context.getString(dataType.getName())
+        val parts = buildList {
+            add(context.getString(dataType.getName()))
+            if (dataDirection != DataDirection.Bidirectional)
+                add(context.getString(dataDirection.getName()))
+            if (dataUID.uid != null)
+                add(context.getString(dataUID.getName()))
+        }
+
+        val isRtl = context.resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL
+        return (if (isRtl) parts.reversed() else parts).joinToString(" · ")
+    }
+}
