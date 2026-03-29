@@ -16,11 +16,14 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -31,25 +34,37 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroup
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -70,6 +85,7 @@ import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.ScrollableBarGraph
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.DataType
+import com.leekleak.trafficlight.database.DataUID
 import com.leekleak.trafficlight.database.Mobile
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.database.Wifi
@@ -77,10 +93,15 @@ import com.leekleak.trafficlight.database.getIcon
 import com.leekleak.trafficlight.database.getName
 import com.leekleak.trafficlight.database.getNext
 import com.leekleak.trafficlight.model.AppIcon
+import com.leekleak.trafficlight.model.AppManager
+import com.leekleak.trafficlight.ui.overview.AppSelector
+import com.leekleak.trafficlight.ui.overview.specialApps
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.getName
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import java.time.LocalDate
 import java.time.format.TextStyle
 import kotlin.math.max
@@ -289,6 +310,7 @@ private fun HistoryLegendItem(
     backgroundColor: Color,
     foregroundColor: Color,
 ) {
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .background(backgroundColor, MaterialTheme.shapes.medium)
@@ -306,11 +328,7 @@ private fun HistoryLegendItem(
                     contentDescription = stringResource(usageQuery1.dataDirection.getName()),
                     tint = foregroundColor
                 )
-                Icon(
-                    painter = painterResource(usageQuery1.dataUID.getIcon()),
-                    contentDescription = stringResource(usageQuery1.dataUID.getName()),
-                    tint = foregroundColor
-                )
+                usageQuery1.dataUID.getIcon(foregroundColor)
             }
         }
     }
@@ -355,6 +373,7 @@ fun HistoryFilter(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RowScope.HistoryItemSettings(
     title: String,
@@ -363,6 +382,8 @@ fun RowScope.HistoryItemSettings(
 ) {
     val hapticFeedback = LocalHapticFeedback.current
     val viewModel: HistoryVM = koinViewModel()
+    val context = LocalContext.current
+
     Column (modifier = Modifier.weight(1f)) {
         Text(
             text = title,
@@ -389,6 +410,98 @@ fun RowScope.HistoryItemSettings(
         ) {
             Icon(painterResource(query.dataDirection.getIcon()), null)
             Text(stringResource(query.dataDirection.getName()))
+        }
+
+        var showAppPicker by remember { mutableStateOf(false) }
+        FilterButton(
+            n = n,
+            enabled = query.dataType.isNotEmpty(),
+            onClick = {
+                showAppPicker = true
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+            }
+        ) {
+            query.dataUID.getIcon()
+            Text(query.dataUID.getName(context) ?: "")
+        }
+
+        if (showAppPicker) {
+            AppSearchDialog (
+                onSelect = { uid ->
+                    viewModel.updateQuery(n, query.copy(dataUID = DataUID(uid)))
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                }
+            ){
+                showAppPicker = false
+            }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+private fun AppSearchDialog(onSelect: (uid: Int) -> Unit, onDismiss: () -> Unit) {
+    val sheetState = rememberModalBottomSheetState()
+    ModalBottomSheet (
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+    ) {
+        val appManager: AppManager = koinInject()
+        val searchBarState = rememberSearchBarState(SearchBarValue.Expanded)
+        val focusRequester = remember { FocusRequester() }
+        val keyboardState by rememberUpdatedState(WindowInsets.isImeVisible)
+        var searchFocused by remember { mutableStateOf(false) }
+        val scope = rememberCoroutineScope()
+
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
+        }
+
+        LaunchedEffect(keyboardState) {
+            if (!keyboardState && searchFocused) {
+                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                    if (!sheetState.isVisible) onDismiss()
+                }
+            }
+            else if (keyboardState) {
+                searchFocused = true
+            }
+        }
+
+        val includedApps by remember { appManager.suspiciousApps }.collectAsState(emptyList())
+        var query by remember { mutableStateOf("") }
+        val searchResults by remember {
+            derivedStateOf {
+                if (query.isEmpty()) includedApps.sortedByDescending { specialApps.indexOf(it.packageName) }
+                else includedApps.filter { it.label.lowercase().contains(query.lowercase()) }
+            }
+        }
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            AppSelector(searchResults) { uid -> onSelect(uid) }
+            SearchBar(
+                modifier = Modifier
+                    .focusRequester(focusRequester),
+                state = searchBarState,
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = query,
+                        onQueryChange = { query = it },
+                        onSearch = {},
+                        expanded = false,
+                        onExpandedChange = {},
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(R.drawable.search),
+                                contentDescription = null
+                            )
+                        }
+                    )
+                }
+            )
         }
     }
 }
