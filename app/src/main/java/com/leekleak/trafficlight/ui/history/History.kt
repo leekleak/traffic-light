@@ -50,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -122,7 +123,16 @@ fun History(paddingValues: PaddingValues) {
                 ),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            CategoryTitleText(stringResource(R.string.history))
+            Box(Modifier.fillMaxWidth()) {
+                CategoryTitleText(stringResource(R.string.history))
+                Row(
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    HistoryLegendItem(usageQuery1, colorScheme.primary, colorScheme.onPrimary)
+                    HistoryLegendItem(usageQuery2, colorScheme.tertiary, colorScheme.onTertiary)
+                }
+            }
             ScrollableBarGraph(usage) {
                 appDay = viewModel.datesForTimespan.first.plusDays(it.toLong())
             }
@@ -256,6 +266,39 @@ fun History(paddingValues: PaddingValues) {
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HistoryLegendItem(
+    usageQuery1: UsageQuery,
+    backgroundColor: Color,
+    foregroundColor: Color,
+) {
+    Row(
+        modifier = Modifier
+            .background(backgroundColor, MaterialTheme.shapes.medium)
+            .padding(vertical = 4.dp, horizontal = 8.dp)
+    ) {
+        Icon(
+            painter = painterResource(usageQuery1.dataType.getIcon()),
+            contentDescription = stringResource(usageQuery1.dataType.getName()),
+            tint = foregroundColor
+        )
+        AnimatedVisibility(usageQuery1.dataType.isNotEmpty()) {
+            Row {
+                Icon(
+                    painter = painterResource(usageQuery1.dataDirection.getIcon()),
+                    contentDescription = stringResource(usageQuery1.dataDirection.getName()),
+                    tint = foregroundColor
+                )
+                Icon(
+                    painter = painterResource(usageQuery1.dataUID.getIcon()),
+                    contentDescription = stringResource(usageQuery1.dataUID.getName()),
+                    tint = foregroundColor
+                )
             }
         }
     }

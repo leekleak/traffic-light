@@ -7,6 +7,7 @@ import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DataType
+import com.leekleak.trafficlight.database.DataUID
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.Mobile
 import com.leekleak.trafficlight.database.UsageQuery
@@ -33,14 +34,14 @@ class HistoryVM(
         UsageQuery(
             dataType = listOf(Wifi),
             dataDirection = DataDirection.Bidirectional,
-            dataUID = null
+            dataUID = DataUID()
         )
     )
     private val query2 = MutableStateFlow(
         UsageQuery(
             dataType = listOf(Mobile),
             dataDirection = DataDirection.Bidirectional,
-            dataUID = null
+            dataUID = DataUID()
         )
     )
 
