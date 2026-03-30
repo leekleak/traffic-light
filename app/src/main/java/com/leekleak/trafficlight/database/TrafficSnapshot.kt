@@ -17,8 +17,12 @@ import kotlin.math.max
 
 data class DayUsage(
     val date: LocalDate = LocalDate.now(),
-    val usages: Map<DataType, Long> = mapOf()
-)
+    val usage1: Long = 0L,
+    val usage2: Long = 0L
+) {
+    val totalUsage: Long
+        get() = usage1 + usage2
+}
 
 data class AppUsage(
     val usage: DayUsage,

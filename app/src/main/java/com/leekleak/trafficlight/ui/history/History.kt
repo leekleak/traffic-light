@@ -66,7 +66,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -86,9 +85,8 @@ import com.leekleak.trafficlight.charts.ScrollableBarGraph
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DataUID
-import com.leekleak.trafficlight.database.Mobile
+import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.UsageQuery
-import com.leekleak.trafficlight.database.Wifi
 import com.leekleak.trafficlight.database.getIcon
 import com.leekleak.trafficlight.database.getName
 import com.leekleak.trafficlight.database.getNext
@@ -122,7 +120,6 @@ fun History(paddingValues: PaddingValues) {
         viewModel.updateDateQuery(appDay, showMonth)
     }
 
-    val usageTypes = listOf(Mobile, Wifi)
     val usage: List<ScrollableBarData> by viewModel.usageFlow.collectAsState()
     val sidePadding = remember(paddingValues) { paddingValues.calculateLeftPadding(LayoutDirection.Ltr) }
 
@@ -217,7 +214,7 @@ fun History(paddingValues: PaddingValues) {
                 }
             }
         }
-        AppList(sidePadding, paddingValues, usageTypes)
+        AppList(sidePadding, paddingValues)
     }
 }
 
@@ -225,15 +222,14 @@ fun History(paddingValues: PaddingValues) {
 private fun AppList(
     sidePadding: Dp,
     paddingValues: PaddingValues,
-    usageTypes: List<DataType>,
 ) {
     val viewModel: HistoryVM = koinViewModel()
 
     val appList by remember { viewModel.appList }.collectAsState()
     val appTotal = remember(appList) { viewModel.appUsageSum(appList) }
     var appSelected by remember { mutableIntStateOf(-1) }
-    val selectedUsage by remember { viewModel.totalUsage }.collectAsState(null)
-    val totalMaximum = remember(selectedUsage) { selectedUsage?.usages?.values?.sum() }
+    val selectedUsage by remember { viewModel.totalUsage }.collectAsState(DayUsage())
+    val totalMaximum = remember(selectedUsage) { selectedUsage.totalUsage }
 
     val listState = rememberLazyListState()
     LazyColumn(
@@ -246,58 +242,113 @@ private fun AppList(
         verticalArrangement = Arrangement.spacedBy(6.dp),
         state = listState
     ) {
-        if (totalMaximum != null) {
-            item {
-                val uid = -100
-                AppItem(
-                    usage1 = selectedUsage?.usages?.get(usageTypes[1]) ?: 0L,
-                    usage2 = selectedUsage?.usages?.get(usageTypes[0]) ?: 0L,
+        item {
+            val uid = -100
+            AppItem(
+                usage1 = selectedUsage.usage1,
+                usage2 = selectedUsage.usage2,
+                name = stringResource(R.string.total_usage),
+                selected = uid == appSelected,
+                maximum = max(totalMaximum, 1),
+                onClick = {appSelected = if (appSelected != uid) uid else -1}
+            ) {
+                Icon(
+                    modifier = Modifier.size(imageWidth),
                     painter = painterResource(R.drawable.data_usage),
-                    icon = true,
-                    name = stringResource(R.string.total_usage),
-                    selected = uid == appSelected,
-                    maximum = max(totalMaximum, 1)
-                ) {
-                    appSelected = if (appSelected != uid) uid else -1
-                }
+                    contentDescription = stringResource(R.string.total_usage)
+                )
             }
-            items(appList, { it.uid }) { item ->
-                Box(Modifier.animateItem()) {
-                    var icon = false
-                    val painter = item.drawableResource?.let { icon = true; painterResource(it) }
-                        ?: rememberAsyncImagePainter(AppIcon(item.packageName))
-                    AppItem(
-                        usage1 = item.usage.usages[usageTypes[1]] ?: 0L,
-                        usage2 = item.usage.usages[usageTypes[0]] ?: 0L,
-                        painter = painter,
-                        name = item.name,
-                        icon = icon,
-                        selected = item.uid == appSelected,
-                        maximum = totalMaximum
-                    ) {
-                        appSelected = if (appSelected != item.uid) item.uid else -1
+        }
+        items(appList, { it.uid }) { item ->
+            Box(Modifier.animateItem()) {
+                var icon = false
+                val painter = item.drawableResource?.let { icon = true; painterResource(it) }
+                    ?: rememberAsyncImagePainter(AppIcon(item.packageName))
+                AppItem(
+                    usage1 = item.usage.usage1,
+                    usage2 = item.usage.usage2,
+                    name = item.name,
+                    selected = item.uid == appSelected,
+                    maximum = totalMaximum,
+                    onClick = {appSelected = if (appSelected != item.uid) item.uid else -1}
+                ) {
+                    if (icon) {
+                        Icon(
+                            modifier = Modifier.size(imageWidth),
+                            painter = painter,
+                            contentDescription = item.name
+                        )
+                    } else {
+                        Image(
+                            modifier = Modifier.size(imageWidth),
+                            painter = painter,
+                            contentDescription = item.name
+                        )
                     }
                 }
             }
-            selectedUsage?.let {
-                if ((appTotal.usages[Mobile] != it.usages[Mobile] || appTotal.usages[Wifi] != it.usages[Wifi]) && appList.isNotEmpty()) {
-                    item {
-                        val uid = -99
+        }
+        selectedUsage.let {
+            if ((appTotal.first + appTotal.second) != (selectedUsage.usage1 + selectedUsage.usage2) && appList.isNotEmpty()) {
+                item {
+                    val uid = -99
 
-                        Box(Modifier.animateItem()) {
-                            AppItem(
-                                usage1 = (it.usages[usageTypes[1]] ?: 0L) - (appTotal.usages[usageTypes[1]] ?: 0L),
-                                usage2 = (it.usages[usageTypes[0]] ?: 0L) - (appTotal.usages[usageTypes[0]] ?: 0L),
+                    Box(Modifier.animateItem()) {
+                        AppItem(
+                            usage1 = it.usage1 - appTotal.first,
+                            usage2 = it.usage2 - appTotal.second,
+                            name = stringResource(R.string.unknown),
+                            selected = uid == appSelected,
+                            maximum = totalMaximum,
+                            onClick = {appSelected = if (appSelected != uid) uid else -1}
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(imageWidth),
                                 painter = painterResource(R.drawable.help),
-                                icon = true,
-                                name = stringResource(R.string.unknown),
-                                selected = uid == appSelected,
-                                maximum = totalMaximum
-                            ) {
-                                appSelected = if (appSelected != uid) uid else -1
-                            }
+                                contentDescription = stringResource(R.string.unknown)
+                            )
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HourList(
+    sidePadding: Dp,
+    paddingValues: PaddingValues,
+    usageTypes: List<DataType>,
+) {
+    val viewModel: HistoryVM = koinViewModel()
+
+    val appList by remember { viewModel.appList }.collectAsState()
+    val appTotal = remember(appList) { viewModel.appUsageSum(appList) }
+    var appSelected by remember { mutableIntStateOf(-1) }
+    val selectedUsage by remember { viewModel.totalUsage }.collectAsState(null)
+
+    val listState = rememberLazyListState()
+    LazyColumn(
+        modifier = Modifier
+            .padding(top = 8.dp)
+            .clip(MaterialTheme.shapes.large)
+            .background(colorScheme.surfaceContainer)
+            .fillMaxSize(),
+        contentPadding = PaddingValues(sidePadding, sidePadding, sidePadding, paddingValues.calculateBottomPadding()),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        state = listState
+    ) {
+        items(appList, { it.uid }) { item ->
+            Box(Modifier.animateItem()) {
+                AppItem(
+                    usage1 = 0L,
+                    usage2 = 0L,
+                    name = item.name,
+                    selected = item.uid == appSelected,
+                    maximum = 0L,
+                    onClick = {appSelected = if (appSelected != item.uid) item.uid else -1}
+                ) {
                 }
             }
         }
@@ -538,12 +589,11 @@ fun AppItem(
     modifier: Modifier = Modifier,
     usage1: Long,
     usage2: Long,
-    painter: Painter,
-    icon: Boolean = false,
     name: String,
     selected: Boolean,
     maximum: Long,
     onClick: () -> Unit = {},
+    icon: @Composable (() -> Unit)
 ) {
     val haptic = LocalHapticFeedback.current
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
@@ -561,19 +611,7 @@ fun AppItem(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                if (icon) {
-                    Icon(
-                        modifier = Modifier.size(imageWidth),
-                        painter = painter,
-                        contentDescription = name
-                    )
-                } else {
-                    Image(
-                        modifier = Modifier.size(imageWidth),
-                        painter = painter,
-                        contentDescription = name
-                    )
-                }
+                icon()
                 AnimatedContent(selected) { selected ->
                     if (!selected) {
                         LineGraph(

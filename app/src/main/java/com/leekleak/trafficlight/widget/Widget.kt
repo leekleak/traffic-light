@@ -44,7 +44,6 @@ import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
-import com.leekleak.trafficlight.database.Mobile
 import com.leekleak.trafficlight.database.resetString
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.theme.backgrounds
@@ -77,7 +76,7 @@ class Widget: GlanceAppWidget() {
 
         val dataPlan = withContext(Dispatchers.IO) { dataPlanDao.get(subscriberID) }!!
         val usage = networkUsageManager.planUsage(dataPlan)
-        val usageSize = DataSize(usage.usages[Mobile]?.toDouble() ?: 0.0).getAsUnit(DataSizeUnit.GB)
+        val usageSize = DataSize(usage.toDouble()).getAsUnit(DataSizeUnit.GB)
         val dataMax = DataSize(dataPlan.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)
         val formatter = DecimalFormat("0.##")
 

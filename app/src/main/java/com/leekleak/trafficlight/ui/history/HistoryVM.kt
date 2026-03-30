@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataDirection
-import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DataUID
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.Mobile
@@ -14,7 +13,6 @@ import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.database.Wifi
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -45,8 +43,11 @@ class HistoryVM(
         )
     )
 
+
     val query1Flow = query1.asStateFlow()
     val query2Flow = query2.asStateFlow()
+    val queryFlow = query1Flow.combine(query2Flow) {q1, q2 -> Pair(q1, q2) }
+    val dateQueryFlow = dateParams.combine(queryFlow) {date, queries-> Pair(date, queries) }
 
     fun updateQuery(@IntRange(1, 2) n: Int, newQuery: UsageQuery) {
         when (n) {
@@ -71,41 +72,26 @@ class HistoryVM(
     )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val appList: StateFlow<List<AppUsage>> = dateParams
-        .flatMapLatest { (day, isMonth) ->
-            if (!isMonth) {
-                networkUsageManager.getAllAppUsage(day, day)
-            } else {
-                val start = day.withDayOfMonth(1)
-                val end = start.plusMonths(1).minusDays(1)
-                networkUsageManager.getAllAppUsage(start, end)
-            }
+    val appList: StateFlow<List<AppUsage>> = dateQueryFlow
+        .flatMapLatest { (date, queries) ->
+            networkUsageManager.getAllAppUsage(date, queries.first, queries.second)
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val totalUsage: Flow<DayUsage> = appList
-        .flatMapLatest {
+    val totalUsage: StateFlow<DayUsage> = dateQueryFlow
+        .flatMapLatest { (date, queries) ->
             flow {
-                val (day, isMonth) = dateParams.value
-                if (!isMonth) {
-                    val data = networkUsageManager.calculateDayUsageBasic(day, day, UsageQuery(listOf(Mobile, Wifi)))
-                    emit(data)
-                } else {
-                    val start = day.withDayOfMonth(1)
-                    val end = start.plusMonths(1).minusDays(1)
-                    emit(networkUsageManager.calculateDayUsageBasic(start, end, UsageQuery(listOf(Mobile, Wifi))))
-                }
+                val dates = date.getStartEndDates()
+                val usage1 = networkUsageManager.calculateDayUsageBasic(dates.first, dates.second, queries.first)
+                val usage2 = networkUsageManager.calculateDayUsageBasic(dates.first, dates.second, queries.second)
+                emit(DayUsage(dates.first, usage1, usage2))
             }
         }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DayUsage())
 
-    fun appUsageSum(usage: List<AppUsage>): DayUsage {
-        val map = mutableMapOf<DataType, Long>(Wifi to 0, Mobile to 0)
-        for (i in usage) {
-            map.merge(Wifi, i.usage.usages[Wifi] ?: 0L, Long::plus)
-            map.merge(Mobile, i.usage.usages[Mobile] ?: 0L, Long::plus)
-        }
-        return DayUsage(usages = map)
+    fun appUsageSum(usage: List<AppUsage>): Pair<Long, Long> {
+        return Pair(usage.sumOf { it.usage.usage1 }, usage.sumOf { it.usage.usage2 })
     }
 
     fun updateDateQuery(day: LocalDate, showMonth: Boolean) {
@@ -119,4 +105,13 @@ class HistoryVM(
     }
 }
 
-data class DateParams(val day: LocalDate, val showMonth: Boolean)
+data class DateParams(val day: LocalDate, val showMonth: Boolean) {
+    fun getStartEndDates(): Pair<LocalDate, LocalDate> {
+        val end = if (showMonth) {
+            day.withDayOfMonth(1).plusMonths(1).minusDays(1)
+        } else {
+            day.plusDays(1)
+        }
+        return Pair(day, end)
+    }
+}
