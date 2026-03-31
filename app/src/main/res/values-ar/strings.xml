@@ -93,4 +93,13 @@
     <string name="close">أغلِق</string>
     <string name="shizuku_hint">أتريد تتبع عدة شرائح SIM؟</string>
     <string name="shizuku_hint_description">لتحقيق ذلك، ستحتاج إلى إعداد Shizuku وتفعيل الميزة من الإعدادات.</string>
+    <string name="total">إجمالي</string>
+    <string name="all_apps">جميع التطبيقات</string>
+    <string name="filter">تصفية</string>
+    <string name="none">لا شئ</string>
+    <string name="primary">أساسي</string>
+    <string name="secondary">ثانوي</string>
+    <string name="upload">تحميل</string>
+    <string name="download">تنزيل</string>
+    <string name="bidirectional">ثنائي الاتجاه</string>
 </resources>
