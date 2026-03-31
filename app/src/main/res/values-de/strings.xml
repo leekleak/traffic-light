@@ -28,8 +28,6 @@
     <string name="force_fallback_description">Hilfreich bei Verwendung eines fehlerhaften ROMs oder Ethernet</string>
     <string name="fallback_unsupported">Fallback wird nicht unterstützt</string>
     <string name="ui">Oberfläche</string>
-    <string name="limited_mode">Begrenzter Modus</string>
-    <string name="limited_mode_description">Leider unterstützt Ihr Betriebssystem keine langfristige Datenverfolgung.</string>
     <string name="auto">Auto</string>
     <string name="light">Hell</string>
     <string name="dark">Dunkel</string>
@@ -45,7 +43,6 @@
     <string name="alt_vpn_workaround">Alternative VPN-Lösung</string>
     <string name="alt_vpn_workaround_description">Verringert die Messgenauigkeit, ermöglicht jedoch Split-Tunneling.</string>
     <string name="support_development">Entwicklung unterstützen</string>
-    <string name="allows_in_depth_data_plan_tracking">Ermöglicht eine detaillierte Nachverfolgung des Datenplans.</string>
     <string name="shizuku_not_running">Shizuku läuft nicht</string>
     <string name="sim_card">SIM-Karte</string>
     <string name="data_plans">Datenpläne</string>
@@ -92,4 +89,13 @@
     <string name="close">Schließen</string>
     <string name="shizuku_hint">Möchtest du mehrere SIM-Karten verfolgen?</string>
     <string name="shizuku_hint_description">Dazu musst du Shizuku einrichten und die Funktion in den Einstellungen aktivieren.</string>
+    <string name="total">Insgesamt</string>
+    <string name="all_apps">Alle Apps</string>
+    <string name="filter">Filter</string>
+    <string name="none">Keine</string>
+    <string name="primary">Primär</string>
+    <string name="secondary">Sekundär</string>
+    <string name="upload">Upload</string>
+    <string name="download">Download</string>
+    <string name="bidirectional">Bidirektional</string>
 </resources>

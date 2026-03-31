@@ -52,10 +52,11 @@ class AppManager(
         )
     }.flowOn(Dispatchers.IO)
 
-    fun getNameForUID(uid: Int): String? {
+    fun getNameForUID(uid: Int?): String? {
         when (uid) {
             UID_TETHERING -> return context.getString(R.string.tethering)
             UID_REMOVED -> return  context.getString(R.string.removed_apps)
+            null -> return context.getString(R.string.all_apps)
             else -> {
                 val packageName = getPackageNamesForUID(uid) ?: return null
                 for (name in packageName) {

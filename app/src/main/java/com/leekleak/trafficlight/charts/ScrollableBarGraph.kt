@@ -5,7 +5,6 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
@@ -27,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
@@ -89,10 +87,10 @@ fun ScrollableBarGraph(
     }
 
     LaunchedEffect(selectorOffset) {
-        if (selectorOffsetSnapped.targetValue != (selectorOffset - selectorOffset % barWidth)) {
+        if (selectorOffsetSnapped.targetValue != (selectorOffset/barWidth).toInt()*barWidth) {
             scope.launch {
                 selectorOffsetSnapped.animateTo(
-                    targetValue = selectorOffset - selectorOffset % barWidth,
+                    targetValue = (selectorOffset/barWidth).toInt()*barWidth,
                     initialVelocity = 200f,
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioLowBouncy,
@@ -103,21 +101,23 @@ fun ScrollableBarGraph(
         }
     }
 
-    fun CoroutineScope.barAnimator(clickOffset: Offset, bar: Bar, i: Int) {
-        if (
-            (clickOffset - bar.rect.topLeft).x in (0f..bar.rect.size.width) &&
-            (clickOffset - bar.rect.topLeft).y in (0f..bar.rect.size.height)
-        ) {
-            haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+    fun CoroutineScope.barAnimator(clickOffset: Float, barOffset: Float) {
+        if ((clickOffset - barOffset) in (0f..barWidth)) {
             launch {
-                barAnimationSqueeze[i].animateTo(
-                    targetValue = 8f,
-                    animationSpec = tween(150)
-                )
-                barAnimationSqueeze[i].animateTo(
-                    targetValue = 0f,
-                    animationSpec = tween(150)
-                )
+                val trueTargetValue = offset.targetValue + (canvasWidth / 2 - barOffset - barWidth / 2)
+                val adjustedTargetValue = trueTargetValue.coerceIn(canvasWidth - barWidth * data.size, 0f)
+                val overflow = trueTargetValue - adjustedTargetValue
+                selectorOffset = if (overflow != 0f) selectorGoal - overflow + barWidth / 2 else selectorGoal
+                if (offset.targetValue != adjustedTargetValue) {
+                    offset.animateTo(
+                        targetValue = adjustedTargetValue,
+                        initialVelocity = 200f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioLowBouncy,
+                            stiffness = Spring.StiffnessMediumLow
+                        )
+                    )
+                }
             }
         }
     }
@@ -184,9 +184,7 @@ fun ScrollableBarGraph(
             .pointerInput(Unit) {
                 detectTapGestures { offset ->
                     scope.launch {
-                        for (i in 0..<barOffset.size) {
-                            barAnimator(offset, barOffset[i], i)
-                        }
+                        for (i in 0..<data.size) { barAnimator(offset.x, i * barWidth) }
                     }
                 }
             }

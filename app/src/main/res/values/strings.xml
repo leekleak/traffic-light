@@ -30,8 +30,6 @@
     <string name="force_fallback_description">Helpful when using a buggy ROM or ethernet</string>
     <string name="fallback_unsupported">Fallback unsupported</string>
     <string name="ui">Interface</string>
-    <string name="limited_mode">Limited Mode</string>
-    <string name="limited_mode_description">Unfortunately your operating system does not support long term data tracking.</string>
     <string name="auto">Auto</string>
     <string name="light">Light</string>
     <string name="dark">Dark</string>
@@ -42,13 +40,13 @@
     <string name="notification_description">Track network speed in the status bar.</string>
     <string name="missing_permissions">Missing Permissions</string>
     <string name="total_usage">Total usage</string>
+    <string name="total">Total</string>
     <string name="unknown">Unknown</string>
     <string name="appearance">Appearance</string>
     <string name="behavior">Behavior</string>
     <string name="alt_vpn_workaround">Alternate VPN workaround</string>
     <string name="alt_vpn_workaround_description">Reduces measurement accuracy but accommodates split tunneling.</string>
     <string name="support_development">Support development</string>
-    <string name="allows_in_depth_data_plan_tracking">Allows in-depth data plan tracking.</string>
     <string name="shizuku_not_running">Shizuku is not running</string>
     <string name="sim_card">SIM card</string>
     <string name="data_plans">Data Plans</string>
@@ -76,6 +74,7 @@
     <string name="warning">Warning</string>
     <string name="tethering">Mobile Hotspot</string>
     <string name="removed_apps">Removed apps</string>
+    <string name="all_apps">All apps</string>
     <string name="prediction">Prediction</string>
     <string name="trend">Trend</string>
     <string name="data_intensive_apps">Data intensive apps</string>
@@ -90,6 +89,13 @@
     <string name="close">Close</string>
     <string name="shizuku_hint">Want to track multiple SIM cards?</string>
     <string name="shizuku_hint_description">To achieve that, you\'ll need to set up Shizuku and enable the feature in the settings.</string>
+    <string name="filter">Filter</string>
+    <string name="none">None</string>
+    <string name="primary">Primary</string>
+    <string name="secondary">Secondary</string>
+    <string name="upload">Upload</string>
+    <string name="download">Download</string>
+    <string name="bidirectional">Bidirectional</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

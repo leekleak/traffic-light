@@ -28,8 +28,6 @@
     <string name="force_fallback_description">Handig wanneer je een foutieve ROM of Ethernet gebruikt</string>
     <string name="fallback_unsupported">Terugval wordt niet ondersteund</string>
     <string name="ui">Interface</string>
-    <string name="limited_mode">Begrensde modus</string>
-    <string name="limited_mode_description">Jammer genoeg ondersteunt je besturingssysteem niet het volgen van data op de lange termijn.</string>
     <string name="auto">Automatisch</string>
     <string name="light">Licht</string>
     <string name="dark">Donker</string>
@@ -45,7 +43,6 @@
     <string name="alt_vpn_workaround">Alternatieve VPN-omzeiling</string>
     <string name="alt_vpn_workaround_description">Vermindert nauwkeurigheid van metingen, maar werkt met split tunnels.</string>
     <string name="support_development">Ontwikkeling steunen</string>
-    <string name="allows_in_depth_data_plan_tracking">Staat het gedetailleerd volgen van databundels toe.</string>
     <string name="shizuku_not_running">Shizuku loopt niet</string>
     <string name="sim_card">Simkaart</string>
     <string name="data_plans">Databundels</string>
@@ -92,4 +89,8 @@
     <string name="close">Sluiten</string>
     <string name="shizuku_hint">Wil je meerdere SIM-kaarten volgen?</string>
     <string name="shizuku_hint_description">Om dat te bereiken, moet je Shizuku instellen en deze functie aanzetten in de instellingen.</string>
+    <string name="total">Totaal</string>
+    <string name="all_apps">Alle apps</string>
+    <string name="filter">Filteren</string>
+    <string name="none">Geen</string>
 </resources>

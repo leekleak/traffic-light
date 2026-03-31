@@ -3,22 +3,22 @@ agp = "9.1.0"
 coilCompose = "3.4.0"
 coreKtx = "1.18.0"
 activityCompose = "1.13.0"
-composeBom = "2026.03.00"
+composeBom = "2026.03.01"
 
 coreSplashscreen = "1.2.0"
 datastore = "1.2.1"
-kotlin = "2.3.10"
+kotlin = "2.3.20"
 kotlinxSerializationJson = "1.10.0"
 ksp = "2.3.4"
-koin-bom = "4.1.1"
-material3 = "1.5.0-alpha14" # alpha15 breaks search bar as keyboard no longer openssssss
+koin-bom = "4.2.0"
+material3 = "1.5.0-alpha14" # alpha15+ breaks search bar as keyboard no longer opens
 
 nav3Core = "1.0.1"
 room = "2.8.4"
 timber = "5.0.1"
 shizuku = "13.1.5"
 glance = "1.2.0-rc01"
-work = "2.11.1"
+work = "2.11.2"
 
 [libraries]
 
@@ -38,6 +38,7 @@ koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin-bom" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin-bom" }
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin-bom" }
+koin-compose-navigation3 = { module = "io.insert-koin:koin-compose-navigation3", version.ref = "koin-bom" }
 
 # Serialization
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }

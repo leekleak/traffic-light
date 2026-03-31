@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Semafor</string>
+    <string name="app_name">Traffic Light: Network Tracker</string>
     <string name="today">Astăzi</string>
     <string name="this_week">Săptămâna aceasta</string>
     <string name="history">Istoric</string>
@@ -11,7 +11,7 @@
     <string name="settings">Configurări</string>
     <string name="battery_optimization">Optimizare baterie</string>
     <string name="battery_optimization_description">Trebuie dezactivat pentru a opri telefonul să închidă serviciul de fundal.</string>
-    <string name="usage_statistics">Statistici Utilizare</string>
+    <string name="usage_statistics">Permisiune de utilizare</string>
     <string name="usage_statistics_description">Necesar pentru urmărirea utilizării datelor pe termen lung.</string>
     <string name="notifications">Notificare</string>
     <string name="screen_off_update">Actualizează când ecranul este oprit</string>
@@ -23,7 +23,6 @@
     <string name="github_description">Urmărește dezvoltarea sau raportează erori.</string>
     <string name="version">Versiunea %1$s</string>
     <string name="ui">Interfață</string>
-    <string name="limited_mode">Mod Limitat</string>
     <string name="auto">Automat</string>
     <string name="light">Luminos</string>
     <string name="dark">Întunecat</string>
@@ -36,7 +35,6 @@
     <string name="force_fallback">Forțează fallback pentru urmărirea vitezei</string>
     <string name="force_fallback_description">Util când folosești un ROM cu erori sau o conexiune prin cablu (ethernet)</string>
     <string name="fallback_unsupported">Fallback nesuportat</string>
-    <string name="limited_mode_description">Sistemul de operare nu suportă urmărirea datelor pe termen lung.</string>
     <string name="notification_description">Vezi viteza rețelei în bara de stare.</string>
     <string name="unknown">Necunoscut</string>
     <string name="appearance">Aspect</string>
@@ -45,8 +43,7 @@
     <string name="alt_vpn_workaround">Soluții alternative pentru VPN</string>
     <string name="alt_vpn_workaround_description">Reduce precizia de măsurare, dar acomodează tuneluri divizate.</string>
     <string name="support_development">Sprijinină dezvoltarea aplicației</string>
-    <string name="allows_in_depth_data_plan_tracking">Permite urmărirea aprofundată a planului de date.</string>
-    <string name="shizuku_not_running">Shizuku nu rulează.</string>
+    <string name="shizuku_not_running">Shizuku nu rulează</string>
     <string name="sim_card">Card SIM</string>
     <string name="data_plans">Planuri de date</string>
     <string name="configure_plan">Configurare plan</string>
@@ -68,7 +65,7 @@
     <string name="configured_plans">Configurează planurile</string>
     <string name="data_plan_widget_description">Urmărește planurile de date pe ecranul de pornire</string>
     <string name="widget_warning">Suportul pentru widget-uri este experimental. Dacă întâmpini probleme, raportează-le pe Github.</string>
-    <string name="no_configured_plans_description">Asigură-te că ai acordat permisiunea Shizuku și că ai configurat cel puțin un plan de date.</string>
+    <string name="no_configured_plans_description">Asigură-te că ai configurat cel puțin un plan de date.</string>
     <string name="no_configured_plans">Niciun plan configurat</string>
     <string name="warning">Avertizare</string>
     <plurals name="resets_in_days">
@@ -82,4 +79,14 @@
     <string name="trend">Tendinţă</string>
     <string name="data_intensive_apps">Aplicații cu date intensive</string>
     <string name="mobile_data">Date mobile</string>
+    <string name="notification_channels">Setări canal de notificare</string>
+    <string name="go_back">Înapoi</string>
+    <string name="connected_to_network">Conectat la rețea</string>
+    <string name="disconnected_from_network">Deconectat de la rețea</string>
+    <string name="overview">Prezentare generală</string>
+    <string name="multi_sim_tracking">Urmărire multi-SIM</string>
+    <string name="shizuku_required">Shizuku este necesar</string>
+    <string name="close">Închide</string>
+    <string name="shizuku_hint">Dorești să urmărești mai multe carduri SIM?</string>
+    <string name="shizuku_hint_description">Pentru a realiza acest lucru, va trebui să configurezi Shizuku și să activezi funcția în setări.</string>
 </resources>

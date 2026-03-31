@@ -3,6 +3,7 @@ package com.leekleak.trafficlight.ui.history
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -10,13 +11,19 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,57 +31,85 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroup
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import coil3.compose.rememberAsyncImagePainter
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.ScrollableBarGraph
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
+import com.leekleak.trafficlight.database.DataType
+import com.leekleak.trafficlight.database.DataUID
+import com.leekleak.trafficlight.database.DayUsage
+import com.leekleak.trafficlight.database.UsageQuery
+import com.leekleak.trafficlight.database.getIcon
+import com.leekleak.trafficlight.database.getName
+import com.leekleak.trafficlight.database.getNext
 import com.leekleak.trafficlight.model.AppIcon
-import com.leekleak.trafficlight.model.NetworkUsageManager
+import com.leekleak.trafficlight.model.AppManager
+import com.leekleak.trafficlight.ui.overview.AppSelector
+import com.leekleak.trafficlight.ui.overview.specialApps
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.getName
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import java.time.LocalDate
 import java.time.format.TextStyle
 import kotlin.math.max
 
-const val MAX_DAYS = 96
+const val MAX_DAYS = 90
 val imageWidth = 32.dp
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun History(paddingValues: PaddingValues) {
-    val networkUsageManager: NetworkUsageManager = koinInject()
     val viewModel: HistoryVM = koinViewModel()
     val haptic = LocalHapticFeedback.current
 
@@ -82,143 +117,196 @@ fun History(paddingValues: PaddingValues) {
     var showMonth by remember { mutableStateOf(false) }
 
     LaunchedEffect(appDay, showMonth) {
-        viewModel.updateQuery(appDay, showMonth)
+        viewModel.updateDateQuery(appDay, showMonth)
     }
 
-    val appList by remember { viewModel.appList }.collectAsState()
-    var appSelected by remember { mutableIntStateOf(-1) }
+    val usage: List<ScrollableBarData> by viewModel.usageFlow.collectAsState()
+    val sidePadding = remember(paddingValues) { paddingValues.calculateLeftPadding(LayoutDirection.Ltr) }
 
-    val days = remember { getDatesForTimespan() }
-    val usageFlow = remember { networkUsageManager.daysUsage(days.first, days.second) }
-    val usage: List<ScrollableBarData> by usageFlow.collectAsState(List(MAX_DAYS) {
-        ScrollableBarData(LocalDate.now())
-    })
+    val usageQuery1 by viewModel.query1Flow.collectAsState()
+    val usageQuery2 by viewModel.query2Flow.collectAsState()
 
-    val selectedUsage by remember { viewModel.totalUsage }.collectAsState(null)
-    val totalMaximum = remember(selectedUsage) { selectedUsage?.let { it.totalWifi + it.totalCellular } }
-    val appTotal = remember(appList) { viewModel.appUsageSum(appList) }
-
-    Column (
-        modifier = Modifier
-            .padding(
-                start = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
-                end = paddingValues.calculateLeftPadding(LayoutDirection.Ltr),
-                top = paddingValues.calculateTopPadding()
-            ),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        CategoryTitleText(stringResource(R.string.history))
-        Box(
+    Column {
+        Column (
             modifier = Modifier
-                .card()
-                .padding(6.dp)
-                .clip(MaterialTheme.shapes.medium)
+                .padding(
+                    start = sidePadding,
+                    end = sidePadding,
+                    top = paddingValues.calculateTopPadding()
+                ),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(colorScheme.background)
-            ) {
-                ScrollableBarGraph(usage) {
-                    appDay = days.first.plusDays(it.toLong())
-                }
-            }
-        }
-        Row(Modifier.fillMaxWidth()) {
-            ButtonGroup(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
-                expandedRatio = 0.05f,
-                overflowIndicator = {}
-            ) {
-                toggleableItem(
-                    onCheckedChange = {
-                        showMonth = true
-                        haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
-                    },
-                    label = appDay.month.getName(TextStyle.FULL),
-                    checked = showMonth,
-                    weight = 3f
-                )
-                toggleableItem(
-                    onCheckedChange = {
-                        showMonth = false
-                        haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
-                    },
-                    label = appDay.dayOfMonth.toString(),
-                    checked = !showMonth,
-                    weight = 1f
-                )
-            }
-        }
-        val listState = rememberLazyListState()
-        LazyColumn(
-            modifier = Modifier
-                .background(colorScheme.surface)
-                .fillMaxSize(),
-            contentPadding = PaddingValues(0.dp, 0.dp, 0.dp, paddingValues.calculateBottomPadding()),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-            state = listState
-        ) {
-            stickyHeader {
-                val uid = -100
-                Box (
-                    Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = colorScheme.surface,
-                            shape = RoundedCornerShape(0.dp, 0.dp, 24.dp, 24.dp)
-                        )
+            Box(Modifier.fillMaxWidth()) {
+                CategoryTitleText(stringResource(R.string.history))
+                Row(
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    AppItem(
-                        totalWifi = selectedUsage?.totalWifi ?: 0L,
-                        totalCellular = selectedUsage?.totalCellular ?: 0L,
-                        painter = painterResource(R.drawable.data_usage),
-                        icon = true,
-                        name = stringResource(R.string.total_usage),
-                        selected = uid == appSelected,
-                        maximum = max(totalMaximum ?: 0L, 1)
-                    ) {
-                        appSelected = if (appSelected != uid) uid else -1
+                    HistoryLegendItem(usageQuery1, colorScheme.primary, colorScheme.onPrimary)
+                    HistoryLegendItem(usageQuery2, colorScheme.tertiary, colorScheme.onTertiary)
+                }
+            }
+            ScrollableBarGraph(usage) {
+                appDay = viewModel.datesForTimespan.first.plusDays(it.toLong())
+            }
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(MaterialTheme.shapes.small)
+                    .background(colorScheme.primary)
+                    .padding(horizontal = 4.dp)
+            ) {
+                var showFilter by remember { mutableStateOf(false) }
+                if (showFilter) HistoryFilter { showFilter = false }
+                ButtonGroup(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        4.dp,
+                        Alignment.CenterHorizontally
+                    ),
+                    expandedRatio = 0.05f,
+                    overflowIndicator = {}
+                ) {
+                    customItem(
+                        buttonGroupContent = {
+                            val source = remember { MutableInteractionSource() }
+                            val press by source.collectIsPressedAsState()
+                            val cornerRadius by animateDpAsState(if (press) 24.dp else 6.dp)
+                            IconButton(
+                                modifier = Modifier.animateWidth(source),
+                                colors = IconButtonDefaults.iconButtonColors(
+                                    containerColor = colorScheme.surfaceContainer,
+                                    contentColor = colorScheme.onSurfaceVariant
+                                ),
+                                shape = RoundedCornerShape(cornerRadius),
+                                interactionSource = source,
+                                onClick = {
+                                    showFilter = true
+                                    haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                                }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.filter_list),
+                                    contentDescription = stringResource(R.string.filter)
+                                )
+                            }
+                        },
+                        menuContent = {}
+                    )
+                    toggleableItem(
+                        onCheckedChange = {
+                            showMonth = true
+                            haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                        },
+                        label = appDay.month.getName(TextStyle.FULL),
+                        checked = !showMonth,
+                        weight = 3f
+                    )
+                    toggleableItem(
+                        onCheckedChange = {
+                            showMonth = false
+                            haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                        },
+                        label = appDay.dayOfMonth.toString(),
+                        checked = showMonth,
+                        weight = 1f
+                    )
+                }
+            }
+        }
+        AppList(sidePadding, paddingValues)
+    }
+}
+
+@Composable
+private fun AppList(
+    sidePadding: Dp,
+    paddingValues: PaddingValues,
+) {
+    val viewModel: HistoryVM = koinViewModel()
+
+    val appList by remember { viewModel.appList }.collectAsState()
+    val appTotal = remember(appList) { viewModel.appUsageSum(appList) }
+    var appSelected by remember { mutableIntStateOf(-1) }
+    val selectedUsage by remember { viewModel.totalUsage }.collectAsState(DayUsage())
+    val totalMaximum = remember(selectedUsage) { selectedUsage.totalUsage }
+
+    val listState = rememberLazyListState()
+    LazyColumn(
+        modifier = Modifier
+            .padding(top = 8.dp)
+            .clip(MaterialTheme.shapes.large)
+            .background(colorScheme.surfaceContainer)
+            .fillMaxSize(),
+        contentPadding = PaddingValues(sidePadding, sidePadding, sidePadding, paddingValues.calculateBottomPadding()),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        state = listState
+    ) {
+        item {
+            val uid = -100
+            AppItem(
+                usage1 = selectedUsage.usage1,
+                usage2 = selectedUsage.usage2,
+                name = stringResource(R.string.total_usage),
+                selected = uid == appSelected,
+                maximum = max(totalMaximum, 1),
+                onClick = {appSelected = if (appSelected != uid) uid else -1}
+            ) {
+                Icon(
+                    modifier = Modifier.size(imageWidth),
+                    painter = painterResource(R.drawable.data_usage),
+                    contentDescription = stringResource(R.string.total_usage)
+                )
+            }
+        }
+        items(appList, { it.uid }) { item ->
+            Box(Modifier.animateItem()) {
+                var icon = false
+                val painter = item.drawableResource?.let { icon = true; painterResource(it) }
+                    ?: rememberAsyncImagePainter(AppIcon(item.packageName))
+                AppItem(
+                    usage1 = item.usage.usage1,
+                    usage2 = item.usage.usage2,
+                    name = item.name,
+                    selected = item.uid == appSelected,
+                    maximum = totalMaximum,
+                    onClick = {appSelected = if (appSelected != item.uid) item.uid else -1}
+                ) {
+                    if (icon) {
+                        Icon(
+                            modifier = Modifier.size(imageWidth),
+                            painter = painter,
+                            contentDescription = item.name
+                        )
+                    } else {
+                        Image(
+                            modifier = Modifier.size(imageWidth),
+                            painter = painter,
+                            contentDescription = item.name
+                        )
                     }
                 }
             }
-            if (totalMaximum != null) {
-                items(appList, { it.uid }) { item ->
+        }
+        selectedUsage.let {
+            if ((appTotal.first + appTotal.second) != (selectedUsage.usage1 + selectedUsage.usage2) && appList.isNotEmpty()) {
+                item {
+                    val uid = -99
+
                     Box(Modifier.animateItem()) {
-                        var icon = false
-                        val painter = item.drawableResource?.let { icon = true; painterResource(it) } ?:
-                            rememberAsyncImagePainter(AppIcon(item.packageName))
                         AppItem(
-                            totalWifi = item.usage.totalWifi,
-                            totalCellular = item.usage.totalCellular,
-                            painter = painter,
-                            name = item.name,
-                            icon = icon,
-                            selected = item.uid == appSelected,
-                            maximum = totalMaximum
+                            usage1 = it.usage1 - appTotal.first,
+                            usage2 = it.usage2 - appTotal.second,
+                            name = stringResource(R.string.unknown),
+                            selected = uid == appSelected,
+                            maximum = totalMaximum,
+                            onClick = {appSelected = if (appSelected != uid) uid else -1}
                         ) {
-                            appSelected = if (appSelected != item.uid) item.uid else -1
-                        }
-                    }
-                }
-                selectedUsage?.let {
-                    if ((appTotal.totalCellular != it.totalCellular || appTotal.totalWifi != it.totalWifi) && appList.isNotEmpty()) {
-                        item {
-                            val uid = -99
-                            Box(Modifier.animateItem()) {
-                                AppItem(
-                                    totalWifi = it.totalWifi - appTotal.totalWifi,
-                                    totalCellular = it.totalCellular - appTotal.totalCellular,
-                                    painter = painterResource(R.drawable.help),
-                                    icon = true,
-                                    name = stringResource(R.string.unknown),
-                                    selected = uid == appSelected,
-                                    maximum = totalMaximum
-                                ) {
-                                    appSelected = if (appSelected != uid) uid else -1
-                                }
-                            }
+                            Icon(
+                                modifier = Modifier.size(imageWidth),
+                                painter = painterResource(R.drawable.help),
+                                contentDescription = stringResource(R.string.unknown)
+                            )
                         }
                     }
                 }
@@ -227,30 +315,292 @@ fun History(paddingValues: PaddingValues) {
     }
 }
 
-fun getDatesForTimespan(): Pair<LocalDate, LocalDate> {
-    val now = LocalDate.now().plusDays(1)
-    val base = now.minusDays(MAX_DAYS.toLong())
-    return Pair(base, now)
+@Composable
+private fun HourList(
+    sidePadding: Dp,
+    paddingValues: PaddingValues,
+    usageTypes: List<DataType>,
+) {
+    val viewModel: HistoryVM = koinViewModel()
+
+    val appList by remember { viewModel.appList }.collectAsState()
+    val appTotal = remember(appList) { viewModel.appUsageSum(appList) }
+    var appSelected by remember { mutableIntStateOf(-1) }
+    val selectedUsage by remember { viewModel.totalUsage }.collectAsState(null)
+
+    val listState = rememberLazyListState()
+    LazyColumn(
+        modifier = Modifier
+            .padding(top = 8.dp)
+            .clip(MaterialTheme.shapes.large)
+            .background(colorScheme.surfaceContainer)
+            .fillMaxSize(),
+        contentPadding = PaddingValues(sidePadding, sidePadding, sidePadding, paddingValues.calculateBottomPadding()),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        state = listState
+    ) {
+        items(appList, { it.uid }) { item ->
+            Box(Modifier.animateItem()) {
+                AppItem(
+                    usage1 = 0L,
+                    usage2 = 0L,
+                    name = item.name,
+                    selected = item.uid == appSelected,
+                    maximum = 0L,
+                    onClick = {appSelected = if (appSelected != item.uid) item.uid else -1}
+                ) {
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HistoryLegendItem(
+    usageQuery1: UsageQuery,
+    backgroundColor: Color,
+    foregroundColor: Color,
+) {
+    val context = LocalContext.current
+    Row(
+        modifier = Modifier
+            .background(backgroundColor, MaterialTheme.shapes.medium)
+            .padding(vertical = 4.dp, horizontal = 8.dp)
+    ) {
+        Icon(
+            painter = painterResource(usageQuery1.dataType.getIcon()),
+            contentDescription = stringResource(usageQuery1.dataType.getName()),
+            tint = foregroundColor
+        )
+        AnimatedVisibility(usageQuery1.dataType.isNotEmpty()) {
+            Row {
+                Icon(
+                    painter = painterResource(usageQuery1.dataDirection.getIcon()),
+                    contentDescription = stringResource(usageQuery1.dataDirection.getName()),
+                    tint = foregroundColor
+                )
+                usageQuery1.dataUID.getIcon(foregroundColor)
+            }
+        }
+    }
+}
+
+@Composable
+fun HistoryFilter(
+    onDismiss: () -> Unit
+) {
+    val viewModel: HistoryVM = koinViewModel()
+
+    val usageQuery1 by viewModel.query1Flow.collectAsState()
+    val usageQuery2 by viewModel.query2Flow.collectAsState()
+    Dialog(
+        onDismissRequest = onDismiss
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .card()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.filter),
+                style = MaterialTheme.typography.headlineMedium
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                HistoryItemSettings(
+                    stringResource(R.string.primary),
+                    1,
+                    usageQuery1
+                )
+                HistoryItemSettings(
+                    stringResource(R.string.secondary),
+                    2,
+                    usageQuery2
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RowScope.HistoryItemSettings(
+    title: String,
+    n: Int,
+    query: UsageQuery
+) {
+    val hapticFeedback = LocalHapticFeedback.current
+    val viewModel: HistoryVM = koinViewModel()
+    val context = LocalContext.current
+
+    Column (modifier = Modifier.weight(1f)) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium
+        )
+        FilterButton(
+            n = n,
+            enabled = true,
+            onClick = {
+                viewModel.updateQuery(n, query.copy(dataType = query.dataType.getNext()))
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+            }
+        ) {
+            Icon(painterResource(query.dataType.getIcon()), null)
+            Text(stringResource(query.dataType.getName()))
+        }
+        FilterButton(
+            n = n,
+            enabled = query.dataType.isNotEmpty(),
+            onClick = {
+                viewModel.updateQuery(n, query.copy(dataDirection = query.dataDirection.getNext()))
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+            }
+        ) {
+            Icon(painterResource(query.dataDirection.getIcon()), null)
+            Text(stringResource(query.dataDirection.getName()))
+        }
+
+        var showAppPicker by remember { mutableStateOf(false) }
+        FilterButton(
+            n = n,
+            enabled = query.dataType.isNotEmpty(),
+            onClick = {
+                showAppPicker = true
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+            }
+        ) {
+            query.dataUID.getIcon()
+            Text(query.dataUID.getName(context) ?: "")
+        }
+
+        if (showAppPicker) {
+            AppSearchDialog (
+                onSelect = { uid ->
+                    viewModel.updateQuery(n, query.copy(dataUID = DataUID(uid)))
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                }
+            ){
+                showAppPicker = false
+            }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+private fun AppSearchDialog(onSelect: (uid: Int) -> Unit, onDismiss: () -> Unit) {
+    val sheetState = rememberModalBottomSheetState()
+    ModalBottomSheet (
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+    ) {
+        val appManager: AppManager = koinInject()
+        val searchBarState = rememberSearchBarState(SearchBarValue.Expanded)
+        val focusRequester = remember { FocusRequester() }
+        val keyboardState by rememberUpdatedState(WindowInsets.isImeVisible)
+        var searchFocused by remember { mutableStateOf(false) }
+        val scope = rememberCoroutineScope()
+
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
+        }
+
+        LaunchedEffect(keyboardState) {
+            if (!keyboardState && searchFocused) {
+                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                    if (!sheetState.isVisible) onDismiss()
+                }
+            }
+            else if (keyboardState) {
+                searchFocused = true
+            }
+        }
+
+        val includedApps by remember { appManager.suspiciousApps }.collectAsState(emptyList())
+        var query by remember { mutableStateOf("") }
+        val searchResults by remember {
+            derivedStateOf {
+                if (query.isEmpty()) includedApps.sortedByDescending { specialApps.indexOf(it.packageName) }
+                else includedApps.filter { it.label.lowercase().contains(query.lowercase()) }
+            }
+        }
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            AppSelector(searchResults) { uid -> onSelect(uid) }
+            SearchBar(
+                modifier = Modifier
+                    .focusRequester(focusRequester),
+                state = searchBarState,
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = query,
+                        onQueryChange = { query = it },
+                        onSearch = {},
+                        expanded = false,
+                        onExpandedChange = {},
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(R.drawable.search),
+                                contentDescription = null
+                            )
+                        }
+                    )
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun FilterButton(
+    n: Int,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    buttonContent: @Composable (() -> Unit)
+) {
+    Button(
+        modifier = Modifier.fillMaxWidth(),
+        enabled = enabled,
+        shape = MaterialTheme.shapes.small,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (n == 1) colorScheme.primary else colorScheme.tertiary,
+            contentColor = if (n == 1) colorScheme.onPrimary else colorScheme.onTertiary
+        ),
+        contentPadding = PaddingValues(),
+        onClick = onClick
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            buttonContent()
+        }
+    }
 }
 
 @Composable
 fun AppItem(
     modifier: Modifier = Modifier,
-    totalWifi: Long,
-    totalCellular: Long,
-    painter: Painter,
-    icon: Boolean = false,
+    usage1: Long,
+    usage2: Long,
     name: String,
     selected: Boolean,
     maximum: Long,
     onClick: () -> Unit = {},
+    icon: @Composable (() -> Unit)
 ) {
     val haptic = LocalHapticFeedback.current
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Column(
             modifier = modifier
                 .clip(MaterialTheme.shapes.small)
-                .background(colorScheme.surfaceContainer)
+                .background(colorScheme.surface)
                 .clickable {
                     onClick()
                     haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
@@ -261,24 +611,12 @@ fun AppItem(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                if (icon) {
-                    Icon(
-                        modifier = Modifier.size(imageWidth),
-                        painter = painter,
-                        contentDescription = name
-                    )
-                } else {
-                    Image(
-                        modifier = Modifier.size(imageWidth),
-                        painter = painter,
-                        contentDescription = name
-                    )
-                }
+                icon()
                 AnimatedContent(selected) { selected ->
                     if (!selected) {
                         LineGraph(
                             maximum = maximum,
-                            data = Pair(totalWifi, totalCellular)
+                            data = Pair(usage1, usage2)
                         )
                     } else {
                         Text(
@@ -296,7 +634,7 @@ fun AppItem(
                 LineGraphHeader {
                     LineGraph(
                         maximum = maximum,
-                        data = Pair(totalWifi, totalCellular)
+                        data = Pair(usage1, usage2)
                     )
                 }
             }
@@ -306,6 +644,12 @@ fun AppItem(
 
 @Composable
 fun LineGraphHeader(lineGraph: @Composable (() -> Unit)) {
+    val context = LocalContext.current
+    val viewModel: HistoryVM = koinViewModel()
+
+    val usageQuery1 by viewModel.query1Flow.collectAsState()
+    val usageQuery2 by viewModel.query2Flow.collectAsState()
+
     val offset = imageWidth + 12.dp
     Column (
         modifier = Modifier
@@ -316,13 +660,13 @@ fun LineGraphHeader(lineGraph: @Composable (() -> Unit)) {
         Row {
             Text(
                 modifier = Modifier.weight(1f),
-                text = stringResource(R.string.wifi),
+                text = usageQuery1.toString(context),
                 style = MaterialTheme.typography.titleMedium,
                 color = colorScheme.tertiary
             )
             Text(
                 modifier = Modifier.weight(1f),
-                text = stringResource(R.string.cellular),
+                text = usageQuery2.toString(context),
                 textAlign = TextAlign.End,
                 style = MaterialTheme.typography.titleMedium,
                 color = colorScheme.tertiary

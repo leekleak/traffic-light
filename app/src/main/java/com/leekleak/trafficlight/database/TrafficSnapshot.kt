@@ -17,10 +17,12 @@ import kotlin.math.max
 
 data class DayUsage(
     val date: LocalDate = LocalDate.now(),
-    val hours: HourData = HourData(),
-    var totalWifi: Long = 0,
-    var totalCellular: Long = 0,
-)
+    val usage1: Long = 0L,
+    val usage2: Long = 0L
+) {
+    val totalUsage: Long
+        get() = usage1 + usage2
+}
 
 data class AppUsage(
     val usage: DayUsage,
@@ -29,17 +31,6 @@ data class AppUsage(
     val packageName: String,
     val drawableResource: Int? = null
 )
-
-data class HourData(
-    var upload: Long = 0,
-    var download: Long = 0,
-    var wifi: Long = 0,
-    var cellular: Long = 0,
-    val uid: Int? = null
-) {
-    val total: Long
-        get() = upload + download
-}
 
 class TrafficSnapshot (
     val scope: CoroutineScope,

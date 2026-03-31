@@ -26,9 +26,14 @@ import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.IconCompat
 import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.database.DataDirection
+import com.leekleak.trafficlight.database.DataUID
 import com.leekleak.trafficlight.database.DayUsage
+import com.leekleak.trafficlight.database.Mobile
 import com.leekleak.trafficlight.database.PreferenceRepo
 import com.leekleak.trafficlight.database.TrafficSnapshot
+import com.leekleak.trafficlight.database.UsageQuery
+import com.leekleak.trafficlight.database.Wifi
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.clipAndPad
@@ -61,6 +66,19 @@ class UsageService : Service() {
     private val connectivityManager: ConnectivityManager by lazy { get() }
     private lateinit var notificationBuilder: NotificationCompat.Builder
     private lateinit var notification: Notification
+
+    private val queryMobile =
+        UsageQuery(
+            dataType = listOf(Mobile),
+            dataDirection = DataDirection.Bidirectional,
+            dataUID = DataUID()
+        )
+    private val queryWifi =
+        UsageQuery(
+            dataType = listOf(Wifi),
+            dataDirection = DataDirection.Bidirectional,
+            dataUID = DataUID()
+        )
 
     private val screenStateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -178,7 +196,10 @@ class UsageService : Service() {
     }
 
     private fun updateTodayUsage() {
-        todayUsage = networkUsageManager.calculateDayUsageBasic(LocalDate.now(), LocalDate.now(), null)
+        val date = LocalDate.now()
+        val mobile = networkUsageManager.calculateDayUsageBasic(date, date, queryMobile)
+        val wifi = networkUsageManager.calculateDayUsageBasic(date, date, queryWifi)
+        todayUsage = DayUsage(date, mobile, wifi)
     }
 
     private var lastTitle: String = ""
@@ -190,9 +211,8 @@ class UsageService : Service() {
 
         val spacing = 18
         val messageShort =
-            getString(R.string.wi_fi, formatter.format(todayUsage.totalWifi, 2)).clipAndPad(spacing) +
-            getString(R.string.mobile, formatter.format(todayUsage.totalCellular, 2))
-
+            getString(R.string.wi_fi, formatter.format(todayUsage.usage1, 2)).clipAndPad(spacing) +
+            getString(R.string.mobile, formatter.format(todayUsage.usage2, 2))
 
         updateBaseNotification()
         notification = notificationBuilder

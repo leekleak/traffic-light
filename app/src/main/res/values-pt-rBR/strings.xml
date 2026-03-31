@@ -28,8 +28,6 @@
     <string name="force_fallback_description">Útil ao usar uma ROM instável ou conexão via ethernet</string>
     <string name="fallback_unsupported">Método não suportado</string>
     <string name="ui">Interface</string>
-    <string name="limited_mode">Modo Limitado</string>
-    <string name="limited_mode_description">Infelizmente, seu sistema não suporta o acompanhamento de dados a longo prazo.</string>
     <string name="auto">Automático</string>
     <string name="light">Claro</string>
     <string name="dark">Escuro</string>
@@ -58,7 +56,6 @@
     <string name="alt_vpn_workaround">Solução alternativa para VPN</string>
     <string name="alt_vpn_workaround_description">Reduz a precisão da medição, mas oferece suporte a Split Tunneling.</string>
     <string name="support_development">Apoie o desenvolvimento</string>
-    <string name="allows_in_depth_data_plan_tracking">Permite o acompanhamento detalhado do plano de dados.</string>
     <string name="shizuku_not_running">Shizuku não está em execução.</string>
     <string name="sim_card">Cartão SIM</string>
     <string name="data_plans">Planos de Dados</string>

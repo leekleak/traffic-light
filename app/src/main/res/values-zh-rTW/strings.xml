@@ -46,7 +46,6 @@
     <string name="force_fallback_description">在系統有問題，或使用有線網路時可能有幫助</string>
     <string name="fallback_unsupported">不支援後備方法</string>
     <string name="ui">使用者介面</string>
-    <string name="limited_mode">功能受限制</string>
     <string name="light">淺色模式</string>
     <string name="dark">深色模式</string>
     <string name="default_theme">預設</string>
@@ -62,9 +61,7 @@
     <string name="total_usage">總計使用量</string>
     <string name="notification_description">於狀態列中顯示網路速度。</string>
     <string name="auto">自動</string>
-    <string name="limited_mode_description">很遺憾，您的系統不支援監控長期數據使用量。</string>
     <string name="force_fallback">強制啟用後備性的網路速度監控方法</string>
-    <string name="allows_in_depth_data_plan_tracking">允許更深入的資料用量監控。</string>
     <string name="github_description">參與開發或回報問題。</string>
     <string name="app_name">紅綠燈(Traffic Light)：一款網路流量監控工具</string>
     <string name="today">今日</string>

@@ -50,14 +50,13 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.PreferenceRepo
 import com.leekleak.trafficlight.model.NetworkUsageManager
+import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.PlanConfig
 import com.leekleak.trafficlight.ui.navigation.Settings
 import com.leekleak.trafficlight.ui.settings.PermissionButton
@@ -77,11 +76,11 @@ import org.koin.compose.koinInject
 @Composable
 fun Overview(
     paddingValues: PaddingValues,
-    backStack: NavBackStack<NavKey>
 ) {
     val networkUsageManager: NetworkUsageManager = koinInject()
     val dataPlanDao: DataPlanDao = koinInject()
     val preferenceRepo: PreferenceRepo = koinInject()
+    val navigator: Navigator = koinInject()
 
     val scope = rememberCoroutineScope()
     val activity = LocalActivity.current
@@ -106,7 +105,7 @@ fun Overview(
                 CategoryTitleText(stringResource(R.string.today))
                 IconButton(
                     modifier = Modifier.align(Alignment.CenterEnd),
-                    onClick = { backStack.add(Settings) }
+                    onClick = { navigator.goTo(Settings) }
                 ) {
                     Icon(
                         painterResource(R.drawable.settings),
@@ -129,11 +128,11 @@ fun Overview(
         items(activePlans, {it.subscriberID}) {
             if (it.dataMax != 0L) {
                 ConfiguredDataPlan(it) {
-                    backStack.add(PlanConfig(it.subscriberID))
+                    navigator.goTo(PlanConfig(it.subscriberID))
                 }
             } else {
                 UnconfiguredDataPlan(it) {
-                    backStack.add(PlanConfig(it.subscriberID))
+                    navigator.goTo(PlanConfig(it.subscriberID))
                 }
             }
         }

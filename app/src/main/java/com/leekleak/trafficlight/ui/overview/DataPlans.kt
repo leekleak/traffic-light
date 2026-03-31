@@ -137,7 +137,7 @@ fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
     val networkUsageManager: NetworkUsageManager = koinInject()
 
     val dataUsage = remember { networkUsageManager.planUsage(dataPlan) }
-    val usage = DataSize(dataUsage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
+    val usage = DataSize(dataUsage.toDouble()).getAsUnit(DataSizeUnit.GB)
     val formatter = remember { DecimalFormat("0.##") }
     Box (
         modifier = Modifier
@@ -245,7 +245,7 @@ private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
             }
             val usage by remember(dataUsage) {
                 derivedStateOf {
-                    DataSize(dataUsage.totalCellular.toDouble()).getAsUnit(DataSizeUnit.GB)
+                    DataSize(dataUsage.toDouble()).getAsUnit(DataSizeUnit.GB)
                 }
             }
             Row(

@@ -28,8 +28,6 @@
     <string name="force_fallback_description">Naudinga jei jūsų sitema turi klaidų arba esate prisijungę prie laidinio interneto</string>
     <string name="fallback_unsupported">Atsarginis skaičiavimo metodas neveikia</string>
     <string name="ui">Sąsaja</string>
-    <string name="limited_mode">Ribotas režimas</string>
-    <string name="limited_mode_description">Deja jūsų operacinė sistema neplaiko ilgalaikio duomenų sekimo.</string>
     <string name="auto">Auto</string>
     <string name="light">Šviesi</string>
     <string name="dark">Tamsi</string>
@@ -45,7 +43,6 @@
     <string name="alt_vpn_workaround">Alternatyvus VPN duomenų skaičiavimas</string>
     <string name="alt_vpn_workaround_description">Prastesnis matavimų tikslumas, tačiau palaiko kelių tunelių konfigūracijas.</string>
     <string name="support_development">Paremti kūrimą</string>
-    <string name="allows_in_depth_data_plan_tracking">Leidžia detaliai sekti duomenų planus.</string>
     <string name="shizuku_not_running">Shizuku nepaleistas</string>
     <string name="sim_card">SIM kortelė</string>
     <string name="data_plans">Duomenų Planai</string>

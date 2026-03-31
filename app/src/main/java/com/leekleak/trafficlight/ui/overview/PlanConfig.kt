@@ -106,8 +106,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import coil3.compose.rememberAsyncImagePainter
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.GraphTheme.wifiShape
@@ -117,6 +115,7 @@ import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.model.App
 import com.leekleak.trafficlight.model.AppIcon
 import com.leekleak.trafficlight.model.AppManager
+import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.doHyeonFont
@@ -147,12 +146,12 @@ import kotlin.math.roundToInt
 @Composable
 fun PlanConfig(
     subscriberId: String,
-    backStack: NavBackStack<NavKey>
 ) {
     val viewModel: OverviewVM = koinViewModel()
     val appManager: AppManager = koinInject()
     val dataPlanDao: DataPlanDao = koinInject()
     val scope = rememberCoroutineScope()
+    val navigator: Navigator = koinInject()
 
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
@@ -177,7 +176,7 @@ fun PlanConfig(
                         scope.launch(Dispatchers.IO) {
                             dataPlanDao.add(newPlan)
                             haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
-                            backStack.removeAt(backStack.lastIndex)
+                            navigator.goBack()
                         }
                     }
                 ) {
@@ -198,7 +197,7 @@ fun PlanConfig(
                 .fillMaxSize(),
             contentPadding = paddingValues
         ) {
-            categoryTitle ({ backStack.removeAt(backStack.lastIndex) }) { stringResource(R.string.configure_plan) }
+            categoryTitle ({ navigator.goBack() }) { stringResource(R.string.configure_plan) }
             item {
                 val size by remember { derivedStateOf {
                     DataSize(currentPlan.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)

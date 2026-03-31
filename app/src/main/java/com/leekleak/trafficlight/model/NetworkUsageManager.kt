@@ -2,17 +2,24 @@ package com.leekleak.trafficlight.model
 
 import android.app.usage.NetworkStats
 import android.app.usage.NetworkStatsManager
-import android.net.ConnectivityManager
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.AppUsage
+import com.leekleak.trafficlight.database.DataDirection
+import com.leekleak.trafficlight.database.DataDirection.Bidirectional
+import com.leekleak.trafficlight.database.DataDirection.Download
+import com.leekleak.trafficlight.database.DataDirection.Upload
 import com.leekleak.trafficlight.database.DataPlan
+import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HistoricalData
 import com.leekleak.trafficlight.database.HistoricalDataDao
-import com.leekleak.trafficlight.database.HourData
+import com.leekleak.trafficlight.database.Mobile
 import com.leekleak.trafficlight.database.TimeInterval
+import com.leekleak.trafficlight.database.UsageQuery
+import com.leekleak.trafficlight.database.Wifi
 import com.leekleak.trafficlight.model.AppManager.Companion.specialUIDs
+import com.leekleak.trafficlight.ui.history.DateParams
 import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.getName
 import com.leekleak.trafficlight.util.toTimestamp
@@ -36,26 +43,43 @@ data class UsageData(
 ) {
     val total: Long
         get() = upload + download
+
+    fun forDirection(dataDirection: DataDirection): Long = when(dataDirection) {
+        Upload -> upload
+        Download -> download
+        Bidirectional -> upload + download
+    }
 }
 
 class NetworkUsageManager(
     private var networkStatsManager: NetworkStatsManager,
-    private val permissionManager: PermissionManager,
     private val historicalDataDao: HistoricalDataDao,
     private val appManager: AppManager,
 ) {
-    fun calculateDayUsageBasic(startDate: LocalDate, endDate: LocalDate = startDate, uid: Int? = null): DayUsage {
+    fun calculateDayUsageBasic(
+        startDate: LocalDate,
+        endDate: LocalDate = startDate,
+        query: UsageQuery,
+    ): Long {
         val startStamp = startDate.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
         val endStamp = endDate.plusDays(1).atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
-        val stats = calculateHourData(startStamp, endStamp, uid)
-        return DayUsage(startDate, HourData(), stats.wifi, stats.cellular)
+        val out = query.dataType.associateWith { type ->
+            getNetworkDataForType(startStamp, endStamp, null, type).sumOf {
+                if (it.uid == query.dataUID.uid || query.dataUID.uid == null) {
+                    return@sumOf it.forDirection(query.dataDirection)
+                } else {
+                    return@sumOf 0
+                }
+            }
+        }
+        return out.values.sum()
     }
 
-    fun todayMobileUsage() = flow {
-        emit(calculateDayUsageBasic(LocalDate.now(), LocalDate.now()).totalCellular)
+    fun todayMobileUsage(): Flow<Long> = flow {
+        emit(calculateDayUsageBasic(LocalDate.now(), LocalDate.now(), UsageQuery(listOf(Mobile))))
     }.flowOn(Dispatchers.IO)
 
-    fun planUsage(dataPlan: DataPlan): DayUsage {
+    fun planUsage(dataPlan: DataPlan): Long {
         val now = LocalDateTime.now()
         val startDate = when (dataPlan.interval) {
             TimeInterval.MONTH -> {
@@ -78,36 +102,15 @@ class NetworkUsageManager(
         val endStamp = now.toTimestamp()
         val subscriberId = if (dataPlan.subscriberID == NULL_SUBSCRIBER) null else dataPlan.subscriberID
 
-        var stats = getNetworkDataForType(startStamp, endStamp, subscriberId, NETWORK_TYPE_MOBILE).sumOf { it.total }
-        stats -= getNetworkDataForType(startStamp, endStamp, subscriberId, NETWORK_TYPE_MOBILE)
+        var stats = getNetworkDataForType(startStamp, endStamp, subscriberId, Mobile).sumOf { it.total }
+        stats -= getNetworkDataForType(startStamp, endStamp, subscriberId, Mobile)
             .filter { dataPlan.excludedApps.contains(it.uid) }.sumOf { it.total }
 
-        return DayUsage(startDate.toLocalDate(), HourData(), 0, stats)
+        return stats
     }
 
-    fun calculateHourData(startTime: Long, endTime: Long, uid: Int? = null, subscriberId: String? = null): HourData {
-        val mobileData = getNetworkDataForType(startTime, endTime, subscriberId, NETWORK_TYPE_MOBILE)
-        val wifiData = getNetworkDataForType(startTime, endTime, subscriberId, NETWORK_TYPE_WIFI)
-        if (uid == null) {
-            return HourData(
-                upload = mobileData.sumOf { it.upload } + wifiData.sumOf { it.upload },
-                download = mobileData.sumOf { it.download } + wifiData.sumOf { it.download },
-                wifi = wifiData.sumOf { it.total },
-                cellular = mobileData.sumOf { it.total }
-            )
-        }
-        val mobileUsage =  mobileData.find { it.uid == uid } ?: UsageData()
-        val wifiUsage = wifiData.find { it.uid == uid } ?: UsageData()
-        return HourData(
-            upload = mobileUsage.upload + wifiUsage.upload,
-            download = mobileUsage.download + wifiUsage.download,
-            wifi = wifiUsage.total,
-            cellular = mobileUsage.total
-        )
-    }
-
-    fun getNetworkDataForType(startStamp: Long, endStamp: Long, subscriberId: String?, type: Int): List<UsageData> {
-        networkStatsManager.querySummary(type, subscriberId, startStamp, endStamp).use { summary ->
+    fun getNetworkDataForType(startStamp: Long, endStamp: Long, subscriberId: String?, type: DataType): List<UsageData> {
+        networkStatsManager.querySummary(type.getQueryIndex(), subscriberId, startStamp, endStamp).use { summary ->
             val list = mutableListOf<UsageData>()
             while (summary.hasNextBucket()) {
                 val bucket = NetworkStats.Bucket()
@@ -122,33 +125,34 @@ class NetworkUsageManager(
         }
     }
 
-    fun getAllAppUsage(startDate: LocalDate, endDate: LocalDate = startDate): Flow<List<AppUsage>> =
+    fun getAllAppUsage(dateParams: DateParams, query1: UsageQuery, query2: UsageQuery): Flow<List<AppUsage>> =
         flow {
             coroutineScope {
-                val startTime = startDate.atStartOfDay().toTimestamp()
-                val endTime = endDate.plusDays(1).atStartOfDay().toTimestamp()
+                val dates = dateParams.getStartEndDates()
+                val startTime = dates.first.atStartOfDay().toTimestamp()
+                val endTime = dates.second.atStartOfDay().toTimestamp()
+                
+                val usage1 = query1.dataType.flatMap {
+                    getNetworkDataForType(startTime, endTime, null, it)
+                }
 
-                val mobileData = getNetworkDataForType(startTime, endTime, null, NETWORK_TYPE_MOBILE)
-                val wifiData = getNetworkDataForType(startTime, endTime, null, NETWORK_TYPE_WIFI)
-                val uids = mobileData.map { it.uid }.union(wifiData.map { it.uid }).union(specialUIDs).filterNotNull()
+                val usage2 = query2.dataType.flatMap {
+                    getNetworkDataForType(startTime, endTime, null, it)
+                }
+
+                val uids = usage1.map { it.uid }.union(usage2.map { it.uid }).union(specialUIDs).filterNotNull()
 
                 val list = uids.map { uid ->
-                    val uidMobile = mobileData.find { it.uid == uid } ?: UsageData()
-                    val uidWifi = wifiData.find { it.uid == uid } ?: UsageData()
+                    val uid1 = usage1.find { it.uid == uid } ?: UsageData()
+                    val uid2 = usage2.find { it.uid == uid } ?: UsageData()
                     val name = appManager.getNameForUID(uid)
                     val packageName = appManager.getPackageNamesForUID(uid)?.firstOrNull()
                     if (name == null || packageName == null) return@map null
                     AppUsage(
                         usage = DayUsage(
-                            hours = HourData(
-                                upload = uidMobile.upload + uidWifi.upload,
-                                download = uidMobile.download + uidWifi.download,
-                                wifi = uidWifi.total,
-                                cellular = uidMobile.total
-                            ),
-                            date = startDate,
-                            totalWifi = uidWifi.total,
-                            totalCellular = uidMobile.total
+                            date = dateParams.day,
+                            usage1 = uid1.total,
+                            usage2 = uid2.total
                         ),
                         uid = uid,
                         name = name,
@@ -157,13 +161,18 @@ class NetworkUsageManager(
                     )
                 }.filterNotNull().toMutableList()
 
-                list.removeAll { it.usage.totalCellular + it.usage.totalWifi == 0L }
-                list.sortByDescending { it.usage.totalCellular + it.usage.totalWifi }
+                list.removeAll { it.usage.totalUsage == 0L }
+                list.sortByDescending { it.usage.totalUsage }
                 emit(list.distinctBy { it.uid }.toList())
             }
         }.flowOn(Dispatchers.IO)
 
-    fun daysUsage(startDate: LocalDate, endDate: LocalDate): Flow<List<ScrollableBarData>> = flow {
+    fun daysUsage(
+        startDate: LocalDate,
+        endDate: LocalDate,
+        usageQuery1: UsageQuery?,
+        usageQuery2: UsageQuery? = null
+    ): Flow<List<ScrollableBarData>> = flow {
         val data: MutableList<ScrollableBarData> = mutableListOf()
         val range = startDate.toEpochDay()..<endDate.toEpochDay()
 
@@ -174,10 +183,11 @@ class NetworkUsageManager(
         emit(data.toList())
         for (i in 0..<data.size) {
             val now = LocalDate.ofEpochDay(i + startDate.toEpochDay())
-            val usage = calculateDayUsageBasic(now)
+            val usage1 = usageQuery1?.let { calculateDayUsageBasic(now, now, it) }
+            val usage2 = usageQuery2?.let { calculateDayUsageBasic(now, now, it) }
             data[i] = data[i].copy(
-                y1 = usage.totalCellular.toDouble(),
-                y2 = usage.totalWifi.toDouble()
+                y1 = usage2?.toDouble() ?: 0.0,
+                y2 = usage1?.toDouble() ?: 0.0,
             )
         }
         emit(data.toList())
@@ -194,12 +204,20 @@ class NetworkUsageManager(
         val daysPassed = now.get(field.dayOfWeek()) - 1
 
         for (i in 0..daysPassed) {
-            val usage = calculateDayUsageBasic(now.minusDays(i.toLong()))
+            val usage1 = calculateDayUsageBasic(
+                startDate = now.minusDays(i.toLong()),
+                query = UsageQuery(listOf(Mobile)),
+            )
+
+            val usage2 = calculateDayUsageBasic(
+                startDate = now.minusDays(i.toLong()),
+                query = UsageQuery(listOf(Wifi)),
+            )
 
             data[daysPassed - i] += BarData(
                 "",
-                usage.totalCellular.toDouble(),
-                usage.totalWifi.toDouble()
+                usage1.toDouble(),
+                usage2.toDouble()
             )
         }
         emit(data.toList())
@@ -211,8 +229,9 @@ class NetworkUsageManager(
         val hour = LocalDateTime.now().hour
         val hoursLeft = 23 - hour
         val nowStamp = LocalDateTime.now().toTimestamp() + 3_600_000
-        val last24HourUsage = getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, NETWORK_TYPE_MOBILE).sumOf { it.total }.toDouble()
-        val todayUsage = calculateDayUsageBasic(LocalDate.now(), LocalDate.now()).totalCellular.toDouble()
+        val last24HourUsage = getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, Mobile)
+            .sumOf { it.total }.toDouble()
+        val todayUsage = calculateDayUsageBasic(LocalDate.now(), LocalDate.now(), UsageQuery(listOf(Mobile))).toDouble()
         val data = historicalDataDao.getAll().map { it.usage }
 
         if (data.size < 5 * 24 * 7) { emit(0.0); return@flow }
@@ -240,7 +259,7 @@ class NetworkUsageManager(
         populateHistoryCache()
 
         val nowStamp = LocalDateTime.now().toTimestamp()
-        val last24HourAverage = getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, NETWORK_TYPE_MOBILE).sumOf { it.total } / 24.0
+        val last24HourAverage = getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, Mobile).sumOf { it.total } / 24.0
         val data = historicalDataDao.getAll().takeLast(24 * 7).map { it.usage }.average()
 
         emit((last24HourAverage / data - 1) * 100.0) // Return trend in percentage
@@ -256,7 +275,7 @@ class NetworkUsageManager(
             if (allData.find { it.stamp == stamp } != null && i > 1) continue
 
             // We need to use querySummaryForDevice because regular querySummary is not very accurate hour-wise
-            val bucket = networkStatsManager.querySummaryForDevice(NETWORK_TYPE_MOBILE, null, stamp - 3_600_000, stamp)
+            val bucket = networkStatsManager.querySummaryForDevice(Mobile.getQueryIndex(), null, stamp - 3_600_000, stamp)
             historicalDataDao.add(
                 HistoricalData(
                     stamp = stamp,
@@ -267,8 +286,6 @@ class NetworkUsageManager(
     }
 
     companion object {
-        const val NETWORK_TYPE_MOBILE = ConnectivityManager.TYPE_MOBILE
-        const val NETWORK_TYPE_WIFI = ConnectivityManager.TYPE_WIFI
         const val NULL_SUBSCRIBER = "null"
     }
 }

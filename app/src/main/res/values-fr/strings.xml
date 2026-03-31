@@ -20,7 +20,6 @@
     <string name="github_description">Suivre le développement ou signaler des problèmes.</string>
     <string name="fallback_unsupported">Repli non supporté</string>
     <string name="ui">Interface</string>
-    <string name="limited_mode">Mode limité</string>
     <string name="auto">Auto</string>
     <string name="default_theme">Défaut</string>
     <string name="speed">Vitesse :%1$s</string>
@@ -28,7 +27,6 @@
     <string name="notifications">Notification</string>
     <string name="wi_fi">Wi-Fi :%1$s</string>
     <string name="force_fallback">Forcer le suivi de vitesse de repli</string>
-    <string name="limited_mode_description">Malheureusement, votre système d\'exploitation ne supporte pas le suivi de données à long terme.</string>
     <string name="version">Version %1$s</string>
     <string name="missing_permissions">Permissions manquantes</string>
     <string name="grant">Autoriser</string>
@@ -45,7 +43,6 @@
     <string name="alt_vpn_workaround">Contournement VPN alternatif</string>
     <string name="alt_vpn_workaround_description">Diminue la précision des mesures, mais admet les tunnels.</string>
     <string name="support_development">Soutenez le développement</string>
-    <string name="allows_in_depth_data_plan_tracking">Autorise le suivi précis du forfait données.</string>
     <string name="shizuku_not_running">Shizuku n\'est pas lancé</string>
     <string name="sim_card">Carte SIM</string>
     <string name="data_plans">Forfaits de données</string>
@@ -93,4 +90,13 @@
     <string name="close">Fermer</string>
     <string name="shizuku_hint">Vous souhaitez suivre plusieurs cartes SIM ?</string>
     <string name="shizuku_hint_description">Pour y arriver, vous aurez besoin de paramétrer Shizuku et d\'autoriser la fonctionnalité dans les réglages.</string>
+    <string name="total">Total</string>
+    <string name="all_apps">Toutes les applications</string>
+    <string name="filter">Filtre</string>
+    <string name="none">Aucun</string>
+    <string name="primary">Primaire</string>
+    <string name="secondary">Secondaire</string>
+    <string name="upload">Envoi</string>
+    <string name="download">Réception</string>
+    <string name="bidirectional">Bidirectionnel</string>
 </resources>

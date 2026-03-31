@@ -27,23 +27,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.model.PermissionManager
+import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.Settings
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun UsagePermissionRequest(paddingValues: PaddingValues, backStack: NavBackStack<NavKey>) {
+fun UsagePermissionRequest(paddingValues: PaddingValues) {
     val activity = LocalActivity.current
     val permissionManager: PermissionManager = koinInject()
+    val navigator: Navigator = koinInject()
 
     Box(Modifier.fillMaxSize().padding(paddingValues).background(MaterialTheme.colorScheme.surface)) {
         IconButton(
             modifier = Modifier.align(Alignment.TopEnd),
-            onClick = { backStack.add(Settings) }
+            onClick = { navigator.goTo(Settings) }
         ) {
             Icon(
                 painterResource(R.drawable.settings),
