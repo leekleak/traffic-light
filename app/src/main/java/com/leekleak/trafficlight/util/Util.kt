@@ -1,7 +1,9 @@
 package com.leekleak.trafficlight.util
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,6 +33,7 @@ import java.time.LocalDateTime
 import java.time.Month
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -59,6 +62,12 @@ fun fromTimestamp(stamp: Long): LocalDateTime {
         Instant.ofEpochMilli(stamp),
         ZoneId.systemDefault()
     )
+}
+
+fun LocalDateTime.toLocaleHourString(context: Context): String {
+    val pattern = if (DateFormat.is24HourFormat(context)) "HH" else "hh a"
+    val formatter = DateTimeFormatter.ofPattern(pattern, Locale.getDefault())
+    return format(formatter)
 }
 
 fun DayOfWeek.getName(style: TextStyle) =

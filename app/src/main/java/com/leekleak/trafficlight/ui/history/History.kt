@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -71,7 +72,9 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -81,7 +84,6 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.ScrollableBarGraph
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
-import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.database.getIcon
 import com.leekleak.trafficlight.database.getName
@@ -90,13 +92,16 @@ import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.ui.overview.AppSelector
 import com.leekleak.trafficlight.ui.overview.specialApps
 import com.leekleak.trafficlight.ui.theme.card
+import com.leekleak.trafficlight.ui.theme.momoTrustDisplayFont
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.getName
+import com.leekleak.trafficlight.util.toDp
+import com.leekleak.trafficlight.util.toLocaleHourString
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import java.time.LocalDate
-import java.time.format.TextStyle
+import java.time.LocalDateTime
 
 const val MAX_DAYS = 90
 val imageWidth = 32.dp
@@ -119,6 +124,7 @@ fun History(paddingValues: PaddingValues) {
 
     val usageQuery1 by viewModel.query1Flow.collectAsState()
     val usageQuery2 by viewModel.query2Flow.collectAsState()
+    val listParam by viewModel.listParamFlow.collectAsState()
 
     Column {
         Column (
@@ -192,7 +198,7 @@ fun History(paddingValues: PaddingValues) {
                             showMonth = true
                             haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                         },
-                        label = appDay.month.getName(TextStyle.FULL),
+                        label = appDay.month.getName(java.time.format.TextStyle.FULL),
                         checked = !showMonth,
                         weight = 3f
                     )
@@ -208,7 +214,8 @@ fun History(paddingValues: PaddingValues) {
                 }
             }
         }
-        AppList(sidePadding, paddingValues)
+        if (listParam == ListParam.AppList) AppList(sidePadding, paddingValues)
+        else HourList(sidePadding, paddingValues)
     }
 }
 
@@ -221,7 +228,7 @@ private fun AppList(
 
     val appList by remember { viewModel.appList }.collectAsState()
     var appSelected by remember { mutableIntStateOf(-1) }
-    val totalMaximum = remember(appList) { appList.find { it.app.uid == -100 }?.usage?.totalUsage ?: 0 }
+    val totalMaximum = remember(appList) { appList.find { it.app.uidQuery == null }?.usage?.totalUsage ?: 0 }
 
     val listState = rememberLazyListState()
     LazyColumn(
@@ -255,13 +262,21 @@ private fun AppList(
 private fun HourList(
     sidePadding: Dp,
     paddingValues: PaddingValues,
-    usageTypes: List<DataType>,
 ) {
     val viewModel: HistoryVM = koinViewModel()
+    val context = LocalContext.current
 
-    val appList by remember { viewModel.appList }.collectAsState()
-    var appSelected by remember { mutableIntStateOf(-1) }
-
+    val hourList by remember { viewModel.hourList }.collectAsState()
+    var hourSelected by remember { mutableIntStateOf(-1) }
+    val maximum by remember { derivedStateOf { hourList.sumOf { it.usage.totalUsage } } }
+    val textMeasurer = rememberTextMeasurer()
+    val measurement = textMeasurer.measure(
+        text = LocalDateTime.now().withHour(2).toLocaleHourString(context),
+        style = TextStyle(
+            fontFamily = momoTrustDisplayFont(),
+            fontSize = MaterialTheme.typography.titleMedium.fontSize,
+        )
+    )
     val listState = rememberLazyListState()
     LazyColumn(
         modifier = Modifier
@@ -273,16 +288,25 @@ private fun HourList(
         verticalArrangement = Arrangement.spacedBy(6.dp),
         state = listState
     ) {
-        items(appList, { it.app.uid }) { item ->
+        items(hourList, { it.start.hour }) { item ->
             Box(Modifier.animateItem()) {
                 AppItem(
-                    usage1 = 0L,
-                    usage2 = 0L,
-                    name = item.app.label,
-                    selected = item.app.uid == appSelected,
-                    maximum = 0L,
-                    onClick = {appSelected = if (appSelected != item.app.uid) item.app.uid else -1}
+                    usage1 = item.usage.usage1,
+                    usage2 = item.usage.usage2,
+                    name = item.toString(),
+                    selected = item.start.hour == hourSelected,
+                    maximum = maximum,
+                    onClick = {hourSelected = if (item.start.hour != hourSelected) item.start.hour else -1}
                 ) {
+                    Box (Modifier.width(measurement.size.width.toDp + 8.dp)) {
+                        Text(
+                            modifier = Modifier.align(Alignment.Center),
+                            text = item.start.toLocaleHourString(context),
+                            fontFamily = momoTrustDisplayFont(),
+                            fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
                 }
             }
         }
@@ -322,10 +346,13 @@ private fun HistoryLegendItem(
 fun HistoryFilter(
     onDismiss: () -> Unit
 ) {
+    val hapticFeedback = LocalHapticFeedback.current
     val viewModel: HistoryVM = koinViewModel()
 
     val usageQuery1 by viewModel.query1Flow.collectAsState()
     val usageQuery2 by viewModel.query2Flow.collectAsState()
+    val listParam by viewModel.listParamFlow.collectAsState()
+
     Dialog(
         onDismissRequest = onDismiss
     ) {
@@ -352,6 +379,20 @@ fun HistoryFilter(
                     2,
                     usageQuery2
                 )
+            }
+            Text(
+                text = "List",
+                style = MaterialTheme.typography.headlineMedium
+            )
+            FilterButton(
+                n = 1,
+                enabled = true,
+                onClick = {
+                    viewModel.updateListQuery(listParam.getNext())
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                }
+            ) {
+                Text(listParam.name) // TODO: Un hard code this
             }
         }
     }

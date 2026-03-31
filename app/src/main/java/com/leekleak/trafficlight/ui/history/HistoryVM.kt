@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataDirection
+import com.leekleak.trafficlight.database.HourUsage
 import com.leekleak.trafficlight.database.Mobile
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.database.Wifi
@@ -24,6 +25,7 @@ class HistoryVM(
     private val networkUsageManager: NetworkUsageManager
 ): ViewModel() {
     private val dateParams = MutableStateFlow(DateParams(LocalDate.now(), false))
+    private val listParam = MutableStateFlow(ListParam.AppList)
 
     private val query1 = MutableStateFlow(
         UsageQuery(
@@ -43,14 +45,7 @@ class HistoryVM(
     val query2Flow = query2.asStateFlow()
     val queryFlow = query1Flow.combine(query2Flow) {q1, q2 -> Pair(q1, q2) }
     val dateQueryFlow = dateParams.combine(queryFlow) {date, queries-> Pair(date, queries) }
-
-    fun updateQuery(@IntRange(1, 2) n: Int, newQuery: UsageQuery) {
-        when (n) {
-            1 -> query1.value = newQuery
-            2 -> query2.value = newQuery
-            else -> throw IllegalArgumentException("Invalid query index: $n")
-        }
-    }
+    val listParamFlow = listParam.asStateFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val usageFlow = combine(query1Flow, query2Flow) { q1, q2 -> q1 to q2 }.flatMapLatest { (q1, q2) ->
@@ -73,12 +68,27 @@ class HistoryVM(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    fun appUsageSum(usage: List<AppUsage>): Pair<Long, Long> {
-        return Pair(usage.sumOf { it.usage.usage1 }, usage.sumOf { it.usage.usage2 })
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val hourList: StateFlow<List<HourUsage>> = dateQueryFlow
+        .flatMapLatest { (date, queries) ->
+            networkUsageManager.getAllHourUsage(date, queries.first, queries.second)
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun updateQuery(@IntRange(1, 2) n: Int, newQuery: UsageQuery) {
+        when (n) {
+            1 -> query1.value = newQuery
+            2 -> query2.value = newQuery
+            else -> throw IllegalArgumentException("Invalid query index: $n")
+        }
     }
 
     fun updateDateQuery(day: LocalDate, showMonth: Boolean) {
         dateParams.value = DateParams(day, showMonth)
+    }
+
+    fun updateListQuery(newList: ListParam) {
+        listParam.value = newList
     }
 
     val datesForTimespan: Pair<LocalDate, LocalDate> by lazy {
@@ -98,4 +108,14 @@ data class DateParams(val day: LocalDate, val showMonth: Boolean) {
         }
         return Pair(start, end)
     }
+}
+
+enum class ListParam {
+    AppList,
+    HourList
+}
+
+fun ListParam.getNext(): ListParam {
+    val nextIndex = (ordinal + 1) % ListParam.entries.size
+    return ListParam.entries[nextIndex]
 }

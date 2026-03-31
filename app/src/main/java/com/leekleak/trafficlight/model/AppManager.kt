@@ -131,7 +131,7 @@ class AppManager(
         val allApp = App(
             uid = -100,
             packageName = "",
-            label = "All apps",
+            label = "All apps", //TODO: Unhardcode this
             drawableResource = R.drawable.apps
         )
         val specialUIDs = listOf(UID_REMOVED, UID_TETHERING)

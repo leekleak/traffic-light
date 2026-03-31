@@ -93,7 +93,7 @@ data class UsageQuery (
             add(context.getString(dataType.getName()))
             if (dataDirection != DataDirection.Bidirectional)
                 add(context.getString(dataDirection.getName()))
-            if (dataUID.uid != -100)
+            if (dataUID.uidQuery != null)
                 add(dataUID.label)
         }
 

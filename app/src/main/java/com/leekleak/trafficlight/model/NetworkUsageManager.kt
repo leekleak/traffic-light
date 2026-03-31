@@ -14,6 +14,7 @@ import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HistoricalData
 import com.leekleak.trafficlight.database.HistoricalDataDao
+import com.leekleak.trafficlight.database.HourUsage
 import com.leekleak.trafficlight.database.Mobile
 import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.database.UsageQuery
@@ -40,7 +41,9 @@ import java.util.Locale
 data class UsageData(
     val upload: Long = 0,
     val download: Long = 0,
-    val uid: Int? = null
+    val uid: Int? = null,
+    val start: LocalDateTime? = null,
+    val end: LocalDateTime? = null
 ) {
     val total: Long
         get() = upload + download
@@ -126,6 +129,56 @@ class NetworkUsageManager(
         }
     }
 
+    fun getNetworkDataForTypeHourly(
+        startStamp: Long,
+        endStamp: Long,
+        subscriberId: String?,
+        type: DataType,
+        uid: Int?
+    ): List<UsageData> {
+        if (uid == null) {
+            networkStatsManager.queryDetails(
+                type.getQueryIndex(),
+                subscriberId,
+                startStamp,
+                endStamp
+            )
+        } else {
+            networkStatsManager.queryDetailsForUid(
+                type.getQueryIndex(),
+                subscriberId,
+                startStamp,
+                endStamp,
+                uid
+            )
+        }.use { summary ->
+            val list = mutableListOf<UsageData>()
+            while (summary.hasNextBucket()) {
+                val bucket = NetworkStats.Bucket()
+                summary.getNextBucket(bucket)
+                val end = fromTimestamp(bucket.endTimeStamp)
+                val start = fromTimestamp(bucket.startTimeStamp)
+                val item = list.find { it.start == start }
+
+                item?.let {
+                    list.add(UsageData(
+                        upload = it.upload + bucket.txBytes,
+                        download = it.download + bucket.rxBytes,
+                        start = start,
+                        end = end
+                    ))
+                    list.remove(item)
+                } ?: list.add(UsageData(
+                    upload = bucket.txBytes,
+                    download = bucket.rxBytes,
+                    start = start,
+                    end = end
+                ))
+            }
+            return list.toList()
+        }
+    }
+
     fun getAllAppUsage(dateParams: DateParams, query1: UsageQuery, query2: UsageQuery): Flow<List<AppUsage>> =
         flow {
             coroutineScope {
@@ -189,6 +242,41 @@ class NetworkUsageManager(
                     )
                 ))
                 emit(list.distinctBy { it.app.uid }.toList())
+            }
+        }.flowOn(Dispatchers.IO)
+
+    fun getAllHourUsage(dateParams: DateParams, query1: UsageQuery, query2: UsageQuery): Flow<List<HourUsage>> =
+        flow {
+            coroutineScope {
+                val date = dateParams.day
+                val startTime = date.atStartOfDay().toTimestamp()
+                val endTime = date.plusDays(1).atStartOfDay().toTimestamp()
+
+                val usage1 = query1.dataType.flatMap {
+                    getNetworkDataForTypeHourly(startTime, endTime, null, it, query1.dataUID.uidQuery)
+                }
+
+                val usage2 = query2.dataType.flatMap {
+                    getNetworkDataForTypeHourly(startTime, endTime, null, it, query2.dataUID.uidQuery)
+                }
+
+                val times = usage1.map { it.start }.union(usage2.map { it.start }).filterNotNull()
+
+                val list = times.map { time ->
+                    val usage1 = usage1.find { it.start == time } ?: UsageData()
+                    val usage2 = usage2.find { it.start == time } ?: UsageData()
+                    HourUsage(
+                        start = usage1.start ?: usage2.start ?: return@map null,
+                        end = usage1.end ?:  usage2.end ?: return@map null,
+                        usage = DayUsage(
+                            date = dateParams.day,
+                            usage1 = usage1.total,
+                            usage2 = usage2.total
+                        ),
+                    )
+                }.filterNotNull().sortedBy { it.start.hour }
+
+                emit(list)
             }
         }.flowOn(Dispatchers.IO)
 

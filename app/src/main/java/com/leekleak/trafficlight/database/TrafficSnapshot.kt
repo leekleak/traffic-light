@@ -14,6 +14,7 @@ import org.koin.core.component.inject
 import timber.log.Timber
 import java.io.File
 import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlin.math.max
 
 data class DayUsage(
@@ -29,6 +30,14 @@ data class AppUsage(
     val app: App,
     val usage: DayUsage,
 )
+
+data class HourUsage(
+    val start: LocalDateTime,
+    val end: LocalDateTime,
+    val usage: DayUsage,
+) {
+    override fun toString(): String = "${start.toLocalTime()} - ${end.toLocalTime()}"
+}
 
 class TrafficSnapshot (
     val scope: CoroutineScope,
