@@ -4,8 +4,8 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.view.View
 import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.model.App
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
+import com.leekleak.trafficlight.model.DataUID
 
 /**
  *
@@ -85,7 +85,7 @@ fun DataDirection.getIcon(): Int = when(this) {
 data class UsageQuery (
     val dataType: List<DataType>,
     val dataDirection: DataDirection = DataDirection.Bidirectional,
-    val dataUID: App = allApp
+    val dataUID: DataUID = allApp
 ) {
     fun toString(context: Context): String {
         if (dataType.isEmpty()) return context.getString(dataType.getName())
@@ -94,7 +94,7 @@ data class UsageQuery (
             if (dataDirection != DataDirection.Bidirectional)
                 add(context.getString(dataDirection.getName()))
             if (dataUID.uidQuery != null)
-                add(dataUID.label)
+                add(dataUID.getName(context))
         }
 
         val isRtl = context.resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL

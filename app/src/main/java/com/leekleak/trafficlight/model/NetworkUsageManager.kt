@@ -203,11 +203,10 @@ class NetworkUsageManager(
                     val packageName = appManager.getPackageNamesForUID(uid)?.firstOrNull()
                     if (name == null || packageName == null) return@map null
                     AppUsage(
-                        app = App(
+                        app = DataUIDApp(
                             uid = uid,
                             label = name,
                             packageName = packageName,
-                            drawableResource = appManager.getDrawableResourceForUID(uid)
                         ),
                         usage = DayUsage(
                             date = dateParams.day,

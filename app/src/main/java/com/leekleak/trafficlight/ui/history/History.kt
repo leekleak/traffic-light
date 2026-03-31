@@ -225,6 +225,7 @@ private fun AppList(
     paddingValues: PaddingValues,
 ) {
     val viewModel: HistoryVM = koinViewModel()
+    val context = LocalContext.current
 
     val appList by remember { viewModel.appList }.collectAsState()
     var appSelected by remember { mutableIntStateOf(-1) }
@@ -246,7 +247,7 @@ private fun AppList(
                 AppItem(
                     usage1 = item.usage.usage1,
                     usage2 = item.usage.usage2,
-                    name = item.app.label,
+                    name = item.app.getName(context),
                     selected = item.app.uid == appSelected,
                     maximum = totalMaximum,
                     onClick = {appSelected = if (appSelected != item.app.uid) item.app.uid else -1}
@@ -392,7 +393,7 @@ fun HistoryFilter(
                     hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                 }
             ) {
-                Text(listParam.name) // TODO: Un hard code this
+                Text(stringResource(listParam.getStringResource()))
             }
         }
     }
@@ -406,6 +407,7 @@ fun RowScope.HistoryItemSettings(
     query: UsageQuery
 ) {
     val hapticFeedback = LocalHapticFeedback.current
+    val context = LocalContext.current
     val viewModel: HistoryVM = koinViewModel()
     val appManager: AppManager = koinInject()
 
@@ -447,7 +449,7 @@ fun RowScope.HistoryItemSettings(
             }
         ) {
             query.dataUID.GetIcon(Modifier.size(24.dp))
-            Text(query.dataUID.label)
+            Text(query.dataUID.getName(context))
         }
 
         if (showAppPicker) {
@@ -477,6 +479,7 @@ private fun AppSearchDialog(onSelect: (uid: Int) -> Unit, onDismiss: () -> Unit)
         val keyboardState by rememberUpdatedState(WindowInsets.isImeVisible)
         var searchFocused by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
+        val context = LocalContext.current
 
         LaunchedEffect(Unit) {
             focusRequester.requestFocus()
@@ -498,7 +501,7 @@ private fun AppSearchDialog(onSelect: (uid: Int) -> Unit, onDismiss: () -> Unit)
         val searchResults by remember {
             derivedStateOf {
                 if (query.isEmpty()) includedApps.sortedByDescending { specialApps.indexOf(it.packageName) }
-                else includedApps.filter { it.label.lowercase().contains(query.lowercase()) }
+                else includedApps.filter { it.getName(context).lowercase().contains(query.lowercase()) }
             }
         }
         Column(

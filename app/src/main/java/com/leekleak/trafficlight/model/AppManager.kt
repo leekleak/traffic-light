@@ -12,6 +12,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import coil3.ImageLoader
 import coil3.asImage
@@ -28,9 +29,7 @@ import kotlinx.coroutines.flow.flowOn
 import timber.log.Timber
 
 @SuppressLint("QueryPermissionsNeeded")
-class AppManager(
-    private val context: Context
-) {
+class AppManager(context: Context) {
     private val packageManager: PackageManager = context.packageManager
     val allApps by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -50,7 +49,7 @@ class AppManager(
                 false
             }
         }.distinctBy { it.uid }.map {
-            App(
+            DataUIDApp(
                 uid = it.uid,
                 packageName = it.packageName,
                 label = it.loadLabel(packageManager).toString()
@@ -62,110 +61,112 @@ class AppManager(
         emit(suspiciousApps)
     }.flowOn(Dispatchers.IO)
 
-    fun getNameForUID(uid: Int?): String? {
-        when (uid) {
-            UID_TETHERING -> return context.getString(R.string.tethering)
-            UID_REMOVED -> return  context.getString(R.string.removed_apps)
-            null -> return context.getString(R.string.all_apps)
-            else -> {
-                val packageName = getPackageNamesForUID(uid) ?: return null
-                for (name in packageName) {
-                    try {
-                        val info = packageManager.getPackageInfo(name, 0).applicationInfo ?: return ""
-                        return packageManager.getApplicationLabel(info).toString()
-                    } catch (_: Exception) { }
-                }
-                Timber.e("Failed to get name for UID $uid, packageName ${packageName.firstOrNull()}")
-                return packageName.firstOrNull()
-            }
+    fun getNameForUID(uid: Int): String? {
+        val packageName = getPackageNamesForUID(uid) ?: return null
+        for (name in packageName) {
+            try {
+                val info = packageManager.getPackageInfo(name, 0).applicationInfo ?: return null
+                return packageManager.getApplicationLabel(info).toString()
+            } catch (_: Exception) { }
         }
-    }
-
-    fun getDrawableResourceForUID(uid: Int): Int? {
-        return when (uid) {
-            UID_TETHERING -> R.drawable.hotspot
-            UID_REMOVED -> R.drawable.deleted
-            else -> null
-        }
+        Timber.e("Failed to get name for UID $uid, packageName ${packageName.firstOrNull()}")
+        return packageName.firstOrNull()
     }
 
     fun getPackageNamesForUID(uid: Int): List<String>? {
-        return when (uid) {
-            UID_TETHERING -> listOf("")
-            UID_REMOVED -> listOf("")
-            else -> try {
-                packageManager.getPackagesForUid(uid)?.toList()
-            } catch (e: Exception) {
-                Timber.w(e, "Failed to get package names for UID $uid")
-                null
-            }
+        return try {
+            packageManager.getPackagesForUid(uid)?.toList()
+        } catch (e: Exception) {
+            Timber.w(e, "Failed to get package names for UID $uid")
+            null
         }
     }
 
-    fun getAppForUID(uid: Int): App {
+    fun getAppForUID(uid: Int): DataUID {
         return suspiciousApps.find { it.uid == uid } ?: allApp
     }
 
-    val unknownApp = App(
+    val unknownApp = DataUIDSpecial(
         uid = -99,
         packageName = "",
-        label = context.getString(R.string.unknown),
-        drawableResource = R.drawable.help
+        drawableResource = R.drawable.help,
+        stringResource = R.string.unknown
     )
 
-    val tetheringApp = App(
+    val tetheringApp = DataUIDSpecial(
         uid = UID_TETHERING,
         packageName = "",
-        label = context.getString(R.string.tethering),
-        drawableResource = R.drawable.hotspot
+        drawableResource = R.drawable.hotspot,
+        stringResource = R.string.tethering
     )
 
-    val removedApp = App(
+    val removedApp = DataUIDSpecial(
         uid = UID_REMOVED,
         packageName = "",
-        label = context.getString(R.string.removed_apps),
-        drawableResource = R.drawable.deleted
+        drawableResource = R.drawable.deleted,
+        stringResource = R.string.removed_apps
     )
 
     companion object {
-        val allApp = App(
+        val allApp = DataUIDSpecial(
             uid = -100,
             packageName = "",
-            label = "All apps", //TODO: Unhardcode this
-            drawableResource = R.drawable.apps
+            drawableResource = R.drawable.apps,
+            stringResource = R.string.all_apps
         )
         val specialUIDs = listOf(UID_REMOVED, UID_TETHERING)
     }
 }
 
-data class App(
-    val uid: Int,
-    val packageName: String,
-    val label: String,
-    val drawableResource: Int? = null
-) {
-    val uidQuery: Int?
-        get() = if (uid == -100) null else uid
+class DataUIDSpecial(
+    uid: Int,
+    packageName: String,
+    private val drawableResource: Int,
+    private val stringResource: Int
+) : DataUID(uid, packageName) {
+    override val uidQuery: Int? = if (uid == -100) null else uid
+    override fun getName(context: Context): String = context.getString(stringResource)
+
     @Composable
-    fun GetIcon(modifier: Modifier = Modifier, tint: Color = LocalContentColor.current) {
-        var icon = false
-        val painter = drawableResource?.let { icon = true; painterResource(it) }
-            ?: rememberAsyncImagePainter(AppIcon(packageName))
-        if (icon) {
-            Icon(
-                modifier = modifier,
-                painter = painter,
-                contentDescription = label,
-                tint = tint
-            )
-        } else {
-            Image(
-                modifier = modifier,
-                painter = painter,
-                contentDescription = label
-            )
-        }
+    override fun GetIcon(
+        modifier: Modifier,
+        tint: Color
+    ) {
+        val context = LocalContext.current
+        Icon(
+            modifier = modifier,
+            painter = painterResource(drawableResource),
+            contentDescription = getName(context),
+            tint = tint
+        )
     }
+}
+
+class DataUIDApp(
+    uid: Int,
+    packageName: String,
+    private val label: String,
+) : DataUID(uid, packageName) {
+    override val uidQuery: Int = uid
+    override fun getName(context: Context): String = label
+    @Composable
+    override fun GetIcon(modifier: Modifier, tint: Color) {
+        Image(
+            modifier = modifier,
+            painter = rememberAsyncImagePainter(AppIcon(packageName)),
+            contentDescription = label
+        )
+    }
+}
+
+abstract class DataUID(
+    val uid: Int,
+    val packageName: String
+) {
+    abstract val uidQuery: Int?
+    abstract fun getName(context: Context): String
+    @Composable
+    abstract fun GetIcon(modifier: Modifier = Modifier, tint: Color = LocalContentColor.current)
 }
 
 data class AppIcon(val packageName: String)

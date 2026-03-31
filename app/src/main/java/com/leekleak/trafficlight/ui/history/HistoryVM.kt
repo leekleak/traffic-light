@@ -3,6 +3,7 @@ package com.leekleak.trafficlight.ui.history
 import androidx.annotation.IntRange
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataDirection
@@ -118,4 +119,11 @@ enum class ListParam {
 fun ListParam.getNext(): ListParam {
     val nextIndex = (ordinal + 1) % ListParam.entries.size
     return ListParam.entries[nextIndex]
+}
+
+fun ListParam.getStringResource(): Int {
+    return when (this) {
+        ListParam.AppList -> R.string.app_list
+        ListParam.HourList -> R.string.hour_list
+    }
 }

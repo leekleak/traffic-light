@@ -111,8 +111,8 @@ import com.leekleak.trafficlight.charts.GraphTheme.wifiShape
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.TimeInterval
-import com.leekleak.trafficlight.model.App
 import com.leekleak.trafficlight.model.AppManager
+import com.leekleak.trafficlight.model.DataUID
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.ui.theme.card
@@ -350,7 +350,7 @@ fun PlanConfig(
                         var query by remember { mutableStateOf("") }
                         val searchResults by remember { derivedStateOf {
                             if (query.isEmpty()) includedApps.sortedByDescending { specialApps.indexOf(it.packageName) }
-                            else includedApps.filter { it.label.lowercase().contains(query.lowercase()) }
+                            else includedApps.filter { it.getName(context).lowercase().contains(query.lowercase()) }
                         } }
 
                         Column(
@@ -560,11 +560,12 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppSelector(
-    uids: List<App>,
+    uids: List<DataUID>,
     modifier: Modifier = Modifier,
     onClick: (uid: Int) -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
+    val context = LocalContext.current
 
     LazyRow(modifier, contentPadding = PaddingValues(horizontal = 8.dp)) {
         item ("holder") {  }
@@ -582,7 +583,7 @@ fun AppSelector(
                     4.dp
                 ),
                 tooltip = {
-                    PlainTooltip { Text(it.label) }
+                    PlainTooltip { Text(it.getName(context)) }
                 },
                 state = rememberTooltipState(),
             ) {
@@ -592,7 +593,7 @@ fun AppSelector(
                 ) {
                     it.GetIcon(Modifier.size(52.dp))
                     Text(
-                        text = it.label,
+                        text = it.getName(context),
                         fontSize = 12.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
