@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Traffic Light</string>
+    <string name="app_name">Traffic Light: Ağ İzleyici</string>
     <string name="today">Bugün</string>
     <string name="this_week">Bu Hafta</string>
     <string name="history">Geçmiş</string>
@@ -11,7 +11,7 @@
     <string name="settings">Ayarlar</string>
     <string name="battery_optimization">Pil optimizasyonu</string>
     <string name="battery_optimization_description">Telefonun arka plan servislerini bir süre sonra kapatmasını önlemek için pil optimizasyonu kapatılmalıdır.</string>
-    <string name="usage_statistics">Kullanım İstatistikleri</string>
+    <string name="usage_statistics">Kullanım İzni</string>
     <string name="usage_statistics_description">Uzun vadeli veri kullanım takibi için gereklidir.</string>
     <string name="notifications">Bildirim</string>
     <string name="screen_off_update">Ekran kapandığında güncelle</string>
@@ -24,9 +24,9 @@
     <string name="speed_in_bits">Hızı bit olarak göster</string>
     <string name="github_description">Gelişmeleri takip edin veya sorun bildirin.</string>
     <string name="version">Sürüm %1$s</string>
-    <string name="force_fallback">Yedek (fallback) hız takibini zorla</string>
+    <string name="force_fallback">Yedek hız takip yöntemini zorla</string>
     <string name="force_fallback_description">Hatalı ROM veya ethernet kullanırken yardımcı olur</string>
-    <string name="fallback_unsupported">Yedek (fallback) desteklenmiyor</string>
+    <string name="fallback_unsupported">Yedek yöntem desteklenmiyor</string>
     <string name="ui">Arayüz</string>
     <string name="auto">Otomatik</string>
     <string name="light">Aydınlık</string>
@@ -43,7 +43,7 @@
     <string name="alt_vpn_workaround">Alternatif VPN geçici çözümü</string>
     <string name="alt_vpn_workaround_description">Ölçüm doğruluğunu azaltır fakat bölünmüş tünellemeyi destekler.</string>
     <string name="support_development">Gelişmesine destek ol</string>
-    <string name="shizuku_not_running">Shizuku aktif değil.</string>
+    <string name="shizuku_not_running">Shizuku aktif değil</string>
     <string name="sim_card">SIM kart</string>
     <string name="data_plans">Veri Planları</string>
     <string name="configure_plan">Plan Ayarla</string>
@@ -63,7 +63,7 @@
     <string name="add_widget">Araç takımı ekle</string>
     <string name="data_plan_widget_description">Ana ekranınızda veri planlarınızı takip edin</string>
     <string name="widget_warning">Araç takımı desteği deneyseldir. Eğer bir sorunla karşılaşırsanız lütfen bunu Github\'da bildirin.</string>
-    <string name="no_configured_plans_description">Lütfen Shizuku\'ya izin verdiğinizden ve en az 1 veri planı ayarladığınızdan emin olun.</string>
+    <string name="no_configured_plans_description">Lütfen en az 1 veri planı ayarladığınızdan emin olun.</string>
     <string name="no_configured_plans">Ayarlanmış plan yok</string>
     <string name="warning">Uyarı</string>
     <plurals name="resets_in_days">
@@ -78,4 +78,24 @@
     <string name="trend">Eğilim</string>
     <string name="data_intensive_apps">Yoğun veri kullanan uygulamalar</string>
     <string name="mobile_data">Hücresel veri</string>
+    <string name="app_name_short">Traffic Light</string>
+    <string name="total">Toplam</string>
+    <string name="all_apps">Tüm uygulamalar</string>
+    <string name="notification_channels">Bildirim Kanalı Ayarları</string>
+    <string name="go_back">Geri git</string>
+    <string name="connected_to_network">Ağa bağlanıldı</string>
+    <string name="disconnected_from_network">Ağ bağlantısı kesildi</string>
+    <string name="overview">Genel bakış</string>
+    <string name="multi_sim_tracking">Çoklu SIM takibi</string>
+    <string name="shizuku_required">Shizuku gerekli</string>
+    <string name="close">Kapat</string>
+    <string name="shizuku_hint">Birden fazla SIM kart takip etmek ister misiniz?</string>
+    <string name="shizuku_hint_description">Bunu gerçekleştirmek için Shizuku\'yu kurmanız ve ayarlardan bu özelliği etkinleştirmeniz gerekir.</string>
+    <string name="filter">Filtre</string>
+    <string name="none">Hiçbiri</string>
+    <string name="primary">Birincil</string>
+    <string name="secondary">İkincil</string>
+    <string name="upload">Yükleme</string>
+    <string name="download">İndirme</string>
+    <string name="bidirectional">Çift yönlü</string>
 </resources>
