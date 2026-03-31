@@ -194,15 +194,16 @@ class NetworkUsageManager(
     }.flowOn(Dispatchers.IO)
 
     fun weekUsage(): Flow<List<BarData>> = flow {
-        val firstDay = WeekFields.of(Locale.getDefault()).firstDayOfWeek
+        val field = WeekFields.of(Locale.getDefault())
+        val firstDay = field.firstDayOfWeek
         val data: MutableList<BarData> = MutableList(7) { i ->
             val x = firstDay.plus(i.toLong()).getName(TextStyle.SHORT_STANDALONE)
             BarData(x, 0.0, 0.0)
         }
         val now = LocalDate.now()
-        val daysPassed = (8 - firstDay.value) % 7 + now.dayOfWeek.value
+        val daysPassed = now.get(field.dayOfWeek()) - 1
 
-        for (i in 0..<daysPassed) {
+        for (i in 0..daysPassed) {
             val usage1 = calculateDayUsageBasic(
                 startDate = now.minusDays(i.toLong()),
                 query = UsageQuery(listOf(Mobile)),
@@ -213,7 +214,7 @@ class NetworkUsageManager(
                 query = UsageQuery(listOf(Wifi)),
             )
 
-            data[daysPassed - i - 1] += BarData(
+            data[daysPassed - i] += BarData(
                 "",
                 usage1.toDouble(),
                 usage2.toDouble()

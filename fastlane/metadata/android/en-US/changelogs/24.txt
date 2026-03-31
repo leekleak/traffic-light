@@ -1,0 +1,3 @@
+Bug fixes:
+- Fix crash on weird locales
+- Fix crash on app not found
