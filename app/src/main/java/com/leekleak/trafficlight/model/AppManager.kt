@@ -35,8 +35,13 @@ class AppManager(
     val suspiciousApps = flow {
         emit(
             allApps.filter { app ->
-                val pi = packageManager.getPackageInfo(app.packageName, PackageManager.GET_PERMISSIONS)
-                (pi.requestedPermissions?.contains("android.permission.INTERNET") ?: true)
+                try {
+                    val pi = packageManager.getPackageInfo(app.packageName, PackageManager.GET_PERMISSIONS)
+                    (pi.requestedPermissions?.contains("android.permission.INTERNET") ?: true)
+                } catch (e: Exception) {
+                    Timber.e(e, "${app.packageName}")
+                    false
+                }
             }.distinctBy { it.uid }.map {
                 App(
                     uid = it.uid,
