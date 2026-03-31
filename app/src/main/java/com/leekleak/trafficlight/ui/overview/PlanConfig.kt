@@ -106,14 +106,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.rememberAsyncImagePainter
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.GraphTheme.wifiShape
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.model.App
-import com.leekleak.trafficlight.model.AppIcon
 import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.theme.backgrounds
@@ -298,7 +296,7 @@ fun PlanConfig(
 
             categoryTitleSmall { stringResource(R.string.zero_rated_apps) }
             item {
-                val suspiciousApps by remember { appManager.suspiciousApps }.collectAsState(emptyList())
+                val suspiciousApps by remember { appManager.suspiciousAppsFlow }.collectAsState(emptyList())
 
                 val excludedApps by remember { derivedStateOf {
                     suspiciousApps.filter { newPlan.excludedApps.contains(it.uid) }
@@ -571,7 +569,6 @@ fun AppSelector(
     LazyRow(modifier, contentPadding = PaddingValues(horizontal = 8.dp)) {
         item ("holder") {  }
         items(uids, {it.uid}) {
-            val painter = rememberAsyncImagePainter(AppIcon(it.packageName))
             TooltipBox(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.medium)
@@ -593,11 +590,7 @@ fun AppSelector(
                     Modifier.width(64.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Image(
-                        modifier = Modifier.size(52.dp),
-                        painter = painter,
-                        contentDescription = null,
-                    )
+                    it.GetIcon(Modifier.size(52.dp))
                     Text(
                         text = it.label,
                         fontSize = 12.sp,

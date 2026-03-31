@@ -8,7 +8,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -78,19 +77,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import coil3.compose.rememberAsyncImagePainter
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.ScrollableBarGraph
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.DataType
-import com.leekleak.trafficlight.database.DataUID
-import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.database.getIcon
 import com.leekleak.trafficlight.database.getName
 import com.leekleak.trafficlight.database.getNext
-import com.leekleak.trafficlight.model.AppIcon
 import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.ui.overview.AppSelector
 import com.leekleak.trafficlight.ui.overview.specialApps
@@ -102,7 +97,6 @@ import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import java.time.LocalDate
 import java.time.format.TextStyle
-import kotlin.math.max
 
 const val MAX_DAYS = 90
 val imageWidth = 32.dp
@@ -226,10 +220,8 @@ private fun AppList(
     val viewModel: HistoryVM = koinViewModel()
 
     val appList by remember { viewModel.appList }.collectAsState()
-    val appTotal = remember(appList) { viewModel.appUsageSum(appList) }
     var appSelected by remember { mutableIntStateOf(-1) }
-    val selectedUsage by remember { viewModel.totalUsage }.collectAsState(DayUsage())
-    val totalMaximum = remember(selectedUsage) { selectedUsage.totalUsage }
+    val totalMaximum = remember(appList) { appList.find { it.app.uid == -100 }?.usage?.totalUsage ?: 0 }
 
     val listState = rememberLazyListState()
     LazyColumn(
@@ -242,73 +234,17 @@ private fun AppList(
         verticalArrangement = Arrangement.spacedBy(6.dp),
         state = listState
     ) {
-        item {
-            val uid = -100
-            AppItem(
-                usage1 = selectedUsage.usage1,
-                usage2 = selectedUsage.usage2,
-                name = stringResource(R.string.total_usage),
-                selected = uid == appSelected,
-                maximum = max(totalMaximum, 1),
-                onClick = {appSelected = if (appSelected != uid) uid else -1}
-            ) {
-                Icon(
-                    modifier = Modifier.size(imageWidth),
-                    painter = painterResource(R.drawable.data_usage),
-                    contentDescription = stringResource(R.string.total_usage)
-                )
-            }
-        }
-        items(appList, { it.uid }) { item ->
+        items(appList, { it.app.uid }) { item ->
             Box(Modifier.animateItem()) {
-                var icon = false
-                val painter = item.drawableResource?.let { icon = true; painterResource(it) }
-                    ?: rememberAsyncImagePainter(AppIcon(item.packageName))
                 AppItem(
                     usage1 = item.usage.usage1,
                     usage2 = item.usage.usage2,
-                    name = item.name,
-                    selected = item.uid == appSelected,
+                    name = item.app.label,
+                    selected = item.app.uid == appSelected,
                     maximum = totalMaximum,
-                    onClick = {appSelected = if (appSelected != item.uid) item.uid else -1}
+                    onClick = {appSelected = if (appSelected != item.app.uid) item.app.uid else -1}
                 ) {
-                    if (icon) {
-                        Icon(
-                            modifier = Modifier.size(imageWidth),
-                            painter = painter,
-                            contentDescription = item.name
-                        )
-                    } else {
-                        Image(
-                            modifier = Modifier.size(imageWidth),
-                            painter = painter,
-                            contentDescription = item.name
-                        )
-                    }
-                }
-            }
-        }
-        selectedUsage.let {
-            if ((appTotal.first + appTotal.second) != (selectedUsage.usage1 + selectedUsage.usage2) && appList.isNotEmpty()) {
-                item {
-                    val uid = -99
-
-                    Box(Modifier.animateItem()) {
-                        AppItem(
-                            usage1 = it.usage1 - appTotal.first,
-                            usage2 = it.usage2 - appTotal.second,
-                            name = stringResource(R.string.unknown),
-                            selected = uid == appSelected,
-                            maximum = totalMaximum,
-                            onClick = {appSelected = if (appSelected != uid) uid else -1}
-                        ) {
-                            Icon(
-                                modifier = Modifier.size(imageWidth),
-                                painter = painterResource(R.drawable.help),
-                                contentDescription = stringResource(R.string.unknown)
-                            )
-                        }
-                    }
+                    item.app.GetIcon(Modifier.size(imageWidth))
                 }
             }
         }
@@ -324,9 +260,7 @@ private fun HourList(
     val viewModel: HistoryVM = koinViewModel()
 
     val appList by remember { viewModel.appList }.collectAsState()
-    val appTotal = remember(appList) { viewModel.appUsageSum(appList) }
     var appSelected by remember { mutableIntStateOf(-1) }
-    val selectedUsage by remember { viewModel.totalUsage }.collectAsState(null)
 
     val listState = rememberLazyListState()
     LazyColumn(
@@ -339,15 +273,15 @@ private fun HourList(
         verticalArrangement = Arrangement.spacedBy(6.dp),
         state = listState
     ) {
-        items(appList, { it.uid }) { item ->
+        items(appList, { it.app.uid }) { item ->
             Box(Modifier.animateItem()) {
                 AppItem(
                     usage1 = 0L,
                     usage2 = 0L,
-                    name = item.name,
-                    selected = item.uid == appSelected,
+                    name = item.app.label,
+                    selected = item.app.uid == appSelected,
                     maximum = 0L,
-                    onClick = {appSelected = if (appSelected != item.uid) item.uid else -1}
+                    onClick = {appSelected = if (appSelected != item.app.uid) item.app.uid else -1}
                 ) {
                 }
             }
@@ -361,7 +295,6 @@ private fun HistoryLegendItem(
     backgroundColor: Color,
     foregroundColor: Color,
 ) {
-    val context = LocalContext.current
     Row(
         modifier = Modifier
             .background(backgroundColor, MaterialTheme.shapes.medium)
@@ -379,7 +312,7 @@ private fun HistoryLegendItem(
                     contentDescription = stringResource(usageQuery1.dataDirection.getName()),
                     tint = foregroundColor
                 )
-                usageQuery1.dataUID.getIcon(foregroundColor)
+                usageQuery1.dataUID.GetIcon(Modifier.size(24.dp), foregroundColor)
             }
         }
     }
@@ -433,7 +366,7 @@ fun RowScope.HistoryItemSettings(
 ) {
     val hapticFeedback = LocalHapticFeedback.current
     val viewModel: HistoryVM = koinViewModel()
-    val context = LocalContext.current
+    val appManager: AppManager = koinInject()
 
     Column (modifier = Modifier.weight(1f)) {
         Text(
@@ -472,14 +405,14 @@ fun RowScope.HistoryItemSettings(
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
             }
         ) {
-            query.dataUID.getIcon()
-            Text(query.dataUID.getName(context) ?: "")
+            query.dataUID.GetIcon(Modifier.size(24.dp))
+            Text(query.dataUID.label)
         }
 
         if (showAppPicker) {
             AppSearchDialog (
                 onSelect = { uid ->
-                    viewModel.updateQuery(n, query.copy(dataUID = DataUID(uid)))
+                    viewModel.updateQuery(n, query.copy(dataUID = appManager.getAppForUID(uid)))
                     hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                 }
             ){
@@ -519,7 +452,7 @@ private fun AppSearchDialog(onSelect: (uid: Int) -> Unit, onDismiss: () -> Unit)
             }
         }
 
-        val includedApps by remember { appManager.suspiciousApps }.collectAsState(emptyList())
+        val includedApps by remember { appManager.suspiciousAppsFlow }.collectAsState(emptyList())
         var query by remember { mutableStateOf("") }
         val searchResults by remember {
             derivedStateOf {

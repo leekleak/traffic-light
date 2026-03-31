@@ -6,8 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataDirection
-import com.leekleak.trafficlight.database.DataUID
-import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.Mobile
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.database.Wifi
@@ -19,7 +17,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
 
@@ -32,14 +29,12 @@ class HistoryVM(
         UsageQuery(
             dataType = listOf(Wifi),
             dataDirection = DataDirection.Bidirectional,
-            dataUID = DataUID()
         )
     )
     private val query2 = MutableStateFlow(
         UsageQuery(
             dataType = listOf(Mobile),
             dataDirection = DataDirection.Bidirectional,
-            dataUID = DataUID()
         )
     )
 
@@ -78,18 +73,6 @@ class HistoryVM(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val totalUsage: StateFlow<DayUsage> = dateQueryFlow
-        .flatMapLatest { (date, queries) ->
-            flow {
-                val dates = date.getStartEndDates()
-                val usage1 = networkUsageManager.calculateDayUsageBasic(dates.first, dates.second, queries.first)
-                val usage2 = networkUsageManager.calculateDayUsageBasic(dates.first, dates.second, queries.second)
-                emit(DayUsage(dates.first, usage1, usage2))
-            }
-        }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DayUsage())
-
     fun appUsageSum(usage: List<AppUsage>): Pair<Long, Long> {
         return Pair(usage.sumOf { it.usage.usage1 }, usage.sumOf { it.usage.usage2 })
     }
@@ -107,11 +90,12 @@ class HistoryVM(
 
 data class DateParams(val day: LocalDate, val showMonth: Boolean) {
     fun getStartEndDates(): Pair<LocalDate, LocalDate> {
+        val start = if (showMonth) { day.withDayOfMonth(1) } else { day }
         val end = if (showMonth) {
             day.withDayOfMonth(1).plusMonths(1).minusDays(1)
         } else {
             day.plusDays(1)
         }
-        return Pair(day, end)
+        return Pair(start, end)
     }
 }

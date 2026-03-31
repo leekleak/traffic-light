@@ -27,7 +27,6 @@ import androidx.core.graphics.drawable.IconCompat
 import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataDirection
-import com.leekleak.trafficlight.database.DataUID
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.Mobile
 import com.leekleak.trafficlight.database.PreferenceRepo
@@ -71,13 +70,11 @@ class UsageService : Service() {
         UsageQuery(
             dataType = listOf(Mobile),
             dataDirection = DataDirection.Bidirectional,
-            dataUID = DataUID()
         )
     private val queryWifi =
         UsageQuery(
             dataType = listOf(Wifi),
             dataDirection = DataDirection.Bidirectional,
-            dataUID = DataUID()
         )
 
     private val screenStateReceiver = object : BroadcastReceiver() {

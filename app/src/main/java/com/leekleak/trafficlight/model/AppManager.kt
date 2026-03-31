@@ -6,8 +6,16 @@ import android.app.usage.NetworkStats.Bucket.UID_TETHERING
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.compose.foundation.Image
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import coil3.ImageLoader
 import coil3.asImage
+import coil3.compose.rememberAsyncImagePainter
 import coil3.decode.DataSource
 import coil3.fetch.FetchResult
 import coil3.fetch.Fetcher
@@ -32,24 +40,26 @@ class AppManager(
         }
     }
 
-    val suspiciousApps = flow {
-        emit(
-            allApps.filter { app ->
-                try {
-                    val pi = packageManager.getPackageInfo(app.packageName, PackageManager.GET_PERMISSIONS)
-                    (pi.requestedPermissions?.contains("android.permission.INTERNET") ?: true)
-                } catch (e: Exception) {
-                    Timber.e(e, "${app.packageName}")
-                    false
-                }
-            }.distinctBy { it.uid }.map {
-                App(
-                    uid = it.uid,
-                    packageName = it.packageName,
-                    label = it.loadLabel(packageManager).toString()
-                )
+    val suspiciousApps by lazy {
+        allApps.filter { app ->
+            try {
+                val pi = packageManager.getPackageInfo(app.packageName, PackageManager.GET_PERMISSIONS)
+                (pi.requestedPermissions?.contains("android.permission.INTERNET") ?: true)
+            } catch (e: Exception) {
+                Timber.e(e, "${app.packageName}")
+                false
             }
-        )
+        }.distinctBy { it.uid }.map {
+            App(
+                uid = it.uid,
+                packageName = it.packageName,
+                label = it.loadLabel(packageManager).toString()
+            )
+        }.plus(listOf(removedApp, tetheringApp, allApp, unknownApp))
+    }
+
+    val suspiciousAppsFlow = flow {
+        emit(suspiciousApps)
     }.flowOn(Dispatchers.IO)
 
     fun getNameForUID(uid: Int?): String? {
@@ -92,7 +102,38 @@ class AppManager(
         }
     }
 
+    fun getAppForUID(uid: Int): App {
+        return suspiciousApps.find { it.uid == uid } ?: allApp
+    }
+
+    val unknownApp = App(
+        uid = -99,
+        packageName = "",
+        label = context.getString(R.string.unknown),
+        drawableResource = R.drawable.help
+    )
+
+    val tetheringApp = App(
+        uid = UID_TETHERING,
+        packageName = "",
+        label = context.getString(R.string.tethering),
+        drawableResource = R.drawable.hotspot
+    )
+
+    val removedApp = App(
+        uid = UID_REMOVED,
+        packageName = "",
+        label = context.getString(R.string.removed_apps),
+        drawableResource = R.drawable.deleted
+    )
+
     companion object {
+        val allApp = App(
+            uid = -100,
+            packageName = "",
+            label = "All apps",
+            drawableResource = R.drawable.apps
+        )
         val specialUIDs = listOf(UID_REMOVED, UID_TETHERING)
     }
 }
@@ -102,7 +143,30 @@ data class App(
     val packageName: String,
     val label: String,
     val drawableResource: Int? = null
-)
+) {
+    val uidQuery: Int?
+        get() = if (uid == -100) null else uid
+    @Composable
+    fun GetIcon(modifier: Modifier = Modifier, tint: Color = LocalContentColor.current) {
+        var icon = false
+        val painter = drawableResource?.let { icon = true; painterResource(it) }
+            ?: rememberAsyncImagePainter(AppIcon(packageName))
+        if (icon) {
+            Icon(
+                modifier = modifier,
+                painter = painter,
+                contentDescription = label,
+                tint = tint
+            )
+        } else {
+            Image(
+                modifier = modifier,
+                painter = painter,
+                contentDescription = label
+            )
+        }
+    }
+}
 
 data class AppIcon(val packageName: String)
 

@@ -18,6 +18,7 @@ import com.leekleak.trafficlight.database.Mobile
 import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.database.Wifi
+import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.model.AppManager.Companion.specialUIDs
 import com.leekleak.trafficlight.ui.history.DateParams
 import com.leekleak.trafficlight.util.fromTimestamp
@@ -65,7 +66,7 @@ class NetworkUsageManager(
         val endStamp = endDate.plusDays(1).atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
         val out = query.dataType.associateWith { type ->
             getNetworkDataForType(startStamp, endStamp, null, type).sumOf {
-                if (it.uid == query.dataUID.uid || query.dataUID.uid == null) {
+                if (it.uid == query.dataUID.uid || query.dataUID.uidQuery == null) {
                     return@sumOf it.forDirection(query.dataDirection)
                 } else {
                     return@sumOf 0
@@ -149,21 +150,45 @@ class NetworkUsageManager(
                     val packageName = appManager.getPackageNamesForUID(uid)?.firstOrNull()
                     if (name == null || packageName == null) return@map null
                     AppUsage(
+                        app = App(
+                            uid = uid,
+                            label = name,
+                            packageName = packageName,
+                            drawableResource = appManager.getDrawableResourceForUID(uid)
+                        ),
                         usage = DayUsage(
                             date = dateParams.day,
                             usage1 = uid1.total,
                             usage2 = uid2.total
                         ),
-                        uid = uid,
-                        name = name,
-                        packageName = packageName,
-                        drawableResource = appManager.getDrawableResourceForUID(uid)
                     )
                 }.filterNotNull().toMutableList()
 
+                val totalUsage = DayUsage(
+                    date = dateParams.day,
+                    usage1 = calculateDayUsageBasic(dates.first, dates.second, query1),
+                    usage2 = calculateDayUsageBasic(dates.first, dates.second, query2)
+                )
+
                 list.removeAll { it.usage.totalUsage == 0L }
                 list.sortByDescending { it.usage.totalUsage }
-                emit(list.distinctBy { it.uid }.toList())
+                list.add(list.size, AppUsage(
+                    app = appManager.unknownApp,
+                    usage = DayUsage(
+                        date = dateParams.day,
+                        usage1 = totalUsage.usage1 - list.sumOf { it.usage.usage1 },
+                        usage2 = totalUsage.usage2 - list.sumOf { it.usage.usage2 }
+                    )
+                ))
+                list.add(0, AppUsage(
+                    app = allApp,
+                    usage = DayUsage(
+                        date = dateParams.day,
+                        usage1 = calculateDayUsageBasic(dates.first, dates.second, query1),
+                        usage2 = calculateDayUsageBasic(dates.first, dates.second, query2)
+                    )
+                ))
+                emit(list.distinctBy { it.app.uid }.toList())
             }
         }.flowOn(Dispatchers.IO)
 

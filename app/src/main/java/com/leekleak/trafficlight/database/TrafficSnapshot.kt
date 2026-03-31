@@ -4,6 +4,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.TrafficStats
 import android.os.Build
+import com.leekleak.trafficlight.model.App
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
@@ -25,11 +26,8 @@ data class DayUsage(
 }
 
 data class AppUsage(
+    val app: App,
     val usage: DayUsage,
-    val uid: Int,
-    val name: String,
-    val packageName: String,
-    val drawableResource: Int? = null
 )
 
 class TrafficSnapshot (
