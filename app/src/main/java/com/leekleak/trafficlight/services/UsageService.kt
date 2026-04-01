@@ -208,8 +208,8 @@ class UsageService : Service() {
 
         val spacing = 18
         val messageShort =
-            getString(R.string.wi_fi, formatter.format(todayUsage.usage1, 2)).clipAndPad(spacing) +
-            getString(R.string.mobile, formatter.format(todayUsage.usage2, 2))
+            getString(R.string.wi_fi, formatter.format(todayUsage.usage2, 2)).clipAndPad(spacing) +
+            getString(R.string.mobile, formatter.format(todayUsage.usage1, 2))
 
         updateBaseNotification()
         notification = notificationBuilder
