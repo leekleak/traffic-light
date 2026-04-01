@@ -46,71 +46,78 @@ fun LineGraph(
          */
         val width1 = data.first.toFloat() / maximum * size.width
         val width2 = data.second.toFloat() / maximum * size.width
-        drawRect(
-            color = primaryColor,
-            size = Size(width1, size.height)
-        )
-        drawRect(
-            color = secondaryColor,
-            topLeft = Offset(size.width-width2, 0f),
-            size = Size(width2, size.height)
-        )
+        if (data.first != 0L) {
+            drawRect(
+                color = primaryColor,
+                size = Size(width1, size.height)
+            )
+        }
+        if (data.second != 0L) {
+            drawRect(
+                color = secondaryColor,
+                topLeft = Offset(size.width - width2, 0f),
+                size = Size(width2, size.height)
+            )
+        }
 
+        val paddingRatio = textPadding / size.width
         /**
          * Wifi text
          */
-        val textMeasure1 = textMeasurer.measure(
-            DataSize(data.first.toDouble()).toString(),
-            TextStyle(
-                fontFamily = font,
-                fontSize = fontSize,
+        if (data.first != 0L) {
+            val textMeasure1 = textMeasurer.measure(
+                DataSize(data.first.toDouble()).toString(),
+                TextStyle(
+                    fontFamily = font,
+                    fontSize = fontSize,
+                )
             )
-        )
 
-        val paddingRatio = textPadding / size.width
-        val brush1 = Brush.horizontalGradient(
-            0f to onPrimaryColor,
-            data.first.toFloat() / maximum - paddingRatio to onPrimaryColor,
-            data.first.toFloat() / maximum - paddingRatio to onBackgroundColor,
-            (maximum - data.second.toFloat()) / maximum - paddingRatio to onBackgroundColor,
-            (maximum - data.second.toFloat()) / maximum - paddingRatio to onSecondaryColor,
-            startX = 0f,
-            endX = size.width
-        )
+            val brush1 = Brush.horizontalGradient(
+                0f to onPrimaryColor,
+                data.first.toFloat() / maximum - paddingRatio to onPrimaryColor,
+                data.first.toFloat() / maximum - paddingRatio to onBackgroundColor,
+                (maximum - data.second.toFloat()) / maximum - paddingRatio to onBackgroundColor,
+                (maximum - data.second.toFloat()) / maximum - paddingRatio to onSecondaryColor,
+                startX = 0f,
+                endX = size.width
+            )
 
-        drawText(
-            topLeft = Offset(textPadding, (size.height - textMeasure1.size.height) / 2),
-            textLayoutResult = textMeasure1,
-            brush = brush1,
-        )
+            drawText(
+                topLeft = Offset(textPadding, (size.height - textMeasure1.size.height) / 2),
+                textLayoutResult = textMeasure1,
+                brush = brush1,
+            )
+        }
 
         /**
          * Mobile text
          */
-        val textMeasure2 = textMeasurer.measure(
-            DataSize(data.second.toDouble()).toString(),
-            TextStyle(
-                fontFamily = font,
-                fontSize = fontSize,
-                brush = brush1
+        if (data.second != 0L) {
+            val textMeasure2 = textMeasurer.measure(
+                DataSize(data.second.toDouble()).toString(),
+                TextStyle(
+                    fontFamily = font,
+                    fontSize = fontSize,
+                )
             )
-        )
-        val brush2 = Brush.horizontalGradient(
-            0f to onPrimaryColor,
-            data.first.toFloat() / maximum + paddingRatio to onPrimaryColor,
-            data.first.toFloat() / maximum + paddingRatio to onBackgroundColor,
-            (maximum - data.second.toFloat()) / maximum + paddingRatio to onBackgroundColor,
-            (maximum - data.second.toFloat()) / maximum + paddingRatio to onSecondaryColor,
-            startX = textMeasure2.size.width - size.width,
-            endX = textMeasure2.size.width.toFloat()
-        )
-        drawText(
-            topLeft = Offset(
-                size.width - textMeasure2.size.width - textPadding,
-                (size.height - textMeasure1.size.height) / 2
-            ),
-            textLayoutResult = textMeasure2,
-            brush = brush2,
-        )
+            val brush2 = Brush.horizontalGradient(
+                0f to onPrimaryColor,
+                data.first.toFloat() / maximum + paddingRatio to onPrimaryColor,
+                data.first.toFloat() / maximum + paddingRatio to onBackgroundColor,
+                (maximum - data.second.toFloat()) / maximum + paddingRatio to onBackgroundColor,
+                (maximum - data.second.toFloat()) / maximum + paddingRatio to onSecondaryColor,
+                startX = textMeasure2.size.width - size.width,
+                endX = textMeasure2.size.width.toFloat()
+            )
+            drawText(
+                topLeft = Offset(
+                    size.width - textMeasure2.size.width - textPadding,
+                    (size.height - textMeasure2.size.height) / 2
+                ),
+                textLayoutResult = textMeasure2,
+                brush = brush2,
+            )
+        }
     }
 }
