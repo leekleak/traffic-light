@@ -89,8 +89,8 @@ class TrafficSnapshot (
 
     private fun regularUpdateSnapshot() {
         val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-        val runVpnWorkaround = capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_VPN) ?: false &&
-                               Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        val runVpnWorkaround = (capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_VPN) ?: false)
+                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
         if (runVpnWorkaround) {
             if (altVpnWorkaround) { // Less accurate, but fixes split tunneling setups

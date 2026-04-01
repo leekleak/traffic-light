@@ -107,9 +107,8 @@ class NetworkUsageManager(
         val endStamp = now.toTimestamp()
         val subscriberId = if (dataPlan.subscriberID == NULL_SUBSCRIBER) null else dataPlan.subscriberID
 
-        var stats = getNetworkDataForType(startStamp, endStamp, subscriberId, Mobile).sumOf { it.total }
-        stats -= getNetworkDataForType(startStamp, endStamp, subscriberId, Mobile)
-            .filter { dataPlan.excludedApps.contains(it.uid) }.sumOf { it.total }
+        val networkData = getNetworkDataForType(startStamp, endStamp, subscriberId, Mobile)
+        val stats = networkData.filter { !dataPlan.excludedApps.contains(it.uid) }.sumOf { it.total }
 
         return stats
     }
@@ -235,11 +234,7 @@ class NetworkUsageManager(
                 ))
                 list.add(0, AppUsage(
                     app = allApp,
-                    usage = DayUsage(
-                        date = dateParams.day,
-                        usage1 = calculateDayUsageBasic(dates.first, dates.second, query1),
-                        usage2 = calculateDayUsageBasic(dates.first, dates.second, query2)
-                    )
+                    usage = totalUsage
                 ))
                 emit(list.distinctBy { it.app.uid }.toList())
             }
@@ -267,7 +262,7 @@ class NetworkUsageManager(
                     val usage2 = usage2.find { it.start == time } ?: UsageData()
                     HourUsage(
                         start = usage1.start ?: usage2.start ?: return@map null,
-                        end = usage1.end ?:  usage2.end ?: return@map null,
+                        end = usage1.end ?: usage2.end ?: return@map null,
                         usage = DayUsage(
                             date = dateParams.day,
                             usage1 = usage1.total,

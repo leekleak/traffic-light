@@ -34,7 +34,7 @@ interface HistoricalDataDao {
     fun add(data: HistoricalData)
 }
 
-@Database(entities = [HistoricalData::class], version = 1, exportSchema = false)
+@Database(entities = [HistoricalData::class], version = 1, exportSchema = true)
 @TypeConverters(Converters::class)
 abstract class HistoricalDataCache : RoomDatabase() {
     abstract fun historicalDataDao(): HistoricalDataDao
