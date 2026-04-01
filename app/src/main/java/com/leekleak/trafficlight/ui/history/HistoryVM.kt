@@ -41,12 +41,12 @@ class HistoryVM(
         )
     )
 
-
     val query1Flow = query1.asStateFlow()
     val query2Flow = query2.asStateFlow()
     val queryFlow = query1Flow.combine(query2Flow) {q1, q2 -> Pair(q1, q2) }
     val dateQueryFlow = dateParams.combine(queryFlow) {date, queries-> Pair(date, queries) }
     val listParamFlow = listParam.asStateFlow()
+    val dateParamsFlow = dateParams.asStateFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val usageFlow = combine(query1Flow, query2Flow) { q1, q2 -> q1 to q2 }.flatMapLatest { (q1, q2) ->
@@ -82,15 +82,22 @@ class HistoryVM(
             2 -> query2.value = newQuery
             else -> throw IllegalArgumentException("Invalid query index: $n")
         }
+
+        updateListQuery(listParam.value) // Force update of list
     }
 
-    fun updateDateQuery(day: LocalDate, showMonth: Boolean) {
-        dateParams.value = DateParams(day, showMonth)
+    fun updateDateQuery(day: LocalDate= dateParams.value.day, showMonth: Boolean = dateParams.value.showMonth) {
+        if ((forceHourList() && showMonth) || !showMonth) {
+            dateParams.value = DateParams(day, showMonth)
+        }
     }
 
     fun updateListQuery(newList: ListParam) {
-        listParam.value = newList
+        if (forceHourList()) listParam.value = newList
+        else listParam.value = ListParam.HourList
     }
+
+    fun forceHourList(): Boolean = query1.value.dataUID.uidQuery == null && query2.value.dataUID.uidQuery == null
 
     val datesForTimespan: Pair<LocalDate, LocalDate> by lazy {
         val now = LocalDate.now().plusDays(1)

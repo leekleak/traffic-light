@@ -89,8 +89,10 @@ import com.leekleak.trafficlight.database.getIcon
 import com.leekleak.trafficlight.database.getName
 import com.leekleak.trafficlight.database.getNext
 import com.leekleak.trafficlight.model.AppManager
+import com.leekleak.trafficlight.model.AppManager.Companion.allApp
+import com.leekleak.trafficlight.model.AppManager.Companion.removedApp
+import com.leekleak.trafficlight.model.AppManager.Companion.tetheringApp
 import com.leekleak.trafficlight.ui.overview.AppSelector
-import com.leekleak.trafficlight.ui.overview.specialApps
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.momoTrustDisplayFont
 import com.leekleak.trafficlight.util.CategoryTitleText
@@ -100,7 +102,6 @@ import com.leekleak.trafficlight.util.toLocaleHourString
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 const val MAX_DAYS = 90
@@ -112,19 +113,13 @@ fun History(paddingValues: PaddingValues) {
     val viewModel: HistoryVM = koinViewModel()
     val haptic = LocalHapticFeedback.current
 
-    var appDay by remember { mutableStateOf( LocalDate.now()) }
-    var showMonth by remember { mutableStateOf(false) }
-
-    LaunchedEffect(appDay, showMonth) {
-        viewModel.updateDateQuery(appDay, showMonth)
-    }
-
     val usage: List<ScrollableBarData> by viewModel.usageFlow.collectAsState()
     val sidePadding = remember(paddingValues) { paddingValues.calculateLeftPadding(LayoutDirection.Ltr) }
 
     val usageQuery1 by viewModel.query1Flow.collectAsState()
     val usageQuery2 by viewModel.query2Flow.collectAsState()
     val listParam by viewModel.listParamFlow.collectAsState()
+    val dateParams by viewModel.dateParamsFlow.collectAsState()
 
     Column {
         Column (
@@ -147,7 +142,7 @@ fun History(paddingValues: PaddingValues) {
                 }
             }
             ScrollableBarGraph(usage) {
-                appDay = viewModel.datesForTimespan.first.plusDays(it.toLong())
+                viewModel.updateDateQuery(day = viewModel.datesForTimespan.first.plusDays(it.toLong()))
             }
             Row(
                 Modifier
@@ -195,20 +190,20 @@ fun History(paddingValues: PaddingValues) {
                     )
                     toggleableItem(
                         onCheckedChange = {
-                            showMonth = true
+                            viewModel.updateDateQuery(showMonth = true)
                             haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                         },
-                        label = appDay.month.getName(java.time.format.TextStyle.FULL),
-                        checked = !showMonth,
+                        label = dateParams.day.month.getName(java.time.format.TextStyle.FULL),
+                        checked = !dateParams.showMonth,
                         weight = 3f
                     )
                     toggleableItem(
                         onCheckedChange = {
-                            showMonth = false
+                            viewModel.updateDateQuery(showMonth = false)
                             haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                         },
-                        label = appDay.dayOfMonth.toString(),
-                        checked = showMonth,
+                        label = dateParams.day.dayOfMonth.toString(),
+                        checked = dateParams.showMonth,
                         weight = 1f
                     )
                 }
@@ -387,7 +382,7 @@ fun HistoryFilter(
             )
             FilterButton(
                 n = 1,
-                enabled = true,
+                enabled = viewModel.forceHourList(),
                 onClick = {
                     viewModel.updateListQuery(listParam.getNext())
                     hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -497,15 +492,18 @@ private fun AppSearchDialog(onSelect: (uid: Int) -> Unit, onDismiss: () -> Unit)
         }
 
         val includedApps by remember { appManager.suspiciousAppsFlow }.collectAsState(emptyList())
+        val appsPlusOther by remember { derivedStateOf {
+            listOf(allApp, tetheringApp, removedApp).plus(includedApps)
+        } }
         var query by remember { mutableStateOf("") }
         val searchResults by remember {
             derivedStateOf {
-                if (query.isEmpty()) includedApps.sortedByDescending { specialApps.indexOf(it.packageName) }
-                else includedApps.filter { it.getName(context).lowercase().contains(query.lowercase()) }
+                if (query.isEmpty()) appsPlusOther
+                else appsPlusOther.filter { it.getName(context).lowercase().contains(query.lowercase()) }
             }
         }
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -549,7 +547,7 @@ private fun FilterButton(
             containerColor = if (n == 1) colorScheme.primary else colorScheme.tertiary,
             contentColor = if (n == 1) colorScheme.onPrimary else colorScheme.onTertiary
         ),
-        contentPadding = PaddingValues(),
+        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp),
         onClick = onClick
     ) {
         Row(

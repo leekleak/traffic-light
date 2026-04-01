@@ -54,7 +54,7 @@ class AppManager(context: Context) {
                 packageName = it.packageName,
                 label = it.loadLabel(packageManager).toString()
             )
-        }.plus(listOf(removedApp, tetheringApp, allApp, unknownApp))
+        }
     }
 
     val suspiciousAppsFlow = flow {
@@ -83,29 +83,8 @@ class AppManager(context: Context) {
     }
 
     fun getAppForUID(uid: Int): DataUID {
-        return suspiciousApps.find { it.uid == uid } ?: allApp
+        return suspiciousApps.plus(specialApps).find { it.uid == uid } ?: allApp
     }
-
-    val unknownApp = DataUIDSpecial(
-        uid = -99,
-        packageName = "",
-        drawableResource = R.drawable.help,
-        stringResource = R.string.unknown
-    )
-
-    val tetheringApp = DataUIDSpecial(
-        uid = UID_TETHERING,
-        packageName = "",
-        drawableResource = R.drawable.hotspot,
-        stringResource = R.string.tethering
-    )
-
-    val removedApp = DataUIDSpecial(
-        uid = UID_REMOVED,
-        packageName = "",
-        drawableResource = R.drawable.deleted,
-        stringResource = R.string.removed_apps
-    )
 
     companion object {
         val allApp = DataUIDSpecial(
@@ -114,6 +93,25 @@ class AppManager(context: Context) {
             drawableResource = R.drawable.apps,
             stringResource = R.string.all_apps
         )
+        val tetheringApp = DataUIDSpecial(
+            uid = UID_TETHERING,
+            packageName = "",
+            drawableResource = R.drawable.hotspot,
+            stringResource = R.string.tethering
+        )
+        val removedApp = DataUIDSpecial(
+            uid = UID_REMOVED,
+            packageName = "",
+            drawableResource = R.drawable.deleted,
+            stringResource = R.string.removed_apps
+        )
+        val unknownApp = DataUIDSpecial(
+            uid = -99,
+            packageName = "",
+            drawableResource = R.drawable.help,
+            stringResource = R.string.unknown
+        )
+        val specialApps = listOf(allApp, tetheringApp, removedApp, unknownApp)
         val specialUIDs = listOf(UID_REMOVED, UID_TETHERING)
     }
 }

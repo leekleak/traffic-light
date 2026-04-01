@@ -72,7 +72,7 @@
     <string name="no_configured_plans_description">Please ensure that you have configured at least 1 data plan.</string>
     <string name="no_configured_plans">No plans configured</string>
     <string name="warning">Warning</string>
-    <string name="tethering">Mobile Hotspot</string>
+    <string name="tethering">Tethering</string>
     <string name="removed_apps">Removed apps</string>
     <string name="all_apps">All apps</string>
     <string name="prediction">Prediction</string>

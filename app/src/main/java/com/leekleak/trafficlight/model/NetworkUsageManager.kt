@@ -21,6 +21,7 @@ import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.database.Wifi
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.model.AppManager.Companion.specialUIDs
+import com.leekleak.trafficlight.model.AppManager.Companion.unknownApp
 import com.leekleak.trafficlight.ui.history.DateParams
 import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.getName
@@ -225,7 +226,7 @@ class NetworkUsageManager(
                 list.removeAll { it.usage.totalUsage == 0L }
                 list.sortByDescending { it.usage.totalUsage }
                 list.add(list.size, AppUsage(
-                    app = appManager.unknownApp,
+                    app = unknownApp,
                     usage = DayUsage(
                         date = dateParams.day,
                         usage1 = totalUsage.usage1 - list.sumOf { it.usage.usage1 },
