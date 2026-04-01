@@ -98,6 +98,9 @@
     <string name="bidirectional">Bidirectional</string>
     <string name="app_list">App list</string>
     <string name="hour_list">Hour list</string>
+    <string name="quick_filter">Quick filter</string>
+    <string name="save_and_persist">Save and persist</string>
+    <string name="open_app">Open app</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>
