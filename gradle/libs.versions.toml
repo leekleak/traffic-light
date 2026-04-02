@@ -3,7 +3,6 @@ agp = "9.1.0"
 coilCompose = "3.4.0"
 coreKtx = "1.18.0"
 activityCompose = "1.13.0"
-composeBom = "2026.03.01"
 
 coreSplashscreen = "1.2.0"
 datastore = "1.2.1"
@@ -12,6 +11,7 @@ kotlinxSerializationJson = "1.10.0"
 ksp = "2.3.4"
 koin-bom = "4.2.0"
 material3 = "1.5.0-alpha14" # alpha15+ breaks search bar as keyboard no longer opens
+compose-ui = "1.11.0-beta02"
 
 nav3Core = "1.0.1"
 room = "2.8.4"
@@ -28,9 +28,8 @@ androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", versi
 
 # Compose
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
-androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
-androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
-androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose-ui" }
+androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "compose-ui" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3"}
 
 # Koin

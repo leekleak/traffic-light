@@ -1,5 +1,6 @@
 package com.leekleak.trafficlight.ui.history
 
+import android.content.Context
 import androidx.annotation.IntRange
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -79,17 +81,23 @@ class HistoryVM(
     }
 
     fun updateDateQuery(day: LocalDate= dateParams.value.day, showMonth: Boolean = dateParams.value.showMonth) {
-        if ((forceHourList() && showMonth) || !showMonth) {
+        if ((forceHourList.value && showMonth) || !showMonth) {
             dateParams.value = DateParams(day, showMonth)
         }
     }
 
     fun updateListQuery(newList: ListParam) {
-        if (forceHourList()) listParam.value = newList
+        if (forceHourList.value) listParam.value = newList
         else listParam.value = ListParam.HourList
     }
 
-    fun forceHourList(): Boolean = query1.value.dataUID.uidQuery == null && query2.value.dataUID.uidQuery == null
+    val forceHourList: StateFlow<Boolean> = queryFlow.map { (query1, query2) ->
+        query1.dataUID.uidQuery == null && query2.dataUID.uidQuery == null
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
 
     val datesForTimespan: Pair<LocalDate, LocalDate> by lazy {
         val now = LocalDate.now().plusDays(1)
@@ -121,14 +129,11 @@ enum class ListParam {
     HourList
 }
 
-fun ListParam.getNext(): ListParam {
-    val nextIndex = (ordinal + 1) % ListParam.entries.size
-    return ListParam.entries[nextIndex]
-}
-
-fun ListParam.getStringResource(): Int {
-    return when (this) {
-        ListParam.AppList -> R.string.app_list
-        ListParam.HourList -> R.string.hour_list
-    }
+fun ListParam.getString(context: Context): String {
+    return context.getString(
+        when (this) {
+            ListParam.AppList -> R.string.app_list
+            ListParam.HourList -> R.string.hour_list
+        }
+    )
 }

@@ -1,6 +1,5 @@
 package com.leekleak.trafficlight.ui.history
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -22,11 +21,12 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -36,6 +36,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -339,20 +340,18 @@ private fun HistoryLegendItem(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun HistoryFilter(
-    onDismiss: () -> Unit
-) {
-    val hapticFeedback = LocalHapticFeedback.current
+fun HistoryFilter(onDismiss: () -> Unit) {
+    val haptic = LocalHapticFeedback.current
+    val context = LocalContext.current
     val viewModel: HistoryVM = koinViewModel()
 
     val usageQuery1 by viewModel.query1Flow.collectAsState()
     val usageQuery2 by viewModel.query2Flow.collectAsState()
     val listParam by viewModel.listParamFlow.collectAsState()
 
-    Dialog(
-        onDismissRequest = onDismiss
-    ) {
+    Dialog(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -361,7 +360,7 @@ fun HistoryFilter(
         ) {
             Text(
                 text = stringResource(R.string.filter),
-                style = MaterialTheme.typography.headlineMedium
+                style = MaterialTheme.typography.headlineSmallEmphasized
             )
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -377,28 +376,61 @@ fun HistoryFilter(
                     usageQuery2
                 )
             }
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
             Text(
-                text = "List",
-                style = MaterialTheme.typography.headlineMedium
+                text = stringResource(R.string.list),
+                style = MaterialTheme.typography.headlineSmallEmphasized
             )
-            FilterButton(
-                n = 1,
-                enabled = viewModel.forceHourList(),
-                onClick = {
-                    viewModel.updateListQuery(listParam.getNext())
-                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                }
+            val forceHourList by viewModel.forceHourList.collectAsState()
+            ButtonGroup(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(
+                    4.dp,
+                    Alignment.CenterHorizontally
+                ),
+                expandedRatio = 0.05f,
+                overflowIndicator = {}
             ) {
-                Text(stringResource(listParam.getStringResource()))
+                toggleableItem(
+                    onCheckedChange = {
+                        viewModel.updateListQuery(ListParam.AppList)
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    },
+                    label = ListParam.AppList.getString(context),
+                    enabled = forceHourList,
+                    checked = listParam == ListParam.AppList,
+                    weight = 1f
+                )
+                toggleableItem(
+                    onCheckedChange = {
+                        viewModel.updateListQuery(ListParam.HourList)
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    },
+                    label = ListParam.HourList.getString(context),
+                    checked = listParam == ListParam.HourList,
+                    weight = 1f
+                )
             }
-            TextButton(
-                onClick = {
-                    viewModel.persistFilters()
-                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                    onDismiss()
-                }
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
             ) {
-                Text(stringResource(R.string.save_and_persist))
+                TextButton(
+                    onClick = {
+                        viewModel.persistFilters()
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onDismiss()
+                    }
+                ) {
+                    Text(stringResource(R.string.persist))
+                }
+                Button(onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onDismiss()
+                }) {
+                    Text(stringResource(R.string.close))
+                }
             }
         }
     }
@@ -419,7 +451,8 @@ fun RowScope.HistoryItemSettings(
     Column (modifier = Modifier.weight(1f)) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleSmall,
+            color = if (n == 1) colorScheme.primary else colorScheme.tertiary,
         )
         FilterButton(
             n = n,
@@ -513,13 +546,17 @@ private fun AppSearchDialog(onSelect: (uid: Int) -> Unit, onDismiss: () -> Unit)
             }
         }
         Column(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AppSelector(searchResults) { uid -> onSelect(uid) }
             SearchBar(
                 modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .fillMaxWidth()
                     .focusRequester(focusRequester),
                 state = searchBarState,
                 inputField = {
@@ -593,30 +630,25 @@ fun AppItem(
         ) {
             Row(
                 modifier = Modifier.padding(4.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 icon()
-                AnimatedContent(selected) { selected ->
-                    if (!selected) {
-                        LineGraph(
-                            maximum = maximum,
-                            data = Pair(usage1, usage2)
-                        )
-                    } else {
-                        Text(
-                            text = name,
-                            fontWeight = FontWeight.Bold
-                        )
+                Column {
+                    AnimatedVisibility(
+                        visible = selected,
+                        enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
+                        exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
+                    ) {
+                        Column {
+                            Text(
+                                modifier = Modifier.height(32.dp).wrapContentHeight(Alignment.CenterVertically),
+                                text = name,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            LineGraphHeader()
+                        }
                     }
-                }
-            }
-            AnimatedVisibility(
-                visible = selected,
-                enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
-                exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
-            ) {
-                LineGraphHeader {
                     LineGraph(
                         maximum = maximum,
                         data = Pair(usage1, usage2)
@@ -628,35 +660,32 @@ fun AppItem(
 }
 
 @Composable
-fun LineGraphHeader(lineGraph: @Composable (() -> Unit)) {
+fun LineGraphHeader() {
     val context = LocalContext.current
     val viewModel: HistoryVM = koinViewModel()
 
     val usageQuery1 by viewModel.query1Flow.collectAsState()
     val usageQuery2 by viewModel.query2Flow.collectAsState()
 
-    val offset = imageWidth + 12.dp
-    Column (
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 4.dp, end = offset + 4.dp)
-            .offset(offset, 0.dp),
-    ) {
+    Column (Modifier.fillMaxWidth()) {
         Row {
-            Text(
-                modifier = Modifier.weight(1f),
-                text = usageQuery1.toString(context),
-                style = MaterialTheme.typography.titleMedium,
-                color = colorScheme.tertiary
-            )
-            Text(
-                modifier = Modifier.weight(1f),
-                text = usageQuery2.toString(context),
-                textAlign = TextAlign.End,
-                style = MaterialTheme.typography.titleMedium,
-                color = colorScheme.tertiary
-            )
+            if (usageQuery1.dataType.isNotEmpty()) {
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = usageQuery1.toString(context),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colorScheme.tertiary
+                )
+            }
+            if (usageQuery2.dataType.isNotEmpty()) {
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = usageQuery2.toString(context),
+                    textAlign = TextAlign.End,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = colorScheme.tertiary
+                )
+            }
         }
-        lineGraph()
     }
 }

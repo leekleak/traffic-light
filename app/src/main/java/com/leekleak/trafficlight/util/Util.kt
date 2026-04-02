@@ -65,7 +65,7 @@ fun fromTimestamp(stamp: Long): LocalDateTime {
 }
 
 fun LocalDateTime.toLocaleHourString(context: Context): String {
-    val pattern = if (DateFormat.is24HourFormat(context)) "HH" else "hh a"
+    val pattern = if (DateFormat.is24HourFormat(context)) "HH:mm" else "hh a"
     val formatter = DateTimeFormatter.ofPattern(pattern, Locale.getDefault())
     return format(formatter)
 }
