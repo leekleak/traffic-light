@@ -12,13 +12,12 @@ room {
 
 android {
     namespace = "com.leekleak.trafficlight"
-    compileSdk = 36
-    compileSdkMinor = 1
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.leekleak.trafficlight"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 24
         versionName = "2.13.1"
         base.archivesName = "$namespace-$versionName"
