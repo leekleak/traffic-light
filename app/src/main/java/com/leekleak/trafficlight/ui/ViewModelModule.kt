@@ -15,7 +15,7 @@ val viewModelModule = module {
         val (listParam, q1, q2) = runBlocking {
             Triple(prefs.listParam.first(), prefs.query1.first(), prefs.query2.first())
         }
-        HistoryVM(get(), prefs, listParam, q1, q2)
+        HistoryVM(get(), get(), prefs, listParam, q1, q2)
     }
     viewModel { SettingsVM() }
     viewModel { OverviewVM(get()) }

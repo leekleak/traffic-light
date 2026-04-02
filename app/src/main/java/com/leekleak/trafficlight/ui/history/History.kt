@@ -1,5 +1,6 @@
 package com.leekleak.trafficlight.ui.history
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -36,6 +37,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -94,6 +96,8 @@ import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.model.AppManager.Companion.removedApp
 import com.leekleak.trafficlight.model.AppManager.Companion.tetheringApp
+import com.leekleak.trafficlight.model.DataUID
+import com.leekleak.trafficlight.model.DataUIDApp
 import com.leekleak.trafficlight.ui.overview.AppSelector
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.momoTrustDisplayFont
@@ -242,6 +246,7 @@ private fun AppList(
         items(appList, { it.app.uid }) { item ->
             Box(Modifier.animateItem()) {
                 AppItem(
+                    app = item.app,
                     usage1 = item.usage.usage1,
                     usage2 = item.usage.usage2,
                     name = item.app.getName(context),
@@ -416,6 +421,14 @@ fun HistoryFilter(onDismiss: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
             ) {
+                TextButton(
+                    onClick = {
+                        viewModel.resetFilters()
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    }
+                ) {
+                    Text(stringResource(R.string.reset))
+                }
                 TextButton(
                     onClick = {
                         viewModel.persistFilters()
@@ -609,6 +622,7 @@ private fun FilterButton(
 @Composable
 fun AppItem(
     modifier: Modifier = Modifier,
+    app: DataUID? = null,
     usage1: Long,
     usage2: Long,
     name: String,
@@ -618,6 +632,12 @@ fun AppItem(
     icon: @Composable (() -> Unit)
 ) {
     val haptic = LocalHapticFeedback.current
+    val activity = LocalActivity.current
+    val viewModel: HistoryVM = koinViewModel()
+    val appManager: AppManager = koinInject()
+    val usageQuery1 by viewModel.query1Flow.collectAsState()
+    val usageQuery2 by viewModel.query2Flow.collectAsState()
+
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Column(
             modifier = modifier
@@ -642,7 +662,9 @@ fun AppItem(
                     ) {
                         Column {
                             Text(
-                                modifier = Modifier.height(32.dp).wrapContentHeight(Alignment.CenterVertically),
+                                modifier = Modifier
+                                    .height(32.dp)
+                                    .wrapContentHeight(Alignment.CenterVertically),
                                 text = name,
                                 fontWeight = FontWeight.Bold,
                             )
@@ -653,6 +675,45 @@ fun AppItem(
                         maximum = maximum,
                         data = Pair(usage1, usage2)
                     )
+                    AnimatedVisibility(
+                        visible = selected && app != null,
+                        enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
+                        exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
+                    ) {
+                        Column {
+                            HorizontalDivider(Modifier.padding(vertical = 4.dp))
+                            Row (
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End,
+                            ) {
+                                Button(
+                                    shape = MaterialTheme.shapes.small,
+                                    onClick = {
+                                        app?.uid?.let {
+                                            viewModel.updateQuery(1, usageQuery1.copy(dataUID = appManager.getAppForUID(it)))
+                                            viewModel.updateQuery(2, usageQuery2.copy(dataUID = appManager.getAppForUID(it)))
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        }
+                                    }
+                                ) {
+                                    Text(stringResource(R.string.quick_filter))
+                                }
+                                if (app is DataUIDApp) {
+                                    FilledIconButton(
+                                        onClick = {
+                                            viewModel.openPackageSettings(activity, app.uid)
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        }
+                                    ) {
+                                        Icon(
+                                            painterResource(R.drawable.settings),
+                                            stringResource(R.string.settings)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

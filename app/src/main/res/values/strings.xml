@@ -102,6 +102,7 @@
     <string name="persist">Persist</string>
     <string name="open_app">Open app</string>
     <string name="list">List</string>
+    <string name="reset">Reset</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

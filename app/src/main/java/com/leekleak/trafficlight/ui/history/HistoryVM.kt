@@ -1,7 +1,11 @@
 package com.leekleak.trafficlight.ui.history
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.provider.Settings
 import androidx.annotation.IntRange
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leekleak.trafficlight.R
@@ -10,6 +14,7 @@ import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.HistoryPreferenceRepo
 import com.leekleak.trafficlight.database.HourUsage
 import com.leekleak.trafficlight.database.UsageQuery
+import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +22,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -25,6 +31,7 @@ import java.time.LocalDate
 
 class HistoryVM(
     private val networkUsageManager: NetworkUsageManager,
+    private val appManager: AppManager,
     private val prefs: HistoryPreferenceRepo,
     initialListParam: ListParam,
     initialQuery1: UsageQuery,
@@ -109,6 +116,24 @@ class HistoryVM(
         viewModelScope.launch { prefs.saveQuery(1, query1.value) }
         viewModelScope.launch { prefs.saveQuery(2, query2.value) }
         viewModelScope.launch { prefs.saveListParam(listParam.value) }
+    }
+
+    fun resetFilters() = viewModelScope.launch {
+        updateQuery(1, prefs.query1.first())
+        updateQuery(2, prefs.query2.first())
+        updateListQuery(prefs.listParam.first())
+    }
+
+    fun openPackageSettings(activity: Activity?, uid: Int) {
+        val app = appManager.getAppForUID(uid)
+        if (app.packageName.isNotEmpty()) {
+            activity?.startActivity(
+                Intent(
+                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    "package:${app.packageName}".toUri()
+                )
+            )
+        }
     }
 }
 
