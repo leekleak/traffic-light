@@ -24,7 +24,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -41,16 +43,34 @@ class HistoryVM(
     private val listParam = MutableStateFlow(initialListParam)
     private val query1 = MutableStateFlow(initialQuery1)
     private val query2 = MutableStateFlow(initialQuery2)
-
+    
     val query1Flow = query1.asStateFlow()
     val query2Flow = query2.asStateFlow()
-    val queryFlow = query1Flow.combine(query2Flow) {q1, q2 -> Pair(q1, q2) }
+    val queryFlow = combine(query1Flow, query2Flow) { q1, q2 -> q1 to q2 }
+    val forceHourList = queryFlow.map { (query1, query2) ->
+        query1.dataUID.uidQuery != null || query2.dataUID.uidQuery != null
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
+
+    init {
+        forceHourList
+            .onEach { forced ->
+                if (forced) {
+                    listParam.value = ListParam.HourList
+                    dateParams.value = DateParams(dateParams.value.day, false)
+                }
+            }
+            .launchIn(viewModelScope)
+    }
     val dateQueryFlow = dateParams.combine(queryFlow) {date, queries-> Pair(date, queries) }
     val listParamFlow = listParam.asStateFlow()
     val dateParamsFlow = dateParams.asStateFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val usageFlow = combine(query1Flow, query2Flow) { q1, q2 -> q1 to q2 }.flatMapLatest { (q1, q2) ->
+    val usageFlow = queryFlow.flatMapLatest { (q1, q2) ->
         networkUsageManager.daysUsage(
             startDate = datesForTimespan.first,
             endDate = datesForTimespan.second,
@@ -83,28 +103,17 @@ class HistoryVM(
             2 -> query2.value = newQuery
             else -> throw IllegalArgumentException("Invalid query index: $n")
         }
-
-        updateListQuery(listParam.value) // Force update of list
     }
 
     fun updateDateQuery(day: LocalDate= dateParams.value.day, showMonth: Boolean = dateParams.value.showMonth) {
-        if ((forceHourList.value && showMonth) || !showMonth) {
-            dateParams.value = DateParams(day, showMonth)
-        }
+        val showMonthNew = if (forceHourList.value) false else showMonth
+        dateParams.value = DateParams(day, showMonthNew)
     }
 
-    fun updateListQuery(newList: ListParam) {
-        if (forceHourList.value) listParam.value = newList
+    fun updateListQuery(newList: ListParam = listParam.value) {
+        if (!forceHourList.value) listParam.value = newList
         else listParam.value = ListParam.HourList
     }
-
-    val forceHourList: StateFlow<Boolean> = queryFlow.map { (query1, query2) ->
-        query1.dataUID.uidQuery == null && query2.dataUID.uidQuery == null
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = false
-    )
 
     val datesForTimespan: Pair<LocalDate, LocalDate> by lazy {
         val now = LocalDate.now().plusDays(1)

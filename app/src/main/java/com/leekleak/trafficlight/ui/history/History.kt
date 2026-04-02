@@ -301,7 +301,7 @@ private fun HourList(
                     maximum = maximum,
                     onClick = {hourSelected = if (item.start.hour != hourSelected) item.start.hour else -1}
                 ) {
-                    Box (Modifier.width(measurement.size.width.toDp + 8.dp)) {
+                    Box (Modifier.width(measurement.size.width.toDp + 8.dp).height(32.dp)) {
                         Text(
                             modifier = Modifier.align(Alignment.Center),
                             text = item.start.toLocaleHourString(context),
@@ -402,7 +402,7 @@ fun HistoryFilter(onDismiss: () -> Unit) {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     },
                     label = ListParam.AppList.getString(context),
-                    enabled = forceHourList,
+                    enabled = !forceHourList,
                     checked = listParam == ListParam.AppList,
                     weight = 1f
                 )

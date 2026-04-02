@@ -210,8 +210,8 @@ class NetworkUsageManager(
                         ),
                         usage = DayUsage(
                             date = dateParams.day,
-                            usage1 = uid1.total,
-                            usage2 = uid2.total
+                            usage1 = uid1.forDirection(query1.dataDirection),
+                            usage2 = uid2.forDirection(query2.dataDirection)
                         ),
                     )
                 }.filterNotNull().toMutableList()
@@ -265,8 +265,8 @@ class NetworkUsageManager(
                         end = usage1.end ?: usage2.end ?: return@map null,
                         usage = DayUsage(
                             date = dateParams.day,
-                            usage1 = usage1.total,
-                            usage2 = usage2.total
+                            usage1 = usage1.forDirection(query1.dataDirection),
+                            usage2 = usage2.forDirection(query2.dataDirection)
                         ),
                     )
                 }.filterNotNull().sortedBy { it.start.hour }
