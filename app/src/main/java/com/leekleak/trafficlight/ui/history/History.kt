@@ -96,6 +96,7 @@ import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.model.AppManager.Companion.removedApp
 import com.leekleak.trafficlight.model.AppManager.Companion.tetheringApp
+import com.leekleak.trafficlight.model.AppManager.Companion.unknownApp
 import com.leekleak.trafficlight.model.DataUID
 import com.leekleak.trafficlight.model.DataUIDApp
 import com.leekleak.trafficlight.ui.overview.AppSelector
@@ -675,8 +676,9 @@ fun AppItem(
                         maximum = maximum,
                         data = Pair(usage1, usage2)
                     )
+                    val noOptionApps = listOf(allApp, unknownApp)
                     AnimatedVisibility(
-                        visible = selected && app != null,
+                        visible = selected && app != null && !noOptionApps.contains(app),
                         enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
                         exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
                     ) {

@@ -26,10 +26,10 @@ import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.IconCompat
 import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.Mobile
-import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.database.Wifi
@@ -194,8 +194,8 @@ class UsageService : Service() {
 
     private fun updateTodayUsage() {
         val date = LocalDate.now()
-        val mobile = networkUsageManager.calculateDayUsageBasic(date, date, queryMobile)
-        val wifi = networkUsageManager.calculateDayUsageBasic(date, date, queryWifi)
+        val mobile = networkUsageManager.calculateDayUsageBasic(queryMobile, date)
+        val wifi = networkUsageManager.calculateDayUsageBasic(queryWifi, date)
         todayUsage = DayUsage(date, mobile, wifi)
     }
 

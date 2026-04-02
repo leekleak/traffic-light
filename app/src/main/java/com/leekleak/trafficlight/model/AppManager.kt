@@ -59,34 +59,13 @@ class AppManager(context: Context) {
         emit(suspiciousApps)
     }.flowOn(Dispatchers.IO)
 
-    fun getNameForUID(uid: Int): String? {
-        val packageName = getPackageNamesForUID(uid) ?: return null
-        for (name in packageName) {
-            try {
-                val info = packageManager.getPackageInfo(name, 0).applicationInfo ?: return null
-                return packageManager.getApplicationLabel(info).toString()
-            } catch (_: Exception) { }
-        }
-        Timber.e("Failed to get name for UID $uid, packageName ${packageName.firstOrNull()}")
-        return packageName.firstOrNull()
-    }
-
-    fun getPackageNamesForUID(uid: Int): List<String>? {
-        return try {
-            packageManager.getPackagesForUid(uid)?.toList()
-        } catch (e: Exception) {
-            Timber.w(e, "Failed to get package names for UID $uid")
-            null
-        }
-    }
-
     fun getAppForUID(uid: Int): DataUID {
         return suspiciousApps.plus(specialApps).find { it.uid == uid } ?: allApp
     }
 
     companion object {
         val allApp = DataUIDSpecial(
-            uid = -100,
+            uid = UID_ALL,
             packageName = "",
             drawableResource = R.drawable.apps,
             stringResource = R.string.all_apps
@@ -104,13 +83,15 @@ class AppManager(context: Context) {
             stringResource = R.string.removed_apps
         )
         val unknownApp = DataUIDSpecial(
-            uid = -99,
+            uid = UID_UNKNOWN,
             packageName = "",
             drawableResource = R.drawable.help,
             stringResource = R.string.unknown
         )
         val specialApps = listOf(allApp, tetheringApp, removedApp, unknownApp)
         val specialUIDs = listOf(UID_REMOVED, UID_TETHERING)
+        const val UID_UNKNOWN = -99
+        const val UID_ALL = -100
     }
 }
 
