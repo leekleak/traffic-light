@@ -28,7 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.database.PreferenceRepo
+import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.NotificationSettings
@@ -47,7 +47,7 @@ import rikka.shizuku.Shizuku
 @Composable
 fun Settings(paddingValues: PaddingValues) {
     val viewModel: SettingsVM = koinViewModel()
-    val preferenceRepo: PreferenceRepo = koinInject()
+    val appPreferenceRepo: AppPreferenceRepo = koinInject()
     val permissionManager: PermissionManager = koinInject()
     val navigator: Navigator = koinInject()
     val activity = LocalActivity.current
@@ -81,13 +81,13 @@ fun Settings(paddingValues: PaddingValues) {
 
         categoryTitleSmall { stringResource(R.string.notifications) }
         item {
-            val notification by preferenceRepo.notification.collectAsState(false)
+            val notification by appPreferenceRepo.notification.collectAsState(false)
             val notificationPermission by permissionManager.notificationPermissionFlow.collectAsState(true)
             val notificationPermissionCallback = rememberLauncherForActivityResult(
                 ActivityResultContracts.RequestPermission()
             ) {
                 scope.launch {
-                    preferenceRepo.setNotification(it)
+                    appPreferenceRepo.setNotification(it)
                     viewModel.runUsageService(it, context)
                 }
             }
@@ -104,7 +104,7 @@ fun Settings(paddingValues: PaddingValues) {
                         )
                     } else {
                         scope.launch {
-                            preferenceRepo.setNotification(it)
+                            appPreferenceRepo.setNotification(it)
                             viewModel.runUsageService(it, context)
                         }
                     }
@@ -121,7 +121,7 @@ fun Settings(paddingValues: PaddingValues) {
 
         categoryTitleSmall { stringResource(R.string.data_plans) }
         item {
-            val shizukuTracking by preferenceRepo.shizukuTracking.collectAsState(false)
+            val shizukuTracking by appPreferenceRepo.shizukuTracking.collectAsState(false)
             val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
             val shizukuRunning by permissionManager.shizukuRunningFlow.collectAsState(false)
 
@@ -134,7 +134,7 @@ fun Settings(paddingValues: PaddingValues) {
                 onValueChanged = {
                     if (shizukuPermission) {
                         scope.launch {
-                            preferenceRepo.setShizukuTracking(it)
+                            appPreferenceRepo.setShizukuTracking(it)
                         }
                     } else {
                         Shizuku.requestPermission(12199)
@@ -145,7 +145,7 @@ fun Settings(paddingValues: PaddingValues) {
 
         categoryTitleSmall { stringResource(R.string.ui) }
         item {
-            val theme by preferenceRepo.theme.collectAsState(Theme.AutoMaterial)
+            val theme by appPreferenceRepo.theme.collectAsState(Theme.AutoMaterial)
             val scroll = rememberScrollState(0)
 
             val panelWidth = 272.dp.px.toInt() // Just a guess lol. Calculate the actual size if I ever add more themes
@@ -161,8 +161,8 @@ fun Settings(paddingValues: PaddingValues) {
                     .padding(start = 8.dp, end = 8.dp, bottom = 8.dp, top = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                ThemePreferenceContainer(theme, true) { scope.launch { preferenceRepo.setTheme(it) } }
-                ThemePreferenceContainer(theme, false) { scope.launch { preferenceRepo.setTheme(it) } }
+                ThemePreferenceContainer(theme, true) { scope.launch { appPreferenceRepo.setTheme(it) } }
+                ThemePreferenceContainer(theme, false) { scope.launch { appPreferenceRepo.setTheme(it) } }
             }
         }
 

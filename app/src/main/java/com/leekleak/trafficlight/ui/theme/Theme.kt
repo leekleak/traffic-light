@@ -24,7 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.database.PreferenceRepo
+import com.leekleak.trafficlight.database.AppPreferenceRepo
 import org.koin.compose.koinInject
 
 
@@ -32,8 +32,8 @@ import org.koin.compose.koinInject
 fun Theme(
     content: @Composable () -> Unit
 ) {
-    val preferenceRepo: PreferenceRepo = koinInject()
-    val theme by preferenceRepo.theme.collectAsState(Theme.AutoMaterial)
+    val appPreferenceRepo: AppPreferenceRepo = koinInject()
+    val theme by appPreferenceRepo.theme.collectAsState(Theme.AutoMaterial)
     val isDark = theme.isDark()
 
     val view = LocalView.current

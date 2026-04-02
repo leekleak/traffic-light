@@ -31,15 +31,14 @@ import timber.log.Timber
 @SuppressLint("QueryPermissionsNeeded")
 class AppManager(context: Context) {
     private val packageManager: PackageManager = context.packageManager
-    val allApps by lazy {
+    val allApps =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             packageManager.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0L))
         } else {
             packageManager.getInstalledApplications(0)
         }
-    }
 
-    val suspiciousApps by lazy {
+    val suspiciousApps =
         allApps.filter { app ->
             try {
                 val pi = packageManager.getPackageInfo(app.packageName, PackageManager.GET_PERMISSIONS)
@@ -55,7 +54,6 @@ class AppManager(context: Context) {
                 label = it.loadLabel(packageManager).toString()
             )
         }
-    }
 
     val suspiciousAppsFlow = flow {
         emit(suspiciousApps)

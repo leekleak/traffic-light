@@ -46,13 +46,13 @@ class TrafficSnapshot (
     var currentDown: Long = 0,
     var currentUp: Long = 0,
 ) : KoinComponent {
-    private val preferenceRepo: PreferenceRepo by inject()
+    private val appPreferenceRepo: AppPreferenceRepo by inject()
     private val connectivityManager: ConnectivityManager by inject()
     private var useFallback: Boolean = TrafficStats.getTotalTxBytes() == TrafficStats.UNSUPPORTED.toLong()
     private var altVpnWorkaround: Boolean = false
 
     init {
-        combine(preferenceRepo.forceFallback, preferenceRepo.altVpn) { force, alt ->
+        combine(appPreferenceRepo.forceFallback, appPreferenceRepo.altVpn) { force, alt ->
             useFallback = force || TrafficStats.getTotalTxBytes() == TrafficStats.UNSUPPORTED.toLong()
             altVpnWorkaround = alt
         }.launchIn(scope)
@@ -78,7 +78,7 @@ class TrafficSnapshot (
                     fallbackUpdateSnapshot()
                 } catch (e: Exception) {
                     Timber.e("Fallback unsupported: $e")
-                    scope.launch { preferenceRepo.setForceFallback(false) }
+                    scope.launch { appPreferenceRepo.setForceFallback(false) }
                     useFallback = false
                 }
             } else {

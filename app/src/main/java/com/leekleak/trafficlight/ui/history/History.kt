@@ -46,6 +46,7 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
@@ -389,6 +390,15 @@ fun HistoryFilter(
                 }
             ) {
                 Text(stringResource(listParam.getStringResource()))
+            }
+            TextButton(
+                onClick = {
+                    viewModel.persistFilters()
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onDismiss()
+                }
+            ) {
+                Text(stringResource(R.string.save_and_persist))
             }
         }
     }

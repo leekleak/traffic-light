@@ -13,18 +13,25 @@ import com.leekleak.trafficlight.model.DataUID
  *
  */
 interface DataType {
+    val internalName: String
     fun getQueryIndex(): Int
     fun getNameResource(): Int
     fun getIconResource(): Int
+
+    companion object {
+        val entries: List<DataType> = listOf(Wifi, Mobile)
+    }
 }
 
 object Wifi : DataType {
+    override val internalName: String = "Wifi"
     override fun getQueryIndex(): Int = ConnectivityManager.TYPE_WIFI
     override fun getNameResource(): Int = R.string.wifi
     override fun getIconResource(): Int = R.drawable.wifi
 }
 
 object Mobile : DataType {
+    override val internalName: String = "Mobile"
     override fun getQueryIndex(): Int = ConnectivityManager.TYPE_MOBILE
     override fun getNameResource(): Int = R.string.cellular
     override fun getIconResource(): Int = R.drawable.cellular

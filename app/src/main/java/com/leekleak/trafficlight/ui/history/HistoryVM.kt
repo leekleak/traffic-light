@@ -6,11 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.AppUsage
-import com.leekleak.trafficlight.database.DataDirection
+import com.leekleak.trafficlight.database.HistoryPreferenceRepo
 import com.leekleak.trafficlight.database.HourUsage
-import com.leekleak.trafficlight.database.Mobile
 import com.leekleak.trafficlight.database.UsageQuery
-import com.leekleak.trafficlight.database.Wifi
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,26 +18,20 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class HistoryVM(
-    private val networkUsageManager: NetworkUsageManager
+    private val networkUsageManager: NetworkUsageManager,
+    private val prefs: HistoryPreferenceRepo,
+    initialListParam: ListParam,
+    initialQuery1: UsageQuery,
+    initialQuery2: UsageQuery,
 ): ViewModel() {
     private val dateParams = MutableStateFlow(DateParams(LocalDate.now(), false))
-    private val listParam = MutableStateFlow(ListParam.AppList)
-
-    private val query1 = MutableStateFlow(
-        UsageQuery(
-            dataType = listOf(Wifi),
-            dataDirection = DataDirection.Bidirectional,
-        )
-    )
-    private val query2 = MutableStateFlow(
-        UsageQuery(
-            dataType = listOf(Mobile),
-            dataDirection = DataDirection.Bidirectional,
-        )
-    )
+    private val listParam = MutableStateFlow(initialListParam)
+    private val query1 = MutableStateFlow(initialQuery1)
+    private val query2 = MutableStateFlow(initialQuery2)
 
     val query1Flow = query1.asStateFlow()
     val query2Flow = query2.asStateFlow()
@@ -103,6 +95,12 @@ class HistoryVM(
         val now = LocalDate.now().plusDays(1)
         val base = now.minusDays(MAX_DAYS.toLong())
         Pair(base, now)
+    }
+
+    fun persistFilters() {
+        viewModelScope.launch { prefs.saveQuery(1, query1.value) }
+        viewModelScope.launch { prefs.saveQuery(2, query2.value) }
+        viewModelScope.launch { prefs.saveListParam(listParam.value) }
     }
 }
 

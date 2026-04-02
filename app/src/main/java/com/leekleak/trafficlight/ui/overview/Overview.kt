@@ -54,7 +54,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.DataPlanDao
-import com.leekleak.trafficlight.database.PreferenceRepo
+import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.PlanConfig
@@ -79,7 +79,7 @@ fun Overview(
 ) {
     val networkUsageManager: NetworkUsageManager = koinInject()
     val dataPlanDao: DataPlanDao = koinInject()
-    val preferenceRepo: PreferenceRepo = koinInject()
+    val appPreferenceRepo: AppPreferenceRepo = koinInject()
     val navigator: Navigator = koinInject()
 
     val scope = rememberCoroutineScope()
@@ -88,8 +88,8 @@ fun Overview(
     val weeklyUsage by networkUsageManager.weekUsage().collectAsState(listOf())
     val activePlans by remember { dataPlanDao.getActiveFlow() }.collectAsState(listOf())
 
-    val shizukuHint by remember { preferenceRepo.shizukuHint }.collectAsState(false)
-    val shizukuTracking by remember { preferenceRepo.shizukuTracking }.collectAsState(true)
+    val shizukuHint by remember { appPreferenceRepo.shizukuHint }.collectAsState(false)
+    val shizukuTracking by remember { appPreferenceRepo.shizukuTracking }.collectAsState(true)
 
     val columnState = rememberLazyListState()
     LazyColumn(
@@ -149,7 +149,7 @@ fun Overview(
                         PermissionButton(
                             icon = painterResource(R.drawable.close),
                             contentDescription = stringResource(R.string.close),
-                            onClick = { scope.launch { preferenceRepo.setShizukuHint(false) } }
+                            onClick = { scope.launch { appPreferenceRepo.setShizukuHint(false) } }
                         )
                     }
                 )

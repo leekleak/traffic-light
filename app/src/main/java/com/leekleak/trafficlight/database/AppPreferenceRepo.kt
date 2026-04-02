@@ -14,17 +14,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
-
-class PreferenceRepo (
+class AppPreferenceRepo (
     private val context: Context,
     permissionManager: PermissionManager
 ) {
-    private val dataStore get() = context.dataStore
+    private val Context.appPreferences: DataStore<Preferences> by preferencesDataStore(name = "settings")
+    private val dataStore get() = context.appPreferences
     private val data get() = dataStore.data
 
     val notification: Flow<Boolean> = combine(
-        context.dataStore.data,
+        context.appPreferences.data,
         permissionManager.notificationPermissionFlow
     ) { settings, permission ->
         return@combine (settings[NOTIFICATION] ?: false) && permission

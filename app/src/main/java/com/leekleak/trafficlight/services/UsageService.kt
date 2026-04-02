@@ -29,7 +29,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.Mobile
-import com.leekleak.trafficlight.database.PreferenceRepo
+import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.database.Wifi
@@ -60,7 +60,7 @@ class UsageService : Service() {
     private val serviceScope = CoroutineScope(Dispatchers.IO)
     private var job: Job? = null
     private val networkUsageManager: NetworkUsageManager by lazy { get() }
-    private val preferenceRepo: PreferenceRepo by lazy { get() }
+    private val appPreferenceRepo: AppPreferenceRepo by lazy { get() }
     private val notificationManager: NotificationManager by lazy { get() }
     private val connectivityManager: ConnectivityManager by lazy { get() }
     private lateinit var notificationBuilder: NotificationCompat.Builder
@@ -113,13 +113,13 @@ class UsageService : Service() {
             addAction(Intent.ACTION_SCREEN_OFF)
         })
         serviceScope.launch {
-            preferenceRepo.modeAOD.collect { aodMode = it }
+            appPreferenceRepo.modeAOD.collect { aodMode = it }
         }
         serviceScope.launch {
-            preferenceRepo.bigIcon.collect { bigIcon = it }
+            appPreferenceRepo.bigIcon.collect { bigIcon = it }
         }
         serviceScope.launch {
-            preferenceRepo.speedBits.collect { formatter.asBits = it }
+            appPreferenceRepo.speedBits.collect { formatter.asBits = it }
         }
     }
 
@@ -353,8 +353,8 @@ class UsageService : Service() {
         }
 
         fun startService(context: Context) {
-            val preferenceRepo: PreferenceRepo by inject()
-            val enabled = runBlocking { preferenceRepo.notification.first() }
+            val appPreferenceRepo: AppPreferenceRepo by inject()
+            val enabled = runBlocking { appPreferenceRepo.notification.first() }
             if (!isInstanceCreated() && enabled) {
                 val intent = Intent(context, UsageService::class.java)
                 context.startService(intent)
