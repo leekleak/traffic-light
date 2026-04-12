@@ -72,7 +72,7 @@
     <string name="length">Zeitraum:</string>
     <string name="days">Tage</string>
     <string name="warning">Warnung</string>
-    <string name="tethering">Mobiler Hotspot</string>
+    <string name="tethering">Tethering</string>
     <string name="removed_apps">Entfernte Apps</string>
     <string name="prediction">Vorhersage</string>
     <string name="trend">Trend</string>
@@ -98,4 +98,11 @@
     <string name="upload">Upload</string>
     <string name="download">Download</string>
     <string name="bidirectional">Bidirektional</string>
+    <string name="app_list">App-Liste</string>
+    <string name="hour_list">Stundenliste</string>
+    <string name="quick_filter">Schnellfilter</string>
+    <string name="open_app">App öffnen</string>
+    <string name="list">Liste</string>
+    <string name="reset">Zurücksetzen</string>
+    <string name="persist">Fortfahren</string>
 </resources>
