@@ -91,4 +91,15 @@
     <string name="close">Uždaryti</string>
     <string name="shizuku_hint">Norite sekti kelias SIM korteles?</string>
     <string name="shizuku_hint_description">Norėdami tai pasiekti, reikia įrašyti ir paleisti „Shizuku“ bei įjungti funkciją nustatymuose.</string>
+    <string name="total">Bendri</string>
+    <string name="all_apps">Visos programėlės</string>
+    <string name="filter">Filtras</string>
+    <string name="none">Nieko</string>
+    <string name="primary">Pirminis</string>
+    <string name="secondary">Antrinis</string>
+    <string name="upload">Įkelti</string>
+    <string name="download">Atsisiųsti</string>
+    <string name="bidirectional">Abipusis</string>
+    <string name="app_list">Programėlių sąrašas</string>
+    <string name="hour_list">Valandų sąrašas</string>
 </resources>
