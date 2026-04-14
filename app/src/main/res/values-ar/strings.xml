@@ -76,7 +76,7 @@
     <string name="time">الوقت:</string>
     <string name="length">الطول:</string>
     <string name="days">أيام</string>
-    <string name="tethering">نقطة اتصال الجوّال</string>
+    <string name="tethering">الربط</string>
     <string name="removed_apps">التطبيقات المُزالة</string>
     <string name="prediction">التوقع</string>
     <string name="trend">رائج</string>
@@ -102,4 +102,11 @@
     <string name="upload">تحميل</string>
     <string name="download">تنزيل</string>
     <string name="bidirectional">ثنائي الاتجاه</string>
+    <string name="app_list">قائمة التطبيقات</string>
+    <string name="hour_list">قائمة الساعة</string>
+    <string name="quick_filter">تصفية سريعة</string>
+    <string name="persist">دائم</string>
+    <string name="open_app">افتح التطبيق</string>
+    <string name="list">لائحة</string>
+    <string name="reset">صفّر</string>
 </resources>
