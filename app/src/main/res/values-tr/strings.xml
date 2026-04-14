@@ -72,7 +72,7 @@
     </plurals>
     <string name="zero_rated_apps">Puanlanmamış uygulamalar</string>
     <string name="configured_plans">Ayarlanmış planlar</string>
-    <string name="tethering">Mobil Paylaşım Noktası</string>
+    <string name="tethering">İnternet Paylaşımı</string>
     <string name="removed_apps">Silinmiş uygulamalar</string>
     <string name="prediction">Tahmin</string>
     <string name="trend">Eğilim</string>
@@ -98,4 +98,11 @@
     <string name="upload">Yükleme</string>
     <string name="download">İndirme</string>
     <string name="bidirectional">Çift yönlü</string>
+    <string name="app_list">Uygulama listesi</string>
+    <string name="hour_list">Saat listesi</string>
+    <string name="quick_filter">Hızlı filtre</string>
+    <string name="persist">Sürdür</string>
+    <string name="open_app">Uygulamayı aç</string>
+    <string name="list">Liste</string>
+    <string name="reset">Sıfırla</string>
 </resources>
