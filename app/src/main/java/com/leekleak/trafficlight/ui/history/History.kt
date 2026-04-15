@@ -32,6 +32,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroup
@@ -174,6 +176,7 @@ fun History(paddingValues: PaddingValues) {
                             val source = remember { MutableInteractionSource() }
                             val press by source.collectIsPressedAsState()
                             val cornerRadius by animateDpAsState(if (press) 24.dp else 6.dp)
+                            val filtersChanged by viewModel.filtersChanged.collectAsState()
                             IconButton(
                                 modifier = Modifier.animateWidth(source),
                                 colors = IconButtonDefaults.iconButtonColors(
@@ -187,10 +190,12 @@ fun History(paddingValues: PaddingValues) {
                                     haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                                 }
                             ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.filter_list),
-                                    contentDescription = stringResource(R.string.filter)
-                                )
+                                BadgedBox({ if (filtersChanged) { Badge() } }) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.filter_list),
+                                        contentDescription = stringResource(R.string.filter)
+                                    )
+                                }
                             }
                         },
                         menuContent = {}

@@ -36,8 +36,8 @@ class HistoryVM(
     private val appManager: AppManager,
     private val prefs: HistoryPreferenceRepo,
     initialListParam: ListParam,
-    initialQuery1: UsageQuery,
-    initialQuery2: UsageQuery,
+    private val initialQuery1: UsageQuery,
+    private val initialQuery2: UsageQuery,
 ): ViewModel() {
     private val dateParams = MutableStateFlow(DateParams(LocalDate.now(), false))
     private val listParam = MutableStateFlow(initialListParam)
@@ -96,6 +96,10 @@ class HistoryVM(
             networkUsageManager.getAllHourUsage(date, queries.first, queries.second)
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val filtersChanged: StateFlow<Boolean> = queryFlow
+        .map { (q1, q2) -> q1 != initialQuery1 || q2 != initialQuery2 }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     fun updateQuery(@IntRange(1, 2) n: Int, newQuery: UsageQuery) {
         when (n) {
