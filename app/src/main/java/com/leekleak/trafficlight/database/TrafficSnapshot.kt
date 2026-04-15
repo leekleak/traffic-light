@@ -1,10 +1,12 @@
 package com.leekleak.trafficlight.database
 
+import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.TrafficStats
 import android.os.Build
 import com.leekleak.trafficlight.model.DataUID
+import com.leekleak.trafficlight.util.toLocaleHourString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
@@ -36,7 +38,9 @@ data class HourUsage(
     val end: LocalDateTime,
     val usage: DayUsage,
 ) {
-    override fun toString(): String = "${start.toLocalTime()} - ${end.toLocalTime()}"
+    fun toString(context: Context): String {
+        return "${start.toLocalTime().toLocaleHourString(context)} - ${end.toLocalTime().toLocaleHourString(context)}"
+    }
 }
 
 class TrafficSnapshot (

@@ -30,6 +30,7 @@ import com.leekleak.trafficlight.R
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.Month
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -64,8 +65,9 @@ fun fromTimestamp(stamp: Long): LocalDateTime {
     )
 }
 
-fun LocalDateTime.toLocaleHourString(context: Context): String {
-    val pattern = if (DateFormat.is24HourFormat(context)) "HH:mm" else "hh a"
+fun LocalTime.toLocaleHourString(context: Context, short: Boolean = false): String {
+    val pattern = if (DateFormat.is24HourFormat(context)) "HH:mm"
+        else (if (short) "hh a" else "hh:mm a")
     val formatter = DateTimeFormatter.ofPattern(pattern, Locale.getDefault())
     return format(formatter)
 }

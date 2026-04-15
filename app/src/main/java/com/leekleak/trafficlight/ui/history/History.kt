@@ -109,7 +109,7 @@ import com.leekleak.trafficlight.util.toLocaleHourString
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
-import java.time.LocalDateTime
+import java.time.LocalTime
 
 const val MAX_DAYS = 90
 val imageWidth = 32.dp
@@ -275,7 +275,7 @@ private fun HourList(
     val maximum by remember { derivedStateOf { hourList.sumOf { it.usage.totalUsage } } }
     val textMeasurer = rememberTextMeasurer()
     val measurement = textMeasurer.measure(
-        text = LocalDateTime.now().withHour(2).toLocaleHourString(context),
+        text = LocalTime.MIDNIGHT.toLocaleHourString(context, true),
         style = TextStyle(
             fontFamily = momoTrustDisplayFont(),
             fontSize = MaterialTheme.typography.titleMedium.fontSize,
@@ -297,7 +297,7 @@ private fun HourList(
                 AppItem(
                     usage1 = item.usage.usage1,
                     usage2 = item.usage.usage2,
-                    name = item.toString(),
+                    name = item.toString(context),
                     selected = item.start.hour == hourSelected,
                     maximum = maximum,
                     onClick = {hourSelected = if (item.start.hour != hourSelected) item.start.hour else -1}
@@ -305,7 +305,7 @@ private fun HourList(
                     Box (Modifier.width(measurement.size.width.toDp + 8.dp).height(32.dp)) {
                         Text(
                             modifier = Modifier.align(Alignment.Center),
-                            text = item.start.toLocaleHourString(context),
+                            text = item.start.toLocalTime().toLocaleHourString(context, true),
                             fontFamily = momoTrustDisplayFont(),
                             fontSize = MaterialTheme.typography.titleMedium.fontSize,
                             textAlign = TextAlign.Center,
