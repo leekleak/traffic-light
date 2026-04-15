@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDate
 
 class HistoryVM(
@@ -152,6 +153,16 @@ class HistoryVM(
                     "package:${app.packageName}".toUri()
                 )
             )
+        }
+    }
+
+    fun openApp(activity: Activity?, launchIntent: Intent?) {
+        if (launchIntent != null) {
+            try {
+                activity?.startActivity(launchIntent)
+            } catch (e: Exception) {
+                Timber.e(e)
+            }
         }
     }
 }

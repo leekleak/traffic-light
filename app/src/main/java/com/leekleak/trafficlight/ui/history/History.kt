@@ -768,6 +768,22 @@ fun AppItem(
                                     Text(stringResource(R.string.quick_filter))
                                 }
                                 if (app is DataUIDApp) {
+                                    val app by remember { mutableStateOf(appManager.getAppForUID(app.uid)) }
+                                    val launchIntent by remember { derivedStateOf {
+                                        activity?.packageManager?.getLaunchIntentForPackage(app.packageName)
+                                    } }
+                                    FilledIconButton(
+                                        enabled = launchIntent != null,
+                                        onClick = {
+                                            viewModel.openApp(activity, launchIntent)
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        }
+                                    ) {
+                                        Icon(
+                                            painterResource(R.drawable.open_in_new),
+                                            stringResource(R.string.open_app)
+                                        )
+                                    }
                                     FilledIconButton(
                                         onClick = {
                                             viewModel.openPackageSettings(activity, app.uid)
