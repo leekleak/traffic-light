@@ -282,6 +282,27 @@ private fun HourList(
         verticalArrangement = Arrangement.spacedBy(6.dp),
         state = listState
     ) {
+        item {
+            Box(Modifier.animateItem()) {
+                val key = -10
+                AppItem(
+                    usage1 = hourList.sumOf { it.usage.usage1 },
+                    usage2 = hourList.sumOf { it.usage.usage2 },
+                    name = stringResource(R.string.total_usage),
+                    selected = key == hourSelected,
+                    maximum = maximum,
+                    onClick = {hourSelected = if (key != hourSelected) key else -1}
+                ) {
+                    Box (Modifier.width(measurement.size.width.toDp + 8.dp).height(32.dp)) {
+                        Icon(
+                            modifier = Modifier.align(Alignment.Center),
+                            painter = painterResource(R.drawable.clock),
+                            contentDescription = stringResource(R.string.total_usage)
+                        )
+                    }
+                }
+            }
+        }
         items(hourList, { it.start.hour }) { item ->
             Box(Modifier.animateItem()) {
                 AppItem(

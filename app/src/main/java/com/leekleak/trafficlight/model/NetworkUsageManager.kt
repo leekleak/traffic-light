@@ -133,20 +133,9 @@ class NetworkUsageManager(
         uid: Int?
     ): List<UsageData> {
         if (uid == null) {
-            networkStatsManager.queryDetails(
-                type.queryIndex,
-                subscriberId,
-                startStamp,
-                endStamp
-            )
+            networkStatsManager.queryDetails(type.queryIndex, subscriberId, startStamp, endStamp)
         } else {
-            networkStatsManager.queryDetailsForUid(
-                type.queryIndex,
-                subscriberId,
-                startStamp,
-                endStamp,
-                uid
-            )
+            networkStatsManager.queryDetailsForUid(type.queryIndex, subscriberId, startStamp, endStamp, uid)
         }.use { summary ->
             val list = mutableListOf<UsageData>()
             while (summary.hasNextBucket()) {
@@ -241,9 +230,42 @@ class NetworkUsageManager(
                             usage2 = usage2.forDirection(query2.dataDirection)
                         ),
                     )
-                }.filterNotNull().sortedBy { it.start.hour }
+                }.filterNotNull().sortedBy { it.start.hour }.toMutableList()
 
-                emit(list)
+
+            if (list.isNotEmpty()) {
+                val first = list.first().start.hour
+                var skipped = 0
+                val start = fromTimestamp(startTime)
+                    for (i in first..23) {
+                        if (list.count { it.start.hour == i } != 0) {
+                            skipped = 0
+                        } else {
+                            skipped += 1
+                            if (skipped > 1) {
+                                list.add(
+                                    HourUsage(
+                                        start = start.withHour(i),
+                                        end = start.withHour(i).plusHours(2),
+                                        usage = DayUsage(dateParams.day, 0, 0)
+                                    )
+                                )
+                                skipped = 0
+                            }
+                        }
+                    }
+                    for (i in (first - 2) downTo 0 step (2)) {
+                        list.add(
+                            HourUsage(
+                                start = start.withHour(i),
+                                end = start.withHour(i).plusHours(2),
+                                usage = DayUsage(dateParams.day, 0, 0)
+                            )
+                        )
+                    }
+                }
+
+                emit(list.sortedBy { it.start.hour })
             }
         }.flowOn(Dispatchers.IO)
 
