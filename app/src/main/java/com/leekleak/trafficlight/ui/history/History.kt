@@ -756,6 +756,7 @@ fun AppItem(
                                 horizontalArrangement = Arrangement.End,
                             ) {
                                 Button(
+                                    modifier = Modifier.padding(end = 4.dp),
                                     shape = MaterialTheme.shapes.small,
                                     onClick = {
                                         app?.uid?.let {

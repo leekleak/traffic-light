@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.ui.theme.momoTrustDisplayFont
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.px
+import kotlin.math.max
 import kotlin.math.min
 
 @Composable
@@ -36,6 +37,8 @@ fun LineGraph(
 
     val textMeasurer = rememberTextMeasurer()
     val font = momoTrustDisplayFont()
+
+    val safeMax = max(maximum, 1).toFloat()
 
     Canvas(modifier = Modifier
         .fillMaxWidth()
@@ -66,6 +69,8 @@ fun LineGraph(
         }
 
         val paddingRatio = textPadding / size.width
+        val point1 = (data.first?.toFloat() ?: 0f) / safeMax - 0.5.dp.toPx() / size.width
+        val point2 = (safeMax - (data.second?.toFloat() ?: 0f)) / safeMax - 0.5.dp.toPx() / size.width
         /**
          * Wifi text
          */
@@ -77,18 +82,15 @@ fun LineGraph(
                     fontSize = fontSize,
                 )
             )
-
-            val data2 = data.second?.toFloat() ?: 0f
             val brush1 = Brush.horizontalGradient(
                 0f to onPrimaryColor,
-                data1.toFloat() / maximum - paddingRatio to onPrimaryColor,
-                data1.toFloat() / maximum - paddingRatio to onBackgroundColor,
-                (maximum - data2) / maximum - paddingRatio to onBackgroundColor,
-                (maximum - data2) / maximum - paddingRatio to onSecondaryColor,
+                point1 - paddingRatio to onPrimaryColor,
+                point1 - paddingRatio to onBackgroundColor,
+                point2 - paddingRatio to onBackgroundColor,
+                point2 - paddingRatio to onSecondaryColor,
                 startX = 0f,
                 endX = size.width
             )
-
             drawText(
                 topLeft = Offset(textPadding, (size.height - textMeasure1.size.height) / 2),
                 textLayoutResult = textMeasure1,
@@ -107,14 +109,12 @@ fun LineGraph(
                     fontSize = fontSize,
                 )
             )
-
-            val data1 = data.first?.toFloat() ?: 0f
             val brush2 = Brush.horizontalGradient(
                 0f to onPrimaryColor,
-                data1 / maximum + paddingRatio to onPrimaryColor,
-                data1 / maximum + paddingRatio to onBackgroundColor,
-                (maximum - data2.toFloat()) / maximum + paddingRatio to onBackgroundColor,
-                (maximum - data2.toFloat()) / maximum + paddingRatio to onSecondaryColor,
+                point1 + paddingRatio to onPrimaryColor,
+                point1 + paddingRatio to onBackgroundColor,
+                point2 + paddingRatio to onBackgroundColor,
+                point2 + paddingRatio to onSecondaryColor,
                 startX = textMeasure2.size.width - size.width,
                 endX = textMeasure2.size.width.toFloat()
             )
