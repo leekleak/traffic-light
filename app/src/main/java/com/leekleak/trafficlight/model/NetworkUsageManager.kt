@@ -110,7 +110,7 @@ class NetworkUsageManager(
     }
 
     fun getNetworkDataForType(startStamp: Long, endStamp: Long, subscriberId: String?, type: DataType): List<UsageData> {
-        networkStatsManager.querySummary(type.queryIndex, subscriberId, startStamp, endStamp).use { summary ->
+        networkStatsManager.querySummary(type.queryIndex ?: return listOf(), subscriberId, startStamp, endStamp).use { summary ->
             val list = mutableListOf<UsageData>()
             while (summary.hasNextBucket()) {
                 val bucket = NetworkStats.Bucket()
@@ -133,9 +133,9 @@ class NetworkUsageManager(
         uid: Int?
     ): List<UsageData> {
         if (uid == null) {
-            networkStatsManager.queryDetails(type.queryIndex, subscriberId, startStamp, endStamp)
+            networkStatsManager.queryDetails(type.queryIndex ?: return listOf(), subscriberId, startStamp, endStamp)
         } else {
-            networkStatsManager.queryDetailsForUid(type.queryIndex, subscriberId, startStamp, endStamp, uid)
+            networkStatsManager.queryDetailsForUid(type.queryIndex ?: return listOf(), subscriberId, startStamp, endStamp, uid)
         }.use { summary ->
             val list = mutableListOf<UsageData>()
             while (summary.hasNextBucket()) {
@@ -378,7 +378,7 @@ class NetworkUsageManager(
             if (allData.find { it.stamp == stamp } != null && i > 1) continue
 
             // We need to use querySummaryForDevice because regular querySummary is not very accurate hour-wise
-            val bucket = networkStatsManager.querySummaryForDevice(DataType.Mobile.queryIndex, null, stamp - 3_600_000, stamp)
+            val bucket = networkStatsManager.querySummaryForDevice(DataType.Mobile.queryIndex!!, null, stamp - 3_600_000, stamp)
             historicalDataDao.add(
                 HistoricalData(
                     stamp = stamp,

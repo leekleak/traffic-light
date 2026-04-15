@@ -24,11 +24,11 @@ import com.leekleak.trafficlight.model.DataUID
 enum class DataType(
     @StringRes val nameRes: Int,
     @DrawableRes val iconRes: Int,
-    val queryIndex: Int
+    val queryIndex: Int?
 ) : DropdownItem {
     Mobile(R.string.cellular, R.drawable.cellular, TYPE_MOBILE),
     Wifi(R.string.wifi, R.drawable.wifi, TYPE_WIFI),
-    None(R.string.none, R.drawable.close, 0);
+    None(R.string.none, R.drawable.close, null);
 
     @Composable
     override fun DropdownMenuItem(onClick: () -> Unit) {
