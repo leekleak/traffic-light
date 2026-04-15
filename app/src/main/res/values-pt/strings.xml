@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Semáforo</string>
+    <string name="app_name">Traffic Light: Rastreador de Rede</string>
     <string name="today">Hoje</string>
     <string name="this_week">Esta Semana</string>
     <string name="history">Histórico</string>
@@ -41,4 +41,65 @@
     <string name="appearance">Aparência</string>
     <string name="behavior">Comportamento</string>
     <string name="alt_vpn_workaround">Solução alternativa da VPN</string>
+    <string name="app_name_short">Traffic Light</string>
+    <string name="total">Total</string>
+    <string name="support_development">Ajudar desenvolvimento</string>
+    <string name="shizuku_not_running">Shizuku não foi iniciado</string>
+    <string name="sim_card">Cartão SIM</string>
+    <string name="data_plans">Planos de Dados</string>
+    <string name="configure_plan">Configurar Plano</string>
+    <string name="background">Fundo</string>
+    <string name="type">Tipo</string>
+    <string name="selected">Selecionado</string>
+    <string name="monthly">Mensal</string>
+    <string name="custom">Personalizado</string>
+    <string name="this_month">Este mês</string>
+    <string name="resets_on">Reinicia no dia: %1$d</string>
+    <string name="save">Guardar</string>
+    <string name="no_apps">Sem aplicações</string>
+    <string name="day">Dia:</string>
+    <string name="time">Tempo:</string>
+    <string name="length">Comprimento:</string>
+    <string name="days">dias</string>
+    <string name="add_widget">Adicionar widget</string>
+    <string name="configured_plans">Planos configurados</string>
+    <string name="data_plan_widget_description">Rastreia os teus planos de dados no teu ecrã inicial</string>
+    <string name="widget_warning">Suporte a widgets é exprimental. Se tu enfrentares problemas por favor reporta-os no GitHub.</string>
+    <string name="no_configured_plans_description">Por favor confirma que configuraste pelo menos 1 plano de dados.</string>
+    <string name="no_configured_plans">Sem planos configurados</string>
+    <string name="warning">Aviso</string>
+    <string name="removed_apps">Aplicações removidas</string>
+    <string name="all_apps">Todas as aplicações</string>
+    <string name="prediction">Previsão</string>
+    <string name="data_intensive_apps">Aplicações de dados intensivos</string>
+    <string name="mobile_data">Dados móveis</string>
+    <string name="go_back">Ir para trás</string>
+    <string name="connected_to_network">Conectado á rede</string>
+    <string name="disconnected_from_network">Desconectado da rede</string>
+    <string name="list">Lista</string>
+    <string name="reset">Reiniciar</string>
+    <string name="shizuku_required">Shizuku necessário</string>
+    <string name="close">Fechar</string>
+    <string name="shizuku_hint">Queres rastrear múltiplos cartões SIM?</string>
+    <string name="shizuku_hint_description">Para alcançar isso, tu vais precisar de configurar o Shizuku e ativar este recurso nas definições.</string>
+    <string name="filter">Filtro</string>
+    <string name="none">Nenhum</string>
+    <string name="primary">Primário</string>
+    <string name="secondary">Secundário</string>
+    <string name="upload">Carregar</string>
+    <string name="download">Descarregar</string>
+    <string name="bidirectional">Bidirecional</string>
+    <string name="app_list">Lista de aplicações</string>
+    <string name="quick_filter">Filtro rápido</string>
+    <string name="persist">Presistir</string>
+    <string name="open_app">Abrir aplicação</string>
+    <plurals name="resets_in_days">
+        <item quantity="one">Reinicia amanhã</item>
+        <item quantity="many">Reinicia em %d dias</item>
+        <item quantity="other">Reinicia em (n == 0 || n == 1) ? 0 : ((n != 0 &amp;&amp; n % 1000000 == 0) ? 1 : 2) dias</item>
+    </plurals>
+    <string name="trend">Tendência</string>
+    <string name="notification_channels">Configurações dos Canais de Notificação</string>
+    <string name="overview">Visão geral</string>
+    <string name="multi_sim_tracking">Rastreamento Multi-SIM</string>
 </resources>
