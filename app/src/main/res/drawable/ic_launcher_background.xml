@@ -12,11 +12,11 @@
         android:pathData="M0,0h128v128h-128z">
       <aapt:attr name="android:fillColor">
         <gradient
-            android:centerX="20"
-            android:centerY="7.5"
-            android:gradientRadius="123.82"
+            android:centerX="0"
+            android:centerY="0"
+            android:gradientRadius="147.81"
             android:type="radial">
-          <item android:offset="0" android:color="#FF292E37"/>
+          <item android:offset="0" android:color="#FF27344E"/>
           <item android:offset="1" android:color="#FF030712"/>
         </gradient>
       </aapt:attr>
