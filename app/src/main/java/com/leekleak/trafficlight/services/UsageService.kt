@@ -28,11 +28,10 @@ import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataDirection
+import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DayUsage
-import com.leekleak.trafficlight.database.Mobile
 import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.database.UsageQuery
-import com.leekleak.trafficlight.database.Wifi
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.clipAndPad
@@ -68,12 +67,12 @@ class UsageService : Service() {
 
     private val queryMobile =
         UsageQuery(
-            dataType = listOf(Mobile),
+            dataType = DataType.Mobile,
             dataDirection = DataDirection.Bidirectional,
         )
     private val queryWifi =
         UsageQuery(
-            dataType = listOf(Wifi),
+            dataType = DataType.Wifi,
             dataDirection = DataDirection.Bidirectional,
         )
 
@@ -194,8 +193,8 @@ class UsageService : Service() {
 
     private fun updateTodayUsage() {
         val date = LocalDate.now()
-        val mobile = networkUsageManager.calculateDayUsageBasic(queryMobile, date)
-        val wifi = networkUsageManager.calculateDayUsageBasic(queryWifi, date)
+        val mobile = networkUsageManager.totalDayUsage(queryMobile, date)
+        val wifi = networkUsageManager.totalDayUsage(queryWifi, date)
         todayUsage = DayUsage(date, mobile, wifi)
     }
 

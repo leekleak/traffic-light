@@ -3,15 +3,12 @@ package com.leekleak.trafficlight.ui.history
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,32 +25,35 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroup
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberSearchBarState
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -90,10 +90,10 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.ScrollableBarGraph
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
+import com.leekleak.trafficlight.database.DataDirection
+import com.leekleak.trafficlight.database.DataType
+import com.leekleak.trafficlight.database.DropdownItem
 import com.leekleak.trafficlight.database.UsageQuery
-import com.leekleak.trafficlight.database.getIcon
-import com.leekleak.trafficlight.database.getName
-import com.leekleak.trafficlight.database.getNext
 import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.model.AppManager.Companion.removedApp
@@ -106,6 +106,7 @@ import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.momoTrustDisplayFont
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.getName
+import com.leekleak.trafficlight.util.iconButton
 import com.leekleak.trafficlight.util.toDp
 import com.leekleak.trafficlight.util.toLocaleHourString
 import kotlinx.coroutines.launch
@@ -162,6 +163,7 @@ fun History(paddingValues: PaddingValues) {
             ) {
                 var showFilter by remember { mutableStateOf(false) }
                 if (showFilter) HistoryFilter { showFilter = false }
+                val filtersChanged by viewModel.filtersChanged.collectAsState()
                 ButtonGroup(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(
@@ -171,35 +173,19 @@ fun History(paddingValues: PaddingValues) {
                     expandedRatio = 0.05f,
                     overflowIndicator = {}
                 ) {
-                    customItem(
-                        buttonGroupContent = {
-                            val source = remember { MutableInteractionSource() }
-                            val press by source.collectIsPressedAsState()
-                            val cornerRadius by animateDpAsState(if (press) 24.dp else 6.dp)
-                            val filtersChanged by viewModel.filtersChanged.collectAsState()
-                            IconButton(
-                                modifier = Modifier.animateWidth(source),
-                                colors = IconButtonDefaults.iconButtonColors(
-                                    containerColor = colorScheme.surfaceContainer,
-                                    contentColor = colorScheme.onSurfaceVariant
-                                ),
-                                shape = RoundedCornerShape(cornerRadius),
-                                interactionSource = source,
-                                onClick = {
-                                    showFilter = true
-                                    haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
-                                }
-                            ) {
-                                BadgedBox({ if (filtersChanged) { Badge() } }) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.filter_list),
-                                        contentDescription = stringResource(R.string.filter)
-                                    )
-                                }
-                            }
-                        },
-                        menuContent = {}
-                    )
+                    iconButton(
+                        showBadge = filtersChanged,
+                        text = null,
+                        onClick = {
+                            showFilter = true
+                            haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.filter_list),
+                            contentDescription = stringResource(R.string.filter)
+                        )
+                    }
                     toggleableItem(
                         onCheckedChange = {
                             viewModel.updateDateQuery(showMonth = true)
@@ -334,15 +320,15 @@ private fun HistoryLegendItem(
             .padding(vertical = 4.dp, horizontal = 8.dp)
     ) {
         Icon(
-            painter = painterResource(usageQuery1.dataType.getIcon()),
-            contentDescription = stringResource(usageQuery1.dataType.getName()),
+            painter = painterResource(usageQuery1.dataType.iconRes),
+            contentDescription = stringResource(usageQuery1.dataType.nameRes),
             tint = foregroundColor
         )
-        AnimatedVisibility(usageQuery1.dataType.isNotEmpty()) {
+        AnimatedVisibility(usageQuery1.dataType != DataType.None) {
             Row {
                 Icon(
-                    painter = painterResource(usageQuery1.dataDirection.getIcon()),
-                    contentDescription = stringResource(usageQuery1.dataDirection.getName()),
+                    painter = painterResource(usageQuery1.dataDirection.iconRes),
+                    contentDescription = stringResource(usageQuery1.dataDirection.nameRes),
                     tint = foregroundColor
                 )
                 usageQuery1.dataUID.GetIcon(Modifier.size(24.dp), foregroundColor)
@@ -408,6 +394,7 @@ fun HistoryFilter(onDismiss: () -> Unit) {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     },
                     label = ListParam.AppList.getString(context),
+                    icon = { Icon(painterResource(R.drawable.apps), null) },
                     enabled = !forceHourList,
                     checked = listParam == ListParam.AppList,
                     weight = 1f
@@ -418,6 +405,7 @@ fun HistoryFilter(onDismiss: () -> Unit) {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     },
                     label = ListParam.HourList.getString(context),
+                    icon = { Icon(painterResource(R.drawable.clock_analog), null) },
                     checked = listParam == ListParam.HourList,
                     weight = 1f
                 )
@@ -473,40 +461,42 @@ fun RowScope.HistoryItemSettings(
             style = MaterialTheme.typography.titleSmall,
             color = if (n == 1) colorScheme.primary else colorScheme.tertiary,
         )
-        FilterButton(
+        FilterDropdownButton(
             n = n,
             enabled = true,
-            onClick = {
-                viewModel.updateQuery(n, query.copy(dataType = query.dataType.getNext()))
+            onSelect = {
+                viewModel.updateQuery(n, query.copy(dataType = it))
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-            }
+            },
+            text = stringResource(query.dataType.nameRes),
+            items = DataType.entries
         ) {
-            Icon(painterResource(query.dataType.getIcon()), null)
-            Text(stringResource(query.dataType.getName()))
+            Icon(painterResource(query.dataType.iconRes), null)
         }
-        FilterButton(
+        FilterDropdownButton(
             n = n,
-            enabled = query.dataType.isNotEmpty(),
-            onClick = {
-                viewModel.updateQuery(n, query.copy(dataDirection = query.dataDirection.getNext()))
+            enabled = query.dataType != DataType.None,
+            onSelect = {
+                viewModel.updateQuery(n, query.copy(dataDirection = it))
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-            }
+            },
+            text = stringResource(query.dataDirection.nameRes),
+            items = DataDirection.entries
         ) {
-            Icon(painterResource(query.dataDirection.getIcon()), null)
-            Text(stringResource(query.dataDirection.getName()))
+            Icon(painterResource(query.dataDirection.iconRes), null)
         }
 
         var showAppPicker by remember { mutableStateOf(false) }
         FilterButton(
             n = n,
-            enabled = query.dataType.isNotEmpty(),
+            enabled = query.dataType != DataType.None,
             onClick = {
                 showAppPicker = true
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-            }
+            },
+            text = query.dataUID.getName(context)
         ) {
             query.dataUID.GetIcon(Modifier.size(24.dp))
-            Text(query.dataUID.getName(context))
         }
 
         if (showAppPicker) {
@@ -602,25 +592,70 @@ private fun AppSearchDialog(onSelect: (uid: Int) -> Unit, onDismiss: () -> Unit)
 private fun FilterButton(
     n: Int,
     enabled: Boolean,
-    onClick: () -> Unit,
-    buttonContent: @Composable (() -> Unit)
+    onClick: (() -> Unit),
+    text: String,
+    icon: @Composable (() -> Unit)
 ) {
-    Button(
+    val state = rememberTooltipState()
+    TooltipBox(
         modifier = Modifier.fillMaxWidth(),
-        enabled = enabled,
-        shape = MaterialTheme.shapes.small,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (n == 1) colorScheme.primary else colorScheme.tertiary,
-            contentColor = if (n == 1) colorScheme.onPrimary else colorScheme.onTertiary
+        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+            TooltipAnchorPosition.Above,
+            4.dp
         ),
-        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp),
-        onClick = onClick
+        tooltip = { PlainTooltip { Text(text) } },
+        state = state
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            enabled = enabled,
+            shape = MaterialTheme.shapes.small,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (n == 1) colorScheme.primary else colorScheme.tertiary,
+                contentColor = if (n == 1) colorScheme.onPrimary else colorScheme.onTertiary
+            ),
+            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp),
+            onClick = onClick
         ) {
-            buttonContent()
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                icon()
+                Text(text, maxLines = 1, softWrap = false)
+            }
+        }
+    }
+}
+
+@Composable
+private fun <T : DropdownItem> FilterDropdownButton(
+    n: Int,
+    enabled: Boolean,
+    onSelect: (item: T) -> Unit,
+    items: List<T>,
+    text: String,
+    icon: @Composable (() -> Unit)
+) {
+    val scrollState = rememberScrollState()
+    var expanded by remember { mutableStateOf(false)}
+    Box(modifier = Modifier.fillMaxWidth().wrapContentSize(Alignment.TopStart)) {
+        FilterButton(
+            n = n,
+            enabled = enabled,
+            onClick = {expanded = true},
+            text = text,
+            icon = icon
+        )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            shape = MaterialTheme.shapes.medium,
+            scrollState = scrollState,
+        ) {
+            items.forEach {
+                it.DropdownMenuItem { onSelect(it) }
+            }
         }
     }
 }
@@ -677,9 +712,11 @@ fun AppItem(
                             LineGraphHeader()
                         }
                     }
+                    val graphUsage1 = if (usageQuery1.dataType != DataType.None) usage1 else null
+                    val graphUsage2 = if (usageQuery2.dataType != DataType.None) usage2 else null
                     LineGraph(
                         maximum = maximum,
-                        data = Pair(usage1, usage2)
+                        data = Pair(graphUsage1, graphUsage2)
                     )
                     val noOptionApps = listOf(allApp, unknownApp)
                     AnimatedVisibility(
@@ -737,7 +774,7 @@ fun LineGraphHeader() {
 
     Column (Modifier.fillMaxWidth()) {
         Row {
-            if (usageQuery1.dataType.isNotEmpty()) {
+            if (usageQuery1.dataType != DataType.None) {
                 Text(
                     modifier = Modifier.weight(1f),
                     text = usageQuery1.toString(context),
@@ -745,7 +782,7 @@ fun LineGraphHeader() {
                     color = colorScheme.tertiary
                 )
             }
-            if (usageQuery2.dataType.isNotEmpty()) {
+            if (usageQuery2.dataType != DataType.None) {
                 Text(
                     modifier = Modifier.weight(1f),
                     text = usageQuery2.toString(context),

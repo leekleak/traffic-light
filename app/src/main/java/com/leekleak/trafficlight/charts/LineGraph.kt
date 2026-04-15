@@ -23,7 +23,7 @@ import kotlin.math.min
 @Composable
 fun LineGraph(
     maximum: Long,
-    data: Pair<Long, Long>,
+    data: Pair<Long?, Long?>,
 ) {
     val fontSize = 20.sp
     val textPadding = 4.dp.px
@@ -45,41 +45,46 @@ fun LineGraph(
         /**
          * Bars
          */
-        val width1 = data.first.toFloat() / maximum * size.width
-        val width2 = data.second.toFloat() / maximum * size.width
-        if (data.first != 0L) {
-            drawRect(
-                color = primaryColor,
-                size = Size(width1 - min(width1, 1.dp.toPx()), size.height)
-            )
+        data.first?.let { data1 ->
+            val width1 = data1.toFloat() / maximum * size.width
+            if (data.first != 0L) {
+                drawRect(
+                    color = primaryColor,
+                    size = Size(width1 - min(width1, 1.dp.toPx()), size.height)
+                )
+            }
         }
-        if (data.second != 0L) {
-            drawRect(
-                color = secondaryColor,
-                topLeft = Offset(size.width - width2, 0f),
-                size = Size(width2, size.height)
-            )
+        data.second?.let { data2 ->
+            val width2 = data2.toFloat() / maximum * size.width
+            if (data.second != 0L) {
+                drawRect(
+                    color = secondaryColor,
+                    topLeft = Offset(size.width - width2, 0f),
+                    size = Size(width2, size.height)
+                )
+            }
         }
 
         val paddingRatio = textPadding / size.width
         /**
          * Wifi text
          */
-        if (data.first != 0L) {
+        data.first?.let { data1 ->
             val textMeasure1 = textMeasurer.measure(
-                DataSize(data.first.toDouble()).toString(),
+                DataSize(data1.toDouble()).toString(),
                 TextStyle(
                     fontFamily = font,
                     fontSize = fontSize,
                 )
             )
 
+            val data2 = data.second?.toFloat() ?: 0f
             val brush1 = Brush.horizontalGradient(
                 0f to onPrimaryColor,
-                data.first.toFloat() / maximum - paddingRatio to onPrimaryColor,
-                data.first.toFloat() / maximum - paddingRatio to onBackgroundColor,
-                (maximum - data.second.toFloat()) / maximum - paddingRatio to onBackgroundColor,
-                (maximum - data.second.toFloat()) / maximum - paddingRatio to onSecondaryColor,
+                data1.toFloat() / maximum - paddingRatio to onPrimaryColor,
+                data1.toFloat() / maximum - paddingRatio to onBackgroundColor,
+                (maximum - data2) / maximum - paddingRatio to onBackgroundColor,
+                (maximum - data2) / maximum - paddingRatio to onSecondaryColor,
                 startX = 0f,
                 endX = size.width
             )
@@ -94,20 +99,22 @@ fun LineGraph(
         /**
          * Mobile text
          */
-        if (data.second != 0L) {
+        data.second?.let { data2 ->
             val textMeasure2 = textMeasurer.measure(
-                DataSize(data.second.toDouble()).toString(),
+                DataSize(data2.toDouble()).toString(),
                 TextStyle(
                     fontFamily = font,
                     fontSize = fontSize,
                 )
             )
+
+            val data1 = data.first?.toFloat() ?: 0f
             val brush2 = Brush.horizontalGradient(
                 0f to onPrimaryColor,
-                data.first.toFloat() / maximum + paddingRatio to onPrimaryColor,
-                data.first.toFloat() / maximum + paddingRatio to onBackgroundColor,
-                (maximum - data.second.toFloat()) / maximum + paddingRatio to onBackgroundColor,
-                (maximum - data.second.toFloat()) / maximum + paddingRatio to onSecondaryColor,
+                data1 / maximum + paddingRatio to onPrimaryColor,
+                data1 / maximum + paddingRatio to onBackgroundColor,
+                (maximum - data2.toFloat()) / maximum + paddingRatio to onBackgroundColor,
+                (maximum - data2.toFloat()) / maximum + paddingRatio to onSecondaryColor,
                 startX = textMeasure2.size.width - size.width,
                 endX = textMeasure2.size.width.toFloat()
             )

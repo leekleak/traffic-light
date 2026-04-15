@@ -45,11 +45,11 @@ class HistoryVM(
     private val query2 = MutableStateFlow(initialQuery2)
     private val savedQuery1 = MutableStateFlow(initialQuery1)
     private val savedQuery2 = MutableStateFlow(initialQuery2)
+    private val savedListParam = MutableStateFlow(initialListParam)
     
     val query1Flow = query1.asStateFlow()
     val query2Flow = query2.asStateFlow()
     val queryFlow = combine(query1Flow, query2Flow) { q1, q2 -> q1 to q2 }
-    val savedQueryFlow = combine(savedQuery1.asStateFlow(), savedQuery2.asStateFlow()) { q1, q2 -> q1 to q2 }
     val forceHourList = queryFlow.map { (query1, query2) ->
         query1.dataUID.uidQuery != null || query2.dataUID.uidQuery != null
     }.stateIn(
@@ -100,11 +100,10 @@ class HistoryVM(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val filtersChanged: StateFlow<Boolean> = queryFlow.combine(savedQueryFlow) {q, sq ->
-            q.first != sq.first || q.second != sq.second
+    val filtersChanged: StateFlow<Boolean> = combine(queryFlow, listParam, savedQuery1, savedQuery2, savedListParam) { q, lp, sq1, sq2, slp ->
+            q.first != sq1 || q.second != sq2 || lp != slp
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
-
     fun updateQuery(@IntRange(1, 2) n: Int, newQuery: UsageQuery) {
         when (n) {
             1 -> query1.value = newQuery
@@ -132,6 +131,7 @@ class HistoryVM(
     fun persistFilters() {
         savedQuery1.value = query1.value
         savedQuery2.value = query2.value
+        savedListParam.value = listParam.value
         viewModelScope.launch { prefs.saveQuery(1, query1.value) }
         viewModelScope.launch { prefs.saveQuery(2, query2.value) }
         viewModelScope.launch { prefs.saveListParam(listParam.value) }

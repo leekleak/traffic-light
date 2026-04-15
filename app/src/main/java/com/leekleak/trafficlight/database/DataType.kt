@@ -1,8 +1,17 @@
 package com.leekleak.trafficlight.database
 
 import android.content.Context
-import android.net.ConnectivityManager
+import android.net.ConnectivityManager.TYPE_MOBILE
+import android.net.ConnectivityManager.TYPE_WIFI
 import android.view.View
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.model.DataUID
@@ -12,48 +21,23 @@ import com.leekleak.trafficlight.model.DataUID
  * Data Type
  *
  */
-interface DataType {
-    val internalName: String
-    fun getQueryIndex(): Int
-    fun getNameResource(): Int
-    fun getIconResource(): Int
+enum class DataType(
+    @StringRes val nameRes: Int,
+    @DrawableRes val iconRes: Int,
+    val queryIndex: Int
+) : DropdownItem {
+    Mobile(R.string.cellular, R.drawable.cellular, TYPE_MOBILE),
+    Wifi(R.string.wifi, R.drawable.wifi, TYPE_WIFI),
+    None(R.string.none, R.drawable.close, 0);
 
-    companion object {
-        val entries: List<DataType> = listOf(Wifi, Mobile)
+    @Composable
+    override fun DropdownMenuItem(onClick: () -> Unit) {
+        DropdownMenuItem(
+            text = { Text(stringResource(nameRes)) },
+            onClick = { onClick() },
+            leadingIcon = { Icon(painterResource(iconRes), null) },
+        )
     }
-}
-
-object Wifi : DataType {
-    override val internalName: String = "Wifi"
-    override fun getQueryIndex(): Int = ConnectivityManager.TYPE_WIFI
-    override fun getNameResource(): Int = R.string.wifi
-    override fun getIconResource(): Int = R.drawable.wifi
-}
-
-object Mobile : DataType {
-    override val internalName: String = "Mobile"
-    override fun getQueryIndex(): Int = ConnectivityManager.TYPE_MOBILE
-    override fun getNameResource(): Int = R.string.cellular
-    override fun getIconResource(): Int = R.drawable.cellular
-}
-
-fun List<DataType>.getName(): Int {
-    return if (size > 1) R.string.total
-    else if (size == 1) first().getNameResource()
-    else R.string.none
-}
-
-fun List<DataType>.getIcon(): Int {
-    return if (size > 1) R.drawable.data_usage
-    else if (size == 1) first().getIconResource()
-    else R.drawable.close
-}
-
-fun List<DataType>.getNext(): List<DataType> = when {
-    isEmpty() -> listOf(Mobile)
-    size == 1 && first() == Mobile -> listOf(Wifi)
-    size == 1 && first() == Wifi -> listOf(Wifi, Mobile)
-    else -> emptyList()
 }
 
 /**
@@ -61,27 +45,28 @@ fun List<DataType>.getNext(): List<DataType> = when {
  * Data Direction
  *
  */
-enum class DataDirection {
-    Upload,
-    Download,
-    Bidirectional
+enum class DataDirection(
+    @StringRes val nameRes: Int,
+    @DrawableRes val iconRes: Int
+) : DropdownItem {
+    Bidirectional(R.string.bidirectional, R.drawable.mobiledata_arrows),
+    Download(R.string.download, R.drawable.arrow_downward_alt),
+    Upload(R.string.upload, R.drawable.arrow_upward_alt);
+
+
+    @Composable
+    override fun DropdownMenuItem(onClick: () -> Unit) {
+        DropdownMenuItem(
+            text = { Text(stringResource(nameRes)) },
+            onClick = { onClick() },
+            leadingIcon = { Icon(painterResource(iconRes), null) },
+        )
+    }
 }
 
-fun DataDirection.getNext(): DataDirection {
-    val nextIndex = (ordinal + 1) % DataDirection.entries.size
-    return DataDirection.entries[nextIndex]
-}
-
-fun DataDirection.getName(): Int = when(this) {
-    DataDirection.Upload -> R.string.upload
-    DataDirection.Download -> R.string.download
-    DataDirection.Bidirectional -> R.string.bidirectional
-}
-
-fun DataDirection.getIcon(): Int = when(this) {
-    DataDirection.Upload -> R.drawable.arrow_upward_alt
-    DataDirection.Download -> R.drawable.arrow_downward_alt
-    DataDirection.Bidirectional -> R.drawable.mobiledata_arrows
+interface DropdownItem {
+    @Composable
+    fun DropdownMenuItem(onClick: () -> Unit)
 }
 
 /**
@@ -90,16 +75,16 @@ fun DataDirection.getIcon(): Int = when(this) {
  *
  */
 data class UsageQuery (
-    val dataType: List<DataType>,
+    val dataType: DataType,
     val dataDirection: DataDirection = DataDirection.Bidirectional,
     val dataUID: DataUID = allApp
 ) {
     fun toString(context: Context): String {
-        if (dataType.isEmpty()) return context.getString(dataType.getName())
+        if (dataType == DataType.None) return context.getString(dataType.nameRes)
         val parts = buildList {
-            add(context.getString(dataType.getName()))
+            add(context.getString(dataType.nameRes))
             if (dataDirection != DataDirection.Bidirectional)
-                add(context.getString(dataDirection.getName()))
+                add(context.getString(dataDirection.nameRes))
             if (dataUID.uidQuery != null)
                 add(dataUID.getName(context))
         }

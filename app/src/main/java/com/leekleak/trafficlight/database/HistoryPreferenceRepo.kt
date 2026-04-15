@@ -6,7 +6,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
@@ -31,14 +30,14 @@ class HistoryPreferenceRepo (
 
     val query1: Flow<UsageQuery> = data.map { prefs ->
         UsageQuery(
-            dataType = prefs[QUERY1_TYPE]?.mapNotNull { DataType.entries.find { type -> type.internalName == it } } ?: listOf(Mobile),
+            dataType = prefs[QUERY1_TYPE]?.let { DataType.entries[it] } ?: DataType.Mobile,
             dataDirection = prefs[QUERY1_DIRECTION]?.let { DataDirection.entries[it] } ?: DataDirection.Bidirectional,
             dataUID = prefs[QUERY1_UID]?.let { appManager.getAppForUID(it) } ?: allApp
         )
     }
     val query2: Flow<UsageQuery> = data.map { prefs ->
         UsageQuery(
-            dataType = prefs[QUERY2_TYPE]?.mapNotNull { DataType.entries.find { type -> type.internalName == it } } ?: listOf(Wifi),
+            dataType = prefs[QUERY2_TYPE]?.let { DataType.entries[it] } ?: DataType.Wifi,
             dataDirection = prefs[QUERY2_DIRECTION]?.let { DataDirection.entries[it] } ?: DataDirection.Bidirectional,
             dataUID = prefs[QUERY2_UID]?.let { appManager.getAppForUID(it) } ?: allApp
         )
@@ -49,15 +48,15 @@ class HistoryPreferenceRepo (
             val typeKey = if (n == 1) QUERY1_TYPE else QUERY2_TYPE
             val directionKey = if (n == 1) QUERY1_DIRECTION else QUERY2_DIRECTION
             val uidKey = if (n == 1) QUERY1_UID else QUERY2_UID
-            prefs[typeKey] = query.dataType.map { it.internalName }.toSet()
+            prefs[typeKey] = query.dataType.ordinal
             prefs[directionKey] = query.dataDirection.ordinal
             prefs[uidKey] = query.dataUID.uid
         }
     }
 
     private companion object {
-        val QUERY1_TYPE = stringSetPreferencesKey("query1_data_type")
-        val QUERY2_TYPE = stringSetPreferencesKey("query2_data_type")
+        val QUERY1_TYPE = intPreferencesKey("query1_data_type")
+        val QUERY2_TYPE = intPreferencesKey("query2_data_type")
         val QUERY1_DIRECTION = intPreferencesKey("query1_direction")
         val QUERY2_DIRECTION = intPreferencesKey("query2_direction")
         val QUERY1_UID = intPreferencesKey("query1_uid")
