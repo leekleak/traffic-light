@@ -47,7 +47,6 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
@@ -347,6 +346,7 @@ fun HistoryFilter(onDismiss: () -> Unit) {
     val usageQuery1 by viewModel.query1Flow.collectAsState()
     val usageQuery2 by viewModel.query2Flow.collectAsState()
     val listParam by viewModel.listParamFlow.collectAsState()
+    val filtersChanged by viewModel.filtersChanged.collectAsState()
 
     Dialog(onDismissRequest = onDismiss) {
         Column(
@@ -413,29 +413,33 @@ fun HistoryFilter(onDismiss: () -> Unit) {
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+                horizontalArrangement = Arrangement.End
             ) {
-                TextButton(
+                FilledIconButton (
                     onClick = {
                         viewModel.resetFilters()
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    }
+                    },
+                    enabled = filtersChanged
                 ) {
-                    Text(stringResource(R.string.reset))
+                    Icon(painterResource(R.drawable.reset_wrench), stringResource(R.string.reset))
                 }
-                TextButton(
+                FilledIconButton (
                     onClick = {
                         viewModel.persistFilters()
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    },
+                    enabled = filtersChanged
+                ) {
+                    Icon(painterResource(R.drawable.archive), stringResource(R.string.persist))
+                }
+                Button(
+                    modifier = Modifier.padding(start = 4.dp),
+                    onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         onDismiss()
                     }
                 ) {
-                    Text(stringResource(R.string.persist))
-                }
-                Button(onClick = {
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    onDismiss()
-                }) {
                     Text(stringResource(R.string.close))
                 }
             }
