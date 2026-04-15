@@ -73,7 +73,7 @@
         <item quantity="few">Se va reseta în %d zile</item>
         <item quantity="other">Se va reseta în %d de zile</item>
     </plurals>
-    <string name="tethering">Hotspot mobil</string>
+    <string name="tethering">Tethering</string>
     <string name="removed_apps">Aplicații eliminate</string>
     <string name="prediction">Predicție</string>
     <string name="trend">Tendinţă</string>
@@ -89,4 +89,21 @@
     <string name="close">Închide</string>
     <string name="shizuku_hint">Dorești să urmărești mai multe carduri SIM?</string>
     <string name="shizuku_hint_description">Pentru a realiza acest lucru, va trebui să configurezi Shizuku și să activezi funcția în setări.</string>
+    <string name="app_name_short">Semafor</string>
+    <string name="total">Total</string>
+    <string name="all_apps">Toate aplicațiile</string>
+    <string name="filter">Filtru</string>
+    <string name="open_app">Deschide aplicația</string>
+    <string name="app_list">Listă aplicații</string>
+    <string name="bidirectional">Bidirecțional</string>
+    <string name="secondary">Secundar</string>
+    <string name="primary">Primar</string>
+    <string name="none">Nimic</string>
+    <string name="upload">Upload</string>
+    <string name="download">Download</string>
+    <string name="hour_list">Listă orară</string>
+    <string name="quick_filter">Filtru rapid</string>
+    <string name="list">Listă</string>
+    <string name="reset">Resetează</string>
+    <string name="persist">Persist</string>
 </resources>

@@ -99,4 +99,11 @@
     <string name="upload">Envoi</string>
     <string name="download">Réception</string>
     <string name="bidirectional">Bidirectionnel</string>
+    <string name="app_list">Liste des applications</string>
+    <string name="hour_list">Liste des heures</string>
+    <string name="quick_filter">Filtre rapide</string>
+    <string name="persist">Persiste</string>
+    <string name="open_app">Ouvrir l\'application</string>
+    <string name="list">Liste</string>
+    <string name="reset">Réinitialisation</string>
 </resources>
