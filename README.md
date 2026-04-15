@@ -13,8 +13,9 @@ Traffic Light is an open-source tool for tracking your network usage while ensur
 
 ## Downloads
 
-| [<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/com.leekleak.trafficlight/) | [<img alt='Get it on GitHub' height="80" src='branding/badge_github.png'>](https://github.com/leekleak/traffic-light/releases) | [<img alt='Get it on Play Store' height="80" src='branding/badge_playstore.png'>](https://play.google.com/store/apps/details?id=com.leekleak.trafficlight) |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| Method | [<img alt='Get it on GitHub' height="80" src='branding/badge_github.png'>](https://github.com/leekleak/traffic-light/releases) | [<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/com.leekleak.trafficlight/) | [<img alt='Get it on Play Store' height="80" src='branding/badge_playstore.png'>](https://play.google.com/store/apps/details?id=com.leekleak.trafficlight) |
+|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| Delay | No delay | Delay depends on F-Droid maintainers | Delay until stable release |
 
 ## Screenshots
 
@@ -35,5 +36,10 @@ Contributors are welcome, however please create an issue first. When asking/addi
 
 Translation can be done on [Weblate](https://hosted.weblate.org/engage/traffic-light/)
 
-## Troubleshooting
-Check out the troubleshooting wiki [page](https://github.com/leekleak/traffic-light/wiki/Troubleshooting).
+## FAQ
+Check out the [wiki](https://github.com/leekleak/traffic-light/wiki) as the info you're looking may be there.
+Popular pages:
+- [Troubleshooting](https://github.com/leekleak/traffic-light/wiki/Troubleshooting)
+- [Setting up Shizuku for multi-SIM tracking](https://github.com/leekleak/traffic-light/wiki/Setting-up-Shizuku-for-multi%E2%80%90SIM-tracking)
+- [Hiding status bar icon when disconnected](https://github.com/leekleak/traffic-light/wiki/Hide-status-bar-icon-when-disconnected)
+
