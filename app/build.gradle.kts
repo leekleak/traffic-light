@@ -10,6 +10,12 @@ room {
     schemaDirectory("$projectDir/schemas")
 }
 
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
+    }
+}
+
 android {
     namespace = "com.leekleak.trafficlight"
     compileSdk = 37

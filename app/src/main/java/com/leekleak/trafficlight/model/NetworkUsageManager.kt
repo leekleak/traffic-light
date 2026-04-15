@@ -110,8 +110,7 @@ class NetworkUsageManager(
     }
 
     fun getNetworkDataForType(startStamp: Long, endStamp: Long, subscriberId: String?, type: DataType): List<UsageData> {
-        val typeIndex = type.queryIndex ?: return listOf()
-        networkStatsManager.querySummary(typeIndex, subscriberId, startStamp, endStamp).use { summary ->
+        networkStatsManager.querySummary(type.queryIndex, subscriberId, startStamp, endStamp).use { summary ->
             val list = mutableListOf<UsageData>()
             while (summary.hasNextBucket()) {
                 val bucket = NetworkStats.Bucket()
