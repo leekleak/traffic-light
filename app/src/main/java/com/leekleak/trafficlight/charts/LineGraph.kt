@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.ui.theme.momoTrustDisplayFont
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.px
+import kotlin.math.min
 
 @Composable
 fun LineGraph(
@@ -49,7 +50,7 @@ fun LineGraph(
         if (data.first != 0L) {
             drawRect(
                 color = primaryColor,
-                size = Size(width1, size.height)
+                size = Size(width1 - min(width1, 1.dp.toPx()), size.height)
             )
         }
         if (data.second != 0L) {
