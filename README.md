@@ -3,13 +3,14 @@
 # Traffic Light
 Traffic Light is an open-source tool for tracking your network usage while ensuring total privacy. Inspired by Internet Speed Meter and GlassWire.
 
-## Why?
-- Free and open source
-- Uses [fewer permissions](https://github.com/leekleak/traffic-light/wiki/Permissions)
-- Uses [less battery](https://github.com/leekleak/traffic-light/wiki/Battery-Usage)
-- No tracking
-- Beautiful UI
-- Fast and modern
+## Features
+- Data plan tracking (including multiple SIMs)
+- Beautiful widgets
+- Status bar network indicator
+- In-depth historical data tracking
+- At a glance usage analytics
+- Uses [less battery](https://github.com/leekleak/traffic-light/wiki/Battery-Usage) than alternatives
+- Fast and modern with a stunning design
 
 ## Downloads
 
