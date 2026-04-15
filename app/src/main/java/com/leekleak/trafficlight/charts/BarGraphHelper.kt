@@ -248,7 +248,7 @@ internal class BarGraphHelper(
                         )
                     )
                 }
-                drawPath(path, if (bar.type == NetworkType.Wifi) color1 else color2)
+                drawPath(path, if (bar.type == NetworkType.Cellular) color1 else color2)
             }
         }
     }

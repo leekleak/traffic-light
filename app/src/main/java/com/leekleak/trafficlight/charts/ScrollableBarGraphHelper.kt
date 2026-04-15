@@ -316,8 +316,8 @@ internal class ScrollableBarGraphHelper(
                 drawPath(
                     path = path,
                     color = when(bar.type) {
-                        NetworkType.Wifi -> primaryColor
-                        NetworkType.Cellular -> secondaryColor
+                        NetworkType.Cellular -> primaryColor
+                        NetworkType.Wifi -> secondaryColor
                     }
                 )
             }

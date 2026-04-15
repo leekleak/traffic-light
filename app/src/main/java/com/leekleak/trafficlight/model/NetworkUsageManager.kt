@@ -288,8 +288,8 @@ class NetworkUsageManager(
             val usage1 = usageQuery1?.let { calculateDayUsageBasic(it, now) }
             val usage2 = usageQuery2?.let { calculateDayUsageBasic(it, now) }
             data[i] = data[i].copy(
-                y1 = usage2?.toDouble() ?: 0.0,
-                y2 = usage1?.toDouble() ?: 0.0,
+                y1 = usage1?.toDouble() ?: 0.0,
+                y2 = usage2?.toDouble() ?: 0.0,
             )
         }
         emit(data.toList())

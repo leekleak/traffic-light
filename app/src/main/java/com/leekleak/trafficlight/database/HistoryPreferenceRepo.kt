@@ -31,14 +31,14 @@ class HistoryPreferenceRepo (
 
     val query1: Flow<UsageQuery> = data.map { prefs ->
         UsageQuery(
-            dataType = prefs[QUERY1_TYPE]?.mapNotNull { DataType.entries.find { type -> type.internalName == it } } ?: listOf(Wifi),
+            dataType = prefs[QUERY1_TYPE]?.mapNotNull { DataType.entries.find { type -> type.internalName == it } } ?: listOf(Mobile),
             dataDirection = prefs[QUERY1_DIRECTION]?.let { DataDirection.entries[it] } ?: DataDirection.Bidirectional,
             dataUID = prefs[QUERY1_UID]?.let { appManager.getAppForUID(it) } ?: allApp
         )
     }
     val query2: Flow<UsageQuery> = data.map { prefs ->
         UsageQuery(
-            dataType = prefs[QUERY2_TYPE]?.mapNotNull { DataType.entries.find { type -> type.internalName == it } } ?: listOf(Mobile),
+            dataType = prefs[QUERY2_TYPE]?.mapNotNull { DataType.entries.find { type -> type.internalName == it } } ?: listOf(Wifi),
             dataDirection = prefs[QUERY2_DIRECTION]?.let { DataDirection.entries[it] } ?: DataDirection.Bidirectional,
             dataUID = prefs[QUERY2_UID]?.let { appManager.getAppForUID(it) } ?: allApp
         )

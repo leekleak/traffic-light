@@ -188,10 +188,10 @@ private fun BarGraphImpl(
             barGraphHelper.metrics.cellularIconOffset.copy(
                 y = barGraphHelper.metrics.cellularIconOffset.y + cellularLegendOffset.value
             ),
-            secondaryColor,
+            primaryColor,
             shapeCellular,
             iconCellular,
-            onSecondaryColor,
+            onPrimaryColor,
             cellularAnimation.value,
         )
 
@@ -199,10 +199,10 @@ private fun BarGraphImpl(
             barGraphHelper.metrics.wifiIconOffset.copy(
                 y = barGraphHelper.metrics.wifiIconOffset.y + wifiLegendOffset.value
             ),
-            primaryColor,
+            secondaryColor,
             shapeWifi,
             iconWifi,
-            onPrimaryColor,
+            onSecondaryColor,
             wifiAnimation.value,
         )
 
