@@ -553,7 +553,7 @@ private fun AppSearchDialog(onSelect: (uid: Int) -> Unit, onDismiss: () -> Unit)
             }
         }
 
-        val includedApps by remember { appManager.suspiciousAppsFlow }.collectAsState(emptyList())
+        val includedApps by remember { appManager.allAppsFlow }.collectAsState(emptyList())
         val appsPlusOther by remember { derivedStateOf {
             listOf(allApp, tetheringApp, removedApp).plus(includedApps)
         } }

@@ -296,7 +296,7 @@ fun PlanConfig(
 
             categoryTitleSmall { stringResource(R.string.zero_rated_apps) }
             item {
-                val suspiciousApps by remember { appManager.suspiciousAppsFlow }.collectAsState(emptyList())
+                val suspiciousApps by remember { appManager.allAppsFlow }.collectAsState(emptyList())
 
                 val excludedApps by remember { derivedStateOf {
                     suspiciousApps.filter { newPlan.excludedApps.contains(it.uid) }

@@ -217,18 +217,11 @@ class NetworkUsageManager(
                 )
 
                 list.sortByDescending { it.usage.totalUsage }
-                list.add(list.size, AppUsage(
-                    app = unknownApp,
-                    usage = DayUsage(
-                        date = dateParams.day,
-                        usage1 = totalUsage.usage1 - list.sumOf { it.usage.usage1 },
-                        usage2 = totalUsage.usage2 - list.sumOf { it.usage.usage2 }
-                    )
-                ))
                 list.add(0, AppUsage(
                     app = allApp,
                     usage = totalUsage
                 ))
+                list.sortWith(compareBy { it.app == unknownApp })
                 list.removeAll { it.usage.totalUsage == 0L }
                 emit(list.distinctBy { it.app.uid }.toList())
             }

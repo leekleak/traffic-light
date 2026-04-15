@@ -36,17 +36,20 @@ class HistoryVM(
     private val appManager: AppManager,
     private val prefs: HistoryPreferenceRepo,
     initialListParam: ListParam,
-    private val initialQuery1: UsageQuery,
-    private val initialQuery2: UsageQuery,
+    initialQuery1: UsageQuery,
+    initialQuery2: UsageQuery,
 ): ViewModel() {
     private val dateParams = MutableStateFlow(DateParams(LocalDate.now(), false))
     private val listParam = MutableStateFlow(initialListParam)
     private val query1 = MutableStateFlow(initialQuery1)
     private val query2 = MutableStateFlow(initialQuery2)
+    private val savedQuery1 = MutableStateFlow(initialQuery1)
+    private val savedQuery2 = MutableStateFlow(initialQuery2)
     
     val query1Flow = query1.asStateFlow()
     val query2Flow = query2.asStateFlow()
     val queryFlow = combine(query1Flow, query2Flow) { q1, q2 -> q1 to q2 }
+    val savedQueryFlow = combine(savedQuery1.asStateFlow(), savedQuery2.asStateFlow()) { q1, q2 -> q1 to q2 }
     val forceHourList = queryFlow.map { (query1, query2) ->
         query1.dataUID.uidQuery != null || query2.dataUID.uidQuery != null
     }.stateIn(
@@ -97,8 +100,9 @@ class HistoryVM(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val filtersChanged: StateFlow<Boolean> = queryFlow
-        .map { (q1, q2) -> q1 != initialQuery1 || q2 != initialQuery2 }
+    val filtersChanged: StateFlow<Boolean> = queryFlow.combine(savedQueryFlow) {q, sq ->
+            q.first != sq.first || q.second != sq.second
+        }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     fun updateQuery(@IntRange(1, 2) n: Int, newQuery: UsageQuery) {
@@ -126,6 +130,8 @@ class HistoryVM(
     }
 
     fun persistFilters() {
+        savedQuery1.value = query1.value
+        savedQuery2.value = query2.value
         viewModelScope.launch { prefs.saveQuery(1, query1.value) }
         viewModelScope.launch { prefs.saveQuery(2, query2.value) }
         viewModelScope.launch { prefs.saveListParam(listParam.value) }

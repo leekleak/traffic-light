@@ -26,7 +26,6 @@ import com.leekleak.trafficlight.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import timber.log.Timber
 
 @SuppressLint("QueryPermissionsNeeded")
 class AppManager(context: Context) {
@@ -36,17 +35,6 @@ class AppManager(context: Context) {
             packageManager.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0L))
         } else {
             packageManager.getInstalledApplications(0)
-        }
-
-    val suspiciousApps =
-        allApps.filter { app ->
-            try {
-                val pi = packageManager.getPackageInfo(app.packageName, PackageManager.GET_PERMISSIONS)
-                (pi.requestedPermissions?.contains("android.permission.INTERNET") ?: true)
-            } catch (e: Exception) {
-                Timber.e(e, "${app.packageName}")
-                false
-            }
         }.distinctBy { it.uid }.map {
             DataUIDApp(
                 uid = it.uid,
@@ -55,12 +43,12 @@ class AppManager(context: Context) {
             )
         }
 
-    val suspiciousAppsFlow = flow {
-        emit(suspiciousApps)
+    val allAppsFlow = flow {
+        emit(allApps)
     }.flowOn(Dispatchers.IO)
 
     fun getAppForUID(uid: Int): DataUID {
-        return suspiciousApps.plus(specialApps).find { it.uid == uid } ?: allApp
+        return allApps.plus(specialApps).find { it.uid == uid } ?: unknownApp
     }
 
     companion object {
