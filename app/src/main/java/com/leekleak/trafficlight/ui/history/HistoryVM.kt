@@ -114,8 +114,7 @@ class HistoryVM(
     }
 
     fun updateDateQuery(day: LocalDate= dateParams.value.day, showMonth: Boolean = dateParams.value.showMonth) {
-        val showMonthNew = if (forceHourList.value) false else showMonth
-        dateParams.value = DateParams(day, showMonthNew)
+        dateParams.value = DateParams(day, showMonth)
     }
 
     fun updateListQuery(newList: ListParam = listParam.value) {
@@ -157,9 +156,9 @@ class HistoryVM(
     }
 
     fun openApp(activity: Activity?, launchIntent: Intent?) {
-        if (launchIntent != null) {
+        launchIntent?.let {
             try {
-                activity?.startActivity(launchIntent)
+                activity?.startActivity(it)
             } catch (e: Exception) {
                 Timber.e(e)
             }
