@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.theme.Theme
+import com.leekleak.trafficlight.util.valueOfOrNull
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
@@ -45,8 +46,8 @@ class AppPreferenceRepo (
 
     val altVpn: Flow<Boolean> = data.map { it[ALT_VPN_WORKAROUND] ?: false }
     suspend fun setAltVpn(value: Boolean) = dataStore.edit { it[ALT_VPN_WORKAROUND] = value }
-
-    val theme: Flow<Theme> = data.map { Theme.valueOf(it[THEME] ?: Theme.AutoMaterial.name ) }
+    
+    val theme: Flow<Theme> = data.map { prefs -> prefs[THEME]?.let { valueOfOrNull<Theme>(it) } ?: Theme.AutoMaterial }
     suspend fun setTheme(value: Theme) = dataStore.edit { it[THEME] = value.name }
 
     val shizukuTracking: Flow<Boolean> = data.map { it[SHIZUKU_TRACKING] ?: false }

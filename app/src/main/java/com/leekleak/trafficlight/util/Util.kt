@@ -49,6 +49,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
+import kotlin.enums.enumEntries
 
 enum class NetworkType {
     Cellular,
@@ -174,6 +175,10 @@ fun ButtonGroupScope.iconButton(
         },
         menuContent = {}
     )
+}
+
+inline fun <reified T : Enum<T>> valueOfOrNull(name: String): T? {
+    return enumEntries<T>().find { it.name.equals(name, ignoreCase = true) }
 }
 
 fun currentTimezone(): ZoneOffset = ZoneId.systemDefault().rules.getOffset(Instant.now())

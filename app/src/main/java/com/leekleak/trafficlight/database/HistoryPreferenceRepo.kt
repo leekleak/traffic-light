@@ -10,6 +10,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.ui.history.ListParam
+import com.leekleak.trafficlight.util.valueOfOrNull
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -22,7 +23,7 @@ class HistoryPreferenceRepo (
     private val data get() = dataStore.data
 
     val listParam: Flow<ListParam> = dataStore.data.map { prefs ->
-        prefs[LIST_PARAM]?.let { ListParam.valueOf(it) } ?: ListParam.AppList
+        prefs[LIST_PARAM]?.let { valueOfOrNull<ListParam>(it) } ?: ListParam.AppList
     }
     suspend fun saveListParam(param: ListParam) {
         dataStore.edit { it[LIST_PARAM] = param.name }
@@ -30,15 +31,15 @@ class HistoryPreferenceRepo (
 
     val query1: Flow<UsageQuery> = data.map { prefs ->
         UsageQuery(
-            dataType = prefs[QUERY1_TYPE]?.let { DataType.valueOf(it) } ?: DataType.Mobile,
-            dataDirection = prefs[QUERY1_DIRECTION]?.let { DataDirection.valueOf(it) } ?: DataDirection.Bidirectional,
+            dataType = prefs[QUERY1_TYPE]?.let { valueOfOrNull<DataType>(it) } ?: DataType.Mobile,
+            dataDirection = prefs[QUERY1_DIRECTION]?.let { valueOfOrNull<DataDirection>(it) } ?: DataDirection.Bidirectional,
             dataUID = prefs[QUERY1_UID]?.let { appManager.getAppForUID(it) } ?: allApp
         )
     }
     val query2: Flow<UsageQuery> = data.map { prefs ->
         UsageQuery(
-            dataType = prefs[QUERY2_TYPE]?.let { DataType.valueOf(it) } ?: DataType.Wifi,
-            dataDirection = prefs[QUERY2_DIRECTION]?.let { DataDirection.valueOf(it) } ?: DataDirection.Bidirectional,
+            dataType = prefs[QUERY2_TYPE]?.let { valueOfOrNull<DataType>(it) } ?: DataType.Wifi,
+            dataDirection = prefs[QUERY2_DIRECTION]?.let { valueOfOrNull<DataDirection>(it) } ?: DataDirection.Bidirectional,
             dataUID = prefs[QUERY2_UID]?.let { appManager.getAppForUID(it) } ?: allApp
         )
     }
