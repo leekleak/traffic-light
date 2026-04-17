@@ -45,7 +45,7 @@
     <string name="appearance">Appearance</string>
     <string name="behavior">Behavior</string>
     <string name="alt_vpn_workaround">Alternate VPN workaround</string>
-    <string name="alt_vpn_workaround_description">Reduces measurement accuracy but accommodates split tunneling.</string>
+    <string name="alt_vpn_workaround_description">Improves accuracy but breaks split tunneling.</string>
     <string name="support_development">Support development</string>
     <string name="shizuku_not_running">Shizuku is not running</string>
     <string name="sim_card">SIM card</string>

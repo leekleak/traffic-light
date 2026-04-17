@@ -97,12 +97,12 @@ class TrafficSnapshot (
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
         if (runVpnWorkaround) {
-            if (altVpnWorkaround) { // Less accurate, but fixes split tunneling setups
-                currentDown = max(currentDown, TrafficStats.getTotalRxBytes() - TrafficStats.getRxBytes("tun0"))
-                currentUp = max(currentUp, TrafficStats.getTotalTxBytes() - TrafficStats.getTxBytes("tun0"))
-            } else {
+            if (altVpnWorkaround) {
                 currentDown = TrafficStats.getRxBytes("tun0")
                 currentUp = TrafficStats.getTxBytes("tun0")
+            } else { // More accurate, but breaks split tunneling setups
+                currentDown = max(currentDown, TrafficStats.getTotalRxBytes() - TrafficStats.getRxBytes("tun0"))
+                currentUp = max(currentUp, TrafficStats.getTotalTxBytes() - TrafficStats.getTxBytes("tun0"))
             }
         } else {
             currentDown = TrafficStats.getTotalRxBytes()

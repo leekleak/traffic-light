@@ -66,7 +66,7 @@ class AppPreferenceRepo (
         private val BIG_ICON = booleanPreferencesKey("big_icon")
         private val SPEED_BITS = booleanPreferencesKey("speed_bits")
         private val FORCE_FALLBACK = booleanPreferencesKey("force_fallback")
-        private val ALT_VPN_WORKAROUND = booleanPreferencesKey("alt_vpn_workaround")
+        private val ALT_VPN_WORKAROUND = booleanPreferencesKey("alt_vpn")
         private val THEME = stringPreferencesKey("theme")
         private val SHIZUKU_TRACKING = booleanPreferencesKey("shizuku_tracking")
         private val SHIZUKU_HINT = booleanPreferencesKey("shizuku_hint")
