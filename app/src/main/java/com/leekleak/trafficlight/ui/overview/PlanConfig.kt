@@ -120,12 +120,14 @@ import com.leekleak.trafficlight.ui.theme.doHyeonFont
 import com.leekleak.trafficlight.ui.theme.robotoFlex
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.DataSizeUnit
-import com.leekleak.trafficlight.util.categoryTitle
+import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.px
 import com.leekleak.trafficlight.util.toDp
 import com.leekleak.trafficlight.util.toTimestamp
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -190,13 +192,14 @@ fun PlanConfig(
             }
         }
     ) { paddingValues ->
+        val hazeState = rememberHazeState()
         LazyColumn(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .hazeSource(hazeState),
             contentPadding = paddingValues
         ) {
-            categoryTitle ({ navigator.goBack() }) { stringResource(R.string.configure_plan) }
             item {
                 val size by remember { derivedStateOf {
                     DataSize(currentPlan.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)
@@ -399,6 +402,7 @@ fun PlanConfig(
                 }
             }
         }
+        PageTitle ({ navigator.goBack() }, hazeState, stringResource(R.string.configure_plan))
     }
 }
 

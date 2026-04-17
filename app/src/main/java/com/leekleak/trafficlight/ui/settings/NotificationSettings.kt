@@ -28,9 +28,11 @@ import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.services.UsageService.Companion.NOTIFICATION_CHANNEL_ID
 import com.leekleak.trafficlight.services.UsageService.Companion.NOTIFICATION_CHANNEL_ID_SILENT
 import com.leekleak.trafficlight.ui.navigation.Navigator
-import com.leekleak.trafficlight.util.categoryTitle
+import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.util.openLink
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -42,14 +44,15 @@ fun NotificationSettings(paddingValues: PaddingValues) {
     val viewModel: SettingsVM = koinViewModel()
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
+    val hazeState = rememberHazeState()
 
     LazyColumn(
         Modifier
             .background(MaterialTheme.colorScheme.surface)
-            .fillMaxSize(),
+            .fillMaxSize()
+            .hazeSource(hazeState),
         contentPadding = paddingValues
     ) {
-        categoryTitle ({ navigator.goBack() }) { stringResource(R.string.notifications) }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
             categoryTitleSmall { stringResource(R.string.live_notification) }
             item {
@@ -153,4 +156,5 @@ fun NotificationSettings(paddingValues: PaddingValues) {
             )
         }
     }
+    PageTitle ({ navigator.goBack() }, hazeState, stringResource(R.string.notifications))
 }

@@ -116,4 +116,7 @@ dependencies {
      * Really really stupid and I hope I'll be able to remove this some time in the future.
      */
     implementation(libs.androidx.work.runtime.ktx)
+
+    implementation(libs.haze)
+    implementation(libs.haze.materials)
 }

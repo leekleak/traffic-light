@@ -103,7 +103,7 @@ import com.leekleak.trafficlight.model.DataUIDApp
 import com.leekleak.trafficlight.ui.overview.AppSelector
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.momoTrustDisplayFont
-import com.leekleak.trafficlight.util.CategoryTitleText
+import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.getName
 import com.leekleak.trafficlight.util.iconButton
 import com.leekleak.trafficlight.util.toDp
@@ -130,6 +130,16 @@ fun History(paddingValues: PaddingValues) {
     val listParam by viewModel.listParamFlow.collectAsState()
     val dateParams by viewModel.dateParamsFlow.collectAsState()
 
+    PageTitle(text = stringResource(R.string.history)) {
+        Row(
+            modifier = Modifier.align(Alignment.CenterEnd),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            HistoryLegendItem(usageQuery1, colorScheme.primary, colorScheme.onPrimary)
+            HistoryLegendItem(usageQuery2, colorScheme.tertiary, colorScheme.onTertiary)
+        }
+    }
+
     Column {
         Column (
             modifier = Modifier
@@ -140,16 +150,6 @@ fun History(paddingValues: PaddingValues) {
                 ),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Box(Modifier.fillMaxWidth()) {
-                CategoryTitleText(stringResource(R.string.history))
-                Row(
-                    modifier = Modifier.align(Alignment.CenterEnd),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    HistoryLegendItem(usageQuery1, colorScheme.primary, colorScheme.onPrimary)
-                    HistoryLegendItem(usageQuery2, colorScheme.tertiary, colorScheme.onTertiary)
-                }
-            }
             ScrollableBarGraph(usage) {
                 viewModel.updateDateQuery(day = viewModel.datesForTimespan.first.plusDays(it.toLong()))
             }

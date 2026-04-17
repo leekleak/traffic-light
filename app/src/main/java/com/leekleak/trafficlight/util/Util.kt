@@ -8,9 +8,11 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,6 +41,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import com.leekleak.trafficlight.R
+import dev.chrisbanes.haze.HazeProgressive
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import dev.chrisbanes.haze.materials.HazeMaterials
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDateTime
@@ -91,8 +98,34 @@ fun DayOfWeek.getName(style: TextStyle) =
 fun Month.getName(style: TextStyle) =
     this.getDisplayName(style, Locale.getDefault()).replaceFirstChar(Char::titlecase)
 
-fun LazyListScope.categoryTitle(onBackPressed: (() -> Unit)? = null, text: @Composable (() -> String)){
-    item { CategoryTitleText(text(), onBackPressed) }
+@OptIn(ExperimentalHazeMaterialsApi::class)
+@Composable
+fun PageTitle(
+    onBackPressed: (() -> Unit)? = null,
+    hazeState: HazeState? = null,
+    text: String,
+    customElement: @Composable (BoxScope.() -> Unit)? = null,
+){
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(
+                hazeState?.let {
+                    Modifier.hazeEffect(state = it, style = HazeMaterials.ultraThin()) {
+                        progressive = HazeProgressive.verticalGradient(startIntensity = 1f, endIntensity = 0f)
+                    }
+                } ?: Modifier
+            )
+    ) {
+        Box(Modifier.statusBarsPadding().padding(horizontal = 16.dp).padding(bottom = 6.dp).fillMaxWidth()) {
+            CategoryTitleText(text, onBackPressed)
+            customElement?.let { it() }
+        }
+    }
+}
+
+fun LazyListScope.categoryTitle(text: @Composable (() -> String)){
+    item { CategoryTitleText(text()) }
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)

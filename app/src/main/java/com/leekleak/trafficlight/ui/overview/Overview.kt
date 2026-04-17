@@ -53,8 +53,8 @@ import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.model.BarData
-import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.AppPreferenceRepo
+import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.PlanConfig
@@ -64,11 +64,13 @@ import com.leekleak.trafficlight.ui.settings.PermissionCard
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.jetbrainsMono
 import com.leekleak.trafficlight.ui.theme.outfit
-import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.openLink
 import com.leekleak.trafficlight.util.px
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -92,28 +94,17 @@ fun Overview(
     val shizukuTracking by remember { appPreferenceRepo.shizukuTracking }.collectAsState(true)
 
     val columnState = rememberLazyListState()
+    val hazeState = rememberHazeState()
+
     LazyColumn(
         modifier = Modifier
             .background(colorScheme.surface)
-            .fillMaxSize(),
+            .fillMaxSize()
+            .hazeSource(hazeState),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = paddingValues,
         state = columnState
     ) {
-        item {
-            Box (Modifier.fillMaxWidth()) {
-                CategoryTitleText(stringResource(R.string.today))
-                IconButton(
-                    modifier = Modifier.align(Alignment.CenterEnd),
-                    onClick = { navigator.goTo(Settings) }
-                ) {
-                    Icon(
-                        painterResource(R.drawable.settings),
-                        contentDescription = stringResource(R.string.settings)
-                    )
-                }
-            }
-        }
         item {
             OverviewHero()
         }
@@ -162,6 +153,17 @@ fun Overview(
                 data = weeklyUsage,
                 finalGridPoint = "",
                 centerLabels = true
+            )
+        }
+    }
+    PageTitle(null, hazeState, stringResource(R.string.today)) {
+        IconButton(
+            modifier = Modifier.align(Alignment.CenterEnd),
+            onClick = { navigator.goTo(Settings) }
+        ) {
+            Icon(
+                painterResource(R.drawable.settings),
+                contentDescription = stringResource(R.string.settings)
             )
         }
     }

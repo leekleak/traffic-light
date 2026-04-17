@@ -42,10 +42,12 @@ import com.leekleak.trafficlight.ui.navigation.NotificationSettings
 import com.leekleak.trafficlight.ui.theme.Theme
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.CategoryTitleSmallText
-import com.leekleak.trafficlight.util.categoryTitle
+import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.util.openLink
 import com.leekleak.trafficlight.util.px
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -60,12 +62,12 @@ fun Settings(paddingValues: PaddingValues) {
     val activity = LocalActivity.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val hazeState = rememberHazeState()
 
     LazyColumn(
-        Modifier.background(MaterialTheme.colorScheme.surface),
+        Modifier.background(MaterialTheme.colorScheme.surface).hazeSource(hazeState),
         contentPadding = paddingValues
     ) {
-        categoryTitle ({ navigator.goBack() }) { stringResource(R.string.settings) }
         item {
             val backgroundPermission by permissionManager.backgroundPermissionFlow.collectAsState(true)
 
@@ -201,4 +203,6 @@ fun Settings(paddingValues: PaddingValues) {
             )
         }
     }
+
+    PageTitle ({ navigator.goBack() }, hazeState, stringResource(R.string.settings))
 }
