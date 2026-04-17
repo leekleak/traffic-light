@@ -94,6 +94,7 @@ class UsageService : Service() {
 
     private var bigIcon = false
     private var aodMode = false
+    private var liveNotification = false
     private val formatter by lazy { SizeFormatter() }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -119,6 +120,9 @@ class UsageService : Service() {
         }
         serviceScope.launch {
             appPreferenceRepo.speedBits.collect { formatter.asBits = it }
+        }
+        serviceScope.launch {
+            appPreferenceRepo.liveNotification.collect { liveNotification = it }
         }
     }
 
@@ -200,7 +204,11 @@ class UsageService : Service() {
 
     private var lastTitle: String = ""
     private suspend fun updateNotification(trafficSnapshot: TrafficSnapshot) {
-        val title = getString(R.string.speed, formatter.format(trafficSnapshot.totalSpeed, 2, true))
+        val title = if (!liveNotification) {
+            getString(R.string.speed, formatter.format(trafficSnapshot.totalSpeed, 2, true))
+        } else {
+            formatter.format(trafficSnapshot.totalSpeed, 2, true)
+        }
 
         if (lastTitle == title) return // If the title is the same, so is the icon.
         else lastTitle = title
@@ -212,7 +220,10 @@ class UsageService : Service() {
 
         updateBaseNotification()
         notification = notificationBuilder
-            .setSmallIcon(createIcon(trafficSnapshot))
+            .apply {
+                if (!liveNotification) setSmallIcon(createIcon(trafficSnapshot))
+                else setSmallIcon(R.drawable.mobiledata_arrows)
+            }
             .setContentTitle(title)
             .setContentText(messageShort)
             .build()
@@ -317,6 +328,7 @@ class UsageService : Service() {
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("Traffic Light")
             .setOngoing(true)
+            .setRequestPromotedOngoing(liveNotification)
             .setSilent(true)
             .setLocalOnly(true)
             .setOnlyAlertOnce(true)

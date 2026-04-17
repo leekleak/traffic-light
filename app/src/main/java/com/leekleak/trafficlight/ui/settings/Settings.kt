@@ -5,7 +5,14 @@ import android.os.Build
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -81,7 +88,7 @@ fun Settings(paddingValues: PaddingValues) {
 
         categoryTitleSmall { stringResource(R.string.notifications) }
         item {
-            val notification by appPreferenceRepo.notification.collectAsState(false)
+            val notification by viewModel.notification.collectAsState()
             val notificationPermission by permissionManager.notificationPermissionFlow.collectAsState(true)
             val notificationPermissionCallback = rememberLauncherForActivityResult(
                 ActivityResultContracts.RequestPermission()
@@ -110,7 +117,11 @@ fun Settings(paddingValues: PaddingValues) {
                     }
                 },
             )
-            if (notification) {
+            AnimatedVisibility(
+                visible = notification,
+                enter = fadeIn() + slideInVertically() + expandVertically(),
+                exit = fadeOut() + slideOutVertically() + shrinkVertically()
+            ) {
                 NavigatePreference(
                     title = stringResource(R.string.advanced_settings),
                     icon = painterResource(R.drawable.notification_settings),

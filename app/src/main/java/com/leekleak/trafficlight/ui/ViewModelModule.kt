@@ -17,6 +17,6 @@ val viewModelModule = module {
         }
         HistoryVM(get(), get(), prefs, listParam, q1, q2)
     }
-    viewModel { SettingsVM() }
+    viewModel { SettingsVM(get()) }
     viewModel { OverviewVM(get()) }
 }

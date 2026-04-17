@@ -46,6 +46,9 @@ class AppPreferenceRepo (
 
     val altVpn: Flow<Boolean> = data.map { it[ALT_VPN_WORKAROUND] ?: false }
     suspend fun setAltVpn(value: Boolean) = dataStore.edit { it[ALT_VPN_WORKAROUND] = value }
+
+    val liveNotification: Flow<Boolean> = data.map { it[LIVE_NOTIFICATION] ?: false }
+    suspend fun setLiveNotification(value: Boolean) = dataStore.edit { it[LIVE_NOTIFICATION] = value }
     
     val theme: Flow<Theme> = data.map { prefs -> prefs[THEME]?.let { valueOfOrNull<Theme>(it) } ?: Theme.AutoMaterial }
     suspend fun setTheme(value: Theme) = dataStore.edit { it[THEME] = value.name }
@@ -58,6 +61,7 @@ class AppPreferenceRepo (
 
     private companion object {
         private val NOTIFICATION = booleanPreferencesKey("notification")
+        private val LIVE_NOTIFICATION = booleanPreferencesKey("live_notification")
         private val MODE_AOD = booleanPreferencesKey("mode_aod")
         private val BIG_ICON = booleanPreferencesKey("big_icon")
         private val SPEED_BITS = booleanPreferencesKey("speed_bits")
