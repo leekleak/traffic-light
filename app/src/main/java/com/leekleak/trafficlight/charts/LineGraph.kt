@@ -53,7 +53,7 @@ fun LineGraph(
             if (data.first != 0L) {
                 drawRect(
                     color = primaryColor,
-                    size = Size(width1 - min(width1, 1.dp.toPx()), size.height)
+                    size = Size(width1 - min(width1, 0.5.dp.toPx()), size.height)
                 )
             }
         }
@@ -62,8 +62,8 @@ fun LineGraph(
             if (data.second != 0L) {
                 drawRect(
                     color = secondaryColor,
-                    topLeft = Offset(size.width - width2, 0f),
-                    size = Size(width2, size.height)
+                    topLeft = Offset(size.width - width2 + 0.5.dp.toPx(), 0f),
+                    size = Size(width2 - 0.5.dp.toPx() , size.height)
                 )
             }
         }
