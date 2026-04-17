@@ -30,15 +30,15 @@ class HistoryPreferenceRepo (
 
     val query1: Flow<UsageQuery> = data.map { prefs ->
         UsageQuery(
-            dataType = prefs[QUERY1_TYPE]?.let { DataType.entries[it] } ?: DataType.Mobile,
-            dataDirection = prefs[QUERY1_DIRECTION]?.let { DataDirection.entries[it] } ?: DataDirection.Bidirectional,
+            dataType = prefs[QUERY1_TYPE]?.let { DataType.valueOf(it) } ?: DataType.Mobile,
+            dataDirection = prefs[QUERY1_DIRECTION]?.let { DataDirection.valueOf(it) } ?: DataDirection.Bidirectional,
             dataUID = prefs[QUERY1_UID]?.let { appManager.getAppForUID(it) } ?: allApp
         )
     }
     val query2: Flow<UsageQuery> = data.map { prefs ->
         UsageQuery(
-            dataType = prefs[QUERY2_TYPE]?.let { DataType.entries[it] } ?: DataType.Wifi,
-            dataDirection = prefs[QUERY2_DIRECTION]?.let { DataDirection.entries[it] } ?: DataDirection.Bidirectional,
+            dataType = prefs[QUERY2_TYPE]?.let { DataType.valueOf(it) } ?: DataType.Wifi,
+            dataDirection = prefs[QUERY2_DIRECTION]?.let { DataDirection.valueOf(it) } ?: DataDirection.Bidirectional,
             dataUID = prefs[QUERY2_UID]?.let { appManager.getAppForUID(it) } ?: allApp
         )
     }
@@ -48,17 +48,17 @@ class HistoryPreferenceRepo (
             val typeKey = if (n == 1) QUERY1_TYPE else QUERY2_TYPE
             val directionKey = if (n == 1) QUERY1_DIRECTION else QUERY2_DIRECTION
             val uidKey = if (n == 1) QUERY1_UID else QUERY2_UID
-            prefs[typeKey] = query.dataType.ordinal
-            prefs[directionKey] = query.dataDirection.ordinal
+            prefs[typeKey] = query.dataType.name
+            prefs[directionKey] = query.dataDirection.name
             prefs[uidKey] = query.dataUID.uid
         }
     }
 
     private companion object {
-        val QUERY1_TYPE = intPreferencesKey("query1_data_type")
-        val QUERY2_TYPE = intPreferencesKey("query2_data_type")
-        val QUERY1_DIRECTION = intPreferencesKey("query1_direction")
-        val QUERY2_DIRECTION = intPreferencesKey("query2_direction")
+        val QUERY1_TYPE = stringPreferencesKey("query1_data_type")
+        val QUERY2_TYPE = stringPreferencesKey("query2_data_type")
+        val QUERY1_DIRECTION = stringPreferencesKey("query1_direction")
+        val QUERY2_DIRECTION = stringPreferencesKey("query2_direction")
         val QUERY1_UID = intPreferencesKey("query1_uid")
         val QUERY2_UID = intPreferencesKey("query2_uid")
         val LIST_PARAM = stringPreferencesKey("list_param")
