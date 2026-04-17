@@ -204,14 +204,11 @@ class UsageService : Service() {
 
     private var lastTitle: String = ""
     private suspend fun updateNotification(trafficSnapshot: TrafficSnapshot) {
-        val title = if (!liveNotification) {
-            getString(R.string.speed, formatter.format(trafficSnapshot.totalSpeed, 2, true))
-        } else {
-            formatter.format(trafficSnapshot.totalSpeed, 2, true)
-        }
+        val speed = formatter.format(trafficSnapshot.totalSpeed, 2, true)
+        val title = getString(R.string.speed, speed)
 
-        if (lastTitle == title) return // If the title is the same, so is the icon.
-        else lastTitle = title
+        if (lastTitle == speed) return // If the title is the same, so is the icon.
+        else lastTitle = speed
 
         val spacing = 18
         val messageShort =
@@ -221,8 +218,13 @@ class UsageService : Service() {
         updateBaseNotification()
         notification = notificationBuilder
             .apply {
-                if (!liveNotification) setSmallIcon(createIcon(trafficSnapshot))
-                else setSmallIcon(R.drawable.mobiledata_arrows)
+                if (!liveNotification) {
+                    setSmallIcon(createIcon(trafficSnapshot))
+                }
+                else  {
+                    setSmallIcon(R.drawable.mobiledata_arrows)
+                    setShortCriticalText(speed)
+                }
             }
             .setContentTitle(title)
             .setContentText(messageShort)
