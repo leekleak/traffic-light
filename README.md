@@ -21,10 +21,10 @@ Traffic Light is an open-source tool for tracking your network usage while ensur
 ## Screenshots
 
 <p align="left">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot01.png" width="220" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot02.png" width="220" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot03.png" width="220" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot04.png" width="220" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot01.png" width="180" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot02.png" width="180" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot03.png" width="180" />
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/screenshot04.png" width="180" />
 </p>
 
 ## Feedback
