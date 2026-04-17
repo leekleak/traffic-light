@@ -8,6 +8,9 @@ History:
 - Improved numbers' accuracy
 - Major UI improvements
 
+Bug fixes:
+- Fix crash if plan length set to 0
+
 Translations:
 - New Language: Italian
 - Updated translations

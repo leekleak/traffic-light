@@ -136,6 +136,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.util.Locale
 import kotlin.math.E
+import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
@@ -422,7 +423,7 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
     var timePickerVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(selectedDate, selectedTime, textFieldState.text) {
-        val multiplier = textFieldState.text.toString().toIntOrNull() ?: 1
+        val multiplier = max(textFieldState.text.toString().toIntOrNull() ?: 1, 1)
         onChange(selectedDate, selectedTime, multiplier)
     }
 
@@ -496,9 +497,7 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                         modifier = Modifier.width(IntrinsicSize.Min),
                         state = textFieldState,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        inputTransformation = InputTransformation {
-                            this.toString().filter { it.isDigit() }
-                        }.maxLength(3),
+                        inputTransformation = InputTransformation.maxLength(3),
                         textStyle = TextStyle(
                             fontFamily = robotoFlex(0f, 150f, 1000f),
                             textAlign = TextAlign.Center,
