@@ -23,7 +23,7 @@ class PermissionManager(
     private val _backgroundPermission = MutableStateFlow(false)
     val backgroundPermissionFlow = _backgroundPermission.asStateFlow()
 
-    private val _usagePermission = MutableStateFlow(true)
+    private val _usagePermission = MutableStateFlow(false)
     val usagePermissionFlow = _usagePermission.asStateFlow()
 
     private val _notificationPermission = MutableStateFlow(false)

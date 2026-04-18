@@ -20,6 +20,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,7 +33,9 @@ import androidx.compose.ui.unit.dp
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.Navigator
+import com.leekleak.trafficlight.ui.navigation.Overview
 import com.leekleak.trafficlight.ui.navigation.Settings
+import com.leekleak.trafficlight.util.PageTitle
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -39,8 +44,13 @@ fun UsagePermissionRequest(paddingValues: PaddingValues) {
     val activity = LocalActivity.current
     val permissionManager: PermissionManager = koinInject()
     val navigator: Navigator = koinInject()
+    val usagePermission by permissionManager.usagePermissionFlow.collectAsState()
 
-    Box(Modifier.fillMaxSize().padding(paddingValues).background(MaterialTheme.colorScheme.surface)) {
+    LaunchedEffect(usagePermission) {
+        if (usagePermission) navigator.setTo(Overview)
+    }
+
+    PageTitle(null, null, "") {
         IconButton(
             modifier = Modifier.align(Alignment.TopEnd),
             onClick = { navigator.goTo(Settings) }
@@ -50,6 +60,8 @@ fun UsagePermissionRequest(paddingValues: PaddingValues) {
                 contentDescription = stringResource(R.string.settings)
             )
         }
+    }
+    Box(Modifier.fillMaxSize().padding(paddingValues)) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,

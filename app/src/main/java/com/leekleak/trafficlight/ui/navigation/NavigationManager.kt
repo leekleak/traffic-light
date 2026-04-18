@@ -33,7 +33,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,7 +49,6 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.history.History
 import com.leekleak.trafficlight.ui.overview.Overview
 import com.leekleak.trafficlight.ui.overview.PlanConfig
@@ -66,25 +64,13 @@ import org.koin.core.annotation.KoinExperimentalAPI
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, KoinExperimentalAPI::class)
 @Composable
 fun NavigationManager() {
-    val permissionManager: PermissionManager = koinInject()
     val navigator: Navigator = koinInject()
-    val usagePermission by remember { permissionManager.usagePermissionFlow }.collectAsState(false)
     val backStack = navigator.backStack
 
     var showBottomBar by remember { mutableStateOf(false) }
 
     LaunchedEffect(navigator.backStack.last()) {
         showBottomBar = mainScreens.contains(navigator.backStack.last())
-    }
-
-    LaunchedEffect(usagePermission) {
-        val currentRoute = navigator.backStack.lastOrNull()
-
-        if (!usagePermission && currentRoute != UsagePermissionRequest) {
-            navigator.setTo(UsagePermissionRequest)
-        } else {
-            navigator.setTo(Overview)
-        }
     }
 
     val toolbarOffset =
