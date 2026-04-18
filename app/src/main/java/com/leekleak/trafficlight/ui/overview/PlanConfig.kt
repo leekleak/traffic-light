@@ -402,7 +402,7 @@ fun PlanConfig(
                 }
             }
         }
-        PageTitle ({ navigator.goBack() }, hazeState, stringResource(R.string.configure_plan))
+        PageTitle (true, hazeState, stringResource(R.string.configure_plan))
     }
 }
 
@@ -665,6 +665,7 @@ fun BackgroundSelector(i: Int, newPlan: DataPlan, onClick: () -> Unit) {
 fun PlanSizeConfig(size: Double, onSizeUpdate: (Float) -> Unit) {
     Box(
         modifier = Modifier
+            .padding(top = 40.dp)
             .height(128.dp * 2.5f)
             .fillMaxWidth(),
         contentAlignment = Alignment.Center

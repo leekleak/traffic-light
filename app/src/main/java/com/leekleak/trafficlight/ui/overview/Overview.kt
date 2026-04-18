@@ -156,7 +156,7 @@ fun Overview(
             )
         }
     }
-    PageTitle(null, hazeState, stringResource(R.string.today)) {
+    PageTitle(false, hazeState, stringResource(R.string.today)) {
         IconButton(
             modifier = Modifier.align(Alignment.CenterEnd),
             onClick = { navigator.goTo(Settings) }

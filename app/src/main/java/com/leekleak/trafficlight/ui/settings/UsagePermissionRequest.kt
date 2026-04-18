@@ -50,7 +50,7 @@ fun UsagePermissionRequest(paddingValues: PaddingValues) {
         if (usagePermission) navigator.setTo(Overview)
     }
 
-    PageTitle(null, null, "") {
+    PageTitle(false, null, "") {
         IconButton(
             modifier = Modifier.align(Alignment.TopEnd),
             onClick = { navigator.goTo(Settings) }

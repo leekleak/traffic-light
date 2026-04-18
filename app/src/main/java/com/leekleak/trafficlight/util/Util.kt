@@ -41,11 +41,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.ui.navigation.Navigator
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
+import org.koin.compose.koinInject
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDateTime
@@ -101,7 +103,7 @@ fun Month.getName(style: TextStyle) =
 @OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
 fun PageTitle(
-    onBackPressed: (() -> Unit)? = null,
+    backButton: Boolean = false,
     hazeState: HazeState? = null,
     text: String,
     customElement: @Composable (BoxScope.() -> Unit)? = null,
@@ -118,7 +120,7 @@ fun PageTitle(
             )
     ) {
         Box(Modifier.statusBarsPadding().padding(horizontal = 16.dp).padding(bottom = 6.dp).fillMaxWidth()) {
-            CategoryTitleText(text, onBackPressed)
+            CategoryTitleText(text, backButton)
             customElement?.let { it() }
         }
     }
@@ -130,10 +132,11 @@ fun LazyListScope.categoryTitle(text: @Composable (() -> String)){
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun CategoryTitleText(text: String, onBackPressed: (() -> Unit)? = null) {
+fun CategoryTitleText(text: String, backButton: Boolean = false) {
+    val navigator: Navigator = koinInject()
     Row (verticalAlignment = Alignment.CenterVertically){
-        if (onBackPressed != null) {
-            IconButton(onClick = { onBackPressed.invoke() }) {
+        if (backButton) {
+            IconButton(onClick = { navigator.goBack() }) {
                 Icon(
                     painter = painterResource(R.drawable.arrow_back),
                     contentDescription = stringResource(R.string.go_back),

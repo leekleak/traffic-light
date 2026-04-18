@@ -204,5 +204,5 @@ fun Settings(paddingValues: PaddingValues) {
         }
     }
 
-    PageTitle ({ navigator.goBack() }, hazeState, stringResource(R.string.settings))
+    PageTitle (true, hazeState, stringResource(R.string.settings))
 }

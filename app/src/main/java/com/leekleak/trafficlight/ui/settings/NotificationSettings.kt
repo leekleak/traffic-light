@@ -27,7 +27,6 @@ import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.services.UsageService.Companion.NOTIFICATION_CHANNEL_ID
 import com.leekleak.trafficlight.services.UsageService.Companion.NOTIFICATION_CHANNEL_ID_SILENT
-import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.util.openLink
@@ -40,7 +39,6 @@ import org.koin.compose.koinInject
 @Composable
 fun NotificationSettings(paddingValues: PaddingValues) {
     val appPreferenceRepo: AppPreferenceRepo = koinInject()
-    val navigator: Navigator = koinInject()
     val viewModel: SettingsVM = koinViewModel()
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
@@ -156,5 +154,5 @@ fun NotificationSettings(paddingValues: PaddingValues) {
             )
         }
     }
-    PageTitle ({ navigator.goBack() }, hazeState, stringResource(R.string.notifications))
+    PageTitle (true, hazeState, stringResource(R.string.notifications))
 }
