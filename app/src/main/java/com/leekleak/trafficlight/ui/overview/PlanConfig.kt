@@ -71,11 +71,11 @@ import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.toPath
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -131,7 +131,6 @@ import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import java.text.DecimalFormat
 import java.text.NumberFormat
@@ -146,10 +145,7 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @SuppressLint("LocalContextGetResourceValueCall")
 @Composable
-fun PlanConfig(
-    subscriberId: String,
-) {
-    val viewModel: OverviewVM = koinViewModel()
+fun PlanConfig(subscriberId: String) {
     val appManager: AppManager = koinInject()
     val dataPlanDao: DataPlanDao = koinInject()
     val scope = rememberCoroutineScope()
@@ -158,7 +154,7 @@ fun PlanConfig(
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
 
-    val currentPlan by remember { viewModel.getDataPlan(subscriberId) }.collectAsState(DataPlan(subscriberId))
+    val currentPlan by produceState(DataPlan(subscriberId)) { dataPlanDao.get(subscriberId)?.let { value = it } }
     var newPlan by remember { mutableStateOf(DataPlan(subscriberId, uiBackground = 3)) }
     LaunchedEffect(currentPlan) {
         newPlan = currentPlan
@@ -300,7 +296,7 @@ fun PlanConfig(
             }
             categoryTitleSmall { stringResource(R.string.zero_rated_apps) }
             item {
-                val suspiciousApps by remember { appManager.allAppsFlow }.collectAsState(emptyList())
+                val suspiciousApps by produceState(emptyList()) { value = appManager.allApps }
 
                 val excludedApps by remember { derivedStateOf {
                     suspiciousApps.filter { newPlan.excludedApps.contains(it.uid) }

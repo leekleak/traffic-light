@@ -2,7 +2,6 @@ package com.leekleak.trafficlight.ui
 
 import com.leekleak.trafficlight.database.HistoryPreferenceRepo
 import com.leekleak.trafficlight.ui.history.HistoryVM
-import com.leekleak.trafficlight.ui.overview.OverviewVM
 import com.leekleak.trafficlight.ui.settings.SettingsVM
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -18,5 +17,4 @@ val viewModelModule = module {
         HistoryVM(get(), get(), prefs, listParam, q1, q2)
     }
     viewModel { SettingsVM(get()) }
-    viewModel { OverviewVM(get()) }
 }

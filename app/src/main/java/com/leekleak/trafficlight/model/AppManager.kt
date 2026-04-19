@@ -23,9 +23,6 @@ import coil3.fetch.Fetcher
 import coil3.fetch.ImageFetchResult
 import coil3.request.Options
 import com.leekleak.trafficlight.R
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 
 @SuppressLint("QueryPermissionsNeeded")
 class AppManager(context: Context) {
@@ -43,13 +40,7 @@ class AppManager(context: Context) {
             )
         }
 
-    val allAppsFlow = flow {
-        emit(allApps)
-    }.flowOn(Dispatchers.IO)
-
-    fun getAppForUID(uid: Int): DataUID {
-        return allApps.plus(specialApps).find { it.uid == uid } ?: unknownApp
-    }
+    fun getAppForUID(uid: Int): DataUID = allApps.plus(specialApps).find { it.uid == uid } ?: unknownApp
 
     companion object {
         val allApp = DataUIDSpecial(

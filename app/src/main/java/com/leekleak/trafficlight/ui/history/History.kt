@@ -61,6 +61,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -568,7 +569,7 @@ private fun AppSearchDialog(onSelect: (uid: Int) -> Unit, onDismiss: () -> Unit)
             }
         }
 
-        val includedApps by remember { appManager.allAppsFlow }.collectAsState(emptyList())
+        val includedApps by produceState(emptyList()) { value = appManager.allApps }
         val appsPlusOther by remember { derivedStateOf {
             listOf(allApp, tetheringApp, removedApp).plus(includedApps)
         } }
