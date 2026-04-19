@@ -1,9 +1,5 @@
 package com.leekleak.trafficlight
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.NotificationManager.IMPORTANCE_DEFAULT
-import android.app.NotificationManager.IMPORTANCE_NONE
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,33 +10,19 @@ import androidx.glance.appwidget.setWidgetPreviews
 import androidx.lifecycle.lifecycleScope
 import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
-import coil3.request.crossfade
-import com.leekleak.trafficlight.model.AppIconFetcher
-import com.leekleak.trafficlight.services.SpeedNotification.Companion.NOTIFICATION_CHANNEL_ID
-import com.leekleak.trafficlight.services.SpeedNotification.Companion.NOTIFICATION_CHANNEL_ID_SILENT
 import com.leekleak.trafficlight.ui.app.App
 import com.leekleak.trafficlight.ui.theme.Theme
 import com.leekleak.trafficlight.widget.WidgetReceiver
-import com.leekleak.trafficlight.widget.startAlarmManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import timber.log.Timber
+import org.koin.compose.koinInject
 
-class MainActivity : ComponentActivity(), KoinComponent {
-    private val appIconFactory: AppIconFetcher.Factory by inject()
-
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (BuildConfig.DEBUG && Timber.forest().isEmpty()) {
-            Timber.plant(Timber.DebugTree())
-        }
         enableEdgeToEdge()
-        createNotificationChannel()
 
-        startAlarmManager(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             lifecycleScope.launch {
                 delay(1000) // Apparently if you refresh previews too soon on app launch they'll be ignored
@@ -49,29 +31,12 @@ class MainActivity : ComponentActivity(), KoinComponent {
         }
 
         setContent {
-            setSingletonImageLoaderFactory {
-                ImageLoader.Builder(this)
-                    .components {
-                        add(appIconFactory)
-                    }
-                    .crossfade(true)
-                    .build()
-            }
+            val imageLoader: ImageLoader = koinInject()
+            setSingletonImageLoaderFactory { imageLoader }
 
             Theme {
                 App()
             }
         }
-    }
-
-    private fun createNotificationChannel() {
-        val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID, "Persistent Notification", IMPORTANCE_DEFAULT).apply {
-            setShowBadge(false)
-        }
-        val channelSilent = NotificationChannel(NOTIFICATION_CHANNEL_ID_SILENT, "Persistent Notification (Disconnected)", IMPORTANCE_NONE).apply {
-            setShowBadge(false)
-        }
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannels(listOf(channel, channelSilent))
     }
 }

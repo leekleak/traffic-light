@@ -122,7 +122,7 @@ class WidgetConfigureActivity : ComponentActivity() {
 }
 
 @Composable
-fun Warning(
+private fun Warning(
     title: String = stringResource(R.string.warning),
     description: String = "",
     painter: Painter = painterResource(R.drawable.warning),
