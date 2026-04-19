@@ -76,8 +76,8 @@ class Widget: GlanceAppWidget() {
 
         val dataPlan = withContext(Dispatchers.IO) { dataPlanDao.get(subscriberID) }!!
         val usage = networkUsageManager.planUsage(dataPlan)
-        val usageSize = DataSize(usage.toDouble()).getAsUnit(DataSizeUnit.GB)
-        val dataMax = DataSize(dataPlan.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)
+        val usageSize = DataSize(usage).getAsUnit(DataSizeUnit.GB)
+        val dataMax = DataSize(dataPlan.dataMax).getAsUnit(DataSizeUnit.GB)
         val formatter = DecimalFormat("0.##")
 
         val usageString = formatter.format(usageSize)

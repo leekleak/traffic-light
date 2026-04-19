@@ -138,7 +138,7 @@ fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
     val networkUsageManager: NetworkUsageManager = koinInject()
 
     val dataUsage by produceState(0L) { value = networkUsageManager.planUsage(dataPlan) }
-    val usage = DataSize(dataUsage.toDouble()).getAsUnit(DataSizeUnit.GB)
+    val usage = DataSize(dataUsage).getAsUnit(DataSizeUnit.GB)
     val formatter = remember { DecimalFormat("0.##") }
     Box (
         modifier = Modifier
@@ -246,7 +246,7 @@ private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
             }
             val usage by remember(dataUsage) {
                 derivedStateOf {
-                    DataSize(dataUsage.toDouble()).getAsUnit(DataSizeUnit.GB)
+                    DataSize(dataUsage).getAsUnit(DataSizeUnit.GB)
                 }
             }
             Row(
@@ -266,7 +266,7 @@ private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
                 val data by remember(dataPlan) {
                     derivedStateOf {
                         formatter.format(
-                            DataSize(dataPlan.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)
+                            DataSize(dataPlan.dataMax).getAsUnit(DataSizeUnit.GB)
                         )
                     }
                 }
@@ -290,12 +290,12 @@ private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
                     text = dataPlan.resetString(context),
                     fontFamily = robotoFlex(0f, 150f, 1000f)
                 )
-                val lineUsage = DataSize(usage, unit = DataSizeUnit.GB)
+                val lineUsage = DataSize((usage * DataSizeUnit.GB.toBits()).toLong())
                 LinearWavyProgressIndicator(
                     modifier = Modifier.fillMaxWidth(),
                     progress = {
                         if (dataPlan.dataMax == 0L) 0f
-                        else (lineUsage.getBitValue()
+                        else (lineUsage.byteValue
                             .toDouble() / dataPlan.dataMax.toDouble()).toFloat()
                             .coerceIn(0f, 1f)
                     },

@@ -25,14 +25,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.NetworkType
-import com.leekleak.trafficlight.util.SizeFormatter
 import kotlin.math.max
 
 internal data class BarGraphMetrics(
     val gridHeight: Float,
     val gridWidth: Float,
     val xItemSpacing: Float,
-    val yAxisData: List<Pair<Double, Double>>,
+    val yAxisData: List<Pair<Long, Long>>,
     val xAxisData: List<String>,
     val rectList: List<Bar>,
     val wifiIconOffset: Offset,
@@ -46,12 +45,11 @@ data class Bar (
 
 internal class BarGraphHelper(
     private val scope: DrawScope,
-    private val yAxisData: List<Pair<Double, Double>>,
+    private val yAxisData: List<Pair<Long, Long>>,
     private val xAxisData: List<String>,
     private val finalGridPoint: String,
     private val stretch: List<Animatable<Float, *>>
 ) {
-    private var sizeFormatter = SizeFormatter()
     internal val metrics = scope.buildMetrics()
 
     private fun DrawScope.buildMetrics(): BarGraphMetrics {
@@ -63,7 +61,7 @@ internal class BarGraphHelper(
 
         val rectList = mutableListOf<Bar>()
 
-        val absMaxY = max(DataSize(getAbsoluteMax(yAxisData)).getComparisonValue().getBitValue(), 1024)
+        val absMaxY = max(DataSize(getAbsoluteMax(yAxisData)).getComparisonValue(), 1024)
         val verticalStep = absMaxY / gridHeight
 
         val xItemSpacing = gridWidth / yAxisData.size
@@ -225,9 +223,10 @@ internal class BarGraphHelper(
 
             //Drawing text labels over the y- axis
             val dataSize = DataSize(getAbsoluteMax(yAxisData))
+            val parts = DataSize(dataSize.getComparisonValue()).toStringParts()
 
             drawContext.canvas.nativeCanvas.drawText(
-                sizeFormatter.format(dataSize.getComparisonValue().getBitValue(), 0, false),
+                parts.first + " " +parts.third,
                 metrics.gridWidth + 4.sp.toPx(),
                 0f + 4.sp.toPx(),
                 paint.apply { textAlign = Paint.Align.LEFT }
@@ -252,9 +251,5 @@ internal class BarGraphHelper(
             }
         }
     }
-    internal fun getAbsoluteMax(list: List<Pair<Number, Number>>): Double {
-        return list.maxOfOrNull {
-            it.first.toDouble() + it.second.toDouble()
-        } ?: 0.0
-    }
+    internal fun getAbsoluteMax(list: List<Pair<Long, Long>>): Long = list.maxOfOrNull { it.first + it.second } ?: 0L
 }

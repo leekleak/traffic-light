@@ -4,8 +4,8 @@ import java.time.LocalDate
 
 data class BarData(
     val x: String = "",
-    val y1: Double = 0.0,
-    val y2: Double = 0.0
+    val y1: Long = 0L,
+    val y2: Long = 0L
 ) {
     operator fun plus(other: BarData): BarData {
         return this.copy(
@@ -17,8 +17,8 @@ data class BarData(
 
 data class ScrollableBarData(
     val x: LocalDate,
-    val y1: Double = 0.0,
-    val y2: Double = 0.0
+    val y1: Long = 0L,
+    val y2: Long = 0L
 ) {
     operator fun plus(other: ScrollableBarData): ScrollableBarData {
         return this.copy(

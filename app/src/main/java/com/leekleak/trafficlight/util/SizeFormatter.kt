@@ -1,45 +1,42 @@
 package com.leekleak.trafficlight.util
 
-import java.math.RoundingMode
+import java.math.BigDecimal
 import kotlin.math.ceil
 import kotlin.math.pow
 
 enum class DataSizeUnit {
     B, KB, MB, GB, TB, // Actual sizes
     PB, EB, ZB, YB;  // Mental disorders
+
+    fun toBits(base: Double = 1024.0): Long = base.pow(this.ordinal).toLong()
+    fun getName(inBits: Boolean, speed: Boolean): String {
+        return (if (inBits) name.replace("B", "b") else name) + (if (speed) "/s" else "")
+    }
 }
 
 data class DataSize (
-    var value: Double,
-    var unit: DataSizeUnit = DataSizeUnit.B,
-    val speed: Boolean = false,
-    var precision: Int = 1
+    val byteValue: Long,
 ) {
-    val precisionDec: Double
-        get() = 10.0.pow(precision)
+    val value: Double
+    val unit: DataSizeUnit
+    val precision: Int
 
     init {
-        var i = DataSizeUnit.entries.indexOf(unit)
-        while (value >= 1000 && i < DataSizeUnit.entries.size) {
-            value = if (value < 1024) 1.0 else value / 1024
+        var i = 0
+        var newValue = byteValue.toDouble()
+        while (newValue >= 1000 && i < DataSizeUnit.entries.size) {
+            newValue = if (newValue < 1024) 1.0 else newValue / 1024
             i++
         }
+        value = newValue
         unit = DataSizeUnit.entries[i]
+        precision = if (value >= 10) 0 else 1
     }
 
-    fun applyPrecision(size: Double): String {
-        return if (precision == 0 || size.toInt() >= 100) size.toInt().toString()
-            else ((size * precisionDec).toInt().toFloat() / precisionDec).toString() // Round down
-    }
-
-    fun getComparisonValue(): DataSize {
-        if (value < 10) return copy(value = ceil(value), unit = unit, speed = speed, precision = precision)
-        if (value < 100) return copy(value = ceil(value / 10f) * 10f, unit = unit, speed = speed, precision = precision)
-        return copy(value = ceil(value / 100f) * 100f, unit = unit, speed = speed, precision = precision)
-    }
-
-    fun getBitValue(): Long {
-        return (value * 1024f.pow(DataSizeUnit.entries.indexOf(unit))).toLong()
+    fun getComparisonValue(): Long {
+        if (value < 10) return (ceil(value) * unit.toBits()).toLong()
+        if (value < 100) return ((ceil(byteValue / 10f) * 10f) * unit.toBits()).toLong()
+        return ((ceil(byteValue / 100f) * 100f) * unit.toBits()).toLong()
     }
 
     fun getAsUnit(unit: DataSizeUnit): Double {
@@ -47,41 +44,28 @@ data class DataSize (
         else value * 1024.0.pow((this.unit.ordinal - unit.ordinal).toDouble())
     }
 
-    override fun toString(): String {
-        val outValue = if (value < 1024 && unit == DataSizeUnit.B) {
-            unit = DataSizeUnit.KB
-             if (value > 0) "<1" else "0"
-        } else applyPrecision(value)
-        return "$outValue $unit${if (speed) "/s" else ""}"
+    fun asString(extraPrecision: Boolean = false, speed: Boolean = false, inBits: Boolean = false): String {
+        val parts = toStringParts(extraPrecision = extraPrecision, speed = speed, inBits = inBits)
+        return "${parts.first}${parts.second} ${parts.third}"
     }
 
-    fun toStringParts(uppercase: Boolean = true): List<String> {
-        if (value.isNaN()) {
-            return listOf("Nan", "", "")
+    fun toStringParts(extraPrecision: Boolean = false, speed: Boolean = false, inBits: Boolean = false): Triple<String, String, String> {
+        val newDataSize = DataSize(byteValue * if (inBits) 8 else 1)
+        return if (newDataSize.byteValue < 1000) {
+            Triple((if (newDataSize.byteValue != 0L) "<1" else "0"), "", DataSizeUnit.KB.getName(inBits, speed))
+        } else {
+            val withPrecision = applyPrecision(newDataSize, extraPrecision)
+            Triple(withPrecision.first, withPrecision.second, newDataSize.unit.getName(inBits, speed))
         }
-        val newValue = value.toBigDecimal().setScale(precision, RoundingMode.HALF_UP).toString()
-        val newUnit = unit.toString().let { if (!uppercase) it.replace("B", "b") else it }
-        return listOf(
-            newValue.substringBefore('.'),
-            if (newValue.contains('.')) newValue.substringAfter('.') else "",
-            newUnit + if (speed) "/s" else ""
-        )
-    }
-}
-
-class SizeFormatter {
-    var asBits = false
-
-    fun format(size: Number, precision: Int, speed: Boolean = false): String {
-        val realSize = size.toDouble() * if (asBits && speed) 8.0 else 1.0
-        val dataSize = DataSize(realSize, DataSizeUnit.B, speed, precision)
-        return "$dataSize".let { if (asBits && speed) it.replace("B", "b") else it }
     }
 
-    fun partFormat(size: Number, speed: Boolean = false): List<String> {
-        val realSize = size.toDouble() * if (asBits && speed) 8.0 else 1.0
-        val dataSize = DataSize(realSize, DataSizeUnit.B, speed, 2)
-        dataSize.precision = if (dataSize.value < 10 && dataSize.unit >= DataSizeUnit.MB) 1 else 0
-        return dataSize.toStringParts(!asBits || !speed)
+    companion object {
+        fun applyPrecision(dataSize: DataSize, extraPrecision: Boolean): Pair<String, String> {
+            val newPrecision = if (dataSize.precision > 0 || extraPrecision) 1 else 0
+            val parts = BigDecimal(dataSize.value.toString()).toPlainString().split(".")
+            val fraction = parts.getOrNull(1)?.substring(0, newPrecision) ?: ""
+
+            return Pair(parts[0], if (fraction != "")".$fraction" else fraction)
+        }
     }
 }

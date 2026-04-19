@@ -30,7 +30,7 @@ import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.services.UsageService.Companion.todayUsage
-import com.leekleak.trafficlight.util.SizeFormatter
+import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.clipAndPad
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,7 +59,6 @@ class SpeedNotification(
     private lateinit var notification: Notification
     private val trafficSnapshot = TrafficSnapshot(scope)
     private var updateCounter = DATA_UPDATE_FREQ
-    private val formatter by lazy { SizeFormatter() }
 
     private val queryMobile =
         UsageQuery(
@@ -74,6 +73,7 @@ class SpeedNotification(
 
     private var bigIcon = false
     private var aodMode = false
+    private var inBits = false
     private var liveNotification = false
 
     init {
@@ -84,7 +84,7 @@ class SpeedNotification(
             appPreferenceRepo.bigIcon.collect { bigIcon = it }
         }
         scope.launch {
-            appPreferenceRepo.speedBits.collect { formatter.asBits = it }
+            appPreferenceRepo.speedBits.collect { inBits = it }
         }
         scope.launch {
             appPreferenceRepo.liveNotification.collect { liveNotification = it }
@@ -152,7 +152,7 @@ class SpeedNotification(
 
     private var lastTitle: String = ""
     private suspend fun updateNotification(trafficSnapshot: TrafficSnapshot) {
-        val speed = formatter.format(trafficSnapshot.totalSpeed, 2, true)
+        val speed = DataSize(trafficSnapshot.totalSpeed).asString(speed = true, inBits = inBits)
         val title = context.getString(R.string.speed, speed)
 
         if (lastTitle == speed) return // If the title is the same, so is the icon.
@@ -160,8 +160,8 @@ class SpeedNotification(
 
         val spacing = 18
         val messageShort =
-            context.getString(R.string.wi_fi, formatter.format(todayUsage.usage2, 2)).clipAndPad(spacing) +
-            context.getString(R.string.mobile, formatter.format(todayUsage.usage1, 2))
+            context.getString(R.string.wi_fi, DataSize(todayUsage.usage2).asString(speed = true, inBits = inBits)).clipAndPad(spacing) +
+            context.getString(R.string.mobile, DataSize(todayUsage.usage1).asString(speed = true, inBits = inBits))
 
         updateBaseNotification()
         notification = notificationBuilder
@@ -197,12 +197,9 @@ class SpeedNotification(
         val multiplier = 24 * density.density / 96f * if (bigIcon) 2f else 1f
         val height = (96 * multiplier).toInt()
 
-        val data = formatter.partFormat(snapshot.totalSpeed, true)
-        val bytesPerSecond: Boolean = data[2].lowercase() == "b/s"
-        val speed = if (!bytesPerSecond || snapshot.totalSpeed == 0L) {
-            data[0] + if (data[0].length == 1 && data[1].isNotEmpty()) "." + data[1] else ""
-        } else "<1"
-        val unit = if (!bytesPerSecond) data[2] else "K${data[2]}"
+        val data = DataSize(snapshot.totalSpeed).asString(speed = true, inBits = inBits)
+        val speed = data.substringBefore(" ")
+        val unit = data.substringAfter(" ")
 
         val iconTag = "$speed$unit$height"
 

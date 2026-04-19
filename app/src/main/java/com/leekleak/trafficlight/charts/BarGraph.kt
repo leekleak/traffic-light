@@ -61,7 +61,7 @@ fun BarGraph(
 @Composable
 private fun BarGraphImpl(
     xAxisData: List<String>,
-    yAxisData: List<Pair<Double, Double>>,
+    yAxisData: List<Pair<Long, Long>>,
     finalGridPoint: String,
     centerLabels: Boolean,
     onClick: (i: Int) -> Unit
@@ -101,7 +101,7 @@ private fun BarGraphImpl(
     LaunchedEffect(yAxisData) {
         for (i in 0..<barAnimation.size) {
             launch(Dispatchers.IO) {
-                if (yAxisData[i].second + yAxisData[i].first != 0.0) {
+                if (yAxisData[i].second + yAxisData[i].first != 0L) {
                     delay(100)
                     barAnimation[i].animateTo(1f)
                 }

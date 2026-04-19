@@ -270,8 +270,8 @@ class NetworkUsageManager(
                     val usage1 = usageQuery1?.let { totalDayUsage(it, now) }
                     val usage2 = usageQuery2?.let { totalDayUsage(it, now) }
                     data[i] = data[i].copy(
-                        y1 = usage1?.toDouble() ?: 0.0,
-                        y2 = usage2?.toDouble() ?: 0.0,
+                        y1 = usage1 ?: 0L,
+                        y2 = usage2 ?: 0L,
                     )
                 }
             }.awaitAll()
@@ -284,7 +284,7 @@ class NetworkUsageManager(
         val firstDay = field.firstDayOfWeek
         val data: MutableList<BarData> = MutableList(7) { i ->
             val x = firstDay.plus(i.toLong()).getName(TextStyle.SHORT_STANDALONE)
-            BarData(x, 0.0, 0.0)
+            BarData(x, 0, 0)
         }
         val now = LocalDate.now()
         val daysPassed = now.get(field.dayOfWeek()) - 1
@@ -300,21 +300,17 @@ class NetworkUsageManager(
                 query = UsageQuery(DataType.Wifi),
             )
 
-            data[daysPassed - i] += BarData(
-                "",
-                usage1.toDouble(),
-                usage2.toDouble()
-            )
+            data[daysPassed - i] += BarData("", usage1, usage2)
         }
         return data.toList()
     }
 
-    suspend fun predictUsage(): Double {
+    suspend fun predictUsage(): Long {
         val hour = LocalDateTime.now().hour
         val hoursLeft = 23 - hour
         val nowStamp = LocalDateTime.now().toTimestamp()
-        val last24HourUsage = getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, DataType.Mobile).sumOf { it.total }.toDouble()
-        val todayUsage = totalDayUsage(UsageQuery(DataType.Mobile), LocalDate.now()).toDouble()
+        val last24HourUsage = getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, DataType.Mobile).sumOf { it.total }
+        val todayUsage = totalDayUsage(UsageQuery(DataType.Mobile), LocalDate.now())
 
         var hourSum = 0.0
         var daySum = 0.0
@@ -322,19 +318,19 @@ class NetworkUsageManager(
         for (i in 1..4) {
             val pivotStamp = nowStamp - i * 24 * 7 * 3_600_000
             val futureHours = getNetworkDataForType(pivotStamp, pivotStamp + hoursLeft * 3_600_000, null, DataType.Mobile)
-                .sumOf { it.total }.toDouble()
+                .sumOf { it.total }
             val pastHours = getNetworkDataForType(pivotStamp - 24 * 3_600_000, pivotStamp, null, DataType.Mobile)
-                .sumOf { it.total }.toDouble()
+                .sumOf { it.total }
 
             daySum += futureHours + pastHours
             hourSum += pastHours
         }
 
-        if (hourSum == 0.0) {
-            return todayUsage
+        return if (hourSum == 0.0) {
+            todayUsage
+        } else {
+            (last24HourUsage * (daySum / hourSum - 1)).toLong() + todayUsage
         }
-        val multiplier = daySum / hourSum
-        return last24HourUsage * (multiplier - 1) + todayUsage
     }
 
     suspend fun getTrend(): Double {

@@ -222,15 +222,15 @@ private fun OverviewHero() {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             val todayUsage by produceState(0L) { value = networkUsageManager.todayMobileUsage() }
-            val string = DataSize(todayUsage.toDouble()).toStringParts()
+            val string = DataSize(todayUsage).toStringParts(extraPrecision = true)
             Row {
                 Text(
                     text = buildAnnotatedString {
                         withStyle(style = SpanStyle(fontFamily = outfit(700f), fontSize = 48.sp)) {
-                            append("${string[0]}.${string[1]}")
+                            append("${string.first}${string.second}")
                         }
                         withStyle(style = SpanStyle(fontFamily = outfit(700f), fontSize = 32.sp)) {
-                            append(string[2])
+                            append(string.third)
                         }
                     }
                 )
@@ -254,8 +254,8 @@ private fun RowScope.PredictionCard() {
             .weight(1f),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        val prediction by produceState(0.0) { value = networkUsageManager.predictUsage() }
-        val string = DataSize(prediction).toStringParts()
+        val prediction by produceState(0L) { value = networkUsageManager.predictUsage() }
+        val string = DataSize(prediction).toStringParts(extraPrecision = true)
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -270,13 +270,13 @@ private fun RowScope.PredictionCard() {
         Row {
             Text(
                 modifier = Modifier.alignByBaseline(),
-                text = string[0] + "." + string[1],
+                text = string.first + string.second,
                 fontFamily = jetbrainsMono(),
                 fontSize = 24.sp
             )
             Text(
                 modifier = Modifier.alignByBaseline(),
-                text = string[2],
+                text = string.third,
                 fontFamily = jetbrainsMono(),
                 fontSize = 20.sp
             )

@@ -27,7 +27,6 @@ import androidx.graphics.shapes.toPath
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.NetworkType
-import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.getName
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -64,7 +63,6 @@ internal class ScrollableBarGraphHelper(
     private val onBarVisibilityChanged: (i: Int, visible: Boolean) -> Unit,
     private val onMaximumChange: (maximum: Long) -> Unit,
 ) {
-    private var sizeFormatter = SizeFormatter()
     private val visibleIndices = mutableListOf<Int>()
     internal val metrics = scope.buildMetrics()
 
@@ -108,7 +106,7 @@ internal class ScrollableBarGraphHelper(
             }
         }
 
-        val absMaxY = visibleIndices.maxOf { data[it].y1 + data[it].y2 }.toLong()
+        val absMaxY = visibleIndices.maxOf { data[it].y1 + data[it].y2 }
         if (maximum.targetValue.toLong() != absMaxY && absMaxY != 0L) { onMaximumChange(absMaxY) }
 
         val verticalStep = maximum.value / gridHeight
@@ -204,9 +202,9 @@ internal class ScrollableBarGraphHelper(
             drawTextLabelsOverXAndYAxis(gridColor, backgroundColor, textMeasurer)
 
             //Drawing text labels over the y- axis
-            val dataSize = DataSize(maximum.value.toDouble())
+            val dataSize = DataSize(maximum.value.toLong()).toStringParts()
             drawContext.canvas.nativeCanvas.drawText(
-                sizeFormatter.format(dataSize.getComparisonValue().getBitValue(), 0, false),
+                dataSize.first + " " + dataSize.third,
                 metrics.gridWidth + 4.sp.toPx(),
                 0f + 4.sp.toPx(),
                 textPaint(gridColor).apply { textAlign = Paint.Align.LEFT }

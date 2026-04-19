@@ -199,11 +199,11 @@ fun PlanConfig(subscriberId: String) {
         ) {
             item {
                 val size by remember { derivedStateOf {
-                    DataSize(currentPlan.dataMax.toDouble()).getAsUnit(DataSizeUnit.GB)
+                    DataSize(currentPlan.dataMax).getAsUnit(DataSizeUnit.GB)
                 } }
                 PlanSizeConfig (size = size) {
-                    val data = DataSize(it.toDouble(), unit = DataSizeUnit.GB)
-                    newPlan = newPlan.copy(dataMax = data.getBitValue())
+                    val data = DataSize((it * DataSizeUnit.GB.toBits()).toLong())
+                    newPlan = newPlan.copy(dataMax = data.byteValue)
                 }
             }
             categoryTitleSmall { stringResource(R.string.type) }

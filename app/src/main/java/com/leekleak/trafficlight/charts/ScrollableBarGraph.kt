@@ -213,7 +213,7 @@ fun ScrollableBarGraph(
             },
             onMaximumChange = {
                 new -> scope.launch {
-                    maximum.animateTo(DataSize(new.toDouble()).getComparisonValue().getBitValue().toFloat())
+                    maximum.animateTo(DataSize(new).getComparisonValue().toFloat())
                 }
             }
         )
