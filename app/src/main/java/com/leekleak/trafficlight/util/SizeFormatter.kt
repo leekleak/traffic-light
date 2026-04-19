@@ -29,7 +29,7 @@ data class DataSize (
             i++
         }
         value = newValue
-        unit = DataSizeUnit.entries[i]
+        unit = DataSizeUnit.entries.getOrNull(i) ?: DataSizeUnit.YB
         precision = if (value >= 10) 0 else 1
     }
 

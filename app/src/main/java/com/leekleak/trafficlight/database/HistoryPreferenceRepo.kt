@@ -14,11 +14,12 @@ import com.leekleak.trafficlight.util.valueOfOrNull
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+private val Context.historyPreferences: DataStore<Preferences> by preferencesDataStore(name = "history")
+
 class HistoryPreferenceRepo (
     private val context: Context,
     appManager: AppManager,
 ) {
-    private val Context.historyPreferences: DataStore<Preferences> by preferencesDataStore(name = "history")
     private val dataStore get() = context.historyPreferences
     private val data get() = dataStore.data
 

@@ -6,16 +6,14 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import androidx.room.concurrent.AtomicBoolean
 import com.leekleak.trafficlight.database.AppPreferenceRepo
-import com.leekleak.trafficlight.database.DayUsage
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
 import timber.log.Timber
-import java.lang.ref.WeakReference
 
 class UsageService : LifecycleService(), KoinComponent {
     private val appPreferenceRepo: AppPreferenceRepo by inject()
@@ -57,7 +55,6 @@ class UsageService : LifecycleService(), KoinComponent {
 
     override fun onCreate() {
         super.onCreate()
-        instance = WeakReference(this)
         Timber.i("Creating UsageService")
 
         registerReceiver(screenStateReceiver, IntentFilter().apply {
@@ -68,6 +65,7 @@ class UsageService : LifecycleService(), KoinComponent {
 
     override fun onDestroy() {
         super.onDestroy()
+        running.set(false)
         unregisterReceiver(screenStateReceiver)
     }
 
@@ -94,24 +92,11 @@ class UsageService : LifecycleService(), KoinComponent {
     }
 
     companion object {
-        private val _todayUsageFlow = MutableStateFlow(DayUsage())
-        var todayUsage: DayUsage
-            get() = _todayUsageFlow.value
-            set(value) {
-                _todayUsageFlow.value = value
-            }
-
-        private var instance: WeakReference<UsageService?> = WeakReference(null)
-
-        fun isInstanceCreated(): Boolean {
-            return instance.get() != null
-        }
+        private var running = AtomicBoolean(false)
 
         fun startService(context: Context) {
-            if (!isInstanceCreated()) {
-                val intent = Intent(context, UsageService::class.java)
-                context.startService(intent)
-                Timber.i("Started service")
+            if (running.compareAndSet(false, true)) {
+                context.startService(Intent(context, UsageService::class.java))
             }
         }
     }

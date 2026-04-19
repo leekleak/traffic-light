@@ -110,7 +110,7 @@ class NetworkUsageManager(
         endStamp: Long,
         subscriberId: String?,
         type: DataType
-    ): List<UsageData> = withContext(Dispatchers.Default) {
+    ): List<UsageData> = withContext(Dispatchers.IO) {
         networkStatsManager.querySummary(type.queryIndex ?: return@withContext listOf(), subscriberId, startStamp, endStamp).use { summary ->
             val list = mutableListOf<UsageData>()
             while (summary.hasNextBucket()) {

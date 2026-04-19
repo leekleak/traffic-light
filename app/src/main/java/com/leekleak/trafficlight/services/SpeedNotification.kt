@@ -29,7 +29,6 @@ import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.NetworkUsageManager
-import com.leekleak.trafficlight.services.UsageService.Companion.todayUsage
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.clipAndPad
 import kotlinx.coroutines.CoroutineScope
@@ -75,6 +74,7 @@ class SpeedNotification(
     private var aodMode = false
     private var inBits = false
     private var liveNotification = false
+    private var todayUsage = DayUsage()
 
     init {
         scope.launch {
@@ -260,7 +260,7 @@ class SpeedNotification(
         val channel = if (networkAvailable) NOTIFICATION_CHANNEL_ID else NOTIFICATION_CHANNEL_ID_SILENT
         notificationBuilder = NotificationCompat.Builder(context, channel)
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("Traffic Light")
+            .setContentTitle(context.getString(R.string.app_name_short))
             .setOngoing(true)
             .setRequestPromotedOngoing(liveNotification)
             .setSilent(true)

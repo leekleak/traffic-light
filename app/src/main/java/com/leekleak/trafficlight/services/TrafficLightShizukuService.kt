@@ -68,7 +68,6 @@ class TrafficLightShizukuService : ITrafficLightShizukuService.Stub() {
             val binder = SystemServiceHelper.getSystemService(systemService)
             data.writeInterfaceToken(interfaceName)
             prepareData(data)
-            data.writeString("com.android.shell")
 
             binder.transact(code, data, reply, 0)
             reply.readException()
