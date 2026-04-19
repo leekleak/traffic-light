@@ -23,13 +23,4 @@ val databaseModule = module {
             .build()
     }
     single { get<AppDatabase>().dataPlanDao() }
-
-    single {
-        Room.databaseBuilder(
-            androidContext(),
-            HistoricalDataCache::class.java,
-            "historicalCache"
-        ).build()
-    }
-    single { get<HistoricalDataCache>().historicalDataDao() }
 }

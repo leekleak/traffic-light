@@ -32,6 +32,7 @@ import androidx.compose.material3.toPath
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -253,7 +254,7 @@ private fun RowScope.PredictionCard() {
             .weight(1f),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        val prediction by remember { networkUsageManager.predictUsage() }.collectAsState(0.0)
+        val prediction by produceState(0.0) { value = networkUsageManager.predictUsage() }
         val string = DataSize(prediction).toStringParts()
 
         Row(
@@ -286,7 +287,7 @@ private fun RowScope.PredictionCard() {
 @Composable
 private fun RowScope.TrendCard() {
     val networkUsageManager: NetworkUsageManager = koinInject()
-    val trend by remember { networkUsageManager.getTrend() }.collectAsState(0.0)
+    val trend by produceState(0.0) { value = networkUsageManager.getTrend() }
     Column(
         modifier = Modifier
             .card()
@@ -318,7 +319,7 @@ private fun RowScope.TrendCard() {
         Row {
             Text(
                 modifier = Modifier.alignByBaseline(),
-                text = (if (trend > 0.0) "+" else "") +"${trend.toInt()}%",
+                text = if (trend < 1000)"%+d%%".format(trend.toInt()) else stringResource(R.string.very_big),
                 fontFamily = jetbrainsMono(),
                 fontSize = 24.sp
             )

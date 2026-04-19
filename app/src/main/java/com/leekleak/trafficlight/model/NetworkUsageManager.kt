@@ -12,8 +12,6 @@ import com.leekleak.trafficlight.database.DataDirection.Upload
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DayUsage
-import com.leekleak.trafficlight.database.HistoricalData
-import com.leekleak.trafficlight.database.HistoricalDataDao
 import com.leekleak.trafficlight.database.HourUsage
 import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.database.UsageQuery
@@ -28,13 +26,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
 import java.time.temporal.WeekFields
 import java.util.Locale
+import kotlin.math.max
 
 data class UsageData(
     val upload: Long = 0,
@@ -55,7 +54,6 @@ data class UsageData(
 
 class NetworkUsageManager(
     private var networkStatsManager: NetworkStatsManager,
-    private val historicalDataDao: HistoricalDataDao,
     private val appManager: AppManager,
 ) {
     fun totalDayUsage(
@@ -301,67 +299,42 @@ class NetworkUsageManager(
         emit(data.toList())
     }.flowOn(Dispatchers.IO)
 
-    fun predictUsage(): Flow<Double> = flow {
-        populateHistoryCache()
-
+    suspend fun predictUsage(): Double = withContext(Dispatchers.IO) {
         val hour = LocalDateTime.now().hour
         val hoursLeft = 23 - hour
-        val nowStamp = LocalDateTime.now().toTimestamp() + 3_600_000
+        val nowStamp = LocalDateTime.now().toTimestamp()
         val last24HourUsage = getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, DataType.Mobile).sumOf { it.total }.toDouble()
         val todayUsage = totalDayUsage(UsageQuery(DataType.Mobile), LocalDate.now()).toDouble()
-        val data = historicalDataDao.getAll().map { it.usage }
-
-        if (data.size < 5 * 24 * 7) { emit(0.0); return@flow }
 
         var hourSum = 0.0
         var daySum = 0.0
 
         for (i in 1..4) {
-            val offsetIndex = data.size - i * 24 * 7
-            for (k in -24..hoursLeft) {
-                daySum += data[offsetIndex + k]
-                if (k <= 0) hourSum += data[offsetIndex + k]
-            }
+            val pivotStamp = nowStamp - i * 24 * 7 * 3_600_000
+            val futureHours = getNetworkDataForType(pivotStamp, pivotStamp + hoursLeft * 3_600_000, null, DataType.Mobile)
+                .sumOf { it.total }.toDouble()
+            val pastHours = getNetworkDataForType(pivotStamp - 24 * 3_600_000, pivotStamp, null, DataType.Mobile)
+                .sumOf { it.total }.toDouble()
+
+            daySum += futureHours + pastHours
+            hourSum += pastHours
         }
 
         if (hourSum == 0.0) {
-            emit(todayUsage)
-            return@flow
+            return@withContext todayUsage
         }
         val multiplier = daySum / hourSum
-        emit(last24HourUsage * (multiplier - 1) + todayUsage)
-    }.flowOn(Dispatchers.IO)
+        return@withContext last24HourUsage * (multiplier - 1) + todayUsage
+    }
 
-    fun getTrend(): Flow<Double> = flow {
-        populateHistoryCache()
-
+    suspend fun getTrend(): Double = withContext(Dispatchers.IO) {
         val nowStamp = LocalDateTime.now().toTimestamp()
-        val last24HourAverage = getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null,
-            DataType.Mobile
-        ).sumOf { it.total } / 24.0
-        val data = historicalDataDao.getAll().takeLast(24 * 7).map { it.usage }.average()
+        // Last 24 hours
+        val hourAverage24 = getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, DataType.Mobile).sumOf { it.total } / 24.0
+        // Last week average excluding last 24 hours
+        val weekAverage = getNetworkDataForType(nowStamp - 168 * 3_600_000, nowStamp - 24 * 3_600_000, null, DataType.Mobile).sumOf { it.total } / 144.0
 
-        emit((last24HourAverage / data - 1) * 100.0) // Return trend in percentage
-    }.flowOn(Dispatchers.IO)
-
-    fun populateHistoryCache() {
-        val lastHour = LocalDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.HOURS)
-        val n = 24 * 80
-        val allData = historicalDataDao.getAll()
-
-        for (i in n downTo 0) {
-            val stamp = lastHour.minusHours(i - 1L).toTimestamp()
-            if (allData.find { it.stamp == stamp } != null && i > 1) continue
-
-            // We need to use querySummaryForDevice because regular querySummary is not very accurate hour-wise
-            val bucket = networkStatsManager.querySummaryForDevice(DataType.Mobile.queryIndex!!, null, stamp - 3_600_000, stamp)
-            historicalDataDao.add(
-                HistoricalData(
-                    stamp = stamp,
-                    usage = bucket.rxBytes + bucket.txBytes,
-                )
-            )
-        }
+        return@withContext (hourAverage24 / max(weekAverage, 1.0) - 1) * 100.0
     }
 
     companion object {
