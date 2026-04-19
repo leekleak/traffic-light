@@ -16,8 +16,8 @@ import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.request.crossfade
 import com.leekleak.trafficlight.model.AppIconFetcher
-import com.leekleak.trafficlight.services.UsageService.Companion.NOTIFICATION_CHANNEL_ID
-import com.leekleak.trafficlight.services.UsageService.Companion.NOTIFICATION_CHANNEL_ID_SILENT
+import com.leekleak.trafficlight.services.SpeedNotification.Companion.NOTIFICATION_CHANNEL_ID
+import com.leekleak.trafficlight.services.SpeedNotification.Companion.NOTIFICATION_CHANNEL_ID_SILENT
 import com.leekleak.trafficlight.ui.app.App
 import com.leekleak.trafficlight.ui.theme.Theme
 import com.leekleak.trafficlight.widget.WidgetReceiver

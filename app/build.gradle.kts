@@ -82,6 +82,7 @@ dependencies {
     implementation(libs.koin.compose.navigation3)
 
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.lifecycle.service)
 
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.navigation3.runtime)

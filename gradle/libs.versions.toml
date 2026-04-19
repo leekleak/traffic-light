@@ -20,12 +20,14 @@ timber = "5.0.1"
 shizuku = "13.1.5"
 glance = "1.2.0-rc01"
 work = "2.11.2"
+lifecycleService = "2.10.0"
 
 [libraries]
 
 # Base libraries
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
+androidx-lifecycle-service = { group = "androidx.lifecycle", name = "lifecycle-service", version.ref = "lifecycleService" }
 
 # Compose
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }

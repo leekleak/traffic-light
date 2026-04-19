@@ -114,6 +114,7 @@ import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.DataUID
 import com.leekleak.trafficlight.ui.navigation.Navigator
+import com.leekleak.trafficlight.ui.settings.SwitchPreference
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.doHyeonFont
@@ -297,7 +298,6 @@ fun PlanConfig(
                     }
                 }
             }
-
             categoryTitleSmall { stringResource(R.string.zero_rated_apps) }
             item {
                 val suspiciousApps by remember { appManager.allAppsFlow }.collectAsState(emptyList())
@@ -386,6 +386,21 @@ fun PlanConfig(
                     }
 
                 }
+            }
+            categoryTitleSmall { stringResource(R.string.notifications) }
+            item {
+                SwitchPreference(
+                    title = stringResource(R.string.notifications),
+                    icon = painterResource(R.drawable.notification),
+                    value = newPlan.notification,
+                    onValueChanged = { scope.launch { newPlan = newPlan.copy(notification = it) } }
+                )
+                SwitchPreference(
+                    title = stringResource(R.string.live_notification),
+                    icon = painterResource(R.drawable.app_badging),
+                    value = newPlan.liveNotification,
+                    onValueChanged = { scope.launch { newPlan = newPlan.copy(liveNotification = it) } }
+                )
             }
             categoryTitleSmall { stringResource(R.string.background) }
             item {
