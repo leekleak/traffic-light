@@ -97,7 +97,6 @@ fun Settings(paddingValues: PaddingValues) {
             ) {
                 scope.launch {
                     appPreferenceRepo.setNotification(it)
-                    viewModel.runUsageService(it, context)
                 }
             }
 
@@ -114,7 +113,6 @@ fun Settings(paddingValues: PaddingValues) {
                     } else {
                         scope.launch {
                             appPreferenceRepo.setNotification(it)
-                            viewModel.runUsageService(it, context)
                         }
                     }
                 },

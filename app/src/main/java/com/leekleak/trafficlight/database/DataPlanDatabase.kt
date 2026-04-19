@@ -15,6 +15,7 @@ import androidx.room.TypeConverters
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.toTimestamp
+import kotlinx.coroutines.flow.Flow
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -64,6 +65,9 @@ interface DataPlanDao {
 
     @Query("SELECT * FROM dataplan WHERE simIndex != -1 ORDER BY simIndex ASC")
     suspend fun getActivePlans(): List<DataPlan>
+
+    @Query("SELECT * FROM dataplan WHERE simIndex != -1 ORDER BY simIndex ASC")
+    fun getActivePlansFlow(): Flow<List<DataPlan>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun add(dataPlan: DataPlan)

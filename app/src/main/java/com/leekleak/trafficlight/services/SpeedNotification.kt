@@ -35,6 +35,8 @@ import com.leekleak.trafficlight.util.clipAndPad
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -44,15 +46,15 @@ import timber.log.Timber
 import java.time.LocalDate
 
 class SpeedNotification(
-    private val scope: CoroutineScope,
+    serviceScope: CoroutineScope,
     private val context: Context,
     private val networkUsageManager: NetworkUsageManager,
     private val notificationManager: NotificationManager,
     private val connectivityManager: ConnectivityManager,
     private val appPreferenceRepo: AppPreferenceRepo,
 ) : PersistentNotification {
+    private val scope = CoroutineScope(serviceScope.coroutineContext + SupervisorJob(serviceScope.coroutineContext[Job]))
     private var job: Job? = null
-
     private lateinit var notificationBuilder: NotificationCompat.Builder
     private lateinit var notification: Notification
     private val trafficSnapshot = TrafficSnapshot(scope)
@@ -130,6 +132,7 @@ class SpeedNotification(
     }
 
     override fun cancel() {
+        scope.cancel()
         notificationManager.cancel(NOTIFICATION_ID)
     }
 
