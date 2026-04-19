@@ -71,7 +71,7 @@ class TrafficLightShizukuService : ITrafficLightShizukuService.Stub() {
             data.writeString("com.android.shell")
 
             binder.transact(code, data, reply, 0)
-            Timber.e("Exception:%s", reply.readException())
+            reply.readException()
             return parseReply(reply)
         } catch (e: Exception) {
             Timber.e(e)

@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
 class SettingsVM(appPreferenceRepo: AppPreferenceRepo) : ViewModel() {
-
     val notification: StateFlow<Boolean> = appPreferenceRepo.notification
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
     val liveNotification: StateFlow<Boolean> = appPreferenceRepo.liveNotification

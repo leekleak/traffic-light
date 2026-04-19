@@ -180,7 +180,7 @@ class Widget: GlanceAppWidget() {
                         colorFilter = ColorFilter.tint(GlanceTheme.colors.primaryContainer)
                     )
                 }
-                Row(GlanceModifier.padding(16.dp).fillMaxWidth()) {
+                Row(GlanceModifier.padding(12.dp).fillMaxWidth()) {
                     SimIcon(simNumber)
                     Text(
                         modifier = GlanceModifier.fillMaxWidth().defaultWeight(),

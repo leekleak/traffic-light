@@ -6,9 +6,10 @@ import android.os.IBinder
 import android.telephony.SubscriptionInfo
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.ITrafficLightShizukuService
+import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
-import com.leekleak.trafficlight.database.AppPreferenceRepo
+import com.leekleak.trafficlight.model.NetworkUsageManager.Companion.NULL_SUBSCRIBER
 import com.leekleak.trafficlight.services.TrafficLightShizukuService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
@@ -111,10 +112,10 @@ class ShizukuDataManager(
 
     fun updateSimDataBasic() = scope.launch {
         val plans = dataPlanDao.getAll().toMutableList()
-        if (plans.count { it.subscriberID == "null" } == 0) {
+        if (plans.count { it.subscriberID == NULL_SUBSCRIBER } == 0) {
             plans.add(
                 DataPlan(
-                    subscriberID = "null",
+                    subscriberID = NULL_SUBSCRIBER,
                     simIndex = 0
                 )
             )
@@ -122,7 +123,7 @@ class ShizukuDataManager(
         dataPlanDao.addAll(
             plans.map {
                 it.copy(
-                    simIndex = if (it.subscriberID == "null") 0 else -1
+                    simIndex = if (it.subscriberID == NULL_SUBSCRIBER) 0 else -1
                 )
             }
         )

@@ -338,6 +338,6 @@ class NetworkUsageManager(
     }
 
     companion object {
-        const val NULL_SUBSCRIBER = "null"
+        const val NULL_SUBSCRIBER = "__shizuku_disabled_sim_fallback__"
     }
 }

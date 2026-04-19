@@ -7,9 +7,8 @@ import android.content.Context
 import android.content.Context.ALARM_SERVICE
 import android.content.Intent
 import androidx.glance.appwidget.updateAll
-import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 fun startAlarmManager(context: Context) {
@@ -37,10 +36,9 @@ fun killAlarmManager(context: Context) {
 }
 
 class WidgetUpdateReceiver: BroadcastReceiver() {
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onReceive(context: Context, intent: Intent) {
         val pendingResult = goAsync()
-        GlobalScope.launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch {
             Widget().updateAll(context)
             pendingResult.finish()
         }

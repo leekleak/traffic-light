@@ -20,5 +20,4 @@ val managerModule = module {
     single(createdAtStart = true) { ShizukuDataManager(get(), get(), get(), get()) }
     single { PermissionManager(androidContext()) }
     single { NetworkUsageManager(get(), get()) }
-    factory { AppIconFetcher.Factory(get()) }
 }

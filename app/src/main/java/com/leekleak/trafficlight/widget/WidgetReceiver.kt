@@ -12,19 +12,15 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.leekleak.trafficlight.widget.Widget.Companion.SUBSCRIBER_ID
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-
 
 class WidgetReceiver: GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = Widget()
-
-    companion object {
-        private var screenReceiverRunning: Boolean = false
-    }
+    private var registered: Boolean = false
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun onUpdate(
@@ -32,6 +28,8 @@ class WidgetReceiver: GlanceAppWidgetReceiver() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
+        val pendingResult = goAsync()
+        registerReceiver(context)
 
         /**
          * Unfortunately Glance widgets have a really stupid rate limit which stops the app from updating
@@ -45,22 +43,18 @@ class WidgetReceiver: GlanceAppWidgetReceiver() {
          *
          * Very stupid, but if you just ignore and don't update widgets with no subscriberId, it works fine.
          */
-        if (!screenReceiverRunning) {
-            startScreenStateReceiver(context)
-        }
-        val pendingResult = goAsync()
-        GlobalScope.launch(Dispatchers.IO) {
-            val newIds = appWidgetIds.filter {
-                val glanceId = try {
-                    GlanceAppWidgetManager(context).getGlanceIdBy(it)
-                } catch (_: Exception) {
-                    return@filter false
-                }
-                val prefs = getAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId)
-                return@filter prefs[SUBSCRIBER_ID] != null
-            }.toIntArray()
-            withContext(Dispatchers.Main) {
-                super.onUpdate(context, appWidgetManager, newIds)
+
+
+        CoroutineScope(Dispatchers.IO).launch {
+            for (appWidgetId in appWidgetIds) {
+                try {
+                    val glanceId = GlanceAppWidgetManager(context).getGlanceIdBy(appWidgetId)
+                    val prefs = getAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId)
+
+                    if (prefs[SUBSCRIBER_ID] != null) {
+                        glanceAppWidget.update(context, glanceId)
+                    }
+                } catch (_: Exception) { }
             }
             pendingResult.finish()
         }
@@ -80,12 +74,14 @@ class WidgetReceiver: GlanceAppWidgetReceiver() {
         }
     }
 
-    fun startScreenStateReceiver(context: Context) {
-        val intentFilter = IntentFilter().apply {
+
+    fun registerReceiver(context: Context) {
+        if (registered) return
+        context.applicationContext.registerReceiver(this, IntentFilter().apply {
             addAction(ACTION_SCREEN_ON)
             addAction(ACTION_SCREEN_OFF)
-        }
-        context.applicationContext.registerReceiver(this, intentFilter)
-        screenReceiverRunning = true
+        })
+
+        registered = true
     }
 }
