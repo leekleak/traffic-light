@@ -246,7 +246,7 @@ class SpeedNotification(
         }
     }
 
-    private fun updateTodayUsage() {
+    private suspend fun updateTodayUsage() {
         val date = LocalDate.now()
         val mobile = networkUsageManager.totalDayUsage(queryMobile, date)
         val wifi = networkUsageManager.totalDayUsage(queryWifi, date)

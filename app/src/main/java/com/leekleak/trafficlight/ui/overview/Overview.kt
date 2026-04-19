@@ -88,7 +88,7 @@ fun Overview(
     val scope = rememberCoroutineScope()
     val activity = LocalActivity.current
 
-    val weeklyUsage by networkUsageManager.weekUsage().collectAsState(listOf())
+    val weeklyUsage by produceState(listOf()) { value = networkUsageManager.weekUsage() }
     val activePlans by produceState(listOf()) { value = dataPlanDao.getActivePlans() }
 
     val shizukuHint by remember { appPreferenceRepo.shizukuHint }.collectAsState(false)
@@ -221,7 +221,7 @@ private fun OverviewHero() {
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            val todayUsage by remember { networkUsageManager.todayMobileUsage() }.collectAsState(0L)
+            val todayUsage by produceState(0L) { value = networkUsageManager.todayMobileUsage() }
             val string = DataSize(todayUsage.toDouble()).toStringParts()
             Row {
                 Text(

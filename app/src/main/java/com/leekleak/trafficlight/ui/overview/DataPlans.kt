@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -136,7 +137,7 @@ fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
     val haptic = LocalHapticFeedback.current
     val networkUsageManager: NetworkUsageManager = koinInject()
 
-    val dataUsage = remember { networkUsageManager.planUsage(dataPlan) }
+    val dataUsage by produceState(0L) { value = networkUsageManager.planUsage(dataPlan) }
     val usage = DataSize(dataUsage.toDouble()).getAsUnit(DataSizeUnit.GB)
     val formatter = remember { DecimalFormat("0.##") }
     Box (
@@ -228,7 +229,7 @@ fun DataPlanSelectorWidget(dataPlan: DataPlan, onClick: () -> Unit) {
 private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
     val context = LocalContext.current
     val networkUsageManager: NetworkUsageManager = koinInject()
-    val dataUsage = remember(dataPlan) { networkUsageManager.planUsage(dataPlan) }
+    val dataUsage by produceState(0L) { value = networkUsageManager.planUsage(dataPlan) }
 
     Column(Modifier.padding(8.dp)) {
         Box(Modifier.height(184.dp)) {

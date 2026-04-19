@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -84,19 +85,17 @@ class HistoryVM(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = List(MAX_DAYS) { ScrollableBarData(LocalDate.now()) }
+        initialValue = List(MAX_DAYS) { ScrollableBarData(LocalDate.MIN) }
     )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val appList: StateFlow<List<AppUsage>> = dateQueryFlow
-        .flatMapLatest { (date, queries) ->
+    val appList: StateFlow<List<AppUsage>> = dateQueryFlow.mapLatest { (date, queries) ->
             networkUsageManager.getAllAppUsage(date, queries.first, queries.second)
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val hourList: StateFlow<List<HourUsage>> = dateQueryFlow
-        .flatMapLatest { (date, queries) ->
+    val hourList: StateFlow<List<HourUsage>> = dateQueryFlow.mapLatest { (date, queries) ->
             networkUsageManager.getAllHourUsage(date, queries.first, queries.second)
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())

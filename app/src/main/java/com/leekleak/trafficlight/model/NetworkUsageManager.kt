@@ -23,9 +23,11 @@ import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.getName
 import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -56,7 +58,7 @@ class NetworkUsageManager(
     private var networkStatsManager: NetworkStatsManager,
     private val appManager: AppManager,
 ) {
-    fun totalDayUsage(
+    suspend fun totalDayUsage(
         query: UsageQuery,
         startDate: LocalDate,
         endDate: LocalDate = startDate.plusDays(1),
@@ -72,12 +74,9 @@ class NetworkUsageManager(
             }
     }
 
-    fun todayMobileUsage(): Flow<Long> = flow {
-        val now = LocalDate.now()
-        emit(totalDayUsage(UsageQuery(DataType.Mobile), now))
-    }.flowOn(Dispatchers.IO)
+    suspend fun todayMobileUsage(): Long = totalDayUsage(UsageQuery(DataType.Mobile), LocalDate.now())
 
-    fun planUsage(dataPlan: DataPlan): Long {
+    suspend fun planUsage(dataPlan: DataPlan): Long {
         val now = LocalDateTime.now()
         val startDate = when (dataPlan.interval) {
             TimeInterval.MONTH -> {
@@ -106,8 +105,13 @@ class NetworkUsageManager(
         return stats
     }
 
-    fun getNetworkDataForType(startStamp: Long, endStamp: Long, subscriberId: String?, type: DataType): List<UsageData> {
-        networkStatsManager.querySummary(type.queryIndex ?: return listOf(), subscriberId, startStamp, endStamp).use { summary ->
+    suspend fun getNetworkDataForType(
+        startStamp: Long,
+        endStamp: Long,
+        subscriberId: String?,
+        type: DataType
+    ): List<UsageData> = withContext(Dispatchers.Default) {
+        networkStatsManager.querySummary(type.queryIndex ?: return@withContext listOf(), subscriberId, startStamp, endStamp).use { summary ->
             val list = mutableListOf<UsageData>()
             while (summary.hasNextBucket()) {
                 val bucket = NetworkStats.Bucket()
@@ -118,21 +122,21 @@ class NetworkUsageManager(
                     list.remove(item)
                 } ?: list.add(UsageData(bucket.txBytes, bucket.rxBytes, bucket.uid))
             }
-            return list.toList()
+            return@withContext list.toList()
         }
     }
 
-    fun getNetworkDataForTypeHourly(
+    suspend fun getNetworkDataForTypeHourly(
         startStamp: Long,
         endStamp: Long,
         subscriberId: String?,
         type: DataType,
         uid: Int?
-    ): List<UsageData> {
+    ): List<UsageData> = withContext(Dispatchers.IO) {
         if (uid == null) {
-            networkStatsManager.queryDetails(type.queryIndex ?: return listOf(), subscriberId, startStamp, endStamp)
+            networkStatsManager.queryDetails(type.queryIndex ?: return@withContext listOf(), subscriberId, startStamp, endStamp)
         } else {
-            networkStatsManager.queryDetailsForUid(type.queryIndex ?: return listOf(), subscriberId, startStamp, endStamp, uid)
+            networkStatsManager.queryDetailsForUid(type.queryIndex ?: return@withContext listOf(), subscriberId, startStamp, endStamp, uid)
         }.use { summary ->
             val list = mutableListOf<UsageData>()
             while (summary.hasNextBucket()) {
@@ -157,91 +161,93 @@ class NetworkUsageManager(
                     end = end
                 ))
             }
-            return list.toList()
+            return@withContext list.toList()
         }
     }
 
-    fun getAllAppUsage(dateParams: DateParams, query1: UsageQuery, query2: UsageQuery): Flow<List<AppUsage>> =
-        flow {
-            val dates = dateParams.getStartEndDates()
-            val startTime = dates.first.atStartOfDay().toTimestamp()
-            val endTime = dates.second.atStartOfDay().toTimestamp()
+    suspend fun getAllAppUsage(dateParams: DateParams, query1: UsageQuery, query2: UsageQuery): List<AppUsage> {
+        val dates = dateParams.getStartEndDates()
+        val startTime = dates.first.atStartOfDay().toTimestamp()
+        val endTime = dates.second.atStartOfDay().toTimestamp()
 
-            val usage1 = getNetworkDataForType(startTime, endTime, null, query1.dataType)
-            val usage2 = getNetworkDataForType(startTime, endTime, null, query2.dataType)
+        val usage1 = getNetworkDataForType(startTime, endTime, null, query1.dataType)
+        val usage2 = getNetworkDataForType(startTime, endTime, null, query2.dataType)
 
-            val uids = usage1.map { it.uid }.union(usage2.map { it.uid }).union(specialUIDs).filterNotNull()
+        val uids = usage1.map { it.uid }.union(usage2.map { it.uid }).union(specialUIDs).filterNotNull()
 
-            val list = uids.map { uid ->
-                val uid1 = usage1.find { it.uid == uid } ?: UsageData()
-                val uid2 = usage2.find { it.uid == uid } ?: UsageData()
-                AppUsage(
-                    app = appManager.getAppForUID(uid),
-                    usage = DayUsage(
-                        date = dateParams.day,
-                        usage1 = uid1.forDirection(query1.dataDirection),
-                        usage2 = uid2.forDirection(query2.dataDirection)
-                    ),
-                )
-            }.toMutableList()
-
-            val totalUsage = DayUsage(
-                date = dateParams.day,
-                usage1 = totalDayUsage(query1, dates.first, dates.second),
-                usage2 = totalDayUsage(query2, dates.first, dates.second)
+        val list = uids.map { uid ->
+            val uid1 = usage1.find { it.uid == uid } ?: UsageData()
+            val uid2 = usage2.find { it.uid == uid } ?: UsageData()
+            AppUsage(
+                app = appManager.getAppForUID(uid),
+                usage = DayUsage(
+                    date = dateParams.day,
+                    usage1 = uid1.forDirection(query1.dataDirection),
+                    usage2 = uid2.forDirection(query2.dataDirection)
+                ),
             )
+        }.toMutableList()
 
-            list.sortByDescending { it.usage.totalUsage }
-            list.add(0, AppUsage(
-                app = allApp,
-                usage = totalUsage
-            ))
-            list.sortWith(compareBy { it.app == unknownApp })
-            list.removeAll { it.usage.totalUsage == 0L }
-            emit(list.distinctBy { it.app.uid }.toList())
-        }.flowOn(Dispatchers.IO)
+        val totalUsage = DayUsage(
+            date = dateParams.day,
+            usage1 = totalDayUsage(query1, dates.first, dates.second),
+            usage2 = totalDayUsage(query2, dates.first, dates.second)
+        )
 
-    fun getAllHourUsage(dateParams: DateParams, query1: UsageQuery, query2: UsageQuery): Flow<List<HourUsage>> =
-        flow {
-            val (startDate, endDate) = dateParams.getStartEndDates()
-            val startTime = startDate.atStartOfDay().toTimestamp()
-            val endTime = endDate.atStartOfDay().toTimestamp()
+        list.sortByDescending { it.usage.totalUsage }
+        list.add(0, AppUsage(
+            app = allApp,
+            usage = totalUsage
+        ))
+        list.sortWith(compareBy { it.app == unknownApp })
+        list.removeAll { it.usage.totalUsage == 0L }
+        return list.distinctBy { it.app.uid }.toList()
+    }
 
-            val usage1 = getNetworkDataForTypeHourly(startTime, endTime, null, query1.dataType, query1.dataUID.uidQuery)
-            val usage2 = getNetworkDataForTypeHourly(startTime, endTime, null, query2.dataType, query2.dataUID.uidQuery)
+    suspend fun getAllHourUsage(
+        dateParams: DateParams,
+        query1: UsageQuery,
+        query2: UsageQuery
+    ): List<HourUsage> {
+        val (startDate, endDate) = dateParams.getStartEndDates()
+        val startTime = startDate.atStartOfDay().toTimestamp()
+        val endTime = endDate.atStartOfDay().toTimestamp()
 
-            val twoHoursMilli = 2 * 60 * 60 * 1000L
-            val slots = 0..11
-            val map1 = slots.associateWith { 0L }.toMutableMap()
-            val map2 = slots.associateWith { 0L }.toMutableMap()
+        val usage1 = getNetworkDataForTypeHourly(startTime, endTime, null, query1.dataType, query1.dataUID.uidQuery)
+        val usage2 = getNetworkDataForTypeHourly(startTime, endTime, null, query2.dataType, query2.dataUID.uidQuery)
 
-            for ((usageList, query, map) in listOf(
-                Triple(usage1, query1, map1),
-                Triple(usage2, query2, map2),
-            )) {
-                usageList.forEach { usage ->
-                    val stampStart = usage.start.toTimestamp() - startTime
-                    val stampEnd = usage.end.toTimestamp() - startTime
-                    val bucket1 = ((stampStart - stampStart % twoHoursMilli) / twoHoursMilli).toInt() % 12
-                    val bucket2 = ((stampEnd - stampEnd % twoHoursMilli) / twoHoursMilli).toInt() % 12
-                    val bucket2ratio = (stampStart % twoHoursMilli) / twoHoursMilli.toFloat()
+        val twoHoursMilli = 2 * 60 * 60 * 1000L
+        val slots = 0..11
+        val map1 = slots.associateWith { 0L }.toMutableMap()
+        val map2 = slots.associateWith { 0L }.toMutableMap()
 
-                    map[bucket1] = map.getValue(bucket1) + (usage.forDirection(query.dataDirection) * (1-bucket2ratio)).toLong()
-                    map[bucket2] = map.getValue(bucket2) + (usage.forDirection(query.dataDirection) * bucket2ratio).toLong()
-                }
+        for ((usageList, query, map) in listOf(
+            Triple(usage1, query1, map1),
+            Triple(usage2, query2, map2),
+        )) {
+            usageList.forEach { usage ->
+                val stampStart = usage.start.toTimestamp() - startTime
+                val stampEnd = usage.end.toTimestamp() - startTime
+                val bucket1 = ((stampStart - stampStart % twoHoursMilli) / twoHoursMilli).toInt() % 12
+                val bucket2 = ((stampEnd - stampEnd % twoHoursMilli) / twoHoursMilli).toInt() % 12
+                val bucket2ratio = (stampStart % twoHoursMilli) / twoHoursMilli.toFloat()
+
+                map[bucket1] = map.getValue(bucket1) + (usage.forDirection(query.dataDirection) * (1-bucket2ratio)).toLong()
+                map[bucket2] = map.getValue(bucket2) + (usage.forDirection(query.dataDirection) * bucket2ratio).toLong()
             }
+        }
 
-            val start = fromTimestamp(startTime)
-            val result = (0..11).map { i ->
-                HourUsage(
-                    start = start.withHour(i * 2),
-                    end = start.withHour(i * 2).plusHours(2),
-                    usage = DayUsage(dateParams.day, map1.getValue(i), map2.getValue(i)),
-                )
-            }
+        val start = fromTimestamp(startTime)
+        val result = (0..11).map { i ->
+            HourUsage(
+                start = start.withHour(i * 2),
+                end = start.withHour(i * 2).plusHours(2),
+                usage = DayUsage(dateParams.day, map1.getValue(i), map2.getValue(i)),
+            )
+        }
 
-            emit(result)
-        }.flowOn(Dispatchers.IO)
+        return result
+    }
 
     fun daysUsage(
         startDate: LocalDate,
@@ -257,19 +263,23 @@ class NetworkUsageManager(
             data.add(ScrollableBarData(now))
         }
         emit(data.toList())
-        for (i in 0..<data.size) {
-            val now = LocalDate.ofEpochDay(i + startDate.toEpochDay())
-            val usage1 = usageQuery1?.let { totalDayUsage(it, now) }
-            val usage2 = usageQuery2?.let { totalDayUsage(it, now) }
-            data[i] = data[i].copy(
-                y1 = usage1?.toDouble() ?: 0.0,
-                y2 = usage2?.toDouble() ?: 0.0,
-            )
+        coroutineScope {
+            data.indices.map { i ->
+                async {
+                    val now = LocalDate.ofEpochDay(i + startDate.toEpochDay())
+                    val usage1 = usageQuery1?.let { totalDayUsage(it, now) }
+                    val usage2 = usageQuery2?.let { totalDayUsage(it, now) }
+                    data[i] = data[i].copy(
+                        y1 = usage1?.toDouble() ?: 0.0,
+                        y2 = usage2?.toDouble() ?: 0.0,
+                    )
+                }
+            }.awaitAll()
         }
         emit(data.toList())
-    }.flowOn(Dispatchers.IO)
+    }
 
-    fun weekUsage(): Flow<List<BarData>> = flow {
+    suspend fun weekUsage(): List<BarData> {
         val field = WeekFields.of(Locale.getDefault())
         val firstDay = field.firstDayOfWeek
         val data: MutableList<BarData> = MutableList(7) { i ->
@@ -296,10 +306,10 @@ class NetworkUsageManager(
                 usage2.toDouble()
             )
         }
-        emit(data.toList())
-    }.flowOn(Dispatchers.IO)
+        return data.toList()
+    }
 
-    suspend fun predictUsage(): Double = withContext(Dispatchers.IO) {
+    suspend fun predictUsage(): Double {
         val hour = LocalDateTime.now().hour
         val hoursLeft = 23 - hour
         val nowStamp = LocalDateTime.now().toTimestamp()
@@ -321,20 +331,20 @@ class NetworkUsageManager(
         }
 
         if (hourSum == 0.0) {
-            return@withContext todayUsage
+            return todayUsage
         }
         val multiplier = daySum / hourSum
-        return@withContext last24HourUsage * (multiplier - 1) + todayUsage
+        return last24HourUsage * (multiplier - 1) + todayUsage
     }
 
-    suspend fun getTrend(): Double = withContext(Dispatchers.IO) {
+    suspend fun getTrend(): Double {
         val nowStamp = LocalDateTime.now().toTimestamp()
         // Last 24 hours
         val hourAverage24 = getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, DataType.Mobile).sumOf { it.total } / 24.0
         // Last week average excluding last 24 hours
         val weekAverage = getNetworkDataForType(nowStamp - 168 * 3_600_000, nowStamp - 24 * 3_600_000, null, DataType.Mobile).sumOf { it.total } / 144.0
 
-        return@withContext (hourAverage24 / max(weekAverage, 1.0) - 1) * 100.0
+        return (hourAverage24 / max(weekAverage, 1.0) - 1) * 100.0
     }
 
     companion object {

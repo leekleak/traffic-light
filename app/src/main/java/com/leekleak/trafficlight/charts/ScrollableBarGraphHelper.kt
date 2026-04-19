@@ -29,6 +29,7 @@ import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.NetworkType
 import com.leekleak.trafficlight.util.SizeFormatter
 import com.leekleak.trafficlight.util.getName
+import java.time.LocalDate
 import java.time.format.TextStyle
 import java.time.temporal.WeekFields
 import java.util.Locale
@@ -90,7 +91,7 @@ internal class ScrollableBarGraphHelper(
             val x2 = x1 + xItemSpacing
             val error = 64.dp.toPx()
 
-            if (data[i].x.dayOfMonth == 1 || i == 0) {
+            if ((data[i].x.dayOfMonth == 1 || i == 0) && data[i].x != LocalDate.MIN) {
                 monthList.add(
                     MonthObject(
                         data[i].x.month.getName(TextStyle.FULL_STANDALONE),
@@ -219,26 +220,31 @@ internal class ScrollableBarGraphHelper(
             val firstDayValue = WeekFields.of(Locale.getDefault()).firstDayOfWeek.value
             for (i in visibleIndices) {
                 val xBottomLabel = xItemSpacing * (i + 0.5f)
-                if (data[i].x.dayOfWeek.value == firstDayValue) {
-                    drawRoundRect(
-                        color = onBackgroundColor,
-                        topLeft = Offset(xItemSpacing * i + xOffset, size.height-12.sp.toPx()),
-                        size = Size(xItemSpacing, 16.sp.toPx()),
-                        cornerRadius = CornerRadius(8.dp.toPx())
-                    )
-                    drawContext.canvas.nativeCanvas.drawText(
-                        data[i].x.dayOfMonth.toString(),
-                        xBottomLabel + xOffset,
-                        size.height,
-                        textPaint(background)
-                    )
-                } else {
-                    drawContext.canvas.nativeCanvas.drawText(
-                        data[i].x.dayOfMonth.toString(),
-                        xBottomLabel + xOffset,
-                        size.height,
-                        textPaint(color)
-                    )
+                if (data[i].x != LocalDate.MIN) {
+                    if (data[i].x.dayOfWeek.value == firstDayValue) {
+                        drawRoundRect(
+                            color = onBackgroundColor,
+                            topLeft = Offset(
+                                xItemSpacing * i + xOffset,
+                                size.height - 12.sp.toPx()
+                            ),
+                            size = Size(xItemSpacing, 16.sp.toPx()),
+                            cornerRadius = CornerRadius(8.dp.toPx())
+                        )
+                        drawContext.canvas.nativeCanvas.drawText(
+                            data[i].x.dayOfMonth.toString(),
+                            xBottomLabel + xOffset,
+                            size.height,
+                            textPaint(background)
+                        )
+                    } else {
+                        drawContext.canvas.nativeCanvas.drawText(
+                            data[i].x.dayOfMonth.toString(),
+                            xBottomLabel + xOffset,
+                            size.height,
+                            textPaint(color)
+                        )
+                    }
                 }
             }
 

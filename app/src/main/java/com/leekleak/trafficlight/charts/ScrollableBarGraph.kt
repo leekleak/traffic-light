@@ -40,6 +40,7 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sign
 
+const val BARS_IN_WINDOW = 11
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ScrollableBarGraph(
@@ -64,7 +65,7 @@ fun ScrollableBarGraph(
     val selectorOffsetSnapped = remember { Animatable(0f) }
 
     var canvasWidth by remember { mutableFloatStateOf(1f) }
-    val barWidth by remember { derivedStateOf { canvasWidth / 11f } }
+    val barWidth by remember { derivedStateOf { canvasWidth / BARS_IN_WINDOW } }
     val offset = remember(canvasWidth) { Animatable(-barWidth * data.size + canvasWidth) }
 
     val selectorGoal = (canvasWidth)/2 - ((canvasWidth)/2) % barWidth
