@@ -1,6 +1,5 @@
 package com.leekleak.trafficlight.database
 
-
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -15,11 +14,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
+private val Context.appPreferences: DataStore<Preferences> by preferencesDataStore(name = "settings")
+
 class AppPreferenceRepo (
     private val context: Context,
     permissionManager: PermissionManager
 ) {
-    private val Context.appPreferences: DataStore<Preferences> by preferencesDataStore(name = "settings")
     private val dataStore get() = context.appPreferences
     private val data get() = dataStore.data
 

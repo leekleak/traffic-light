@@ -12,7 +12,11 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.leekleak.trafficlight.widget.Widget.Companion.SUBSCRIBER_ID
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class WidgetReceiver: GlanceAppWidgetReceiver() {
@@ -22,6 +26,7 @@ class WidgetReceiver: GlanceAppWidgetReceiver() {
         private var screenReceiverRunning: Boolean = false
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -43,7 +48,8 @@ class WidgetReceiver: GlanceAppWidgetReceiver() {
         if (!screenReceiverRunning) {
             startScreenStateReceiver(context)
         }
-        runBlocking {
+        val pendingResult = goAsync()
+        GlobalScope.launch(Dispatchers.IO) {
             val newIds = appWidgetIds.filter {
                 val glanceId = try {
                     GlanceAppWidgetManager(context).getGlanceIdBy(it)
@@ -53,8 +59,10 @@ class WidgetReceiver: GlanceAppWidgetReceiver() {
                 val prefs = getAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId)
                 return@filter prefs[SUBSCRIBER_ID] != null
             }.toIntArray()
-
-            super.onUpdate(context, appWidgetManager, newIds)
+            withContext(Dispatchers.Main) {
+                super.onUpdate(context, appWidgetManager, newIds)
+            }
+            pendingResult.finish()
         }
     }
 

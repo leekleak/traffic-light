@@ -10,7 +10,6 @@ import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DayUsage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.component.inject
@@ -83,9 +82,9 @@ class UsageService : LifecycleService() {
             return instance.get() != null
         }
 
-        fun startService(context: Context) {
+        suspend fun startService(context: Context) {
             val appPreferenceRepo: AppPreferenceRepo by inject()
-            val enabled = runBlocking { appPreferenceRepo.notification.first() }
+            val enabled = appPreferenceRepo.notification.first()
             if (!isInstanceCreated() && enabled) {
                 val intent = Intent(context, UsageService::class.java)
                 context.startService(intent)

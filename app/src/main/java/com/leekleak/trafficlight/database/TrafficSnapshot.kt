@@ -52,8 +52,8 @@ class TrafficSnapshot (
 ) : KoinComponent {
     private val appPreferenceRepo: AppPreferenceRepo by inject()
     private val connectivityManager: ConnectivityManager by inject()
-    private var useFallback: Boolean = TrafficStats.getTotalTxBytes() == TrafficStats.UNSUPPORTED.toLong()
-    private var altVpnWorkaround: Boolean = false
+    @Volatile private var useFallback: Boolean = TrafficStats.getTotalTxBytes() == TrafficStats.UNSUPPORTED.toLong()
+    @Volatile private var altVpnWorkaround: Boolean = false
 
     init {
         combine(appPreferenceRepo.forceFallback, appPreferenceRepo.altVpn) { force, alt ->

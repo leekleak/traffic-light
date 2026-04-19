@@ -89,7 +89,7 @@ fun Overview(
     val activity = LocalActivity.current
 
     val weeklyUsage by networkUsageManager.weekUsage().collectAsState(listOf())
-    val activePlans by remember { dataPlanDao.getActiveFlow() }.collectAsState(listOf())
+    val activePlans by produceState(listOf()) { value = dataPlanDao.getActivePlans() }
 
     val shizukuHint by remember { appPreferenceRepo.shizukuHint }.collectAsState(false)
     val shizukuTracking by remember { appPreferenceRepo.shizukuTracking }.collectAsState(true)
