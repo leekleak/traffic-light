@@ -35,8 +35,8 @@ data class DataSize (
 
     fun getComparisonValue(): Long {
         if (value < 10) return (ceil(value) * unit.toBits()).toLong()
-        if (value < 100) return ((ceil(byteValue / 10f) * 10f) * unit.toBits()).toLong()
-        return ((ceil(byteValue / 100f) * 100f) * unit.toBits()).toLong()
+        if (value < 100) return ((ceil(value / 10f) * 10f) * unit.toBits()).toLong()
+        return ((ceil(value / 100f) * 100f) * unit.toBits()).toLong()
     }
 
     fun getAsUnit(unit: DataSizeUnit): Double {
