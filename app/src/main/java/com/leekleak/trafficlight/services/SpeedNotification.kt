@@ -160,8 +160,8 @@ class SpeedNotification(
 
         val spacing = 18
         val messageShort =
-            context.getString(R.string.wi_fi, DataSize(todayUsage.usage2).asString(speed = true, inBits = inBits)).clipAndPad(spacing) +
-            context.getString(R.string.mobile, DataSize(todayUsage.usage1).asString(speed = true, inBits = inBits))
+            context.getString(R.string.wi_fi, DataSize(todayUsage.usage2).asString()).clipAndPad(spacing) +
+            context.getString(R.string.mobile, DataSize(todayUsage.usage1).asString())
 
         updateBaseNotification()
         notification = notificationBuilder
