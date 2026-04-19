@@ -88,6 +88,8 @@ class SpeedNotification(
             appPreferenceRepo.liveNotification.collect { liveNotification = it }
         }
         updateBaseNotification()
+        notification.flags = Notification.FLAG_ONGOING_EVENT or Notification.FLAG_NO_CLEAR
+        notificationManager.notify(NOTIFICATION_ID, notification)
     }
 
     override fun start() {
