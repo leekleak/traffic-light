@@ -16,6 +16,8 @@ compose-ui = "1.11.0-rc01"
 
 nav3Core = "1.1.0"
 room = "2.8.4"
+sqlcipherAndroid = "4.14.1"
+sqlite = "2.6.2"
 timber = "5.0.1"
 shizuku = "13.1.5"
 glance = "1.2.0-rc01"
@@ -76,6 +78,10 @@ androidx-glance-material3 = { module = "androidx.glance:glance-material3", versi
 androidx-glance-appwidget-preview = { module = "androidx.glance:glance-appwidget-preview", version.ref = "glance" }
 androidx-glance-preview = { module = "androidx.glance:glance-preview", version.ref = "glance" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
+
+# Encryption
+androidx-sqlite = { module = "androidx.sqlite:sqlite", version.ref = "sqlite" }
+sqlcipher-android = { module = "net.zetetic:sqlcipher-android", version.ref = "sqlcipherAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
