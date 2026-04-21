@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 2,
-    "identityHash": "bcb3ff00fcae56b36e5715005c4c0666",
+    "version": 1,
+    "identityHash": "d30fc00db469bff0823977474afca6d5",
     "entities": [
       {
         "tableName": "DataPlan",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`subscriberID` TEXT NOT NULL, `simIndex` INTEGER NOT NULL, `carrierName` TEXT NOT NULL, `dataMax` INTEGER NOT NULL, `recurring` INTEGER NOT NULL, `startDate` INTEGER NOT NULL, `interval` TEXT NOT NULL, `intervalMultiplier` INTEGER NOT NULL, `excludedApps` TEXT NOT NULL, `unlimitedDataPeriod` TEXT, `lastUpdateDate` INTEGER, `periodUsageOffset` INTEGER, `rollover` INTEGER, `rolloverLeftover` INTEGER, `uiBackground` INTEGER NOT NULL, PRIMARY KEY(`subscriberID`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`subscriberID` TEXT NOT NULL, `simIndex` INTEGER NOT NULL, `carrierName` TEXT NOT NULL, `dataMax` INTEGER NOT NULL, `startDate` INTEGER NOT NULL, `interval` TEXT NOT NULL, `intervalMultiplier` INTEGER NOT NULL, `excludedApps` TEXT NOT NULL, `notification` INTEGER NOT NULL, `liveNotification` INTEGER NOT NULL, `uiBackground` INTEGER NOT NULL, PRIMARY KEY(`subscriberID`))",
         "fields": [
           {
             "fieldPath": "subscriberID",
@@ -29,12 +29,6 @@
           {
             "fieldPath": "dataMax",
             "columnName": "dataMax",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "recurring",
-            "columnName": "recurring",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -63,29 +57,16 @@
             "notNull": true
           },
           {
-            "fieldPath": "unlimitedDataPeriod",
-            "columnName": "unlimitedDataPeriod",
-            "affinity": "TEXT"
+            "fieldPath": "notification",
+            "columnName": "notification",
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
-            "fieldPath": "lastUpdateDate",
-            "columnName": "lastUpdateDate",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "periodUsageOffset",
-            "columnName": "periodUsageOffset",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "rollover",
-            "columnName": "rollover",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "rolloverLeftover",
-            "columnName": "rolloverLeftover",
-            "affinity": "INTEGER"
+            "fieldPath": "liveNotification",
+            "columnName": "liveNotification",
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "uiBackground",
@@ -104,7 +85,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bcb3ff00fcae56b36e5715005c4c0666')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd30fc00db469bff0823977474afca6d5')"
     ]
   }
 }

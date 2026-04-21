@@ -18,8 +18,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,7 +73,7 @@ class WidgetConfigureActivity : ComponentActivity() {
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
 
-        val activePlans by produceState(listOf()) { value = dataPlanDao.getActivePlans() }
+        val activePlans by remember { dataPlanDao.getActivePlansFlow() }.collectAsState(listOf())
         val configuredPlans = activePlans.filter { it.dataMax != 0L }
 
         LazyColumn (
