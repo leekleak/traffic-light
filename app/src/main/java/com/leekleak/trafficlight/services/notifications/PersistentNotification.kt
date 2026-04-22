@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.services
+package com.leekleak.trafficlight.services.notifications
 
 import androidx.lifecycle.LifecycleService
 
@@ -7,4 +7,5 @@ interface PersistentNotification {
     fun cancel()
     fun startForeground(service: LifecycleService)
     fun screenStateChange(on: Boolean)
+    fun getId(): Int
 }

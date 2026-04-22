@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
 import com.leekleak.trafficlight.database.AppPreferenceRepo
-import com.leekleak.trafficlight.services.UsageService
+import com.leekleak.trafficlight.services.notifications.NotificationService
 import com.leekleak.trafficlight.ui.app.App
 import com.leekleak.trafficlight.ui.theme.Theme
 import com.leekleak.trafficlight.widget.WidgetReceiver
@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             appPreferenceRepo.notification.collect {
-                UsageService.startService(this@MainActivity)
+                NotificationService.startService(this@MainActivity)
             }
         }
 

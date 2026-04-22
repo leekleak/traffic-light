@@ -7,9 +7,9 @@ import android.app.NotificationManager.IMPORTANCE_DEFAULT
 import android.app.NotificationManager.IMPORTANCE_NONE
 import com.leekleak.trafficlight.database.databaseModule
 import com.leekleak.trafficlight.model.managerModule
-import com.leekleak.trafficlight.services.SpeedNotification.Companion.NOTIFICATION_CHANNEL_ID
-import com.leekleak.trafficlight.services.SpeedNotification.Companion.NOTIFICATION_CHANNEL_ID_SILENT
-import com.leekleak.trafficlight.services.notificationModule
+import com.leekleak.trafficlight.services.notifications.PlanNotification
+import com.leekleak.trafficlight.services.notifications.SpeedNotification
+import com.leekleak.trafficlight.services.notifications.notificationModule
 import com.leekleak.trafficlight.ui.navigation.navigationModule
 import com.leekleak.trafficlight.ui.viewModelModule
 import com.leekleak.trafficlight.widget.startAlarmManager
@@ -42,13 +42,20 @@ class TrafficLightApplication : Application() {
     }
 
     private fun createNotificationChannel() {
-        val channel = NotificationChannel(NOTIFICATION_CHANNEL_ID, "Persistent Notification", IMPORTANCE_DEFAULT).apply {
+        val speedChannel = NotificationChannel(SpeedNotification.NOTIFICATION_CHANNEL_ID, "Persistent Notification", IMPORTANCE_DEFAULT).apply {
             setShowBadge(false)
         }
-        val channelSilent = NotificationChannel(NOTIFICATION_CHANNEL_ID_SILENT, "Persistent Notification (Disconnected)", IMPORTANCE_NONE).apply {
+        val speedChannelSilent = NotificationChannel(SpeedNotification.NOTIFICATION_CHANNEL_ID_SILENT, "Persistent Notification (Disconnected)", IMPORTANCE_NONE).apply {
+            setShowBadge(false)
+        }
+        val planChannel = NotificationChannel(PlanNotification.NOTIFICATION_CHANNEL_ID, "Plan Notification", IMPORTANCE_DEFAULT).apply {
             setShowBadge(false)
         }
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannels(listOf(channel, channelSilent))
+        notificationManager.createNotificationChannels(listOf(
+            speedChannel,
+            speedChannelSilent,
+            planChannel
+            ))
     }
 }

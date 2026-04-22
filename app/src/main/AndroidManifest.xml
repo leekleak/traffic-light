@@ -40,7 +40,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".services.UsageService"
+            android:name=".services.notifications.NotificationService"
             android:foregroundServiceType="specialUse"
             android:enabled="true"
             android:exported="false">

@@ -25,8 +25,8 @@ import androidx.compose.ui.res.stringResource
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.TrafficSnapshot
-import com.leekleak.trafficlight.services.SpeedNotification.Companion.NOTIFICATION_CHANNEL_ID
-import com.leekleak.trafficlight.services.SpeedNotification.Companion.NOTIFICATION_CHANNEL_ID_SILENT
+import com.leekleak.trafficlight.services.notifications.SpeedNotification.Companion.NOTIFICATION_CHANNEL_ID
+import com.leekleak.trafficlight.services.notifications.SpeedNotification.Companion.NOTIFICATION_CHANNEL_ID_SILENT
 import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.util.openLink

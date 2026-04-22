@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.leekleak.trafficlight.model.PermissionManager
+import com.leekleak.trafficlight.services.notifications.NotificationService
 import com.leekleak.trafficlight.widget.startAlarmManager
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +22,7 @@ class AutoStarter : BroadcastReceiver(), KoinComponent {
             GlobalScope.launch(Dispatchers.IO) {
                 context.let {
                     permissionManager.update()
-                    UsageService.startService(it)
+                    NotificationService.startService(it)
                     startAlarmManager(context)
                 }
                 pendingResult.finish()

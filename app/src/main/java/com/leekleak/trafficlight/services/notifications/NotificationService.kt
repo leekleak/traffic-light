@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.services
+package com.leekleak.trafficlight.services.notifications
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -6,8 +6,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
-import androidx.room.concurrent.AtomicBoolean
 import com.leekleak.trafficlight.database.AppPreferenceRepo
+import com.leekleak.trafficlight.database.DataPlanDao
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.core.component.KoinComponent
@@ -15,9 +15,11 @@ import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
 import timber.log.Timber
 
-class UsageService : LifecycleService(), KoinComponent {
+class NotificationService : LifecycleService(), KoinComponent {
     private val appPreferenceRepo: AppPreferenceRepo by inject()
+    private val dataPlanDao: DataPlanDao by inject()
     private var foregroundNotification: PersistentNotification? = null
+    private val mutableSet = buildSet { (228..250).forEach { add(it) } }.toMutableSet()
     private val screenStateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
@@ -35,7 +37,9 @@ class UsageService : LifecycleService(), KoinComponent {
         lifecycleScope.launch {
             appPreferenceRepo.notification.collect { enabled ->
                 if (enabled) {
-                    val notif = get<SpeedNotification> { parametersOf(lifecycleScope) }
+                    val id = mutableSet.firstOrNull() ?: return@collect
+                    val notif = get<SpeedNotification> { parametersOf(lifecycleScope, id) }
+                    mutableSet.remove(id)
                     notif.start()
                     activeNotifications.add(notif)
                     updateForegroundNotification()
@@ -45,6 +49,31 @@ class UsageService : LifecycleService(), KoinComponent {
                         activeNotifications.remove(notification)
                         updateForegroundNotification()
                         notification.cancel()
+                        mutableSet.add(notification.getId())
+                    }
+                }
+            }
+        }
+        lifecycleScope.launch {
+            dataPlanDao.getActivePlansFlow().collect { list ->
+                val activePlanNotifications = activeNotifications.filterIsInstance<PlanNotification>()
+                list.forEach { plan ->
+                    val notification = activePlanNotifications.find { it.dataPlan == plan }
+                    if (notification != null || !plan.notification) return@forEach
+
+                    val id = mutableSet.firstOrNull() ?: return@collect
+                    val notif = get<PlanNotification> { parametersOf(lifecycleScope, id, plan) }
+                    mutableSet.remove(id)
+                    notif.start()
+                    activeNotifications.add(notif)
+                    updateForegroundNotification()
+                }
+                activePlanNotifications.forEach { notification ->
+                    if (!list.contains(notification.dataPlan)) {
+                        activeNotifications.remove(notification)
+                        updateForegroundNotification()
+                        notification.cancel()
+                        mutableSet.add(notification.getId())
                     }
                 }
             }
@@ -80,23 +109,21 @@ class UsageService : LifecycleService(), KoinComponent {
     fun updateForegroundNotification() {
         if (activeNotifications.contains(foregroundNotification)) return
         val firstNotification = activeNotifications.firstOrNull()
-        if (firstNotification == null) {
-            stopForeground(STOP_FOREGROUND_REMOVE)
-        } else {
+        firstNotification?.let {
             try {
-                firstNotification.startForeground(this)
+                it.startForeground(this)
             } catch (e: Exception) {
                 Timber.e("Failed to start foreground service: $e")
             }
-        }
+        } ?: { stopForeground(STOP_FOREGROUND_REMOVE) }
     }
 
     companion object {
-        private var running = AtomicBoolean(false)
+        private var running = androidx.room.concurrent.AtomicBoolean(false)
 
         fun startService(context: Context) {
             if (running.compareAndSet(false, true)) {
-                context.startService(Intent(context, UsageService::class.java))
+                context.startService(Intent(context, NotificationService::class.java))
             }
         }
     }

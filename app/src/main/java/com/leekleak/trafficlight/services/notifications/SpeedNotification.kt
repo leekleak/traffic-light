@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.services
+package com.leekleak.trafficlight.services.notifications
 
 import android.app.Notification
 import android.app.NotificationManager
@@ -47,6 +47,7 @@ import java.time.LocalDate
 class SpeedNotification(
     serviceScope: CoroutineScope,
     private val context: Context,
+    private val notificationId: Int,
     private val networkUsageManager: NetworkUsageManager,
     private val notificationManager: NotificationManager,
     private val connectivityManager: ConnectivityManager,
@@ -91,7 +92,7 @@ class SpeedNotification(
         }
         updateBaseNotification()
         notification.flags = Notification.FLAG_ONGOING_EVENT or Notification.FLAG_NO_CLEAR
-        notificationManager.notify(NOTIFICATION_ID, notification)
+        notificationManager.notify(notificationId, notification)
     }
 
     override fun start() {
@@ -133,13 +134,13 @@ class SpeedNotification(
 
     override fun cancel() {
         scope.cancel()
-        notificationManager.cancel(NOTIFICATION_ID)
+        notificationManager.cancel(notificationId)
     }
 
     override fun startForeground(service: LifecycleService) {
         ServiceCompat.startForeground(
             service,
-            NOTIFICATION_ID,
+            notificationId,
             notification,
             ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
         )
@@ -149,6 +150,8 @@ class SpeedNotification(
         if (on) start()
         else if (!aodMode) job?.cancel()
     }
+
+    override fun getId(): Int = notificationId
 
     private var lastTitle: String = ""
     private suspend fun updateNotification(trafficSnapshot: TrafficSnapshot) {
@@ -178,7 +181,7 @@ class SpeedNotification(
             .setContentText(messageShort)
             .build()
         notification.flags = Notification.FLAG_ONGOING_EVENT or Notification.FLAG_NO_CLEAR
-        notificationManager.notify(NOTIFICATION_ID, notification)
+        notificationManager.notify(notificationId, notification)
     }
 
     private val paint by lazy {
@@ -268,6 +271,7 @@ class SpeedNotification(
             .setOnlyAlertOnce(true)
             .setWhen(Long.MAX_VALUE) // Keep above other notifications
             .setShowWhen(false) // Hide timestamp
+            //.setGroup("id_$notificationId")
             .setContentIntent(
                 PendingIntent.getActivity(
                     context, 0, Intent(context, MainActivity::class.java).apply {
@@ -300,7 +304,6 @@ class SpeedNotification(
 
     companion object {
         private const val DATA_UPDATE_FREQ = 4
-        const val NOTIFICATION_ID = 228
         const val NOTIFICATION_CHANNEL_ID = "PersistentNotification"
         const val NOTIFICATION_CHANNEL_ID_SILENT = "PersistentNotification (Silent)"
     }

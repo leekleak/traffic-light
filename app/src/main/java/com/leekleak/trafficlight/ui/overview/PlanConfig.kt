@@ -1,6 +1,10 @@
 package com.leekleak.trafficlight.ui.overview
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -71,6 +75,7 @@ import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.toPath
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -113,6 +118,7 @@ import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.DataUID
+import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.settings.SwitchPreference
 import com.leekleak.trafficlight.ui.theme.backgrounds
@@ -150,6 +156,7 @@ fun PlanConfig(subscriberId: String) {
     val dataPlanDao: DataPlanDao = koinInject()
     val scope = rememberCoroutineScope()
     val navigator: Navigator = koinInject()
+    val permissionManager: PermissionManager = koinInject()
 
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
@@ -385,11 +392,31 @@ fun PlanConfig(subscriberId: String) {
             }
             categoryTitleSmall { stringResource(R.string.notifications) }
             item {
-                SwitchPreference(
+                val notificationPermission by permissionManager.notificationPermissionFlow.collectAsState(true)
+                val notificationPermissionCallback = rememberLauncherForActivityResult(
+                    ActivityResultContracts.RequestPermission()
+                ) {
+                    scope.launch {
+                        scope.launch { newPlan = newPlan.copy(notification = it) }
+                    }
+                }
+
+                SwitchPreference (
                     title = stringResource(R.string.notifications),
+                    summary = stringResource(R.string.plan_notification_description),
                     icon = painterResource(R.drawable.notification),
                     value = newPlan.notification,
-                    onValueChanged = { scope.launch { newPlan = newPlan.copy(notification = it) } }
+                    onValueChanged = {
+                        if (!notificationPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            notificationPermissionCallback.launch(
+                                Manifest.permission.POST_NOTIFICATIONS
+                            )
+                        } else {
+                            scope.launch {
+                                scope.launch { newPlan = newPlan.copy(notification = it) }
+                            }
+                        }
+                    },
                 )
                 SwitchPreference(
                     title = stringResource(R.string.live_notification),
@@ -736,7 +763,9 @@ fun PlanSizeConfig(size: Double, onSizeUpdate: (Float) -> Unit) {
                 var intrinsics by remember { mutableIntStateOf(0) }
                 BasicTextField(
                     state = fieldState,
-                    modifier = Modifier.width (intrinsics.toDp).alignByBaseline(),
+                    modifier = Modifier
+                        .width(intrinsics.toDp)
+                        .alignByBaseline(),
                     inputTransformation =  InputTransformation {
                         val newText = asCharSequence().toString()
                         if (newText.isEmpty()) {

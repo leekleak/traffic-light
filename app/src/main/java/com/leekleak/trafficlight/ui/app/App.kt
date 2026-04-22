@@ -8,7 +8,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.leekleak.trafficlight.model.PermissionManager
-import com.leekleak.trafficlight.services.UsageService
+import com.leekleak.trafficlight.services.notifications.NotificationService
 import com.leekleak.trafficlight.ui.navigation.NavigationManager
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -26,7 +26,7 @@ fun App() {
             if (event == Lifecycle.Event.ON_RESUME || event == Lifecycle.Event.ON_START) {
                 permissionManager.update()
                 scope.launch {
-                    UsageService.startService(context)
+                    NotificationService.startService(context)
                 }
             }
         }
