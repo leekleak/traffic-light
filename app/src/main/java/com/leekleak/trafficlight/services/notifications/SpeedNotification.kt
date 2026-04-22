@@ -88,7 +88,9 @@ class SpeedNotification(
             appPreferenceRepo.speedBits.collect { inBits = it }
         }
         scope.launch {
-            appPreferenceRepo.liveNotification.collect { liveNotification = it }
+            appPreferenceRepo.liveNotification.collect {
+                liveNotification = it
+            }
         }
         updateBaseNotification()
         notification.flags = Notification.FLAG_ONGOING_EVENT or Notification.FLAG_NO_CLEAR
@@ -155,7 +157,7 @@ class SpeedNotification(
 
     private var lastTitle: String = ""
     private suspend fun updateNotification(trafficSnapshot: TrafficSnapshot) {
-        val speed = DataSize(trafficSnapshot.totalSpeed).asString(speed = true, inBits = inBits)
+        val speed = DataSize(trafficSnapshot.totalSpeed).toString(speed = true, inBits = inBits)
         val title = context.getString(R.string.speed, speed)
 
         if (lastTitle == speed) return // If the title is the same, so is the icon.
@@ -163,14 +165,16 @@ class SpeedNotification(
 
         val spacing = 18
         val messageShort =
-            context.getString(R.string.wi_fi, DataSize(todayUsage.usage2).asString()).clipAndPad(spacing) +
-            context.getString(R.string.mobile, DataSize(todayUsage.usage1).asString())
+            context.getString(R.string.wi_fi, DataSize(todayUsage.usage2).toString()).clipAndPad(spacing) +
+            context.getString(R.string.mobile, DataSize(todayUsage.usage1).toString())
 
         updateBaseNotification()
         notification = notificationBuilder
             .apply {
                 if (!liveNotification) {
                     setSmallIcon(createIcon(trafficSnapshot))
+                    setWhen(Long.MAX_VALUE) // Keep above other notifications
+                    setShowWhen(false) // Hide timestamp
                 }
                 else  {
                     setSmallIcon(R.drawable.mobiledata_arrows)
@@ -200,7 +204,7 @@ class SpeedNotification(
         val multiplier = 24 * density.density / 96f * if (bigIcon) 2f else 1f
         val height = (96 * multiplier).toInt()
 
-        val data = DataSize(snapshot.totalSpeed).asString(speed = true, inBits = inBits)
+        val data = DataSize(snapshot.totalSpeed).toString(speed = true, inBits = inBits)
         val speed = data.substringBefore(" ")
         val unit = data.substringAfter(" ")
 
@@ -269,9 +273,6 @@ class SpeedNotification(
             .setSilent(true)
             .setLocalOnly(true)
             .setOnlyAlertOnce(true)
-            .setWhen(Long.MAX_VALUE) // Keep above other notifications
-            .setShowWhen(false) // Hide timestamp
-            //.setGroup("id_$notificationId")
             .setContentIntent(
                 PendingIntent.getActivity(
                     context, 0, Intent(context, MainActivity::class.java).apply {

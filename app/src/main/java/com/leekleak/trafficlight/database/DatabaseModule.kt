@@ -8,7 +8,7 @@ import org.koin.dsl.module
 
 
 val databaseModule = module {
-    single { AppPreferenceRepo(get(), get()) }
+    single { AppPreferenceRepo(get()) }
     single { HistoryPreferenceRepo(get(), get()) }
 
     single {

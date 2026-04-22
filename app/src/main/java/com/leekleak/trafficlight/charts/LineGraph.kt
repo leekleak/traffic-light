@@ -76,7 +76,7 @@ fun LineGraph(
          */
         data.first?.let { data1 ->
             val textMeasure1 = textMeasurer.measure(
-                DataSize(data1).asString(extraPrecision = true),
+                DataSize(data1).toString(extraPrecision = true),
                 TextStyle(
                     fontFamily = font,
                     fontSize = fontSize,
@@ -103,7 +103,7 @@ fun LineGraph(
          */
         data.second?.let { data2 ->
             val textMeasure2 = textMeasurer.measure(
-                DataSize(data2).asString(extraPrecision = true),
+                DataSize(data2).toString(extraPrecision = true),
                 TextStyle(
                     fontFamily = font,
                     fontSize = fontSize,

@@ -20,6 +20,7 @@ class NotificationService : LifecycleService(), KoinComponent {
     private val dataPlanDao: DataPlanDao by inject()
     private var foregroundNotification: PersistentNotification? = null
     private val mutableSet = buildSet { (228..250).forEach { add(it) } }.toMutableSet()
+    private val activeNotifications: MutableList<PersistentNotification> = mutableListOf()
     private val screenStateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
@@ -79,8 +80,6 @@ class NotificationService : LifecycleService(), KoinComponent {
             }
         }
     }
-
-    private val activeNotifications: MutableList<PersistentNotification> = mutableListOf()
 
     override fun onCreate() {
         super.onCreate()

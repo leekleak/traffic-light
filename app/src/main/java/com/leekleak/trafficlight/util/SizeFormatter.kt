@@ -44,7 +44,9 @@ data class DataSize (
         else value * 1024.0.pow((this.unit.ordinal - unit.ordinal).toDouble())
     }
 
-    fun asString(extraPrecision: Boolean = false, speed: Boolean = false, inBits: Boolean = false): String {
+    override fun toString(): String = toString(extraPrecision = false, speed = false, inBits = false)
+
+    fun toString(extraPrecision: Boolean = false, speed: Boolean = false, inBits: Boolean = false): String {
         val parts = toStringParts(extraPrecision = extraPrecision, speed = speed, inBits = inBits)
         return "${parts.first}${parts.second} ${parts.third}"
     }

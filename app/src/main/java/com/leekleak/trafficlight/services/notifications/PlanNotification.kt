@@ -23,11 +23,9 @@ import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DayUsage
-import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.DataSize
-import com.leekleak.trafficlight.util.clipAndPad
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -51,7 +49,6 @@ class PlanNotification(
     private var job: Job? = null
     private lateinit var notificationBuilder: NotificationCompat.Builder
     private lateinit var notification: Notification
-    private val trafficSnapshot = TrafficSnapshot(scope)
 
     private val queryMobile =
         UsageQuery(
@@ -105,25 +102,28 @@ class PlanNotification(
 
     private var lastTitle: String = ""
     private suspend fun updateNotification() {
-        val speed = DataSize(trafficSnapshot.totalSpeed).asString()
-        val title = context.getString(R.string.speed, speed)
+        val title = "SIM ${dataPlan.simIndex + 1}"
 
-        if (lastTitle == speed) return // If the title is the same, so is the icon.
-        else lastTitle = speed
+        val usage = networkUsageManager.planUsage(dataPlan)
+        val dataSize = DataSize(usage)
+        val maxSize = dataPlan.dataMax
+        val progress = usage.toDouble() / maxSize.toDouble()
 
-        val spacing = 18
-        val messageShort =
-            context.getString(R.string.wi_fi, DataSize(todayUsage.usage2).asString()).clipAndPad(spacing) +
-            context.getString(R.string.mobile, DataSize(todayUsage.usage1).asString())
-
-        updateBaseNotification()
         notification = notificationBuilder
             .apply {
-                setSmallIcon(R.drawable.bigtop_updates)
-                setShortCriticalText(speed)
+                if (!dataPlan.liveNotification) {
+                    setSmallIcon(createIcon(dataSize))
+                    setWhen(Long.MAX_VALUE) // Keep above other notifications
+                    setShowWhen(false) // Hide timestamp
+                }
+                else  {
+                    setSmallIcon(R.drawable.sim_card)
+                    setShortCriticalText(dataSize.toString())
+                }
             }
             .setContentTitle(title)
-            .setContentText(messageShort)
+            .setContentText(dataSize.toString())
+            .setProgress(100, (progress*100).toInt(), false)
             .build()
         notification.flags = Notification.FLAG_ONGOING_EVENT or Notification.FLAG_NO_CLEAR
         notificationManager.notify(notificationId, notification)
@@ -140,12 +140,12 @@ class PlanNotification(
     private var cachedIcons = LruCache<String, IconCompat>(50)
     private var bitmap: Bitmap? = null
     private val bitmapMutex = Mutex()
-    private suspend fun createIcon(snapshot: TrafficSnapshot): IconCompat = withContext(Dispatchers.Default) {
+    private suspend fun createIcon(dataSize: DataSize): IconCompat = withContext(Dispatchers.Default) {
         val density = Density(context)
         val multiplier = 24 * density.density / 96f
         val height = (96 * multiplier).toInt()
 
-        val data = DataSize(snapshot.totalSpeed).asString()
+        val data = dataSize.toString()
         val speed = data.substringBefore(" ")
         val unit = data.substringAfter(" ")
 
@@ -201,13 +201,10 @@ class PlanNotification(
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(context.getString(R.string.app_name_short))
             .setOngoing(true)
-            .setRequestPromotedOngoing(true)
+            .setRequestPromotedOngoing(dataPlan.liveNotification)
             .setSilent(true)
             .setLocalOnly(true)
             .setOnlyAlertOnce(true)
-            .setWhen(Long.MAX_VALUE) // Keep above other notifications
-            .setShowWhen(false) // Hide timestamp
-            //.setGroup("id_$notificationId")
             .setContentIntent(
                 PendingIntent.getActivity(
                     context, 0, Intent(context, MainActivity::class.java).apply {
@@ -215,6 +212,7 @@ class PlanNotification(
                     }, PendingIntent.FLAG_IMMUTABLE
                 )
             )
+
         notification = notificationBuilder.build()
     }
 
