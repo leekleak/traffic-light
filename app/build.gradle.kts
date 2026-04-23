@@ -106,8 +106,6 @@ dependencies {
     implementation(libs.androidx.glance.appwidget.preview)
     implementation(libs.androidx.glance.preview)
 
-    implementation(libs.sqlcipher.android)
-    implementation(libs.androidx.sqlite)
     /**
      * Not actually used explicitly, however it is used by glance widgets.
      * The problem is that the version that the latest glance widget release uses is 2.7.1
