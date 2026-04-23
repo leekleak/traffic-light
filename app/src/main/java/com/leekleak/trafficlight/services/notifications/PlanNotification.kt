@@ -19,11 +19,7 @@ import androidx.core.graphics.drawable.IconCompat
 import androidx.lifecycle.LifecycleService
 import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DataPlan
-import com.leekleak.trafficlight.database.DataType
-import com.leekleak.trafficlight.database.DayUsage
-import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.DataSize
 import kotlinx.coroutines.CoroutineScope
@@ -49,18 +45,6 @@ class PlanNotification(
     private var job: Job? = null
     private lateinit var notificationBuilder: NotificationCompat.Builder
     private lateinit var notification: Notification
-
-    private val queryMobile =
-        UsageQuery(
-            dataType = DataType.Mobile,
-            dataDirection = DataDirection.Bidirectional,
-        )
-    private val queryWifi =
-        UsageQuery(
-            dataType = DataType.Wifi,
-            dataDirection = DataDirection.Bidirectional,
-        )
-    private var todayUsage = DayUsage()
 
     init {
         updateBaseNotification()
@@ -99,8 +83,6 @@ class PlanNotification(
     }
 
     override fun getId(): Int = notificationId
-
-    private var lastTitle: String = ""
     private suspend fun updateNotification() {
         val title = "SIM ${dataPlan.simIndex + 1}"
 

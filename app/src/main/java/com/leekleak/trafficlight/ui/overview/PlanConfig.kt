@@ -11,10 +11,14 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -401,12 +405,22 @@ fun PlanConfig(subscriberId: String) {
                         }
                     },
                 )
-                SwitchPreference(
-                    title = stringResource(R.string.live_notification),
-                    icon = painterResource(R.drawable.app_badging),
-                    value = newPlan.liveNotification,
-                    onValueChanged = { scope.launch { newPlan = newPlan.copy(liveNotification = it) } }
-                )
+                AnimatedVisibility(
+                    visible = newPlan.notification && Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA,
+                    enter = fadeIn() + slideInVertically() + expandVertically(),
+                    exit = fadeOut() + slideOutVertically() + shrinkVertically()
+                ) {
+                    SwitchPreference(
+                        title = stringResource(R.string.live_notification),
+                        icon = painterResource(R.drawable.app_badging),
+                        value = newPlan.liveNotification,
+                        onValueChanged = {
+                            scope.launch {
+                                newPlan = newPlan.copy(liveNotification = it)
+                            }
+                        }
+                    )
+                }
             }
             categoryTitleSmall { stringResource(R.string.background) }
             item {
