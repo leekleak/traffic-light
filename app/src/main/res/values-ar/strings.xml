@@ -41,7 +41,7 @@
     <string name="appearance">المظهر</string>
     <string name="behavior">السلوك</string>
     <string name="alt_vpn_workaround">حل بديل لـ VPN</string>
-    <string name="alt_vpn_workaround_description">يقلل دقة القياس لكنه يدعم التقسيم النفقي.</string>
+    <string name="alt_vpn_workaround_description">يحسن الدقة ولكنه يعطّل التقسيم النفقي.</string>
     <string name="support_development">ادعم التطوير</string>
     <string name="shizuku_not_running">Shizuku لا يعمل</string>
     <string name="sim_card">بطاقة SIM</string>
@@ -109,4 +109,7 @@
     <string name="open_app">افتح التطبيق</string>
     <string name="list">لائحة</string>
     <string name="reset">صفّر</string>
+    <string name="live_notification">إشعار حي</string>
+    <string name="very_big">كبير جدًا</string>
+    <string name="plan_notification_description">تتبع استخدام الخطة في شريط الحالة.</string>
 </resources>

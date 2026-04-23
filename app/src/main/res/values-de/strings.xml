@@ -41,7 +41,7 @@
     <string name="appearance">Aussehen</string>
     <string name="behavior">Verhalten</string>
     <string name="alt_vpn_workaround">Alternative VPN-Lösung</string>
-    <string name="alt_vpn_workaround_description">Verringert die Messgenauigkeit, ermöglicht jedoch Split-Tunneling.</string>
+    <string name="alt_vpn_workaround_description">Verbessert die Genauigkeit, unterbricht jedoch das Split-Tunneling.</string>
     <string name="support_development">Entwicklung unterstützen</string>
     <string name="shizuku_not_running">Shizuku läuft nicht</string>
     <string name="sim_card">SIM-Karte</string>
@@ -105,4 +105,7 @@
     <string name="list">Liste</string>
     <string name="reset">Zurücksetzen</string>
     <string name="persist">Fortfahren</string>
+    <string name="live_notification">Live Benachrichtigung</string>
+    <string name="very_big">Sehr groß</string>
+    <string name="plan_notification_description">Verfolgen Sie die Nutzung Ihres Tarifs in der Statusleiste.</string>
 </resources>

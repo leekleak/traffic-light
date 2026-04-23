@@ -41,7 +41,7 @@
     <string name="appearance">Görünüm</string>
     <string name="behavior">Davranış</string>
     <string name="alt_vpn_workaround">Alternatif VPN geçici çözümü</string>
-    <string name="alt_vpn_workaround_description">Ölçüm doğruluğunu azaltır fakat bölünmüş tünellemeyi destekler.</string>
+    <string name="alt_vpn_workaround_description">Doğruluğu arttırır fakat bölünmüş tünellemeyi bozar.</string>
     <string name="support_development">Gelişmesine destek ol</string>
     <string name="shizuku_not_running">Shizuku aktif değil</string>
     <string name="sim_card">SIM kart</string>
@@ -105,4 +105,6 @@
     <string name="open_app">Uygulamayı aç</string>
     <string name="list">Liste</string>
     <string name="reset">Sıfırla</string>
+    <string name="live_notification">Canlı Bildirim</string>
+    <string name="very_big">Çok büyük</string>
 </resources>

@@ -41,7 +41,7 @@
     <string name="appearance">Uiterlijk</string>
     <string name="behavior">Gedrag</string>
     <string name="alt_vpn_workaround">Alternatieve VPN-omzeiling</string>
-    <string name="alt_vpn_workaround_description">Vermindert nauwkeurigheid van metingen, maar werkt met split tunnels.</string>
+    <string name="alt_vpn_workaround_description">Verbetert nauwkeurigheid, maar breekt split tunnels.</string>
     <string name="support_development">Ontwikkeling steunen</string>
     <string name="shizuku_not_running">Shizuku loopt niet</string>
     <string name="sim_card">Simkaart</string>
@@ -105,4 +105,6 @@
     <string name="open_app">App openen</string>
     <string name="list">Lijst</string>
     <string name="reset">Resetten</string>
+    <string name="live_notification">Livemelding</string>
+    <string name="very_big">Heel groot</string>
 </resources>
