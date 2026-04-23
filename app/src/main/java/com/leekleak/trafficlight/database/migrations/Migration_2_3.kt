@@ -3,6 +3,7 @@ package com.leekleak.trafficlight.database.migrations
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.leekleak.trafficlight.database.CryptoManager
+import com.leekleak.trafficlight.model.NetworkUsageManager.Companion.NULL_SUBSCRIBER
 
 val MIGRATION_2_3 = object : Migration(2, 3) {
     override fun migrate(db: SupportSQLiteDatabase) {
@@ -28,6 +29,7 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
         if (cursor.moveToFirst()) {
             do {
                 val oldSubscriberID = cursor.getString(cursor.getColumnIndexOrThrow("subscriberID"))
+                val finalID = if (oldSubscriberID == "null") NULL_SUBSCRIBER else oldSubscriberID
                 val simIndex = cursor.getInt(cursor.getColumnIndexOrThrow("simIndex"))
                 val carrierName = cursor.getString(cursor.getColumnIndexOrThrow("carrierName"))
                 val dataMax = cursor.getLong(cursor.getColumnIndexOrThrow("dataMax"))
@@ -36,12 +38,10 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
                 val intervalMultiplier = cursor.getInt(cursor.getColumnIndexOrThrow("intervalMultiplier"))
                 val excludedApps = cursor.getString(cursor.getColumnIndexOrThrow("excludedApps"))
                 val uiBackground = cursor.getInt(cursor.getColumnIndexOrThrow("uiBackground"))
+                
+                val hashedID = CryptoManager.hashIdentifier(finalID)
+                val encryptedID = CryptoManager.encrypt(finalID)
 
-                // Generate new values using your CryptoManager
-                val hashedID = CryptoManager.hashIdentifier(oldSubscriberID)
-                val encryptedID = CryptoManager.encrypt(oldSubscriberID)
-
-                // 3. Insert into the new table
                 db.execSQL(
                     """
                     INSERT INTO DataPlan_new (
