@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.text.format.DateFormat
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -258,5 +259,14 @@ fun openLink(activity: Activity?, link: String) {
             link.toUri()
         )
     )
+}
+
+@DrawableRes
+fun simIconRes(number: Int): Int {
+    return when (number) {
+        0 -> R.drawable.sim_card_1
+        1 -> R.drawable.sim_card_2
+        else -> R.drawable.sim_card
+    }
 }
 

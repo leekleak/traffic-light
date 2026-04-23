@@ -20,8 +20,10 @@ import androidx.lifecycle.LifecycleService
 import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
+import com.leekleak.trafficlight.database.resetString
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.trafficlight.util.simIconRes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -84,12 +86,9 @@ class PlanNotification(
 
     override fun getId(): Int = notificationId
     private suspend fun updateNotification() {
-        val title = "SIM ${dataPlan.simIndex + 1}"
-
-        val usage = networkUsageManager.planUsage(dataPlan)
-        val dataSize = DataSize(usage)
-        val maxSize = dataPlan.dataMax
-        val progress = usage.toDouble() / maxSize.toDouble()
+        val dataSize = DataSize(networkUsageManager.planUsage(dataPlan))
+        val dataSizeMax = DataSize(dataPlan.dataMax)
+        val progress = dataSize.byteValue.toDouble() / dataSizeMax.byteValue.toDouble()
 
         notification = notificationBuilder
             .apply {
@@ -99,12 +98,12 @@ class PlanNotification(
                     setShowWhen(false) // Hide timestamp
                 }
                 else  {
-                    setSmallIcon(R.drawable.sim_card)
+                    setSmallIcon(simIconRes(dataPlan.simIndex))
                     setShortCriticalText(dataSize.toString())
                 }
             }
-            .setContentTitle(title)
-            .setContentText(dataSize.toString())
+            .setContentTitle("$dataSize/$dataSizeMax")
+            .setContentText(dataPlan.resetString(context))
             .setProgress(100, (progress*100).toInt(), false)
             .build()
         notification.flags = Notification.FLAG_ONGOING_EVENT or Notification.FLAG_NO_CLEAR

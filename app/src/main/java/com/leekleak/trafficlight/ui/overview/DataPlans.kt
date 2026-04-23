@@ -51,6 +51,7 @@ import com.leekleak.trafficlight.ui.theme.doHyeonFont
 import com.leekleak.trafficlight.ui.theme.robotoFlex
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.DataSizeUnit
+import com.leekleak.trafficlight.util.simIconRes
 import org.koin.compose.koinInject
 import java.text.DecimalFormat
 
@@ -148,7 +149,7 @@ fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
             .padding(8.dp),
     ) {
         Row {
-            SimIcon(dataPlan.simIndex + 1)
+            SimIcon(dataPlan.simIndex)
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -234,7 +235,7 @@ private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
     Column(Modifier.padding(8.dp)) {
         Box(Modifier.height(184.dp)) {
             Row(Modifier.fillMaxWidth()) {
-                SimIcon(dataPlan.simIndex + 1)
+                SimIcon(dataPlan.simIndex)
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -309,14 +310,8 @@ private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
 fun SimIcon(number: Int) {
     Box(contentAlignment = Alignment.Center) {
         Icon(
-            painterResource(R.drawable.sim_card),
+            painterResource(simIconRes(number)),
             contentDescription = stringResource(R.string.sim_card)
-        )
-        Text(
-            modifier = Modifier.padding(top = 2.dp, start = 0.5.dp),
-            text = number.toString(),
-            fontSize = 12.sp,
-            fontFamily = robotoFlex(0f,25f,500f)
         )
     }
 }
