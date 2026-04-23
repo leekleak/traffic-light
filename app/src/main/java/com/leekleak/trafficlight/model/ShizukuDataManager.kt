@@ -106,21 +106,19 @@ class ShizukuDataManager(
                 )
             }
         }
+        dataPlanDao.addAll(plans)
     }
 
     fun updateSimDataBasic() = scope.launch {
         val plans = dataPlanDao.getAll()?.toMutableList() ?: return@launch
-
-        if (plans.isEmpty() || plans.count { it.getDecryptedID() == NULL_SUBSCRIBER } == 0) {
+        val newPlans = plans.map { it.copy(simIndex = if (it.getDecryptedID() == NULL_SUBSCRIBER) 0 else -1) }
+        if (plans.isEmpty()) {
             dataPlanRepository.savePlan(
                 NULL_SUBSCRIBER,
                 0,
                 ""
             )
-        } else {
-            dataPlanRepository.getPlan(NULL_SUBSCRIBER)?.let {
-                dataPlanDao.add(it.copy(simIndex = -1))
-            }
         }
+        dataPlanDao.addAll(newPlans)
     }
 }
