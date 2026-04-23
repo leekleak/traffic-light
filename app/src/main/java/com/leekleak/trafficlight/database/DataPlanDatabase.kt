@@ -27,7 +27,10 @@ enum class TimeInterval {
 
 @Entity
 data class DataPlan(
-    @PrimaryKey val subscriberID: String,
+    @PrimaryKey
+    val hashedSubscriberID: String,
+
+    @ColumnInfo val encryptedSubscriberID: String,
 
     @ColumnInfo val simIndex: Int = -1,
     @ColumnInfo val carrierName: String = "",
@@ -48,15 +51,19 @@ data class DataPlan(
      * Customization
      */
     @ColumnInfo val uiBackground: Int = 0,
-)
+) {
+    fun getDecryptedID(): String {
+        return CryptoManager.decrypt(encryptedSubscriberID)
+    }
+}
 
 @Dao
 interface DataPlanDao {
     @Query("SELECT * FROM dataplan")
-    suspend fun getAll(): List<DataPlan>
+    suspend fun getAll(): List<DataPlan>?
 
-    @Query("SELECT * FROM dataplan WHERE subscriberID = :subscriberID")
-    suspend fun get(subscriberID: String): DataPlan?
+    @Query("SELECT * FROM dataplan WHERE hashedSubscriberID = :hashedID")
+    suspend fun getByHash(hashedID: String): DataPlan?
 
     @Query("SELECT * FROM dataplan WHERE simIndex != -1 ORDER BY simIndex ASC")
     fun getActivePlansFlow(): Flow<List<DataPlan>>
@@ -107,4 +114,21 @@ fun DataPlan.resetString(context: Context): String {
     }
     val duration = Duration.between(now, startDate).toDays().toInt() + 1
     return context.resources.getQuantityString(R.plurals.resets_in_days, duration, duration)
+}
+
+class DataPlanRepository(private val dao: DataPlanDao) {
+    suspend fun savePlan(plainSubscriberID: String, simIndex: Int, carrierName: String) {
+        val plan = DataPlan(
+            hashedSubscriberID = CryptoManager.hashIdentifier(plainSubscriberID),
+            encryptedSubscriberID = CryptoManager.encrypt(plainSubscriberID),
+            simIndex = simIndex,
+            carrierName = carrierName
+        )
+        dao.add(plan)
+    }
+
+    suspend fun getPlan(plainSubscriberID: String): DataPlan? {
+        val hashedID = CryptoManager.hashIdentifier(plainSubscriberID)
+        return dao.getByHash(hashedID)
+    }
 }

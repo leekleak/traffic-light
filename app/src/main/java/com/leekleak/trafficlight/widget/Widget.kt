@@ -42,8 +42,10 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.database.CryptoManager
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
+import com.leekleak.trafficlight.database.DataPlanRepository
 import com.leekleak.trafficlight.database.resetString
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.theme.backgrounds
@@ -70,11 +72,12 @@ class Widget: GlanceAppWidget() {
         val koinInstance = KoinPlatform.getKoin()
         val networkUsageManager: NetworkUsageManager = koinInstance.get()
         val dataPlanDao: DataPlanDao = koinInstance.get()
+        val dataPlanRepository: DataPlanRepository = koinInstance.get()
 
         val state = getAppWidgetState(context, stateDefinition, id)
-        val subscriberID = state[SUBSCRIBER_ID] ?: return
+        val subscriberID = state[SUBSCRIBER_ID]?.let { CryptoManager.decrypt(it) }?: return
 
-        val dataPlan = withContext(Dispatchers.IO) { dataPlanDao.get(subscriberID) }!!
+        val dataPlan = withContext(Dispatchers.IO) { dataPlanRepository.getPlan(subscriberID) }!!
         val usage = networkUsageManager.planUsage(dataPlan)
         val usageSize = DataSize(usage).getAsUnit(DataSizeUnit.GB)
         val dataMax = DataSize(dataPlan.dataMax).getAsUnit(DataSizeUnit.GB)
@@ -138,7 +141,7 @@ class Widget: GlanceAppWidget() {
     @Preview(widthDp = 400, heightDp = 200)
     private fun Preview() {
         WidgetContent(
-            dataPlan = DataPlan("", uiBackground = 2),
+            dataPlan = DataPlan("", "", uiBackground = 2),
             simNumber = 1,
             carrierName = "AT&T",
             usageString = "8.5",

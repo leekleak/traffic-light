@@ -7,8 +7,8 @@ import android.telephony.SubscriptionInfo
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.ITrafficLightShizukuService
 import com.leekleak.trafficlight.database.AppPreferenceRepo
-import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
+import com.leekleak.trafficlight.database.DataPlanRepository
 import com.leekleak.trafficlight.model.NetworkUsageManager.Companion.NULL_SUBSCRIBER
 import com.leekleak.trafficlight.services.TrafficLightShizukuService
 import kotlinx.coroutines.CoroutineScope
@@ -21,6 +21,7 @@ import timber.log.Timber
 
 class ShizukuDataManager(
     private val dataPlanDao: DataPlanDao,
+    private val dataPlanRepository: DataPlanRepository,
     private val appPreferenceRepo: AppPreferenceRepo,
     private val permissionManager: PermissionManager,
     private val scope: CoroutineScope,
@@ -92,40 +93,34 @@ class ShizukuDataManager(
     fun updateSimData() = scope.launch {
         val infos = getSubscriptionInfos().sortedBy { it.simSlotIndex }
         val activeSubscriberIDs = infos.map { getSubscriberID(it.subscriptionId) }
-        var plans = dataPlanDao.getAll()
+        var plans = dataPlanDao.getAll() ?: return@launch
         plans = plans.map { plan ->
-            plan.copy(simIndex = activeSubscriberIDs.indexOf(plan.subscriberID))
+            plan.copy(simIndex = activeSubscriberIDs.indexOf(plan.getDecryptedID()))
         }.toMutableList()
         activeSubscriberIDs.forEachIndexed { index, activeID ->
-            if (activeID !in plans.map { it.subscriberID } && activeID != null) {
-                plans.add(
-                    DataPlan(
-                        subscriberID = activeID,
-                        simIndex = infos[index].simSlotIndex,
-                        carrierName = infos[index].carrierName?.toString() ?: ""
-                    )
+            if (activeID !in plans.map { it.getDecryptedID() } && activeID != null) {
+                dataPlanRepository.savePlan(
+                    activeID,
+                    infos[index].simSlotIndex,
+                    infos[index].carrierName?.toString() ?: ""
                 )
             }
         }
-        dataPlanDao.addAll(plans)
     }
 
     fun updateSimDataBasic() = scope.launch {
-        val plans = dataPlanDao.getAll().toMutableList()
-        if (plans.count { it.subscriberID == NULL_SUBSCRIBER } == 0) {
-            plans.add(
-                DataPlan(
-                    subscriberID = NULL_SUBSCRIBER,
-                    simIndex = 0
-                )
+        val plans = dataPlanDao.getAll()?.toMutableList() ?: return@launch
+
+        if (plans.isEmpty() || plans.count { it.getDecryptedID() == NULL_SUBSCRIBER } == 0) {
+            dataPlanRepository.savePlan(
+                NULL_SUBSCRIBER,
+                0,
+                ""
             )
-        }
-        dataPlanDao.addAll(
-            plans.map {
-                it.copy(
-                    simIndex = if (it.subscriberID == NULL_SUBSCRIBER) 0 else -1
-                )
+        } else {
+            dataPlanRepository.getPlan(NULL_SUBSCRIBER)?.let {
+                dataPlanDao.add(it.copy(simIndex = -1))
             }
-        )
+        }
     }
 }

@@ -17,7 +17,7 @@ val managerModule = module {
             .build()
     }
 
-    single(createdAtStart = true) { ShizukuDataManager(get(), get(), get(), get()) }
+    single(createdAtStart = true) { ShizukuDataManager(get(), get(), get(), get(), get()) }
     single { PermissionManager(androidContext()) }
     single { NetworkUsageManager(get(), get()) }
 }

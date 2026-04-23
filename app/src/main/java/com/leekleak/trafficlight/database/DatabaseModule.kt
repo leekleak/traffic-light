@@ -24,4 +24,5 @@ val databaseModule = module {
             .build()
     }
     single { get<AppDatabase>().dataPlanDao() }
+    single { DataPlanRepository(get()) }
 }

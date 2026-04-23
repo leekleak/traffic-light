@@ -2,15 +2,21 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "d30fc00db469bff0823977474afca6d5",
+    "identityHash": "42db32b44ac8a05e9ad45378bdfef1f3",
     "entities": [
       {
         "tableName": "DataPlan",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`subscriberID` TEXT NOT NULL, `simIndex` INTEGER NOT NULL, `carrierName` TEXT NOT NULL, `dataMax` INTEGER NOT NULL, `startDate` INTEGER NOT NULL, `interval` TEXT NOT NULL, `intervalMultiplier` INTEGER NOT NULL, `excludedApps` TEXT NOT NULL, `notification` INTEGER NOT NULL, `liveNotification` INTEGER NOT NULL, `uiBackground` INTEGER NOT NULL, PRIMARY KEY(`subscriberID`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`hashedSubscriberID` TEXT NOT NULL, `encryptedSubscriberID` TEXT NOT NULL, `simIndex` INTEGER NOT NULL, `carrierName` TEXT NOT NULL, `dataMax` INTEGER NOT NULL, `startDate` INTEGER NOT NULL, `interval` TEXT NOT NULL, `intervalMultiplier` INTEGER NOT NULL, `excludedApps` TEXT NOT NULL, `notification` INTEGER NOT NULL, `liveNotification` INTEGER NOT NULL, `uiBackground` INTEGER NOT NULL, PRIMARY KEY(`hashedSubscriberID`))",
         "fields": [
           {
-            "fieldPath": "subscriberID",
-            "columnName": "subscriberID",
+            "fieldPath": "hashedSubscriberID",
+            "columnName": "hashedSubscriberID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "encryptedSubscriberID",
+            "columnName": "encryptedSubscriberID",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -78,14 +84,14 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "subscriberID"
+            "hashedSubscriberID"
           ]
         }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd30fc00db469bff0823977474afca6d5')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '42db32b44ac8a05e9ad45378bdfef1f3')"
     ]
   }
 }

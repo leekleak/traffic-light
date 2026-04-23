@@ -97,7 +97,8 @@ class NetworkUsageManager(
 
         val startStamp = startDate.toTimestamp()
         val endStamp = now.toTimestamp()
-        val subscriberId = if (dataPlan.subscriberID == NULL_SUBSCRIBER) null else dataPlan.subscriberID
+        val id = dataPlan.getDecryptedID()
+        val subscriberId = if (id == NULL_SUBSCRIBER) null else id
 
         val networkData = getNetworkDataForType(startStamp, endStamp, subscriberId, DataType.Mobile)
         val stats = networkData.filter { !dataPlan.excludedApps.contains(it.uid) }.sumOf { it.total }

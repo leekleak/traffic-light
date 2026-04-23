@@ -117,14 +117,14 @@ fun Overview(
         }
         categoryTitle { stringResource(R.string.data_plans) }
 
-        items(activePlans, {it.subscriberID}) {
+        items(activePlans, {it.getDecryptedID()}) {
             if (it.dataMax != 0L) {
                 ConfiguredDataPlan(it) {
-                    navigator.goTo(PlanConfig(it.subscriberID))
+                    navigator.goTo(PlanConfig(it.getDecryptedID()))
                 }
             } else {
                 UnconfiguredDataPlan(it) {
-                    navigator.goTo(PlanConfig(it.subscriberID))
+                    navigator.goTo(PlanConfig(it.getDecryptedID()))
                 }
             }
         }

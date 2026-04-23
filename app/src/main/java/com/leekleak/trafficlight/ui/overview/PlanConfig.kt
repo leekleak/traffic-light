@@ -116,6 +116,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.GraphTheme.wifiShape
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
+import com.leekleak.trafficlight.database.DataPlanRepository
 import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.DataUID
@@ -157,6 +158,7 @@ import kotlin.math.roundToInt
 fun PlanConfig(subscriberId: String) {
     val appManager: AppManager = koinInject()
     val dataPlanDao: DataPlanDao = koinInject()
+    val dataPlanRepository: DataPlanRepository = koinInject()
     val scope = rememberCoroutineScope()
     val navigator: Navigator = koinInject()
     val permissionManager: PermissionManager = koinInject()
@@ -164,8 +166,10 @@ fun PlanConfig(subscriberId: String) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
 
-    val currentPlan by produceState(DataPlan(subscriberId)) { dataPlanDao.get(subscriberId)?.let { value = it } }
-    var newPlan by remember { mutableStateOf(DataPlan(subscriberId, uiBackground = 3)) }
+    val currentPlan by produceState(DataPlan("", "")) {
+        dataPlanRepository.getPlan(subscriberId)?.let { value = it }
+    }
+    var newPlan by remember { mutableStateOf(DataPlan("", "", uiBackground = 3)) }
     LaunchedEffect(currentPlan) {
         newPlan = currentPlan
     }
