@@ -41,7 +41,7 @@ import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.widget.Widget.Companion.CARRIER_NAME
 import com.leekleak.trafficlight.widget.Widget.Companion.SIM_NUMBER
-import com.leekleak.trafficlight.widget.Widget.Companion.SUBSCRIBER_ID
+import com.leekleak.trafficlight.widget.Widget.Companion.SUBSCRIBER_ID_HASH
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -105,7 +105,7 @@ class WidgetConfigureActivity : ComponentActivity() {
 
                     scope.launch {
                         updateAppWidgetState(this@WidgetConfigureActivity, glanceId) { prefs ->
-                            prefs[SUBSCRIBER_ID] = it.encryptedSubscriberID
+                            prefs[SUBSCRIBER_ID_HASH] = it.hashedSubscriberID
                             prefs[SIM_NUMBER] = it.simIndex + 1
                             prefs[CARRIER_NAME] = it.carrierName
                         }

@@ -42,10 +42,8 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.database.CryptoManager
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
-import com.leekleak.trafficlight.database.DataPlanRepository
 import com.leekleak.trafficlight.database.resetString
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.theme.backgrounds
@@ -56,6 +54,7 @@ import kotlinx.coroutines.withContext
 import org.koin.mp.KoinPlatform
 import timber.log.Timber
 import java.text.DecimalFormat
+import kotlin.math.max
 
 class Widget: GlanceAppWidget() {
     override val stateDefinition = PreferencesGlanceStateDefinition
@@ -72,12 +71,13 @@ class Widget: GlanceAppWidget() {
         val koinInstance = KoinPlatform.getKoin()
         val networkUsageManager: NetworkUsageManager = koinInstance.get()
         val dataPlanDao: DataPlanDao = koinInstance.get()
-        val dataPlanRepository: DataPlanRepository = koinInstance.get()
 
         val state = getAppWidgetState(context, stateDefinition, id)
-        val subscriberID = state[SUBSCRIBER_ID]?.let { CryptoManager.decrypt(it) }?: return
 
-        val dataPlan = withContext(Dispatchers.IO) { dataPlanRepository.getPlan(subscriberID) }!!
+        val dataPlan = withContext(Dispatchers.IO) {
+            state[SUBSCRIBER_ID_HASH]?.let { dataPlanDao.getByHash(it) }
+        }?: return
+
         val usage = networkUsageManager.planUsage(dataPlan)
         val usageSize = DataSize(usage).getAsUnit(DataSizeUnit.GB)
         val dataMax = DataSize(dataPlan.dataMax).getAsUnit(DataSizeUnit.GB)
@@ -121,7 +121,7 @@ class Widget: GlanceAppWidget() {
                     carrierName = currentState(CARRIER_NAME) ?: "",
                     usageString = usageString,
                     quotaString = quotaString,
-                    progress = usageSize/dataMax,
+                    progress = usageSize/max(dataMax, 1.0),
                     resetString = dataPlan.resetString(context)
                 )
             }
@@ -264,7 +264,7 @@ class Widget: GlanceAppWidget() {
         }
     }
     companion object {
-        val SUBSCRIBER_ID = stringPreferencesKey("sub_id")
+        val SUBSCRIBER_ID_HASH = stringPreferencesKey("sub_id")
         val CARRIER_NAME = stringPreferencesKey("carrier")
         val SIM_NUMBER = intPreferencesKey("sim_number")
         val LAST_USAGE = stringPreferencesKey("last_usage")

@@ -11,11 +11,10 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import com.leekleak.trafficlight.widget.Widget.Companion.SUBSCRIBER_ID
+import com.leekleak.trafficlight.widget.Widget.Companion.SUBSCRIBER_ID_HASH
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class WidgetReceiver: GlanceAppWidgetReceiver() {
@@ -51,7 +50,7 @@ class WidgetReceiver: GlanceAppWidgetReceiver() {
                     val glanceId = GlanceAppWidgetManager(context).getGlanceIdBy(appWidgetId)
                     val prefs = getAppWidgetState(context, PreferencesGlanceStateDefinition, glanceId)
 
-                    if (prefs[SUBSCRIBER_ID] != null) {
+                    if (prefs[SUBSCRIBER_ID_HASH] != null) {
                         glanceAppWidget.update(context, glanceId)
                     }
                 } catch (_: Exception) { }
