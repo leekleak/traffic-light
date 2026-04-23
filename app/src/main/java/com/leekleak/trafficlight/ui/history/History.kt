@@ -82,6 +82,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
 import com.leekleak.trafficlight.charts.ScrollableBarGraph
@@ -128,6 +129,11 @@ fun History(paddingValues: PaddingValues) {
     val listParam by viewModel.listParamFlow.collectAsState()
     val dateParams by viewModel.dateParamsFlow.collectAsState()
 
+    LifecycleResumeEffect(Unit) {
+        viewModel.refresh()
+        onPauseOrDispose {}
+    }
+
     PageTitle(text = stringResource(R.string.history)) {
         Row(
             modifier = Modifier.align(Alignment.CenterEnd),
@@ -149,7 +155,7 @@ fun History(paddingValues: PaddingValues) {
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             ScrollableBarGraph(usage) {
-                viewModel.updateDateQuery(day = viewModel.datesForTimespan.first.plusDays(it.toLong()))
+                viewModel.updateDateQuery(day = viewModel.datesForTimespan.value.first.plusDays(it.toLong()))
             }
             Row(
                 Modifier

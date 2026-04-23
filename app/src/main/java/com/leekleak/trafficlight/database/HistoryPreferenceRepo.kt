@@ -12,6 +12,7 @@ import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.ui.history.ListParam
 import com.leekleak.trafficlight.util.valueOfOrNull
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 private val Context.historyPreferences: DataStore<Preferences> by preferencesDataStore(name = "history")
@@ -25,7 +26,7 @@ class HistoryPreferenceRepo (
 
     val listParam: Flow<ListParam> = dataStore.data.map { prefs ->
         prefs[LIST_PARAM]?.let { valueOfOrNull<ListParam>(it) } ?: ListParam.AppList
-    }
+    }.distinctUntilChanged()
     suspend fun saveListParam(param: ListParam) {
         dataStore.edit { it[LIST_PARAM] = param.name }
     }
@@ -36,14 +37,14 @@ class HistoryPreferenceRepo (
             dataDirection = prefs[QUERY1_DIRECTION]?.let { valueOfOrNull<DataDirection>(it) } ?: DataDirection.Bidirectional,
             dataUID = prefs[QUERY1_UID]?.let { appManager.getAppForUID(it) } ?: allApp
         )
-    }
+    }.distinctUntilChanged()
     val query2: Flow<UsageQuery> = data.map { prefs ->
         UsageQuery(
             dataType = prefs[QUERY2_TYPE]?.let { valueOfOrNull<DataType>(it) } ?: DataType.Wifi,
             dataDirection = prefs[QUERY2_DIRECTION]?.let { valueOfOrNull<DataDirection>(it) } ?: DataDirection.Bidirectional,
             dataUID = prefs[QUERY2_UID]?.let { appManager.getAppForUID(it) } ?: allApp
         )
-    }
+    }.distinctUntilChanged()
 
     suspend fun saveQuery(n: Int, query: UsageQuery) {
         dataStore.edit { prefs ->

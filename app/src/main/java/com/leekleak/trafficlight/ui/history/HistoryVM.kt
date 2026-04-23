@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.AppUsage
+import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.HistoryPreferenceRepo
 import com.leekleak.trafficlight.database.HourUsage
 import com.leekleak.trafficlight.database.UsageQuery
@@ -37,18 +38,22 @@ class HistoryVM(
     private val networkUsageManager: NetworkUsageManager,
     private val appManager: AppManager,
     private val prefs: HistoryPreferenceRepo,
-    initialListParam: ListParam,
-    initialQuery1: UsageQuery,
-    initialQuery2: UsageQuery,
 ): ViewModel() {
     private val dateParams = MutableStateFlow(DateParams(LocalDate.now(), false))
-    private val listParam = MutableStateFlow(initialListParam)
-    private val query1 = MutableStateFlow(initialQuery1)
-    private val query2 = MutableStateFlow(initialQuery2)
-    private val savedQuery1 = MutableStateFlow(initialQuery1)
-    private val savedQuery2 = MutableStateFlow(initialQuery2)
-    private val savedListParam = MutableStateFlow(initialListParam)
-    
+    private val listParam = MutableStateFlow(ListParam.AppList)
+    private val query1 = MutableStateFlow(UsageQuery(DataType.Mobile))
+    private val query2 = MutableStateFlow(UsageQuery(DataType.Wifi))
+    private val savedQuery1 = prefs.query1.stateIn(viewModelScope, SharingStarted.Eagerly, UsageQuery(DataType.Mobile))
+    private val savedQuery2 = prefs.query2.stateIn(viewModelScope, SharingStarted.Eagerly, UsageQuery(DataType.Wifi))
+    private val savedListParam = prefs.listParam.stateIn(viewModelScope, SharingStarted.Eagerly, ListParam.AppList)
+
+    init {
+        viewModelScope.launch {
+            query1.value = prefs.query1.first()
+            query2.value = prefs.query2.first()
+            listParam.value = prefs.listParam.first()
+        }
+    }
     val query1Flow = query1.asStateFlow()
     val query2Flow = query2.asStateFlow()
     val queryFlow = combine(query1Flow, query2Flow) { q1, q2 -> q1 to q2 }
@@ -59,8 +64,11 @@ class HistoryVM(
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = false
     )
+    val datesForTimespan = MutableStateFlow(LocalDate.now() to LocalDate.now().plusDays(1))
+    val datesForTimespanFlow = datesForTimespan.asStateFlow()
 
     init {
+        refresh()
         forceHourList
             .onEach { forced ->
                 if (forced) {
@@ -74,11 +82,20 @@ class HistoryVM(
     val listParamFlow = listParam.asStateFlow()
     val dateParamsFlow = dateParams.asStateFlow()
 
+    fun refresh() {
+        val now = LocalDate.now().plusDays(1)
+        val base = now.minusDays(MAX_DAYS.toLong())
+        datesForTimespan.value = base to now
+        dateParams.value = DateParams(LocalDate.now(), dateParams.value.showMonth)
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
-    val usageFlow = queryFlow.flatMapLatest { (q1, q2) ->
+    val usageFlow = combine(query1Flow, query2Flow, datesForTimespanFlow) {q1, q2, dates ->
+        Triple(q1, q2, dates)
+    }.flatMapLatest {(q1, q2, dates) ->
         networkUsageManager.daysUsage(
-            startDate = datesForTimespan.first,
-            endDate = datesForTimespan.second,
+            startDate = dates.first,
+            endDate = dates.second,
             usageQuery1 = q1,
             usageQuery2 = q2
         )
@@ -121,16 +138,7 @@ class HistoryVM(
         else listParam.value = ListParam.HourList
     }
 
-    val datesForTimespan: Pair<LocalDate, LocalDate> by lazy {
-        val now = LocalDate.now().plusDays(1)
-        val base = now.minusDays(MAX_DAYS.toLong())
-        Pair(base, now)
-    }
-
     fun persistFilters() {
-        savedQuery1.value = query1.value
-        savedQuery2.value = query2.value
-        savedListParam.value = listParam.value
         viewModelScope.launch { prefs.saveQuery(1, query1.value) }
         viewModelScope.launch { prefs.saveQuery(2, query2.value) }
         viewModelScope.launch { prefs.saveListParam(listParam.value) }

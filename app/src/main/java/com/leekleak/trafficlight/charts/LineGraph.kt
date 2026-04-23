@@ -49,7 +49,7 @@ fun LineGraph(
          * Bars
          */
         data.first?.let { data1 ->
-            val width1 = data1.toFloat() / maximum * size.width
+            val width1 = data1.toFloat() / safeMax * size.width
             if (data.first != 0L) {
                 drawRect(
                     color = primaryColor,
@@ -58,7 +58,7 @@ fun LineGraph(
             }
         }
         data.second?.let { data2 ->
-            val width2 = data2.toFloat() / maximum * size.width
+            val width2 = data2.toFloat() / safeMax * size.width
             if (data.second != 0L) {
                 drawRect(
                     color = secondaryColor,
