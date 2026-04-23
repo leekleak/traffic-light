@@ -1,5 +1,5 @@
 [versions]
-agp = "9.1.1"
+agp = "9.2.0"
 coilCompose = "3.4.0"
 coreKtx = "1.18.0"
 activityCompose = "1.13.0"
@@ -11,10 +11,10 @@ kotlin = "2.3.20"
 kotlinxSerializationJson = "1.11.0"
 ksp = "2.3.4"
 koin-bom = "4.2.1"
-material3 = "1.5.0-alpha14" # alpha15+ breaks search bar as keyboard no longer opens
-compose-ui = "1.11.0-rc01"
+material3 = "1.5.0-alpha18"
+compose-ui = "1.11.0"
 
-nav3Core = "1.1.0"
+nav3Core = "1.1.1"
 room = "2.8.4"
 sqlcipherAndroid = "4.14.1"
 sqlite = "2.6.2"

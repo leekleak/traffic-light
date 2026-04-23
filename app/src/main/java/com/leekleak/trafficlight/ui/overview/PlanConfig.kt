@@ -57,8 +57,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -69,7 +67,6 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.getSelectedDate
 import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.toPath
@@ -353,11 +350,10 @@ fun PlanConfig(subscriberId: String) {
                     }
 
                     AnimatedVisibility(addApps, modifier = Modifier.fillMaxWidth()) {
-                        val searchBarState = rememberSearchBarState()
-                        var query by remember { mutableStateOf("") }
+                        val textFieldState = rememberTextFieldState()
                         val searchResults by remember { derivedStateOf {
-                            if (query.isEmpty()) includedApps.sortedByDescending { specialApps.indexOf(it.packageName) }
-                            else includedApps.filter { it.getName(context).lowercase().contains(query.lowercase()) }
+                            if (textFieldState.text.isEmpty()) includedApps.sortedByDescending { specialApps.indexOf(it.packageName) }
+                            else includedApps.filter { it.getName(context).lowercase().contains(textFieldState.text.toString().lowercase()) }
                         } }
 
                         Column(
@@ -366,25 +362,27 @@ fun PlanConfig(subscriberId: String) {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             HorizontalDivider()
-                            AppSelector(searchResults) { uid ->
+                            AppSelector(searchResults, Modifier.fillMaxWidth()) { uid ->
                                 newPlan = newPlan.copy(excludedApps = newPlan.excludedApps + (includedApps.map { it.uid }.filter { it == uid }))
                             }
-                            SearchBar(
-                                state = searchBarState,
-                                inputField = { SearchBarDefaults.InputField(
-                                    query = query,
-                                    onQueryChange = {query = it},
-                                    onSearch = {},
-                                    expanded = false,
-                                    onExpandedChange = {},
-                                    leadingIcon = {
-                                        Icon(
-                                            painter = painterResource(R.drawable.search),
-                                            contentDescription = null
-                                        )
-                                    }
-                                )}
-                            )
+                            Row (
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .fillMaxWidth()
+                                    .background(MaterialTheme.colorScheme.surfaceContainerHigh, MaterialTheme.shapes.extraLarge)
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.search),
+                                    contentDescription = null
+                                )
+                                BasicTextField(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    state = textFieldState,
+                                )
+                            }
                         }
                     }
 

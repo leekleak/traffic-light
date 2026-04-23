@@ -30,6 +30,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroup
@@ -43,15 +45,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.PlainTooltip
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -70,7 +68,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
@@ -547,7 +544,7 @@ private fun AppSearchDialog(onSelect: (uid: Int) -> Unit, onDismiss: () -> Unit)
         sheetState = sheetState,
     ) {
         val appManager: AppManager = koinInject()
-        val searchBarState = rememberSearchBarState(SearchBarValue.Expanded)
+        val textFieldState = rememberTextFieldState()
         val focusRequester = remember { FocusRequester() }
         val keyboardState by rememberUpdatedState(WindowInsets.isImeVisible)
         var searchFocused by remember { mutableStateOf(false) }
@@ -573,11 +570,12 @@ private fun AppSearchDialog(onSelect: (uid: Int) -> Unit, onDismiss: () -> Unit)
         val appsPlusOther by remember { derivedStateOf {
             listOf(allApp, tetheringApp, removedApp).plus(includedApps)
         } }
-        var query by remember { mutableStateOf("") }
         val searchResults by remember {
             derivedStateOf {
-                if (query.isEmpty()) appsPlusOther
-                else appsPlusOther.filter { it.getName(context).lowercase().contains(query.lowercase()) }
+                if (textFieldState.text.isEmpty()) appsPlusOther
+                else appsPlusOther.filter { it.getName(context).lowercase().contains(
+                    textFieldState.text.toString().lowercase()
+                ) }
             }
         }
         Column(
@@ -587,29 +585,26 @@ private fun AppSearchDialog(onSelect: (uid: Int) -> Unit, onDismiss: () -> Unit)
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            AppSelector(searchResults) { uid -> onSelect(uid) }
-            SearchBar(
+            AppSelector(searchResults, Modifier.fillMaxWidth()) { uid -> onSelect(uid) }
+
+            Row (
                 modifier = Modifier
-                    .padding(horizontal = 8.dp)
+                    .padding(8.dp)
                     .fillMaxWidth()
-                    .focusRequester(focusRequester),
-                state = searchBarState,
-                inputField = {
-                    SearchBarDefaults.InputField(
-                        query = query,
-                        onQueryChange = { query = it },
-                        onSearch = {},
-                        expanded = false,
-                        onExpandedChange = {},
-                        leadingIcon = {
-                            Icon(
-                                painter = painterResource(R.drawable.search),
-                                contentDescription = null
-                            )
-                        }
-                    )
-                }
-            )
+                    .background(colorScheme.surfaceContainerHigh, MaterialTheme.shapes.extraLarge)
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.search),
+                    contentDescription = null
+                )
+                BasicTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    state = textFieldState,
+                )
+            }
         }
     }
 }
