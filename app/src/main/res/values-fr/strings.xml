@@ -41,7 +41,7 @@
     <string name="appearance">Apparence</string>
     <string name="behavior">Comportement</string>
     <string name="alt_vpn_workaround">Contournement VPN alternatif</string>
-    <string name="alt_vpn_workaround_description">Diminue la précision des mesures, mais admet les tunnels.</string>
+    <string name="alt_vpn_workaround_description">Améliore la précision mais casse les tunnels séparés.</string>
     <string name="support_development">Soutenez le développement</string>
     <string name="shizuku_not_running">Shizuku n\'est pas lancé</string>
     <string name="sim_card">Carte SIM</string>
@@ -106,4 +106,6 @@
     <string name="open_app">Ouvrir l\'application</string>
     <string name="list">Liste</string>
     <string name="reset">Réinitialisation</string>
+    <string name="live_notification">Notification en direct</string>
+    <string name="very_big">Très gros</string>
 </resources>
