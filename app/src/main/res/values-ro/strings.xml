@@ -41,7 +41,7 @@
     <string name="total_usage">Utilizare totală</string>
     <string name="behavior">Comportament</string>
     <string name="alt_vpn_workaround">Soluții alternative pentru VPN</string>
-    <string name="alt_vpn_workaround_description">Reduce precizia de măsurare, dar acomodează tuneluri divizate.</string>
+    <string name="alt_vpn_workaround_description">Îmbunătățește precizia, dar întrerupe tunelul divizat.</string>
     <string name="support_development">Sprijinină dezvoltarea aplicației</string>
     <string name="shizuku_not_running">Shizuku nu rulează</string>
     <string name="sim_card">Card SIM</string>
@@ -106,4 +106,6 @@
     <string name="list">Listă</string>
     <string name="reset">Resetează</string>
     <string name="persist">Persist</string>
+    <string name="live_notification">Notificare live</string>
+    <string name="very_big">Foarte mare</string>
 </resources>
