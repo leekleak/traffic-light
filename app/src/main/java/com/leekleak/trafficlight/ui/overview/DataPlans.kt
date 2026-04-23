@@ -55,7 +55,6 @@ import com.leekleak.trafficlight.util.simIconRes
 import org.koin.compose.koinInject
 import java.text.DecimalFormat
 
-@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun ConfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
     val context = LocalContext.current

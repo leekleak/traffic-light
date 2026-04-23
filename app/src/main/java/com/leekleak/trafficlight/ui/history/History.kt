@@ -99,7 +99,7 @@ import com.leekleak.trafficlight.model.DataUID
 import com.leekleak.trafficlight.model.DataUIDApp
 import com.leekleak.trafficlight.ui.overview.AppSelector
 import com.leekleak.trafficlight.ui.theme.card
-import com.leekleak.trafficlight.ui.theme.momoTrustDisplayFont
+import com.leekleak.trafficlight.ui.theme.historyItemFont
 import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.SearchField
 import com.leekleak.trafficlight.util.getName
@@ -265,7 +265,7 @@ private fun HourList(
     val measurement = textMeasurer.measure(
         text = LocalTime.MIDNIGHT.toLocaleHourString(context, true),
         style = TextStyle(
-            fontFamily = momoTrustDisplayFont(),
+            fontFamily = historyItemFont(),
             fontSize = MaterialTheme.typography.titleMedium.fontSize,
         )
     )
@@ -315,7 +315,7 @@ private fun HourList(
                         Text(
                             modifier = Modifier.align(Alignment.Center),
                             text = item.start.toLocalTime().toLocaleHourString(context, true),
-                            fontFamily = momoTrustDisplayFont(),
+                            fontFamily = historyItemFont(),
                             fontSize = MaterialTheme.typography.titleMedium.fontSize,
                             textAlign = TextAlign.Center,
                         )

@@ -15,7 +15,7 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.leekleak.trafficlight.ui.theme.momoTrustDisplayFont
+import com.leekleak.trafficlight.ui.theme.historyItemFont
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.px
 import kotlin.math.max
@@ -36,7 +36,7 @@ fun LineGraph(
     val onBackgroundColor = GraphTheme.onBackgroundColor
 
     val textMeasurer = rememberTextMeasurer()
-    val font = momoTrustDisplayFont()
+    val font = historyItemFont()
 
     val safeMax = max(maximum, 1).toFloat()
 

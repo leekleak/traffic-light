@@ -9,15 +9,6 @@ import androidx.compose.ui.text.font.FontVariation
 import com.leekleak.trafficlight.R
 
 @Composable
-fun momoTrustDisplayFont(): FontFamily {
-    return FontFamily(
-        Font(
-            R.font.momo_trust_display
-        ),
-    )
-}
-
-@Composable
 fun carrierFont(): FontFamily = robotoFlex(-10f,25f,675f)
 
 @Composable
@@ -77,3 +68,6 @@ fun outfit(
         ),
     )
 }
+
+@Composable
+fun historyItemFont() = robotoFlex(0f, 90f, 800f)
