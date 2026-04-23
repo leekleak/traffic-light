@@ -41,7 +41,7 @@
     <string name="appearance">Išvaizda</string>
     <string name="behavior">Elgsena</string>
     <string name="alt_vpn_workaround">Alternatyvus VPN duomenų skaičiavimas</string>
-    <string name="alt_vpn_workaround_description">Prastesnis matavimų tikslumas, tačiau palaiko kelių tunelių konfigūracijas.</string>
+    <string name="alt_vpn_workaround_description">Tikslesni matavimai, tačiau neveikia naudojant kelių tunelių konfigūracijos VPN.</string>
     <string name="support_development">Paremti kūrimą</string>
     <string name="shizuku_not_running">Shizuku nepaleistas</string>
     <string name="sim_card">SIM kortelė</string>
@@ -102,4 +102,12 @@
     <string name="bidirectional">Abipusis</string>
     <string name="app_list">Programėlių sąrašas</string>
     <string name="hour_list">Valandų sąrašas</string>
+    <string name="quick_filter">Greitas filtras</string>
+    <string name="persist">Išsaugoti</string>
+    <string name="open_app">Atidaryti programėlę</string>
+    <string name="list">Sąrašas</string>
+    <string name="reset">Atstatyti</string>
+    <string name="live_notification">Tiesioginis pranešimas</string>
+    <string name="very_big">Labai daug</string>
+    <string name="plan_notification_description">Rodo plano duomenis pranešimų juostoje.</string>
 </resources>
