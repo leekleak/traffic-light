@@ -1,0 +1,37 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "4ef0598e5b74789d3f042ef017790d0c",
+    "entities": [
+      {
+        "tableName": "HistoricalData",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`stamp` INTEGER NOT NULL, `usage` INTEGER NOT NULL, PRIMARY KEY(`stamp`))",
+        "fields": [
+          {
+            "fieldPath": "stamp",
+            "columnName": "stamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "usage",
+            "columnName": "usage",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "stamp"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4ef0598e5b74789d3f042ef017790d0c')"
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "d30fc00db469bff0823977474afca6d5",
+    "entities": [
+      {
+        "tableName": "DataPlan",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`subscriberID` TEXT NOT NULL, `simIndex` INTEGER NOT NULL, `carrierName` TEXT NOT NULL, `dataMax` INTEGER NOT NULL, `startDate` INTEGER NOT NULL, `interval` TEXT NOT NULL, `intervalMultiplier` INTEGER NOT NULL, `excludedApps` TEXT NOT NULL, `notification` INTEGER NOT NULL, `liveNotification` INTEGER NOT NULL, `uiBackground` INTEGER NOT NULL, PRIMARY KEY(`subscriberID`))",
+        "fields": [
+          {
+            "fieldPath": "subscriberID",
+            "columnName": "subscriberID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "simIndex",
+            "columnName": "simIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "carrierName",
+            "columnName": "carrierName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dataMax",
+            "columnName": "dataMax",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startDate",
+            "columnName": "startDate",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "interval",
+            "columnName": "interval",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "intervalMultiplier",
+            "columnName": "intervalMultiplier",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "excludedApps",
+            "columnName": "excludedApps",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notification",
+            "columnName": "notification",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "liveNotification",
+            "columnName": "liveNotification",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uiBackground",
+            "columnName": "uiBackground",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "subscriberID"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd30fc00db469bff0823977474afca6d5')"
+    ]
+  }
+}
