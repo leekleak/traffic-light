@@ -3,6 +3,7 @@ package com.leekleak.trafficlight.ui.overview
 import android.Manifest
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
@@ -122,6 +123,7 @@ import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.DataUID
 import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.Navigator
+import com.leekleak.trafficlight.ui.settings.IconPreference
 import com.leekleak.trafficlight.ui.settings.SwitchPreference
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.ui.theme.card
@@ -134,6 +136,7 @@ import com.leekleak.trafficlight.util.SearchField
 import com.leekleak.trafficlight.util.TOP_BAR_HEIGHT
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.util.fromTimestamp
+import com.leekleak.trafficlight.util.openLink
 import com.leekleak.trafficlight.util.px
 import com.leekleak.trafficlight.util.toDp
 import com.leekleak.trafficlight.util.toTimestamp
@@ -165,6 +168,7 @@ fun PlanConfig(subscriberId: String) {
 
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
+    val activity = LocalActivity.current
 
     val currentPlan by produceState(DataPlan("", "")) {
         dataPlanRepository.getPlan(subscriberId)?.let { value = it }
@@ -414,16 +418,27 @@ fun PlanConfig(subscriberId: String) {
                     enter = fadeIn() + slideInVertically() + expandVertically(),
                     exit = fadeOut() + slideOutVertically() + shrinkVertically()
                 ) {
-                    SwitchPreference(
-                        title = stringResource(R.string.live_notification),
-                        icon = painterResource(R.drawable.app_badging),
-                        value = newPlan.liveNotification,
-                        onValueChanged = {
-                            scope.launch {
-                                newPlan = newPlan.copy(liveNotification = it)
+                    Row (
+                        modifier = Modifier.height(IntrinsicSize.Min),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        SwitchPreference(
+                            modifier = Modifier.weight(1f),
+                            title = stringResource(R.string.live_notification),
+                            icon = painterResource(R.drawable.app_badging),
+                            value = newPlan.liveNotification,
+                            onValueChanged = {
+                                scope.launch {
+                                    newPlan = newPlan.copy(liveNotification = it)
+                                }
                             }
-                        }
-                    )
+                        )
+                        IconPreference(
+                            title = stringResource(R.string.help),
+                            painter = painterResource(R.drawable.help),
+                            onClick = { openLink(activity, "https://github.com/leekleak/traffic-light/wiki/Troubleshooting#notifications") },
+                        )
+                    }
                 }
             }
             categoryTitleSmall { stringResource(R.string.background) }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -57,6 +58,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun Preference(
+    modifier: Modifier = Modifier,
     title: String,
     summary: String? = null,
     icon: Painter? = null,
@@ -66,7 +68,7 @@ fun Preference(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .card()
@@ -121,6 +123,7 @@ fun Preference(
 
 @Composable
 fun NavigatePreference(
+    modifier: Modifier = Modifier,
     title: String,
     summary: String? = null,
     icon: Painter? = null,
@@ -128,6 +131,7 @@ fun NavigatePreference(
     enabled: Boolean = true,
 ) {
     Preference(
+        modifier = modifier,
         title = title,
         summary = summary,
         icon = icon,
@@ -144,6 +148,7 @@ fun NavigatePreference(
 
 @Composable
 fun SwitchPreference(
+    modifier: Modifier = Modifier,
     title: String,
     icon: Painter? = null,
     summary: String? = null,
@@ -159,6 +164,7 @@ fun SwitchPreference(
         onValueChanged(state)
     }
     Preference(
+        modifier = modifier,
         title = title,
         icon = icon,
         summary = summary,
@@ -174,6 +180,28 @@ fun SwitchPreference(
             )
         },
     )
+}
+
+@Composable
+fun IconPreference(
+    title: String,
+    painter: Painter,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .width(52.dp)
+            .fillMaxHeight()
+            .padding(vertical = 4.dp)
+            .card()
+            .clickable {onClick.invoke()}
+    ) {
+        Icon(
+            modifier = Modifier.align(Alignment.Center),
+            painter = painter,
+            contentDescription = title
+        )
+    }
 }
 
 @Composable

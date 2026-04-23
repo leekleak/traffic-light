@@ -2,16 +2,13 @@ package com.leekleak.trafficlight.ui.settings
 
 import android.os.Build
 import androidx.activity.compose.LocalActivity
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -22,10 +19,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.TrafficSnapshot
-import com.leekleak.trafficlight.services.notifications.SpeedNotification.Companion.NOTIFICATION_CHANNEL_ID
 import com.leekleak.trafficlight.services.notifications.SpeedNotification.Companion.NOTIFICATION_CHANNEL_ID_SILENT
 import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
@@ -55,21 +52,21 @@ fun NotificationSettings(paddingValues: PaddingValues) {
             categoryTitleSmall { stringResource(R.string.live_notification) }
             item {
                 val liveNotification by viewModel.liveNotification.collectAsState()
-                SwitchPreference(
-                    title = stringResource(R.string.live_notification),
-                    icon = painterResource(R.drawable.app_badging),
-                    value = liveNotification,
-                    onValueChanged = { scope.launch { appPreferenceRepo.setLiveNotification(it) } }
-                )
-                AnimatedVisibility(
-                    visible = liveNotification,
-                    enter = fadeIn() + slideInVertically() + expandVertically(),
-                    exit = fadeOut() + slideOutVertically() + shrinkVertically()
+                Row (
+                    modifier = Modifier.height(IntrinsicSize.Min),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    NavigatePreference(
+                    SwitchPreference(
+                        modifier = Modifier.weight(1f),
+                        title = stringResource(R.string.live_notification),
+                        icon = painterResource(R.drawable.app_badging),
+                        value = liveNotification,
+                        onValueChanged = { scope.launch { appPreferenceRepo.setLiveNotification(it) } }
+                    )
+                    IconPreference(
                         title = stringResource(R.string.help),
-                        icon = painterResource(R.drawable.help),
-                        onClick = { openLink(activity, "https://github.com/leekleak/traffic-light/wiki/Troubleshooting#live-notification-doesnt-show-up-on-the-toolbar") },
+                        painter = painterResource(R.drawable.help),
+                        onClick = { openLink(activity, "https://github.com/leekleak/traffic-light/wiki/Troubleshooting#notifications") },
                     )
                 }
             }
@@ -133,25 +130,22 @@ fun NotificationSettings(paddingValues: PaddingValues) {
 
         categoryTitleSmall { stringResource(R.string.notification_channels) }
         item {
-            NavigatePreference(
-                title = stringResource(R.string.connected_to_network),
-                icon = painterResource(R.drawable.bigtop_updates),
-                onClick = { viewModel.openNotificationChannelSettings(activity, NOTIFICATION_CHANNEL_ID) },
-            )
-        }
-        item {
-            NavigatePreference(
-                title = stringResource(R.string.disconnected_from_network),
-                icon = painterResource(R.drawable.signal_disconnected),
-                onClick = { viewModel.openNotificationChannelSettings(activity, NOTIFICATION_CHANNEL_ID_SILENT) },
-            )
-        }
-        item {
-            NavigatePreference(
-                title = stringResource(R.string.help),
-                icon = painterResource(R.drawable.help),
-                onClick = { openLink(activity, "https://github.com/leekleak/traffic-light/wiki/Hide-status-bar-icon-when-disconnected") },
-            )
+            Row (
+                modifier = Modifier.height(IntrinsicSize.Min),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                NavigatePreference(
+                    modifier = Modifier.weight(1f),
+                    title = stringResource(R.string.disconnected_from_network),
+                    icon = painterResource(R.drawable.signal_disconnected),
+                    onClick = { viewModel.openNotificationChannelSettings(activity, NOTIFICATION_CHANNEL_ID_SILENT) },
+                )
+                IconPreference(
+                    title = stringResource(R.string.help),
+                    painter = painterResource(R.drawable.help),
+                    onClick = { openLink(activity, "https://github.com/leekleak/traffic-light/wiki/Hide-status-bar-icon-when-disconnected") },
+                )
+            }
         }
     }
     PageTitle (true, hazeState, stringResource(R.string.notifications))
