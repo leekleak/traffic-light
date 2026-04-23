@@ -43,7 +43,9 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -268,5 +270,15 @@ fun simIconRes(number: Int): Int {
         1 -> R.drawable.sim_card_2
         else -> R.drawable.sim_card
     }
+}
+
+fun convertFontFamilyToTypeface(context: Context, fontFamily: FontFamily): android.graphics.Typeface {
+    val resolver = createFontFamilyResolver(context)
+
+    val result = resolver.resolve(
+        fontFamily = fontFamily
+    )
+
+    return result.value as android.graphics.Typeface
 }
 

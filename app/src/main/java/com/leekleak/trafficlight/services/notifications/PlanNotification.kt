@@ -22,7 +22,9 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.resetString
 import com.leekleak.trafficlight.model.NetworkUsageManager
+import com.leekleak.trafficlight.ui.theme.notificationIconFont
 import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.trafficlight.util.convertFontFamilyToTypeface
 import com.leekleak.trafficlight.util.simIconRes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -113,7 +115,7 @@ class PlanNotification(
     private val paint by lazy {
         Paint().apply {
             color = context.getColor(R.color.white)
-            typeface = context.resources.getFont(R.font.roboto_condensed_semi_bold)
+            typeface = convertFontFamilyToTypeface(context, notificationIconFont())
             textAlign = Paint.Align.CENTER
         }
     }
@@ -147,13 +149,13 @@ class PlanNotification(
                 textSize = 72f * multiplier
                 letterSpacing = -0.05f * multiplier
             }
-            canvas.drawText(speed, 48f * multiplier, 56f * multiplier, paint)
+            canvas.drawText(speed, 48f * multiplier, 54f * multiplier, paint)
 
             paint.apply {
                 textSize = 46f * multiplier
                 letterSpacing = 0f * multiplier
             }
-            canvas.drawText(unit, 48f * multiplier, 96f * multiplier, paint)
+            canvas.drawText(unit, 48f * multiplier, 94f * multiplier, paint)
 
             /**
              * Don't cache numbers with many digits as they appear much more often and are unlikely

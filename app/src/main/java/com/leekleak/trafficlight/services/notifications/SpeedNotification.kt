@@ -29,8 +29,10 @@ import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.NetworkUsageManager
+import com.leekleak.trafficlight.ui.theme.notificationIconFont
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.clipAndPad
+import com.leekleak.trafficlight.util.convertFontFamilyToTypeface
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -191,7 +193,7 @@ class SpeedNotification(
     private val paint by lazy {
         Paint().apply {
             color = context.getColor(R.color.white)
-            typeface = context.resources.getFont(R.font.roboto_condensed_semi_bold)
+            typeface = convertFontFamilyToTypeface(context, notificationIconFont())
             textAlign = Paint.Align.CENTER
         }
     }
@@ -225,13 +227,14 @@ class SpeedNotification(
                 textSize = 72f * multiplier
                 letterSpacing = -0.05f * multiplier
             }
-            canvas.drawText(speed, 48f * multiplier, 56f * multiplier, paint)
+            canvas.drawText(speed, 48f * multiplier, 54f * multiplier, paint)
 
             paint.apply {
                 textSize = 46f * multiplier
                 letterSpacing = 0f * multiplier
+                typeface = convertFontFamilyToTypeface(context, notificationIconFont())
             }
-            canvas.drawText(unit, 48f * multiplier, 96f * multiplier, paint)
+            canvas.drawText(unit, 48f * multiplier, 94f * multiplier, paint)
 
             /**
              * Don't cache numbers with many digits as they appear much more often and are unlikely
