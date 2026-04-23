@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
@@ -136,11 +137,12 @@ fun LazyListScope.categoryTitle(text: @Composable (() -> String)){
     item { CategoryTitleText(text()) }
 }
 
+val TOP_BAR_HEIGHT: Dp = 52.dp
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CategoryTitleText(text: String, backButton: Boolean = false) {
     val navigator: Navigator = koinInject()
-    Row (verticalAlignment = Alignment.CenterVertically){
+    Row (modifier = Modifier.height(TOP_BAR_HEIGHT), verticalAlignment = Alignment.CenterVertically){
         if (backButton) {
             IconButton(onClick = { navigator.goBack() }) {
                 Icon(

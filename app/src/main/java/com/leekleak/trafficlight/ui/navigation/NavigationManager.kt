@@ -56,6 +56,7 @@ import com.leekleak.trafficlight.ui.settings.NotificationSettings
 import com.leekleak.trafficlight.ui.settings.Settings
 import com.leekleak.trafficlight.ui.settings.UsagePermissionRequest
 import com.leekleak.trafficlight.ui.theme.navBarShadow
+import com.leekleak.trafficlight.util.TOP_BAR_HEIGHT
 import com.leekleak.trafficlight.util.WideScreenWrapper
 import org.koin.compose.koinInject
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -83,7 +84,7 @@ fun NavigationManager() {
         PaddingValues(
             start = 16.dp,
             end = 16.dp,
-            top = topPadding + 40.dp,
+            top = topPadding + TOP_BAR_HEIGHT,
             bottom = bottomPadding + if (showBottomBar) toolbarOffset else 8.dp
         )
 

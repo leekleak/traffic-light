@@ -126,6 +126,7 @@ import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.DataSizeUnit
 import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.SearchField
+import com.leekleak.trafficlight.util.TOP_BAR_HEIGHT
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.px
@@ -685,7 +686,7 @@ fun BackgroundSelector(i: Int, newPlan: DataPlan, onClick: () -> Unit) {
 fun PlanSizeConfig(size: Double, onSizeUpdate: (Float) -> Unit) {
     Box(
         modifier = Modifier
-            .padding(top = 40.dp)
+            .padding(top = TOP_BAR_HEIGHT)
             .height(128.dp * 2.5f)
             .fillMaxWidth(),
         contentAlignment = Alignment.Center
