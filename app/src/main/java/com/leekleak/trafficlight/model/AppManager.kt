@@ -132,7 +132,11 @@ class AppIconFetcher(
     private val context: Context
 ) : Fetcher {
     override suspend fun fetch(): FetchResult {
-        val drawable = context.packageManager.getApplicationIcon(data.packageName)
+        val drawable = try {
+            context.packageManager.getApplicationIcon(data.packageName)
+        } catch (_: PackageManager.NameNotFoundException) {
+            context.packageManager.defaultActivityIcon
+        }
 
         return ImageFetchResult(
             image = drawable.asImage(),
