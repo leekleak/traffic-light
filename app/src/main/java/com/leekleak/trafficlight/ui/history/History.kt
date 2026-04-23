@@ -30,7 +30,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -102,6 +101,7 @@ import com.leekleak.trafficlight.ui.overview.AppSelector
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.momoTrustDisplayFont
 import com.leekleak.trafficlight.util.PageTitle
+import com.leekleak.trafficlight.util.SearchField
 import com.leekleak.trafficlight.util.getName
 import com.leekleak.trafficlight.util.iconButton
 import com.leekleak.trafficlight.util.toDp
@@ -586,25 +586,7 @@ private fun AppSearchDialog(onSelect: (uid: Int) -> Unit, onDismiss: () -> Unit)
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AppSelector(searchResults, Modifier.fillMaxWidth()) { uid -> onSelect(uid) }
-
-            Row (
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth()
-                    .background(colorScheme.surfaceContainerHigh, MaterialTheme.shapes.extraLarge)
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.search),
-                    contentDescription = null
-                )
-                BasicTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    state = textFieldState,
-                )
-            }
+            SearchField(textFieldState)
         }
     }
 }

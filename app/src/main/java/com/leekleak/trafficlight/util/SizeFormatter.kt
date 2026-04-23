@@ -30,7 +30,7 @@ data class DataSize (
         }
         value = newValue
         unit = DataSizeUnit.entries.getOrNull(i) ?: DataSizeUnit.YB
-        precision = if (value >= 10) 0 else 1
+        precision = if (value >= 10 || unit == DataSizeUnit.KB) 0 else 1
     }
 
     fun getComparisonValue(): Long {

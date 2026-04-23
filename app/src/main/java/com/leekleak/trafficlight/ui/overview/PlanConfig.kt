@@ -125,6 +125,7 @@ import com.leekleak.trafficlight.ui.theme.robotoFlex
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.DataSizeUnit
 import com.leekleak.trafficlight.util.PageTitle
+import com.leekleak.trafficlight.util.SearchField
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.px
@@ -365,24 +366,7 @@ fun PlanConfig(subscriberId: String) {
                             AppSelector(searchResults, Modifier.fillMaxWidth()) { uid ->
                                 newPlan = newPlan.copy(excludedApps = newPlan.excludedApps + (includedApps.map { it.uid }.filter { it == uid }))
                             }
-                            Row (
-                                modifier = Modifier
-                                    .padding(8.dp)
-                                    .fillMaxWidth()
-                                    .background(MaterialTheme.colorScheme.surfaceContainerHigh, MaterialTheme.shapes.extraLarge)
-                                    .padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.search),
-                                    contentDescription = null
-                                )
-                                BasicTextField(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    state = textFieldState,
-                                )
-                            }
+                            SearchField(textFieldState)
                         }
                     }
 
