@@ -392,7 +392,7 @@ fun PlanConfig(subscriberId: String) {
                     ActivityResultContracts.RequestPermission()
                 ) {
                     scope.launch {
-                        scope.launch { newPlan = newPlan.copy(notification = it) }
+                        newPlan = newPlan.copy(notification = it)
                     }
                 }
 
