@@ -43,6 +43,16 @@ android {
             applicationIdSuffix = ".debug"
         }
     }
+    flavorDimensions += "version"
+    productFlavors {
+        create("Full") {
+            dimension = "version"
+            buildConfigField("Boolean", "SHIZUKU", "true")
+        }
+        create("Play") {
+            buildConfigField("Boolean", "SHIZUKU", "false")
+        }
+    }
     androidResources {
         generateLocaleConfig = true
     }

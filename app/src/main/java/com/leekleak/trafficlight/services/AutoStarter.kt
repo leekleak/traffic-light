@@ -22,7 +22,7 @@ class AutoStarter : BroadcastReceiver(), KoinComponent {
             applicationScope.launch {
                 try {
                     permissionManager.update()
-                    NotificationService.startService(context)
+                    NotificationService.startService(context, this)
                     startAlarmManager(context)
                 } catch (e: Exception) {
                     Timber.e(e)

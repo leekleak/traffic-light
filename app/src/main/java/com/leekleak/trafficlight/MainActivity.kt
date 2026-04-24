@@ -11,11 +11,14 @@ import androidx.lifecycle.lifecycleScope
 import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
 import com.leekleak.trafficlight.database.AppPreferenceRepo
+import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.services.notifications.NotificationService
 import com.leekleak.trafficlight.ui.app.App
 import com.leekleak.trafficlight.ui.theme.Theme
 import com.leekleak.trafficlight.widget.WidgetReceiver
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.compose.koinInject
@@ -23,6 +26,7 @@ import org.koin.compose.koinInject
 class MainActivity : ComponentActivity() {
 
     val appPreferenceRepo: AppPreferenceRepo by inject()
+    val dataPlanDao: DataPlanDao by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,8 +41,9 @@ class MainActivity : ComponentActivity() {
         }
 
         lifecycleScope.launch {
-            appPreferenceRepo.notification.collect {
-                NotificationService.startService(this@MainActivity)
+            dataPlanDao.getActivePlansWithNotificationsFlow().combine(appPreferenceRepo.notification) { _, _ ->
+            }.collectLatest {
+                NotificationService.startService(this@MainActivity, this)
             }
         }
 

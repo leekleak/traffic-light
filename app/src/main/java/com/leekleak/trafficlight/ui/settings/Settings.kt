@@ -29,7 +29,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -60,12 +59,13 @@ fun Settings(paddingValues: PaddingValues) {
     val permissionManager: PermissionManager = koinInject()
     val navigator: Navigator = koinInject()
     val activity = LocalActivity.current
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val hazeState = rememberHazeState()
 
     LazyColumn(
-        Modifier.background(MaterialTheme.colorScheme.surface).hazeSource(hazeState),
+        Modifier
+            .background(MaterialTheme.colorScheme.surface)
+            .hazeSource(hazeState),
         contentPadding = paddingValues
     ) {
         item {
@@ -136,22 +136,33 @@ fun Settings(paddingValues: PaddingValues) {
             val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
             val shizukuRunning by permissionManager.shizukuRunningFlow.collectAsState(false)
 
-            SwitchPreference (
-                title = stringResource(R.string.multi_sim_tracking),
-                summary = if (shizukuRunning) stringResource(R.string.shizuku_required) else stringResource(R.string.shizuku_not_running),
-                icon = painterResource(R.drawable.version),
-                value = shizukuTracking && shizukuPermission,
-                enabled = shizukuRunning,
-                onValueChanged = {
-                    if (shizukuPermission) {
-                        scope.launch {
-                            appPreferenceRepo.setShizukuTracking(it)
+            if (BuildConfig.SHIZUKU) {
+                SwitchPreference(
+                    title = stringResource(R.string.multi_sim_tracking),
+                    summary = if (shizukuRunning) stringResource(R.string.shizuku_required) else stringResource(R.string.shizuku_not_running),
+                    icon = painterResource(R.drawable.version),
+                    value = shizukuTracking && shizukuPermission,
+                    enabled = shizukuRunning,
+                    onValueChanged = {
+                        if (shizukuPermission) {
+                            scope.launch {
+                                appPreferenceRepo.setShizukuTracking(it)
+                            }
+                        } else {
+                            Shizuku.requestPermission(12199)
                         }
-                    } else {
-                        Shizuku.requestPermission(12199)
-                    }
-                },
-            )
+                    },
+                )
+            } else {
+                SwitchPreference(
+                    title = stringResource(R.string.multi_sim_tracking),
+                    summary = stringResource(R.string.unsupported_by_play_store_version),
+                    icon = painterResource(R.drawable.version),
+                    value = false,
+                    enabled = false,
+                    onValueChanged = {},
+                )
+            }
         }
 
         categoryTitleSmall { stringResource(R.string.ui) }

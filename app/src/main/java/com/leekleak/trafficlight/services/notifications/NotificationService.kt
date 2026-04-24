@@ -8,6 +8,8 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataPlanDao
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.core.component.KoinComponent
@@ -64,7 +66,7 @@ class NotificationService : LifecycleService(), KoinComponent {
             }
         }
         lifecycleScope.launch {
-            dataPlanDao.getActivePlansFlow().collect { list ->
+            dataPlanDao.getActivePlansWithNotificationsFlow().collect { list ->
                 val activePlanNotifications = activeNotifications.filterIsInstance<PlanNotification>()
                 list.forEach { plan ->
                     val notification = activePlanNotifications.find { it.dataPlan == plan }
@@ -115,9 +117,17 @@ class NotificationService : LifecycleService(), KoinComponent {
         } ?: stopForeground(STOP_FOREGROUND_REMOVE)
     }
 
-    companion object {
-        fun startService(context: Context) {
-            context.startForegroundService(Intent(context, NotificationService::class.java))
+    companion object: KoinComponent {
+        fun startService(context: Context, scope: CoroutineScope) {
+            scope.launch {
+                val dataPlanDao: DataPlanDao by inject()
+                val appPreferenceRepo: AppPreferenceRepo by inject()
+                val notificationPlans = dataPlanDao.getActivePlansWithNotificationsFlow().first()
+                val notificationSpeed = appPreferenceRepo.notification.first()
+                if (notificationPlans.isNotEmpty() || notificationSpeed) {
+                    context.startForegroundService(Intent(context, NotificationService::class.java))
+                }
+            }
         }
     }
 }

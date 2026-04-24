@@ -106,6 +106,7 @@
     <string name="live_notification">Live Notification</string>
     <string name="very_big">Very big</string>
     <string name="plan_notification_description">Track plan usage in the status bar.</string>
+    <string name="unsupported_by_play_store_version">Unsupported by Play Store version</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>
