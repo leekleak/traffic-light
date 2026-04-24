@@ -58,12 +58,12 @@ class HistoryPreferenceRepo (
     }
 
     private companion object {
-        val QUERY1_TYPE = stringPreferencesKey("query1_data_type")
-        val QUERY2_TYPE = stringPreferencesKey("query2_data_type")
-        val QUERY1_DIRECTION = stringPreferencesKey("query1_direction")
-        val QUERY2_DIRECTION = stringPreferencesKey("query2_direction")
-        val QUERY1_UID = intPreferencesKey("query1_uid")
-        val QUERY2_UID = intPreferencesKey("query2_uid")
-        val LIST_PARAM = stringPreferencesKey("list_param")
+        private val QUERY1_TYPE = stringPreferencesKey("query1_data_type")
+        private val QUERY2_TYPE = stringPreferencesKey("query2_data_type")
+        private val QUERY1_DIRECTION = stringPreferencesKey("query1_direction")
+        private val QUERY2_DIRECTION = stringPreferencesKey("query2_direction")
+        private val QUERY1_UID = intPreferencesKey("query1_uid")
+        private val QUERY2_UID = intPreferencesKey("query2_uid")
+        private val LIST_PARAM = stringPreferencesKey("list_param")
     }
 }

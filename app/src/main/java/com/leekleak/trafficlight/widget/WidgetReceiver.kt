@@ -21,7 +21,6 @@ import org.koin.core.component.inject
 class WidgetReceiver: GlanceAppWidgetReceiver(), KoinComponent {
     private val applicationScope: CoroutineScope by inject()
     override val glanceAppWidget: GlanceAppWidget = Widget()
-    private var registered: Boolean = false
 
     @SuppressLint("MissingSuperCall")
     override fun onUpdate(
@@ -83,5 +82,9 @@ class WidgetReceiver: GlanceAppWidgetReceiver(), KoinComponent {
         })
 
         registered = true
+    }
+
+    companion object {
+        private var registered: Boolean = false
     }
 }

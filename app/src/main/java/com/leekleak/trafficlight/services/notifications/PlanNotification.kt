@@ -57,7 +57,7 @@ class PlanNotification(
     }
 
     override fun start() {
-        if (job?.isActive ?: false) return
+        if (job?.isActive == true) return
         job = scope.launch {
             while (true) {
                 updateNotification()

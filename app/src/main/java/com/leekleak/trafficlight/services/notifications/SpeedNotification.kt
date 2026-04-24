@@ -100,7 +100,7 @@ class SpeedNotification(
     }
 
     override fun start() {
-        if (job?.isActive ?: false) return
+        if (job?.isActive == true) return
         job = scope.launch {
             trafficSnapshot.updateSnapshot()
             trafficSnapshot.setCurrentAsLast()

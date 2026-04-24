@@ -34,7 +34,15 @@ class NotificationService : LifecycleService(), KoinComponent {
         }
     }
 
-    init {
+    override fun onCreate() {
+        super.onCreate()
+        Timber.i("Creating UsageService")
+
+        registerReceiver(screenStateReceiver, IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_ON)
+            addAction(Intent.ACTION_SCREEN_OFF)
+        })
+
         lifecycleScope.launch {
             appPreferenceRepo.notification.collect { enabled ->
                 if (enabled) {
@@ -79,16 +87,6 @@ class NotificationService : LifecycleService(), KoinComponent {
                 }
             }
         }
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-        Timber.i("Creating UsageService")
-
-        registerReceiver(screenStateReceiver, IntentFilter().apply {
-            addAction(Intent.ACTION_SCREEN_ON)
-            addAction(Intent.ACTION_SCREEN_OFF)
-        })
     }
 
     override fun onDestroy() {
