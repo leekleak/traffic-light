@@ -46,14 +46,6 @@ class HistoryVM(
     private val savedQuery1 = prefs.query1.stateIn(viewModelScope, SharingStarted.Eagerly, UsageQuery(DataType.Mobile))
     private val savedQuery2 = prefs.query2.stateIn(viewModelScope, SharingStarted.Eagerly, UsageQuery(DataType.Wifi))
     private val savedListParam = prefs.listParam.stateIn(viewModelScope, SharingStarted.Eagerly, ListParam.AppList)
-
-    init {
-        viewModelScope.launch {
-            query1.value = prefs.query1.first()
-            query2.value = prefs.query2.first()
-            listParam.value = prefs.listParam.first()
-        }
-    }
     val query1Flow = query1.asStateFlow()
     val query2Flow = query2.asStateFlow()
     val queryFlow = combine(query1Flow, query2Flow) { q1, q2 -> q1 to q2 }
@@ -69,6 +61,11 @@ class HistoryVM(
 
     init {
         refresh()
+        viewModelScope.launch {
+            query1.value = prefs.query1.first()
+            query2.value = prefs.query2.first()
+            listParam.value = prefs.listParam.first()
+        }
         forceHourList
             .onEach { forced ->
                 if (forced) {

@@ -6,26 +6,29 @@ import android.content.Intent
 import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.services.notifications.NotificationService
 import com.leekleak.trafficlight.widget.startAlarmManager
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import timber.log.Timber
 
 class AutoStarter : BroadcastReceiver(), KoinComponent {
     private val permissionManager: PermissionManager by inject()
-    @OptIn(DelicateCoroutinesApi::class)
+    private val applicationScope: CoroutineScope by inject()
+
     override fun onReceive(context: Context, intent: Intent) {
         val pendingResult = goAsync()
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            GlobalScope.launch(Dispatchers.IO) {
-                context.let {
+            applicationScope.launch {
+                try {
                     permissionManager.update()
-                    NotificationService.startService(it)
+                    NotificationService.startService(context)
                     startAlarmManager(context)
+                } catch (e: Exception) {
+                    Timber.e(e)
+                } finally {
+                    pendingResult.finish()
                 }
-                pendingResult.finish()
             }
         }
     }

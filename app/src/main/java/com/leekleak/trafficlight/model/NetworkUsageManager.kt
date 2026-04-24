@@ -113,17 +113,15 @@ class NetworkUsageManager(
         type: DataType
     ): List<UsageData> = withContext(Dispatchers.IO) {
         networkStatsManager.querySummary(type.queryIndex ?: return@withContext listOf(), subscriberId, startStamp, endStamp).use { summary ->
-            val list = mutableListOf<UsageData>()
+            val map = mutableMapOf<Int, UsageData>()
             while (summary.hasNextBucket()) {
                 val bucket = NetworkStats.Bucket()
                 summary.getNextBucket(bucket)
-                val item = list.find { it.uid == bucket.uid }
-                item?.let {
-                    list.add(UsageData(it.upload + bucket.txBytes, it.download + bucket.rxBytes, bucket.uid))
-                    list.remove(item)
-                } ?: list.add(UsageData(bucket.txBytes, bucket.rxBytes, bucket.uid))
+                map.merge(bucket.uid, UsageData(bucket.txBytes, bucket.rxBytes, bucket.uid)) { old, new ->
+                    old.copy(upload = old.upload + new.upload, download = old.download + new.download)
+                }
             }
-            return@withContext list.toList()
+            return@withContext map.values.toList()
         }
     }
 

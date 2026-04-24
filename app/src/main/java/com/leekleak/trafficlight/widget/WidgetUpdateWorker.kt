@@ -8,8 +8,10 @@ import android.content.Context.ALARM_SERVICE
 import android.content.Intent
 import androidx.glance.appwidget.updateAll
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import timber.log.Timber
 
 fun startAlarmManager(context: Context) {
     val alarmManager = context.getSystemService(ALARM_SERVICE) as AlarmManager
@@ -35,12 +37,18 @@ fun killAlarmManager(context: Context) {
     alarmManager.cancel(pendingIntent)
 }
 
-class WidgetUpdateReceiver: BroadcastReceiver() {
+class WidgetUpdateReceiver: BroadcastReceiver(), KoinComponent {
+    private val applicationScope: CoroutineScope by inject()
     override fun onReceive(context: Context, intent: Intent) {
         val pendingResult = goAsync()
-        CoroutineScope(Dispatchers.IO).launch {
-            Widget().updateAll(context)
-            pendingResult.finish()
+        applicationScope.launch {
+            try {
+                Widget().updateAll(context)
+            } catch (e: Exception) {
+                Timber.e(e)
+            } finally {
+                pendingResult.finish()
+            }
         }
     }
 }

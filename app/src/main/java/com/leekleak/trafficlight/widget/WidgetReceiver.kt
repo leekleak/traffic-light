@@ -1,5 +1,6 @@
 package com.leekleak.trafficlight.widget
 
+import android.annotation.SuppressLint
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
@@ -13,15 +14,16 @@ import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.leekleak.trafficlight.widget.Widget.Companion.SUBSCRIBER_ID_HASH
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class WidgetReceiver: GlanceAppWidgetReceiver() {
+class WidgetReceiver: GlanceAppWidgetReceiver(), KoinComponent {
+    private val applicationScope: CoroutineScope by inject()
     override val glanceAppWidget: GlanceAppWidget = Widget()
     private var registered: Boolean = false
 
-    @OptIn(DelicateCoroutinesApi::class)
+    @SuppressLint("MissingSuperCall")
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -43,8 +45,7 @@ class WidgetReceiver: GlanceAppWidgetReceiver() {
          * Very stupid, but if you just ignore and don't update widgets with no subscriberId, it works fine.
          */
 
-
-        CoroutineScope(Dispatchers.IO).launch {
+        applicationScope.launch {
             for (appWidgetId in appWidgetIds) {
                 try {
                     val glanceId = GlanceAppWidgetManager(context).getGlanceIdBy(appWidgetId)

@@ -66,4 +66,4 @@ fun outfit(
 }
 
 fun historyItemFont() = robotoFlex(0f, 90f, 800f)
-fun notificationIconFont() = robotoFlex(0f, 30f, 700f, 450f)
+fun notificationIconFont() = robotoFlex(0f, 30f, 600f, 450f)

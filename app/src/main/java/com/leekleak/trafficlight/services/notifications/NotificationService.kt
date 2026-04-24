@@ -14,7 +14,6 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
 import timber.log.Timber
-import java.util.concurrent.atomic.AtomicBoolean
 
 class NotificationService : LifecycleService(), KoinComponent {
     private val appPreferenceRepo: AppPreferenceRepo by inject()
@@ -94,7 +93,6 @@ class NotificationService : LifecycleService(), KoinComponent {
 
     override fun onDestroy() {
         super.onDestroy()
-        running.set(false)
         unregisterReceiver(screenStateReceiver)
     }
 
@@ -120,12 +118,8 @@ class NotificationService : LifecycleService(), KoinComponent {
     }
 
     companion object {
-        private var running = AtomicBoolean(false)
-
         fun startService(context: Context) {
-            if (running.compareAndSet(false, true)) {
-                context.startService(Intent(context, NotificationService::class.java))
-            }
+            context.startForegroundService(Intent(context, NotificationService::class.java))
         }
     }
 }

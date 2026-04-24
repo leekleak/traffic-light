@@ -90,7 +90,7 @@ class Converters {
     @TypeConverter
     fun toListInt(data: String): List<Int> {
         if (data == "") return listOf()
-        return listOf(*data.split(",").map { it.toInt() }.toTypedArray())
+        return data.split(",").mapNotNull { it.trim().toIntOrNull() }
     }
 }
 
