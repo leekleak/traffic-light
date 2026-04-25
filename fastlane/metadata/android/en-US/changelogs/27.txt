@@ -1,0 +1,19 @@
+Note: Starting v2.15, all Shizuku functionality has been removed from the Play Store version
+
+Notifications:
+- Added notifications to data plans
+- Added support for live notifications
+
+Enhancenents:
+- Added encryption to sensitive data plan data
+- Alternate-VPN workaround setting has been inverted
+- Improved performance
+- UI improvements
+- Reduced custom font usage
+
+Bug fixes:
+- Fix navigation resetting after screen rotation
+- Fix screens not updating after app re-launch
+
+Translations:
+- Updated translations
