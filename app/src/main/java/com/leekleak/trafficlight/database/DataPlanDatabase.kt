@@ -72,14 +72,14 @@ data class DataPlan(
                 while (startDate <= now) {
                     startDate = startDate.plusMonths(1)
                 }
-                startDate.apply { if (!next) minusMonths(1) }
+                if (!next) startDate.minusMonths(1) else startDate
             }
             TimeInterval.DAY -> {
                 var startDate = fromTimestamp(startDate)
                 while (startDate <= now) {
                     startDate = startDate.plusDays(intervalMultiplier.toLong())
                 }
-                startDate.apply { if (!next) minusDays(intervalMultiplier.toLong()) }
+                if (!next) startDate.minusDays(intervalMultiplier.toLong()) else startDate
             }
         }
     }
