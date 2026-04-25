@@ -5,7 +5,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -16,7 +15,6 @@ import android.os.Build
 import androidx.collection.LruCache
 import androidx.compose.ui.unit.Density
 import androidx.core.app.NotificationCompat
-import androidx.core.app.ServiceCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.IconCompat
 import androidx.lifecycle.LifecycleService
@@ -142,11 +140,9 @@ class SpeedNotification(
     }
 
     override fun startForeground(service: LifecycleService) {
-        ServiceCompat.startForeground(
-            service,
+        service.startForeground(
             notificationId,
             notification,
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
         )
     }
 
