@@ -290,25 +290,29 @@ internal class ScrollableBarGraphHelper(
             val path1 = Path()
             val path2 = Path()
             metrics.rectList.forEach { doubleBar ->
-                path1.apply {
-                    addRoundRect(
-                        RoundRect(
-                            rect = doubleBar.rect.copy(
-                                top = doubleBar.rect.bottom - doubleBar.rect.height * doubleBar.ratio + padding,
-                            ),
-                            cornerRadius = cornerRadius
+                if (doubleBar.ratio != 0f) {
+                    path1.apply {
+                        addRoundRect(
+                            RoundRect(
+                                rect = doubleBar.rect.copy(
+                                    top = doubleBar.rect.bottom - doubleBar.rect.height * doubleBar.ratio + padding,
+                                ),
+                                cornerRadius = cornerRadius
+                            )
                         )
-                    )
+                    }
                 }
-                path2.apply {
-                    addRoundRect(
-                        RoundRect(
-                            rect = doubleBar.rect.copy(
-                                bottom = doubleBar.rect.bottom - doubleBar.rect.height * doubleBar.ratio - padding
-                            ),
-                            cornerRadius = cornerRadius
+                if (doubleBar.ratio != 1f) {
+                    path2.apply {
+                        addRoundRect(
+                            RoundRect(
+                                rect = doubleBar.rect.copy(
+                                    bottom = doubleBar.rect.bottom - doubleBar.rect.height * doubleBar.ratio - padding
+                                ),
+                                cornerRadius = cornerRadius
+                            )
                         )
-                    )
+                    }
                 }
             }
             drawPath(

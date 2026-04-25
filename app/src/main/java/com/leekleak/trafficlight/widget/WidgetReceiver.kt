@@ -1,6 +1,5 @@
 package com.leekleak.trafficlight.widget
 
-import android.annotation.SuppressLint
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
@@ -24,7 +23,6 @@ class WidgetReceiver: GlanceAppWidgetReceiver(), KoinComponent {
     private val applicationScope: CoroutineScope by inject()
     override val glanceAppWidget: GlanceAppWidget = Widget()
 
-    @SuppressLint("MissingSuperCall")
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -57,6 +55,7 @@ class WidgetReceiver: GlanceAppWidgetReceiver(), KoinComponent {
                     }
                 } catch (_: Exception) { }
             }
+            super.onUpdate(context, appWidgetManager, IntArray(0))
             pendingResult.finish()
         }
     }

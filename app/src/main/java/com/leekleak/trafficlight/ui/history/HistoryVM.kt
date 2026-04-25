@@ -88,13 +88,15 @@ class HistoryVM(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val usageFlow = refreshTrigger.debounce(300).flatMapLatest {
+    val usageFlow = combine(refreshTrigger.debounce(300), queryFlow) { _, queries ->
+        queries
+    }.flatMapLatest { queries ->
         val dates = getDatesForTimespan()
         networkUsageManager.daysUsage(
             startDate = dates.first,
             endDate = dates.second,
-            usageQuery1 = queryFlow.value.first,
-            usageQuery2 = queryFlow.value.second
+            usageQuery1 = queries.first,
+            usageQuery2 = queries.second
         )
     }.stateIn(
         scope = viewModelScope,

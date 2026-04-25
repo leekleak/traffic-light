@@ -93,9 +93,11 @@ class NotificationService : LifecycleService(), KoinComponent {
         }
     }
 
+    @OptIn(ExperimentalAtomicApi::class)
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(screenStateReceiver)
+        running.exchange(false)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
