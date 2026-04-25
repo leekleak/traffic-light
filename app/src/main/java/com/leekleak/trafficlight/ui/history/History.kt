@@ -267,10 +267,11 @@ private fun HourList(
     var hourSelected by remember { mutableIntStateOf(-1) }
     val maximum by remember { derivedStateOf { hourList.sumOf { it.usage.totalUsage } } }
     val textMeasurer = rememberTextMeasurer()
+    val font = remember { historyItemFont() }
     val measurement = textMeasurer.measure(
         text = LocalTime.MIDNIGHT.toLocaleHourString(context, true),
         style = TextStyle(
-            fontFamily = historyItemFont(),
+            fontFamily = font,
             fontSize = MaterialTheme.typography.titleMedium.fontSize,
         )
     )
@@ -320,7 +321,7 @@ private fun HourList(
                         Text(
                             modifier = Modifier.align(Alignment.Center),
                             text = item.start.toLocalTime().toLocaleHourString(context, true),
-                            fontFamily = historyItemFont(),
+                            fontFamily = font,
                             fontSize = MaterialTheme.typography.titleMedium.fontSize,
                             textAlign = TextAlign.Center,
                         )

@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.util.px
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -100,7 +99,7 @@ private fun BarGraphImpl(
     val barAnimation = remember(yAxisData.size) { List(yAxisData.size) { Animatable(0f) } }
     LaunchedEffect(yAxisData) {
         for (i in 0..<barAnimation.size) {
-            launch(Dispatchers.IO) {
+            launch {
                 if (yAxisData[i].second + yAxisData[i].first != 0L) {
                     delay(100)
                     barAnimation[i].animateTo(1f)

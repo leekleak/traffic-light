@@ -226,13 +226,15 @@ private fun OverviewHero() {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             val todayUsage by viewModel.todayUsage.collectAsState()
             val string = DataSize(todayUsage).toStringParts(extraPrecision = true)
+            val fontFamily1 = remember { outfit(700f) }
+            val fontFamily2 = remember { outfit() }
             Row {
                 Text(
                     text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontFamily = outfit(700f), fontSize = 48.sp)) {
+                        withStyle(style = SpanStyle(fontFamily = fontFamily1, fontSize = 48.sp)) {
                             append("${string.first}${string.second}")
                         }
-                        withStyle(style = SpanStyle(fontFamily = outfit(700f), fontSize = 32.sp)) {
+                        withStyle(style = SpanStyle(fontFamily = fontFamily1, fontSize = 32.sp)) {
                             append(string.third)
                         }
                     }
@@ -240,7 +242,7 @@ private fun OverviewHero() {
             }
             Text(
                 text = stringResource(R.string.mobile_data),
-                fontFamily = outfit(),
+                fontFamily = fontFamily2,
                 fontSize = 20.sp
             )
         }
@@ -250,6 +252,7 @@ private fun OverviewHero() {
 @Composable
 private fun RowScope.PredictionCard() {
     val viewModel: OverviewVM = koinViewModel()
+    val fontFamily = remember { jetbrainsMono() }
     Column(
         modifier = Modifier
             .card()
@@ -274,13 +277,13 @@ private fun RowScope.PredictionCard() {
             Text(
                 modifier = Modifier.alignByBaseline(),
                 text = string.first + string.second,
-                fontFamily = jetbrainsMono(),
+                fontFamily = fontFamily,
                 fontSize = 24.sp
             )
             Text(
                 modifier = Modifier.alignByBaseline(),
                 text = string.third,
-                fontFamily = jetbrainsMono(),
+                fontFamily = fontFamily,
                 fontSize = 20.sp
             )
         }
@@ -291,6 +294,7 @@ private fun RowScope.PredictionCard() {
 private fun RowScope.TrendCard() {
     val viewModel: OverviewVM = koinViewModel()
     val trend by viewModel.trend.collectAsState()
+    val fontFamily = remember { jetbrainsMono() }
     Column(
         modifier = Modifier
             .card()
@@ -323,7 +327,7 @@ private fun RowScope.TrendCard() {
             Text(
                 modifier = Modifier.alignByBaseline(),
                 text = if (trend < 1000)"%+d%%".format(trend.toInt()) else stringResource(R.string.very_big),
-                fontFamily = jetbrainsMono(),
+                fontFamily = fontFamily,
                 fontSize = 24.sp
             )
         }

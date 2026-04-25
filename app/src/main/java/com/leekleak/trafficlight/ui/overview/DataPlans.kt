@@ -135,6 +135,9 @@ fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
     val networkUsageManager: NetworkUsageManager = koinInject()
+    val fontFamilyRoboto = remember { robotoFlex(0f, 150f, 1000f) }
+    val fontFamilyDoHyeon = remember { doHyeonFont() }
+    val fontFamilyCarrier = remember { carrierFont() }
 
     val dataUsage by produceState(0L) { value = networkUsageManager.planUsage(dataPlan) }
     val usage = DataSize(dataUsage).getAsUnit(DataSizeUnit.GB)
@@ -153,7 +156,7 @@ fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
                     .fillMaxWidth()
                     .padding(end = 4.dp),
                 text = dataPlan.carrierName,
-                fontFamily = carrierFont(),
+                fontFamily = fontFamilyCarrier,
                 textAlign = TextAlign.End
             )
         }
@@ -168,20 +171,20 @@ fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
                 Text(
                     modifier = Modifier.alignByBaseline(),
                     text = formatter.format(usage),
-                    fontFamily = doHyeonFont(),
+                    fontFamily = fontFamilyDoHyeon,
                     fontSize = 64.sp,
                 )
                 Text(
                     modifier = Modifier.alignByBaseline(),
                     text = "GB",
-                    fontFamily = doHyeonFont(),
+                    fontFamily = fontFamilyDoHyeon,
                     fontSize = 36.sp,
                 )
             }
             Text(
                 text = stringResource(R.string.this_month),
                 fontSize = 18.sp,
-                fontFamily = robotoFlex(0f, 150f, 1000f)
+                fontFamily = fontFamilyRoboto
             )
         }
         ButtonGroup(
@@ -228,6 +231,9 @@ fun DataPlanSelectorWidget(dataPlan: DataPlan, onClick: () -> Unit) {
 private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
     val context = LocalContext.current
     val networkUsageManager: NetworkUsageManager = koinInject()
+    val fontFamilyRoboto = remember { robotoFlex(0f, 150f, 1000f) }
+    val fontFamilyDoHyeon = remember { doHyeonFont() }
+    val fontFamilyCarrier = remember { carrierFont() }
     val dataUsage by produceState(0L) { value = networkUsageManager.planUsage(dataPlan) }
 
     Column(Modifier.padding(8.dp)) {
@@ -239,7 +245,7 @@ private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
                         .fillMaxWidth()
                         .padding(end = 4.dp),
                     text = dataPlan.carrierName,
-                    fontFamily = carrierFont(),
+                    fontFamily = fontFamilyCarrier,
                     textAlign = TextAlign.End
                 )
             }
@@ -259,7 +265,7 @@ private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
                 Text(
                     modifier = Modifier.alignByBaseline(),
                     text = formatter.format(usage),
-                    fontFamily = doHyeonFont(),
+                    fontFamily = fontFamilyDoHyeon,
                     fontSize = 64.sp,
                 )
                 val data by remember(dataPlan) {
@@ -272,7 +278,7 @@ private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
                 Text(
                     modifier = Modifier.alignByBaseline(),
                     text = "/${data}GB",
-                    fontFamily = doHyeonFont(),
+                    fontFamily = fontFamilyDoHyeon,
                     fontSize = 36.sp,
                 )
             }
@@ -287,7 +293,7 @@ private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
             ) {
                 Text(
                     text = dataPlan.resetString(context),
-                    fontFamily = robotoFlex(0f, 150f, 1000f)
+                    fontFamily = fontFamilyRoboto
                 )
                 val lineUsage = DataSize((usage * DataSizeUnit.GB.toBits()).toLong())
                 LinearWavyProgressIndicator(

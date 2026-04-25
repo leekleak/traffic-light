@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -36,7 +37,7 @@ fun LineGraph(
     val onBackgroundColor = GraphTheme.onBackgroundColor
 
     val textMeasurer = rememberTextMeasurer()
-    val font = historyItemFont()
+    val font = remember { historyItemFont() }
 
     val safeMax = max(maximum, 1).toFloat()
 

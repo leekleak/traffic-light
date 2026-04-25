@@ -170,6 +170,7 @@ fun PlanConfig(currentPlan: DataPlan) {
     val activity = LocalActivity.current
 
     var newPlan by remember { mutableStateOf(DataPlan("", "", uiBackground = 3)) }
+    val fontFamily = remember { robotoFlex(0f, 150f, 1000f) }
     LaunchedEffect(currentPlan) {
         newPlan = currentPlan
     }
@@ -277,7 +278,7 @@ fun PlanConfig(currentPlan: DataPlan) {
                                         .padding(top = 16.dp),
                                     text = stringResource(R.string.resets_on, selectedMonthDay),
                                     fontSize = 18.sp,
-                                    fontFamily = robotoFlex(0f, 150f, 1000f),
+                                    fontFamily = fontFamily,
                                     textAlign = TextAlign.Center,
                                 )
                                 Slider(
@@ -403,9 +404,7 @@ fun PlanConfig(currentPlan: DataPlan) {
                                 Manifest.permission.POST_NOTIFICATIONS
                             )
                         } else {
-                            scope.launch {
-                                scope.launch { newPlan = newPlan.copy(notification = it) }
-                            }
+                            scope.launch { newPlan = newPlan.copy(notification = it) }
                         }
                     },
                 )
@@ -461,6 +460,7 @@ fun PlanConfig(currentPlan: DataPlan) {
 private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: LocalTime, multiplier: Int) -> Unit) {
     var selectedDate by remember { mutableStateOf(fromTimestamp(newPlan.startDate).toLocalDate()) }
     var selectedTime by remember { mutableStateOf(fromTimestamp(newPlan.startDate).toLocalTime()) }
+    val fontFamily = remember { robotoFlex(0f, 150f, 1000f) }
 
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = newPlan.startDate,
@@ -501,7 +501,7 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                 ) {
                     Text(
                         text = selectedDate.toString(),
-                        fontFamily = robotoFlex(0f, 150f, 1000f),
+                        fontFamily = fontFamily,
                     )
                 }
             }
@@ -521,7 +521,7 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                 ) {
                     Text(
                         text = selectedTime.toString(),
-                        fontFamily = robotoFlex(0f, 150f, 1000f),
+                        fontFamily = fontFamily,
                     )
                 }
             }
@@ -553,7 +553,7 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         inputTransformation = InputTransformation.maxLength(3),
                         textStyle = TextStyle(
-                            fontFamily = robotoFlex(0f, 150f, 1000f),
+                            fontFamily = fontFamily,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onPrimary
                         ),
@@ -561,7 +561,7 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                     )
                     Text(
                         text = stringResource(R.string.days),
-                        fontFamily = robotoFlex(0f, 150f, 1000f),
+                        fontFamily = fontFamily,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onPrimary
                     )
@@ -773,6 +773,7 @@ fun PlanSizeConfig(size: Double, onSizeUpdate: (Float) -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally)
             ) {
                 var intrinsics by remember { mutableIntStateOf(0) }
+                val fontFamilyDoHyeon = remember { doHyeonFont() }
                 BasicTextField(
                     state = fieldState,
                     modifier = Modifier
@@ -790,7 +791,7 @@ fun PlanSizeConfig(size: Double, onSizeUpdate: (Float) -> Unit) {
                         keyboardType = KeyboardType.Number
                     ),
                     textStyle = TextStyle(
-                        fontFamily = doHyeonFont(),
+                        fontFamily = fontFamilyDoHyeon,
                         fontSize = 40.sp * (1 + scale.value/2),
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         textAlign = TextAlign.End,
@@ -805,7 +806,7 @@ fun PlanSizeConfig(size: Double, onSizeUpdate: (Float) -> Unit) {
                 )
                 Text(
                     modifier = Modifier.alignByBaseline(),
-                    fontFamily = doHyeonFont(),
+                    fontFamily = fontFamilyDoHyeon,
                     fontSize = 30.sp * (1 + scale.value/2),
                     maxLines = 1,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
