@@ -283,7 +283,7 @@ class NetworkUsageManager(
                     val now = now.minusDays(i.toLong())
                     val usage1 = totalDayUsage(UsageQuery(DataType.Mobile), now)
                     val usage2 = totalDayUsage(UsageQuery(DataType.Wifi), now)
-                    data[i] = data[i].copy(y1 = usage1, y2 = usage2,)
+                    data[i] = data[i].copy(y1 = usage1, y2 = usage2)
                 }
             }.awaitAll()
         }

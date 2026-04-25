@@ -110,7 +110,6 @@ import com.leekleak.trafficlight.util.toLocaleHourString
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
-import timber.log.Timber
 import java.time.LocalTime
 
 const val MAX_DAYS = 90
