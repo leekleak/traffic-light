@@ -107,4 +107,6 @@
     <string name="reset">Sıfırla</string>
     <string name="live_notification">Canlı Bildirim</string>
     <string name="very_big">Çok büyük</string>
+    <string name="plan_notification_description">Durum çubuğunda plan kullanımını takip et.</string>
+    <string name="unsupported_by_play_store_version">Play Store sürümünde desteklenmiyor</string>
 </resources>
