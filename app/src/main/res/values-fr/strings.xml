@@ -108,4 +108,6 @@
     <string name="reset">Réinitialisation</string>
     <string name="live_notification">Notification en direct</string>
     <string name="very_big">Très gros</string>
+    <string name="plan_notification_description">Suivre l\'utilisation du forfait dans la barre d\'état.</string>
+    <string name="unsupported_by_play_store_version">Non supporté par la version du Play Store</string>
 </resources>
