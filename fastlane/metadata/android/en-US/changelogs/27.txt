@@ -4,7 +4,7 @@ Notifications:
 - Added notifications to data plans
 - Added support for live notifications
 
-Enhancenents:
+Enhancements:
 - Added encryption to sensitive data plan data
 - Alternate-VPN workaround setting has been inverted
 - Improved performance
