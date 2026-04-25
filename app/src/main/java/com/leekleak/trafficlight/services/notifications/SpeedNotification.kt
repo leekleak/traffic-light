@@ -9,7 +9,6 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.LifecycleService
 import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
@@ -22,9 +21,6 @@ import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.clipAndPad
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -32,20 +28,15 @@ import java.time.LocalDate
 
 class SpeedNotification(
     serviceScope: CoroutineScope,
-    private val context: Context,
-    private val notificationId: Int,
+    context: Context,
+    notificationManager: NotificationManager,
+    notificationId: Int,
     private val networkUsageManager: NetworkUsageManager,
-    private val notificationManager: NotificationManager,
     private val connectivityManager: ConnectivityManager,
     private val appPreferenceRepo: AppPreferenceRepo,
     private val trafficSnapshot: TrafficSnapshot,
-) : PersistentNotification {
-    private val scope = CoroutineScope(serviceScope.coroutineContext + SupervisorJob(serviceScope.coroutineContext[Job]))
-    private var job: Job? = null
-    private lateinit var notificationBuilder: NotificationCompat.Builder
-    private lateinit var notification: Notification
+) : PersistentNotification(serviceScope, context, notificationManager, notificationId) {
     private var updateCounter = DATA_UPDATE_FREQ
-    private var notificationIconHelper = NotificationIconHelper(context)
 
     private val queryMobile =
         UsageQuery(
@@ -117,24 +108,10 @@ class SpeedNotification(
 
     }
 
-    override fun cancel() {
-        scope.cancel()
-        notificationManager.cancel(notificationId)
-    }
-
-    override fun startForeground(service: LifecycleService) {
-        service.startForeground(
-            notificationId,
-            notification,
-        )
-    }
-
     override fun screenStateChange(on: Boolean) {
         if (on) start()
         else if (!aodMode) job?.cancel()
     }
-
-    override fun getId(): Int = notificationId
 
     private var lastTitle: String = ""
     private suspend fun updateNotification(trafficSnapshot: TrafficSnapshot) {

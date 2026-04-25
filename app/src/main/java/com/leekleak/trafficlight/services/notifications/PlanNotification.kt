@@ -6,7 +6,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.LifecycleService
 import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
@@ -14,25 +13,17 @@ import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.simIconRes
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class PlanNotification(
     serviceScope: CoroutineScope,
-    private val context: Context,
-    private val notificationId: Int,
+    context: Context,
+    notificationManager: NotificationManager,
+    notificationId: Int,
     val dataPlan: DataPlan,
     private val networkUsageManager: NetworkUsageManager,
-    private val notificationManager: NotificationManager,
-) : PersistentNotification {
-    private val scope = CoroutineScope(serviceScope.coroutineContext + SupervisorJob(serviceScope.coroutineContext[Job]))
-    private var job: Job? = null
-    private lateinit var notificationBuilder: NotificationCompat.Builder
-    private lateinit var notification: Notification
-    private var notificationIconHelper = NotificationIconHelper(context)
+) : PersistentNotification(serviceScope, context, notificationManager, notificationId) {
 
     init {
         updateBaseNotification()
@@ -51,24 +42,11 @@ class PlanNotification(
 
     }
 
-    override fun cancel() {
-        scope.cancel()
-        notificationManager.cancel(notificationId)
-    }
-
-    override fun startForeground(service: LifecycleService) {
-        service.startForeground(
-            notificationId,
-            notification,
-        )
-    }
-
     override fun screenStateChange(on: Boolean) {
         if (on) start()
         else job?.cancel()
     }
 
-    override fun getId(): Int = notificationId
     private suspend fun updateNotification() {
         val dataSize = DataSize(networkUsageManager.planUsage(dataPlan))
         val dataSizeMax = DataSize(dataPlan.dataMax)
