@@ -20,6 +20,9 @@ data class ScrollableBarData(
     val y1: Long = 0L,
     val y2: Long = 0L
 ) {
+    val y: Long
+        get() = y1 + y2
+
     operator fun plus(other: ScrollableBarData): ScrollableBarData {
         return this.copy(
             y1 = this.y1 + other.y1,

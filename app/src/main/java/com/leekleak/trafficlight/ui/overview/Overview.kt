@@ -22,7 +22,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialShapes.Companion.Cookie12Sided
@@ -32,7 +31,6 @@ import androidx.compose.material3.toPath
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -51,12 +49,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataPlanDao
-import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.PlanConfig
 import com.leekleak.trafficlight.ui.navigation.Settings
@@ -73,6 +71,7 @@ import com.leekleak.trafficlight.util.px
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
 
@@ -80,7 +79,7 @@ import org.koin.compose.koinInject
 fun Overview(
     paddingValues: PaddingValues,
 ) {
-    val networkUsageManager: NetworkUsageManager = koinInject()
+    val viewModel: OverviewVM = koinViewModel()
     val dataPlanDao: DataPlanDao = koinInject()
     val appPreferenceRepo: AppPreferenceRepo = koinInject()
     val navigator: Navigator = koinInject()
@@ -88,7 +87,7 @@ fun Overview(
     val scope = rememberCoroutineScope()
     val activity = LocalActivity.current
 
-    val weeklyUsage by produceState(listOf()) { value = networkUsageManager.weekUsage() }
+    val weeklyUsage by viewModel.weekUsage.collectAsState()
     val activePlans by remember { dataPlanDao.getActivePlansFlow() }.collectAsState(listOf())
 
     val shizukuHint by remember { appPreferenceRepo.shizukuHint }.collectAsState(false)
@@ -96,6 +95,11 @@ fun Overview(
 
     val columnState = rememberLazyListState()
     val hazeState = rememberHazeState()
+
+    LifecycleResumeEffect(Unit) {
+        viewModel.refresh()
+        onPauseOrDispose {}
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -170,10 +174,9 @@ fun Overview(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun OverviewHero() {
-    val networkUsageManager: NetworkUsageManager = koinInject()
+    val viewModel: OverviewVM = koinViewModel()
 
     val scheme = colorScheme
     val shape1 = Cookie12Sided.toPath()
@@ -221,7 +224,7 @@ private fun OverviewHero() {
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            val todayUsage by produceState(0L) { value = networkUsageManager.todayMobileUsage() }
+            val todayUsage by viewModel.todayUsage.collectAsState()
             val string = DataSize(todayUsage).toStringParts(extraPrecision = true)
             Row {
                 Text(
@@ -246,7 +249,7 @@ private fun OverviewHero() {
 
 @Composable
 private fun RowScope.PredictionCard() {
-    val networkUsageManager: NetworkUsageManager = koinInject()
+    val viewModel: OverviewVM = koinViewModel()
     Column(
         modifier = Modifier
             .card()
@@ -254,7 +257,7 @@ private fun RowScope.PredictionCard() {
             .weight(1f),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        val prediction by produceState(0L) { value = networkUsageManager.predictUsage() }
+        val prediction by viewModel.prediction.collectAsState()
         val string = DataSize(prediction).toStringParts(extraPrecision = true)
 
         Row(
@@ -286,8 +289,8 @@ private fun RowScope.PredictionCard() {
 
 @Composable
 private fun RowScope.TrendCard() {
-    val networkUsageManager: NetworkUsageManager = koinInject()
-    val trend by produceState(0.0) { value = networkUsageManager.getTrend() }
+    val viewModel: OverviewVM = koinViewModel()
+    val trend by viewModel.trend.collectAsState()
     Column(
         modifier = Modifier
             .card()

@@ -110,6 +110,7 @@ import com.leekleak.trafficlight.util.toLocaleHourString
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
+import timber.log.Timber
 import java.time.LocalTime
 
 const val MAX_DAYS = 90
@@ -124,13 +125,13 @@ fun History(paddingValues: PaddingValues) {
     val usage: List<ScrollableBarData> by viewModel.usageFlow.collectAsState()
     val sidePadding = remember(paddingValues) { paddingValues.calculateLeftPadding(LayoutDirection.Ltr) }
 
-    val usageQuery1 by viewModel.query1Flow.collectAsState()
-    val usageQuery2 by viewModel.query2Flow.collectAsState()
+    val usageQueries by viewModel.queryFlow.collectAsState()
     val listParam by viewModel.listParamFlow.collectAsState()
     val dateParams by viewModel.dateParamsFlow.collectAsState()
 
     LifecycleResumeEffect(Unit) {
         viewModel.refresh()
+        Timber.e("VM Launch refresh")
         onPauseOrDispose {}
     }
 
@@ -139,8 +140,8 @@ fun History(paddingValues: PaddingValues) {
             modifier = Modifier.align(Alignment.CenterEnd),
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            HistoryLegendItem(usageQuery1, colorScheme.primary, colorScheme.onPrimary)
-            HistoryLegendItem(usageQuery2, colorScheme.tertiary, colorScheme.onTertiary)
+            HistoryLegendItem(usageQueries.first, colorScheme.primary, colorScheme.onPrimary)
+            HistoryLegendItem(usageQueries.second, colorScheme.tertiary, colorScheme.onTertiary)
         }
     }
 
@@ -155,7 +156,7 @@ fun History(paddingValues: PaddingValues) {
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             ScrollableBarGraph(usage) {
-                viewModel.updateDateQuery(day = viewModel.datesForTimespan.value.first.plusDays(it.toLong()))
+                viewModel.updateDateQuery(day = viewModel.getDatesForTimespan().first.plusDays(it.toLong()))
             }
             Row(
                 Modifier
@@ -368,8 +369,7 @@ fun HistoryFilter(onDismiss: () -> Unit) {
     val context = LocalContext.current
     val viewModel: HistoryVM = koinViewModel()
 
-    val usageQuery1 by viewModel.query1Flow.collectAsState()
-    val usageQuery2 by viewModel.query2Flow.collectAsState()
+    val usageQueries by viewModel.queryFlow.collectAsState()
     val listParam by viewModel.listParamFlow.collectAsState()
     val filtersChanged by viewModel.filtersChanged.collectAsState()
 
@@ -390,12 +390,12 @@ fun HistoryFilter(onDismiss: () -> Unit) {
                 HistoryItemSettings(
                     stringResource(R.string.primary),
                     1,
-                    usageQuery1
+                    usageQueries.first
                 )
                 HistoryItemSettings(
                     stringResource(R.string.secondary),
                     2,
-                    usageQuery2
+                    usageQueries.second
                 )
             }
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
@@ -685,8 +685,7 @@ fun AppItem(
     val activity = LocalActivity.current
     val viewModel: HistoryVM = koinViewModel()
     val appManager: AppManager = koinInject()
-    val usageQuery1 by viewModel.query1Flow.collectAsState()
-    val usageQuery2 by viewModel.query2Flow.collectAsState()
+    val usageQueries by viewModel.queryFlow.collectAsState()
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Column(
@@ -721,8 +720,8 @@ fun AppItem(
                             LineGraphHeader()
                         }
                     }
-                    val graphUsage1 = if (usageQuery1.dataType != DataType.None) usage1 else null
-                    val graphUsage2 = if (usageQuery2.dataType != DataType.None) usage2 else null
+                    val graphUsage1 = if (usageQueries.first.dataType != DataType.None) usage1 else null
+                    val graphUsage2 = if (usageQueries.second.dataType != DataType.None) usage2 else null
                     LineGraph(
                         maximum = maximum,
                         data = Pair(graphUsage1, graphUsage2)
@@ -744,8 +743,8 @@ fun AppItem(
                                     shape = MaterialTheme.shapes.small,
                                     onClick = {
                                         app?.uid?.let {
-                                            viewModel.updateQuery(1, usageQuery1.copy(dataUID = appManager.getAppForUID(it)))
-                                            viewModel.updateQuery(2, usageQuery2.copy(dataUID = appManager.getAppForUID(it)))
+                                            viewModel.updateQuery(1, usageQueries.first.copy(dataUID = appManager.getAppForUID(it)))
+                                            viewModel.updateQuery(2, usageQueries.second.copy(dataUID = appManager.getAppForUID(it)))
                                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                         }
                                     }
@@ -794,24 +793,22 @@ fun AppItem(
 fun LineGraphHeader() {
     val context = LocalContext.current
     val viewModel: HistoryVM = koinViewModel()
-
-    val usageQuery1 by viewModel.query1Flow.collectAsState()
-    val usageQuery2 by viewModel.query2Flow.collectAsState()
+    val usageQueries by viewModel.queryFlow.collectAsState()
 
     Column (Modifier.fillMaxWidth()) {
         Row {
-            if (usageQuery1.dataType != DataType.None) {
+            if (usageQueries.first.dataType != DataType.None) {
                 Text(
                     modifier = Modifier.weight(1f),
-                    text = usageQuery1.toString(context),
+                    text = usageQueries.second.toString(context),
                     style = MaterialTheme.typography.titleMedium,
                     color = colorScheme.tertiary
                 )
             }
-            if (usageQuery2.dataType != DataType.None) {
+            if (usageQueries.second.dataType != DataType.None) {
                 Text(
                     modifier = Modifier.weight(1f),
-                    text = usageQuery2.toString(context),
+                    text = usageQueries.first.toString(context),
                     textAlign = TextAlign.End,
                     style = MaterialTheme.typography.titleMedium,
                     color = colorScheme.tertiary

@@ -18,11 +18,14 @@ import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
@@ -39,6 +42,7 @@ class HistoryVM(
     private val appManager: AppManager,
     private val prefs: HistoryPreferenceRepo,
 ): ViewModel() {
+    private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1)//.apply { tryEmit(Unit) }
     private val dateParams = MutableStateFlow(DateParams(LocalDate.now(), false))
     private val listParam = MutableStateFlow(ListParam.AppList)
     private val query1 = MutableStateFlow(UsageQuery(DataType.Mobile))
@@ -46,25 +50,22 @@ class HistoryVM(
     private val savedQuery1 = prefs.query1.stateIn(viewModelScope, SharingStarted.Eagerly, UsageQuery(DataType.Mobile))
     private val savedQuery2 = prefs.query2.stateIn(viewModelScope, SharingStarted.Eagerly, UsageQuery(DataType.Wifi))
     private val savedListParam = prefs.listParam.stateIn(viewModelScope, SharingStarted.Eagerly, ListParam.AppList)
-    val query1Flow = query1.asStateFlow()
-    val query2Flow = query2.asStateFlow()
-    val queryFlow = combine(query1Flow, query2Flow) { q1, q2 -> q1 to q2 }
+    val queryFlow = combine(query1, query2) { q1, q2 -> q1 to q2 }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, UsageQuery(DataType.Mobile) to UsageQuery(DataType.Wifi))
     val forceHourList = queryFlow.map { (query1, query2) ->
         query1.dataUID.uidQuery != null || query2.dataUID.uidQuery != null
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = false
-    )
-    val datesForTimespan = MutableStateFlow(LocalDate.now() to LocalDate.now().plusDays(1))
-    val datesForTimespanFlow = datesForTimespan.asStateFlow()
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+    val dateQueryFlow = combine(dateParams, queryFlow, refreshTrigger) {date, queries, _ -> Pair(date, queries) }
+    val listParamFlow = listParam.asStateFlow()
+    val dateParamsFlow = dateParams.asStateFlow()
 
     init {
-        refresh()
         viewModelScope.launch {
             query1.value = prefs.query1.first()
             query2.value = prefs.query2.first()
             listParam.value = prefs.listParam.first()
+            refresh()
+            Timber.e("VM Launch refresh")
         }
         forceHourList
             .onEach { forced ->
@@ -75,30 +76,30 @@ class HistoryVM(
             }
             .launchIn(viewModelScope)
     }
-    val dateQueryFlow = dateParams.combine(queryFlow) {date, queries-> Pair(date, queries) }
-    val listParamFlow = listParam.asStateFlow()
-    val dateParamsFlow = dateParams.asStateFlow()
 
     fun refresh() {
-        val now = LocalDate.now().plusDays(1)
-        val base = now.minusDays(MAX_DAYS.toLong())
-        datesForTimespan.value = base to now
+        refreshTrigger.tryEmit(Unit)
         dateParams.value = DateParams(LocalDate.now(), dateParams.value.showMonth)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val usageFlow = combine(query1Flow, query2Flow, datesForTimespanFlow) {q1, q2, dates ->
-        Triple(q1, q2, dates)
-    }.flatMapLatest {(q1, q2, dates) ->
+    fun getDatesForTimespan(): Pair<LocalDate, LocalDate> {
+        val now = LocalDate.now().plusDays(1)
+        val base = now.minusDays(MAX_DAYS.toLong())
+        return base to now
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    val usageFlow = refreshTrigger.debounce(300).flatMapLatest {
+        val dates = getDatesForTimespan()
         networkUsageManager.daysUsage(
             startDate = dates.first,
             endDate = dates.second,
-            usageQuery1 = q1,
-            usageQuery2 = q2
+            usageQuery1 = queryFlow.value.first,
+            usageQuery2 = queryFlow.value.second
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = SharingStarted.Lazily,
         initialValue = List(MAX_DAYS) { ScrollableBarData(LocalDate.MIN) }
     )
 

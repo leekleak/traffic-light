@@ -26,7 +26,6 @@ import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.toPath
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.util.DataSize
-import com.leekleak.trafficlight.util.NetworkType
 import com.leekleak.trafficlight.util.getName
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -37,8 +36,13 @@ internal data class ScrollableBarGraphMetrics(
     val gridHeight: Float,
     val gridWidth: Float,
     val data: List<ScrollableBarData>,
-    val rectList: List<Bar>,
+    val rectList: List<DoubleBar>,
     val monthList: List<MonthObject>
+)
+
+data class DoubleBar (
+    val rect: Rect,
+    val ratio: Float,
 )
 
 internal data class MonthObject (
@@ -60,6 +64,7 @@ internal class ScrollableBarGraphHelper(
     private val onBackgroundColor: Color,
     private val primaryColor: Color,
     private val secondaryColor: Color,
+    private val padding: Float,
     private val onBarVisibilityChanged: (i: Int, visible: Boolean) -> Unit,
     private val onMaximumChange: (maximum: Long) -> Unit,
 ) {
@@ -80,7 +85,7 @@ internal class ScrollableBarGraphHelper(
         val gridHeight = size.height - paddingBottom.toPx()
         val gridWidth = size.width - yAxisPadding.toPx()
 
-        val rectList = mutableListOf<Bar>()
+        val rectList = mutableListOf<DoubleBar>()
 
         val monthList = mutableListOf<MonthObject>()
 
@@ -111,8 +116,6 @@ internal class ScrollableBarGraphHelper(
 
         val verticalStep = maximum.value / gridHeight
 
-        rectList.clear()
-
         val roundedPolygon = RoundedPolygon(3, 12.dp.toPx())
         translate(selectorOffset + xItemSpacing / 2, size.height + 16.dp.toPx()) {
             rotate(-90f, Offset.Zero) {
@@ -121,41 +124,23 @@ internal class ScrollableBarGraphHelper(
         }
 
         for (i in visibleIndices) {
-            val padding = 0.5.dp.toPx()
             val x = xItemSpacing * i + xOffset
-            val yOffset1 = data[i].y1.toFloat() / verticalStep
-            val yOffset2 = data[i].y2.toFloat() / verticalStep
+            val yOffset = data[i].y.toFloat() / verticalStep
 
             val barStretch = stretch[i].value
-            val height1 = if (-yOffset1 * barStretch < -3) -yOffset1 * barStretch else 0f
-            val height2 = if (-yOffset2 * barStretch < -3) -yOffset2 * barStretch else 0f
+            val ratio = data[i].y1.toFloat() / data[i].y.toFloat()
 
-            if (height1 != 0f) {
-                rectList.add(
-                    Bar(
-                        rect = Rect(
-                            top = gridHeight + height1 + padding,
-                            left = x + padding,
-                            right = x + xItemSpacing - padding,
-                            bottom = gridHeight - padding
-                        ),
-                        type = NetworkType.Cellular
-                    )
+            rectList.add(
+                DoubleBar(
+                    Rect(
+                        top = gridHeight - yOffset * barStretch,
+                        left = x + padding,
+                        right = x + xItemSpacing - padding,
+                        bottom = gridHeight - padding
+                    ),
+                    ratio = ratio
                 )
-            }
-            if (height2 != 0f) {
-                rectList.add(
-                    Bar(
-                        rect = Rect(
-                            top = gridHeight + height1 + height2 + 2 * padding,
-                            left = x + padding,
-                            right = x + xItemSpacing - padding,
-                            bottom = gridHeight + height1 - padding
-                        ),
-                        type = NetworkType.Wifi
-                    )
-                )
-            }
+            )
         }
 
         return ScrollableBarGraphMetrics(
@@ -300,31 +285,40 @@ internal class ScrollableBarGraphHelper(
             )
         }
     }
-    internal fun drawBars(
-        cornerRadius: CornerRadius,
-        widths: List<Animatable<Float, *>>
-    ) {
+    internal fun drawBars(cornerRadius: CornerRadius) {
         scope.run {
-            metrics.rectList.forEachIndexed { i, bar ->
-                val path = Path().apply {
+            val path1 = Path()
+            val path2 = Path()
+            metrics.rectList.forEach { doubleBar ->
+                path1.apply {
                     addRoundRect(
                         RoundRect(
-                            rect = bar.rect.copy(
-                                left = bar.rect.left + widths[i].value,
-                                right = bar.rect.right - widths[i].value,
+                            rect = doubleBar.rect.copy(
+                                top = doubleBar.rect.bottom - doubleBar.rect.height * doubleBar.ratio + padding,
                             ),
                             cornerRadius = cornerRadius
                         )
                     )
                 }
-                drawPath(
-                    path = path,
-                    color = when(bar.type) {
-                        NetworkType.Cellular -> primaryColor
-                        NetworkType.Wifi -> secondaryColor
-                    }
-                )
+                path2.apply {
+                    addRoundRect(
+                        RoundRect(
+                            rect = doubleBar.rect.copy(
+                                bottom = doubleBar.rect.bottom - doubleBar.rect.height * doubleBar.ratio - padding
+                            ),
+                            cornerRadius = cornerRadius
+                        )
+                    )
+                }
             }
+            drawPath(
+                path = path1,
+                color = primaryColor
+            )
+            drawPath(
+                path = path2,
+                color = secondaryColor
+            )
         }
     }
 }

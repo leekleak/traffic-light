@@ -5,6 +5,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
@@ -57,10 +58,9 @@ fun ScrollableBarGraph(
     val onBackgroundColor = GraphTheme.onBackgroundColor
     val gridColor = GraphTheme.gridColor
     val cornerRadius = GraphTheme.cornerRadius
-
-    val barAnimationSqueeze = remember(data.size) { List(data.size * 2) { Animatable(0f) } }
+    
     val barAnimation = remember(data.size) { List(data.size) { Animatable(0f) } }
-    val barOffset = remember { mutableListOf<Bar>() }
+    val barOffset = remember { mutableListOf<DoubleBar>() }
     var selectorOffset by remember { mutableFloatStateOf(0f) }
     val selectorOffsetSnapped = remember { Animatable(0f) }
 
@@ -70,21 +70,57 @@ fun ScrollableBarGraph(
 
     val selectorGoal = (canvasWidth)/2 - ((canvasWidth)/2) % barWidth
 
+    val maximum = remember { Animatable(data.maxOf { it.y1 + it.y2 }.toFloat()) }
+    LaunchedEffect(data) {
+        val newMax = data.maxOfOrNull { it.y1 + it.y2 }?.toFloat() ?: Float.MAX_VALUE
+        maximum.animateTo(newMax, tween(10))
+    }
+    var selectorIndex by remember { mutableIntStateOf(data.size-1) }
+
+    val animatedY1 = remember(data.size) { data.map { Animatable(it.y1.toFloat()) } }
+    val animatedY2 = remember(data.size) { data.map { Animatable(it.y2.toFloat()) } }
+
+    LaunchedEffect(data) {
+        val max = data.maxOfOrNull { it.y1 + it.y2 }?.toFloat() ?: 0f
+        if (max == 0f) return@LaunchedEffect
+        data.forEachIndexed { index, item ->
+            launch {
+                animatedY1[index].animateTo(item.y1.toFloat(), tween(100))
+            }
+            launch {
+                animatedY2[index].animateTo(item.y2.toFloat(), tween(100))
+            }
+        }
+    }
+
+    val currentAnimatedData = remember(data, animatedY1, animatedY2) {
+        derivedStateOf {
+            data.mapIndexed { index, item ->
+                item.copy(
+                    y1 = animatedY1[index].value.toLong(),
+                    y2 = animatedY2[index].value.toLong()
+                )
+            }
+        }
+    }
+    val currentSelected by remember(selectorOffsetSnapped.value, offset.value) {
+        derivedStateOf {
+            ((selectorOffsetSnapped.value - offset.value) / barWidth).roundToInt()
+        }
+    }
+
     LaunchedEffect(canvasWidth) {
         selectorOffset = canvasWidth - 1f
         selectorOffsetSnapped.snapTo(selectorOffset - selectorOffset % barWidth)
     }
-
-    var selectorIndex by remember { mutableIntStateOf(data.size-1) }
-    LaunchedEffect(selectorOffsetSnapped.value, offset.value) {
-        val currentSelected = ((selectorOffsetSnapped.value - offset.value)/barWidth).roundToInt()
+    LaunchedEffect(currentSelected) {
         if (abs(currentSelected-selectorIndex) == 1) {
             if (selectorIndex in -1..data.size) {
                 haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
             }
         }
         selectorIndex = currentSelected
-        onSelect(((selectorOffsetSnapped.targetValue - offset.targetValue)/barWidth).roundToInt())
+        onSelect(currentSelected)
     }
 
     LaunchedEffect(selectorOffset) {
@@ -102,7 +138,8 @@ fun ScrollableBarGraph(
         }
     }
 
-    fun CoroutineScope.barAnimator(clickOffset: Float, barOffset: Float) {
+    fun CoroutineScope.barAnimator(clickOffset: Float, index: Int) {
+        val barOffset = index * barWidth
         if ((clickOffset - barOffset) in (0f..barWidth)) {
             launch {
                 val trueTargetValue = offset.targetValue + (canvasWidth / 2 - barOffset - barWidth / 2)
@@ -122,8 +159,6 @@ fun ScrollableBarGraph(
             }
         }
     }
-
-    val maximum = remember(data) { Animatable(data.maxOf { it.y1 + it.y2 }.toFloat()) }
 
     val scrollableState = rememberScrollableState { delta ->
         if (offset.value !in canvasWidth - barWidth * data.size..0f) return@rememberScrollableState 0f
@@ -185,7 +220,7 @@ fun ScrollableBarGraph(
             .pointerInput(Unit) {
                 detectTapGestures { offset ->
                     scope.launch {
-                        for (i in 0..<data.size) { barAnimator(offset.x, i * barWidth) }
+                        for (i in 0..<data.size) { barAnimator(offset.x, i) }
                     }
                 }
             }
@@ -196,7 +231,7 @@ fun ScrollableBarGraph(
     ) {
         val barGraphHelper = ScrollableBarGraphHelper(
             scope = this,
-            data = data,
+            data = currentAnimatedData.value,
             stretch = barAnimation,
             xOffset = offset.value.toInt(),
             xItemSpacing = barWidth,
@@ -207,6 +242,7 @@ fun ScrollableBarGraph(
             onBackgroundColor = onBackgroundColor,
             primaryColor = primaryColor,
             secondaryColor = secondaryColor,
+            padding = 0.5.dp.toPx(),
             onBarVisibilityChanged = { i, visible ->
                 if (visible) scope.launch { barAnimation[i].animateTo(1f) }
                 else scope.launch { barAnimation[i].snapTo(0f) }
@@ -220,7 +256,7 @@ fun ScrollableBarGraph(
 
         barOffset.clear()
         barOffset.addAll(barGraphHelper.metrics.rectList)
-        barGraphHelper.drawBars(cornerRadius, barAnimationSqueeze)
+        barGraphHelper.drawBars(cornerRadius)
         barGraphHelper.drawGrid(textMeasurer)
     }
 }
