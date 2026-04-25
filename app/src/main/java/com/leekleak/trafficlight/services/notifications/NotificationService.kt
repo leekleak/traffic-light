@@ -145,7 +145,12 @@ class NotificationService : LifecycleService() {
                 val notificationSpeed = appPreferenceRepo.notification.first()
                 if (notificationPlans.isNotEmpty() || notificationSpeed) {
                     if (!running.exchange(true)) {
-                        context.startForegroundService(Intent(context, NotificationService::class.java))
+                        runCatching {
+                            context.startForegroundService(Intent(context, NotificationService::class.java))
+                        }.onFailure {
+                            running.exchange(false)
+                            Timber.e(it)
+                        }
                     }
                 }
             }

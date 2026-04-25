@@ -263,7 +263,7 @@ class NetworkUsageManager(
         coroutineScope {
             (0..daysPassed).map { i ->
                 async {
-                    val now = now.minusDays(i.toLong())
+                    val now = now.minusDays(daysPassed.toLong() - i)
                     val usage1 = totalDayUsage(UsageQuery(DataType.Mobile), now)
                     val usage2 = totalDayUsage(UsageQuery(DataType.Wifi), now)
                     data[i] = data[i].copy(y1 = usage1, y2 = usage2)
