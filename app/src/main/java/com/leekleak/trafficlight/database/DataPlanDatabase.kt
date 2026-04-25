@@ -56,6 +56,33 @@ data class DataPlan(
 ) {
     val decryptedID: String?
         get() = CryptoManager.decrypt(encryptedSubscriberID)
+
+    fun resetString(context: Context): String {
+        val now = LocalDateTime.now()
+        val startDate = getStartDate()
+        val duration = Duration.between(now, startDate).toDays().toInt() + 1
+        return context.resources.getQuantityString(R.plurals.resets_in_days, duration, duration)
+    }
+
+    fun getStartDate(): LocalDateTime {
+        val now = LocalDateTime.now()
+        return when (interval) {
+            TimeInterval.MONTH -> {
+                var startDate = fromTimestamp(startDate)
+                while (startDate <= now) {
+                    startDate = startDate.plusMonths(1)
+                }
+                startDate.minusMonths(1)
+            }
+            TimeInterval.DAY -> {
+                var startDate = fromTimestamp(startDate)
+                while (startDate <= now) {
+                    startDate = startDate.plusDays(intervalMultiplier.toLong())
+                }
+                startDate.minusDays(intervalMultiplier.toLong())
+            }
+        }
+    }
 }
 
 @Dao
@@ -96,28 +123,6 @@ class Converters {
         if (data == "") return listOf()
         return data.split(",").mapNotNull { it.trim().toIntOrNull() }
     }
-}
-
-fun DataPlan.resetString(context: Context): String {
-    val now = LocalDateTime.now()
-    val startDate = when (interval) {
-        TimeInterval.MONTH -> {
-            var startDate = fromTimestamp(startDate).toLocalDate().atStartOfDay()
-            while (startDate <= now) {
-                startDate = startDate.plusMonths(1)
-            }
-            startDate
-        }
-        TimeInterval.DAY -> {
-            var startDate = fromTimestamp(startDate).toLocalDate().atStartOfDay()
-            while (startDate <= now) {
-                startDate = startDate.plusDays(intervalMultiplier.toLong())
-            }
-            startDate
-        }
-    }
-    val duration = Duration.between(now, startDate).toDays().toInt() + 1
-    return context.resources.getQuantityString(R.plurals.resets_in_days, duration, duration)
 }
 
 class DataPlanRepository(private val dao: DataPlanDao) {

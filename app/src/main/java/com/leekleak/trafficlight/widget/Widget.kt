@@ -44,7 +44,6 @@ import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
-import com.leekleak.trafficlight.database.resetString
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.util.DataSize

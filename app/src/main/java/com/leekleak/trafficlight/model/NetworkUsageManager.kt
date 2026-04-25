@@ -13,7 +13,6 @@ import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HourUsage
-import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.model.AppManager.Companion.specialUIDs
@@ -78,23 +77,7 @@ class NetworkUsageManager(
 
     suspend fun planUsage(dataPlan: DataPlan): Long {
         val now = LocalDateTime.now()
-        val startDate = when (dataPlan.interval) {
-            TimeInterval.MONTH -> {
-                var startDate = fromTimestamp(dataPlan.startDate)
-                while (startDate <= now) {
-                    startDate = startDate.plusMonths(1)
-                }
-                startDate.minusMonths(1)
-            }
-            TimeInterval.DAY -> {
-                var startDate = fromTimestamp(dataPlan.startDate)
-                while (startDate <= now) {
-                    startDate = startDate.plusDays(dataPlan.intervalMultiplier.toLong())
-                }
-                startDate.minusDays(dataPlan.intervalMultiplier.toLong())
-            }
-        }
-
+        val startDate = dataPlan.getStartDate()
         val startStamp = startDate.toTimestamp()
         val endStamp = now.toTimestamp()
         val id = dataPlan.decryptedID

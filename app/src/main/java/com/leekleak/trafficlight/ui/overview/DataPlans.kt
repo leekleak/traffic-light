@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
-import com.leekleak.trafficlight.database.resetString
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.ui.theme.carrierFont

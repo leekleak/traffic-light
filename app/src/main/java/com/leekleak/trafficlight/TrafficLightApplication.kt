@@ -23,7 +23,6 @@ class TrafficLightApplication : Application() {
         super.onCreate()
 
         createNotificationChannel()
-        startAlarmManager(this)
         if (BuildConfig.DEBUG && Timber.forest().isEmpty()) {
             Timber.plant(Timber.DebugTree())
         }
@@ -39,6 +38,7 @@ class TrafficLightApplication : Application() {
                 notificationModule
             )
         }
+        startAlarmManager(this)
     }
 
     private fun createNotificationChannel() {

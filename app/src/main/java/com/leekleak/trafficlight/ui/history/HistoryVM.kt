@@ -42,7 +42,7 @@ class HistoryVM(
     private val appManager: AppManager,
     private val prefs: HistoryPreferenceRepo,
 ): ViewModel() {
-    private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1)//.apply { tryEmit(Unit) }
+    private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
     private val dateParams = MutableStateFlow(DateParams(LocalDate.now(), false))
     private val listParam = MutableStateFlow(ListParam.AppList)
     private val query1 = MutableStateFlow(UsageQuery(DataType.Mobile))

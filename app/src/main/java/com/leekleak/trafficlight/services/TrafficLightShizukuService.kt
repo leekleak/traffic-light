@@ -1,6 +1,5 @@
 package com.leekleak.trafficlight.services
 
-import android.annotation.SuppressLint
 import android.os.Parcel
 import android.telephony.SubscriptionInfo
 import androidx.core.text.isDigitsOnly
@@ -10,7 +9,6 @@ import timber.log.Timber
 import java.lang.reflect.Field
 import kotlin.system.exitProcess
 
-@SuppressLint("LogNotTimber")
 class TrafficLightShizukuService : ITrafficLightShizukuService.Stub() {
     override fun destroy() {
         exitProcess(0)
@@ -108,7 +106,7 @@ class TrafficLightShizukuService : ITrafficLightShizukuService.Stub() {
                 declaredField.getInt(cls)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e)
         }
         return null
     }

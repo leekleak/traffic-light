@@ -17,8 +17,8 @@ class AutoStarter : BroadcastReceiver(), KoinComponent {
     private val applicationScope: CoroutineScope by inject()
 
     override fun onReceive(context: Context, intent: Intent) {
-        val pendingResult = goAsync()
         if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+            val pendingResult = goAsync()
             applicationScope.launch {
                 try {
                     permissionManager.update()

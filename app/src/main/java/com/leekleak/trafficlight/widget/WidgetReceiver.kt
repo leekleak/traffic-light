@@ -19,6 +19,7 @@ import org.koin.core.component.inject
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
+@OptIn(ExperimentalAtomicApi::class)
 class WidgetReceiver: GlanceAppWidgetReceiver(), KoinComponent {
     private val applicationScope: CoroutineScope by inject()
     override val glanceAppWidget: GlanceAppWidget = Widget()
@@ -74,7 +75,11 @@ class WidgetReceiver: GlanceAppWidgetReceiver(), KoinComponent {
         }
     }
 
-    @OptIn(ExperimentalAtomicApi::class)
+    override fun onDisabled(context: Context?) {
+        registered.exchange(false)
+        super.onDisabled(context)
+    }
+
     fun registerReceiver(context: Context) {
         if (registered.exchange(true)) return
         context.applicationContext.registerReceiver(this, IntentFilter().apply {
@@ -84,7 +89,6 @@ class WidgetReceiver: GlanceAppWidgetReceiver(), KoinComponent {
     }
 
     companion object {
-        @OptIn(ExperimentalAtomicApi::class)
         private var registered = AtomicBoolean(false)
     }
 }

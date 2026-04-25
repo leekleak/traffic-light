@@ -258,9 +258,6 @@ internal class ScrollableBarGraphHelper(
                 val overlapRatio = -(xOffset - metrics.gridWidth) / result.size.width
                 val textOffset = Offset(xOffset, yOffset)
                 if (overlapRatio in 0f..1f) {
-                    val colorArray = mutableListOf(0f to color)
-                    colorArray.add(overlapRatio - 0.1f to color)
-                    colorArray.add(overlapRatio to background)
                     val textBrush = Brush.horizontalGradient(
                         0f to color, overlapRatio - 0.1f to color, overlapRatio to background,
                         startX = 0f,
