@@ -3,6 +3,7 @@ package com.leekleak.trafficlight.database
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import timber.log.Timber
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -54,7 +55,7 @@ object CryptoManager {
         val cipher = Cipher.getInstance(ALGORITHM)
         cipher.init(Cipher.DECRYPT_MODE, getSecretKey(KEY_ALIAS), GCMParameterSpec(128, iv))
         return String(cipher.doFinal(ciphertext), Charsets.UTF_8)
-    }.getOrNull()
+    }.onFailure { Timber.e(it, "Decryption failed") }.getOrNull()
 
     fun hashIdentifier(id: String): String {
         val hmac = Mac.getInstance("HmacSHA256")
