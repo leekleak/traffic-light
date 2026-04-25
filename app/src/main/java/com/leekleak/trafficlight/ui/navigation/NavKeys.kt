@@ -1,6 +1,7 @@
 package com.leekleak.trafficlight.ui.navigation
 
 import androidx.navigation3.runtime.NavKey
+import com.leekleak.trafficlight.database.DataPlan
 import kotlinx.serialization.Serializable
 
 /**
@@ -23,7 +24,7 @@ val mainScreens = listOf(Blank, Overview, History)
  * Settings
  */
 @Serializable
-data class PlanConfig(val subscriberId: String) : NavKey
+data class PlanConfig(val dataPlan: DataPlan) : NavKey
 
 /**
  * Settings

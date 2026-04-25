@@ -16,6 +16,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.flow.Flow
+import kotlinx.serialization.Serializable
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -25,6 +26,7 @@ enum class TimeInterval {
     MONTH
 }
 
+@Serializable
 @Entity
 data class DataPlan(
     @PrimaryKey
@@ -52,15 +54,14 @@ data class DataPlan(
      */
     @ColumnInfo val uiBackground: Int = 0,
 ) {
-    fun getDecryptedID(): String {
-        return CryptoManager.decrypt(encryptedSubscriberID)
-    }
+    val decryptedID: String?
+        get() = CryptoManager.decrypt(encryptedSubscriberID)
 }
 
 @Dao
 interface DataPlanDao {
     @Query("SELECT * FROM dataplan")
-    suspend fun getAll(): List<DataPlan>?
+    suspend fun getAll(): List<DataPlan>
 
     @Query("SELECT * FROM dataplan WHERE hashedSubscriberID = :hashedID")
     suspend fun getByHash(hashedID: String): DataPlan?
@@ -128,10 +129,5 @@ class DataPlanRepository(private val dao: DataPlanDao) {
             carrierName = carrierName
         )
         dao.add(plan)
-    }
-
-    suspend fun getPlan(plainSubscriberID: String): DataPlan? {
-        val hashedID = CryptoManager.hashIdentifier(plainSubscriberID)
-        return dao.getByHash(hashedID)
     }
 }

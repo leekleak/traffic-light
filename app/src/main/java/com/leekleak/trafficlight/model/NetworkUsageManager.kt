@@ -97,7 +97,7 @@ class NetworkUsageManager(
 
         val startStamp = startDate.toTimestamp()
         val endStamp = now.toTimestamp()
-        val id = dataPlan.getDecryptedID()
+        val id = dataPlan.decryptedID
         val subscriberId = if (id == NULL_SUBSCRIBER) null else id
 
         val networkData = getNetworkDataForType(startStamp, endStamp, subscriberId, DataType.Mobile)

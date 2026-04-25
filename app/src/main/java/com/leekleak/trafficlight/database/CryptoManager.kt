@@ -3,7 +3,6 @@ package com.leekleak.trafficlight.database
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
-import com.leekleak.trafficlight.model.NetworkUsageManager.Companion.NULL_SUBSCRIBER
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -47,7 +46,7 @@ object CryptoManager {
         return Base64.encodeToString(iv + encrypted, Base64.NO_WRAP)
     }
 
-    fun decrypt(encryptedData: String): String = runCatching {
+    fun decrypt(encryptedData: String): String? = runCatching {
         val combined = Base64.decode(encryptedData, Base64.NO_WRAP)
         val iv = combined.sliceArray(0 until 12)
         val ciphertext = combined.sliceArray(12 until combined.size)
@@ -55,7 +54,7 @@ object CryptoManager {
         val cipher = Cipher.getInstance(ALGORITHM)
         cipher.init(Cipher.DECRYPT_MODE, getSecretKey(KEY_ALIAS), GCMParameterSpec(128, iv))
         return String(cipher.doFinal(ciphertext), Charsets.UTF_8)
-    }.getOrNull() ?: NULL_SUBSCRIBER
+    }.getOrNull()
 
     fun hashIdentifier(id: String): String {
         val hmac = Mac.getInstance("HmacSHA256")

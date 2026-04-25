@@ -126,7 +126,7 @@ fun NavigationManager() {
                     entry<Settings> { Settings(paddingValues) }
 
                     entry<UsagePermissionRequest> { UsagePermissionRequest(paddingValues) }
-                    entry<PlanConfig> { PlanConfig(it.subscriberId) }
+                    entry<PlanConfig> { PlanConfig(it.dataPlan) }
                     entry<NotificationSettings> { NotificationSettings(paddingValues) }
                 },
                 transitionSpec = {
