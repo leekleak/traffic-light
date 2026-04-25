@@ -65,7 +65,6 @@ class HistoryVM(
             query2.value = prefs.query2.first()
             listParam.value = prefs.listParam.first()
             refresh()
-            Timber.e("VM Launch refresh")
         }
         forceHourList
             .onEach { forced ->

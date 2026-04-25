@@ -131,7 +131,6 @@ fun History(paddingValues: PaddingValues) {
 
     LifecycleResumeEffect(Unit) {
         viewModel.refresh()
-        Timber.e("VM Launch refresh")
         onPauseOrDispose {}
     }
 

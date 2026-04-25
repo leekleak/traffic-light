@@ -25,8 +25,8 @@ import org.koin.compose.koinInject
 
 class MainActivity : ComponentActivity() {
 
-    val appPreferenceRepo: AppPreferenceRepo by inject()
-    val dataPlanDao: DataPlanDao by inject()
+    private val appPreferenceRepo: AppPreferenceRepo by inject()
+    private val dataPlanDao: DataPlanDao by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

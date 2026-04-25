@@ -21,7 +21,7 @@ class NotificationService : LifecycleService(), KoinComponent {
     private val appPreferenceRepo: AppPreferenceRepo by inject()
     private val dataPlanDao: DataPlanDao by inject()
     private var foregroundNotification: PersistentNotification? = null
-    private val mutableSet = buildSet { (228..250).forEach { add(it) } }.toMutableSet()
+    private var notificationIDCounter = 0
     private val activeNotifications: MutableList<PersistentNotification> = mutableListOf()
     private val screenStateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -48,9 +48,8 @@ class NotificationService : LifecycleService(), KoinComponent {
         lifecycleScope.launch {
             appPreferenceRepo.notification.collect { enabled ->
                 if (enabled) {
-                    val id = mutableSet.firstOrNull() ?: return@collect
+                    val id = notificationIDCounter.also { notificationIDCounter++ }
                     val notif = get<SpeedNotification> { parametersOf(lifecycleScope, id) }
-                    mutableSet.remove(id)
                     notif.start()
                     activeNotifications.add(notif)
                     updateForegroundNotification()
@@ -60,7 +59,6 @@ class NotificationService : LifecycleService(), KoinComponent {
                         activeNotifications.remove(notification)
                         updateForegroundNotification()
                         notification.cancel()
-                        mutableSet.add(notification.getId())
                     }
                 }
             }
@@ -72,9 +70,8 @@ class NotificationService : LifecycleService(), KoinComponent {
                     val notification = activePlanNotifications.find { it.dataPlan == plan }
                     if (notification != null || !plan.notification) return@forEach
 
-                    val id = mutableSet.firstOrNull() ?: return@collect
+                    val id = notificationIDCounter.also { notificationIDCounter++ }
                     val notif = get<PlanNotification> { parametersOf(lifecycleScope, id, plan) }
-                    mutableSet.remove(id)
                     notif.start()
                     activeNotifications.add(notif)
                     updateForegroundNotification()
@@ -84,7 +81,6 @@ class NotificationService : LifecycleService(), KoinComponent {
                         activeNotifications.remove(notification)
                         updateForegroundNotification()
                         notification.cancel()
-                        mutableSet.add(notification.getId())
                     }
                 }
             }

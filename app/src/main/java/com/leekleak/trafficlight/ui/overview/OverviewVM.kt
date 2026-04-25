@@ -3,8 +3,10 @@ package com.leekleak.trafficlight.ui.overview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leekleak.trafficlight.model.NetworkUsageManager
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
@@ -12,7 +14,8 @@ class OverviewVM(
     networkUsageManager: NetworkUsageManager
 ) : ViewModel() {
     private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
-    val weekUsage = refreshTrigger.map { networkUsageManager.weekUsage() }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val weekUsage = refreshTrigger.flatMapLatest { networkUsageManager.weekUsage() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     val todayUsage = refreshTrigger.map { networkUsageManager.todayMobileUsage() }

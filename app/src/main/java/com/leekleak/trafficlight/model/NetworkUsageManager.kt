@@ -266,30 +266,28 @@ class NetworkUsageManager(
         emit(data.toList())
     }
 
-    suspend fun weekUsage(): List<BarData> {
+    fun weekUsage(): Flow<List<BarData>> = flow {
         val field = WeekFields.of(Locale.getDefault())
         val firstDay = field.firstDayOfWeek
         val data: MutableList<BarData> = MutableList(7) { i ->
             val x = firstDay.plus(i.toLong()).getName(TextStyle.SHORT_STANDALONE)
             BarData(x, 0, 0)
         }
+        emit(data.toList())
         val now = LocalDate.now()
         val daysPassed = now.get(field.dayOfWeek()) - 1
 
-        for (i in 0..daysPassed) {
-            val usage1 = totalDayUsage(
-                startDate = now.minusDays(i.toLong()),
-                query = UsageQuery(DataType.Mobile),
-            )
-
-            val usage2 = totalDayUsage(
-                startDate = now.minusDays(i.toLong()),
-                query = UsageQuery(DataType.Wifi),
-            )
-
-            data[daysPassed - i] += BarData("", usage1, usage2)
+        coroutineScope {
+            (0..daysPassed).map { i ->
+                async {
+                    val now = now.minusDays(i.toLong())
+                    val usage1 = totalDayUsage(UsageQuery(DataType.Mobile), now)
+                    val usage2 = totalDayUsage(UsageQuery(DataType.Wifi), now)
+                    data[i] = data[i].copy(y1 = usage1, y2 = usage2,)
+                }
+            }.awaitAll()
         }
-        return data.toList()
+        emit(data.toList())
     }
 
     suspend fun predictUsage(): Long {
