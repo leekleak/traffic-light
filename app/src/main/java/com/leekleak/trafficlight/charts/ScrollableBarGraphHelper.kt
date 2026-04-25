@@ -111,7 +111,7 @@ internal class ScrollableBarGraphHelper(
             }
         }
 
-        val absMaxY = visibleIndices.maxOf { data[it].y1 + data[it].y2 }
+        val absMaxY = visibleIndices.maxOfOrNull { data[it].y1 + data[it].y2 } ?: Long.MAX_VALUE
         if (maximum.targetValue.toLong() != absMaxY && absMaxY != 0L) { onMaximumChange(absMaxY) }
 
         val verticalStep = maximum.value / gridHeight

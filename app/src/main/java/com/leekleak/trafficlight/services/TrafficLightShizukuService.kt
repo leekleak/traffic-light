@@ -14,7 +14,7 @@ class TrafficLightShizukuService : ITrafficLightShizukuService.Stub() {
         exitProcess(0)
     }
 
-    var subscriberIDTransaction: Int? = null
+    private var subscriberIDTransaction: Int? = null
     override fun getSubscriberIDTransaction(): Int {
         val className = $$"com.android.internal.telephony.IPhoneSubInfo$Stub"
         val methodName = "getSubscriberIdForSubscriber"
@@ -24,7 +24,7 @@ class TrafficLightShizukuService : ITrafficLightShizukuService.Stub() {
         return subscriberIDTransaction ?: 0
     }
 
-    var subscriptionInfoListTransaction: Int? = null
+    private var subscriptionInfoListTransaction: Int? = null
     override fun getSubscriptionInfoListTransaction(): Int {
         val className = $$"com.android.internal.telephony.ISub$Stub"
         val methodName = "getActiveSubscriptionInfoList"

@@ -60,7 +60,6 @@ fun ScrollableBarGraph(
     val cornerRadius = GraphTheme.cornerRadius
     
     val barAnimation = remember(data.size) { List(data.size) { Animatable(0f) } }
-    val barOffset = remember { mutableListOf<DoubleBar>() }
     var selectorOffset by remember { mutableFloatStateOf(0f) }
     val selectorOffsetSnapped = remember { Animatable(0f) }
 
@@ -254,8 +253,6 @@ fun ScrollableBarGraph(
             }
         )
 
-        barOffset.clear()
-        barOffset.addAll(barGraphHelper.metrics.rectList)
         barGraphHelper.drawBars(cornerRadius)
         barGraphHelper.drawGrid(textMeasurer)
     }

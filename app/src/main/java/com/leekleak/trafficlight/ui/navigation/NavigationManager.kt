@@ -37,7 +37,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -107,8 +106,8 @@ fun NavigationManager() {
                         modifier = Modifier.navBarShadow(),
                         expanded = true,
                         content = {
-                            NavigationButton(backStack, Overview, stringResource(R.string.overview), R.drawable.overview)
-                            NavigationButton(backStack, History, stringResource(R.string.history), R.drawable.history)
+                            NavigationButton(navigator, Overview, stringResource(R.string.overview), R.drawable.overview)
+                            NavigationButton(navigator, History, stringResource(R.string.history), R.drawable.history)
                         },
                     )
                 }
@@ -151,19 +150,18 @@ fun NavigationManager() {
 
 
 @Composable
-fun NavigationButton(backstack: SnapshotStateList<NavKey>, route: NavKey, name: String, icon: Int) {
+fun NavigationButton(navigator: Navigator, route: NavKey, name: String, icon: Int) {
     val haptic = LocalHapticFeedback.current
     Button (
         colors =
-            if (backstack.last() == route){
+            if (navigator.current == route){
                 ButtonDefaults.filledTonalButtonColors()
             } else {
                 ButtonDefaults.textButtonColors()
             },
         onClick = {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-            backstack.clear()
-            backstack.add(route)
+            navigator.setTo(route)
         }
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -171,7 +169,7 @@ fun NavigationButton(backstack: SnapshotStateList<NavKey>, route: NavKey, name: 
                 painter = painterResource(icon),
                 contentDescription = route.toString()
             )
-            AnimatedVisibility(backstack.last() == route) {
+            AnimatedVisibility(navigator.current == route) {
                 Text(text = name)
             }
         }
