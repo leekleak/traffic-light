@@ -28,9 +28,6 @@ class AppPreferenceRepo (
     val modeAOD: Flow<Boolean> = data.map { it[MODE_AOD] ?: false }.distinctUntilChanged()
     suspend fun setModeAOD(value: Boolean) = dataStore.edit { it[MODE_AOD] = value }
 
-    val bigIcon: Flow<Boolean> = data.map { it[BIG_ICON] ?: false }.distinctUntilChanged()
-    suspend fun setBigIcon(value: Boolean) = dataStore.edit { it[BIG_ICON] = value }
-
     val speedBits: Flow<Boolean> = data.map { it[SPEED_BITS] ?: false }.distinctUntilChanged()
     suspend fun setSpeedBits(value: Boolean) = dataStore.edit { it[SPEED_BITS] = value }
 
@@ -56,7 +53,6 @@ class AppPreferenceRepo (
         private val NOTIFICATION = booleanPreferencesKey("notification")
         private val LIVE_NOTIFICATION = booleanPreferencesKey("live_notification")
         private val MODE_AOD = booleanPreferencesKey("mode_aod")
-        private val BIG_ICON = booleanPreferencesKey("big_icon")
         private val SPEED_BITS = booleanPreferencesKey("speed_bits")
         private val FORCE_FALLBACK = booleanPreferencesKey("force_fallback")
         private val ALT_VPN_WORKAROUND = booleanPreferencesKey("alt_vpn")

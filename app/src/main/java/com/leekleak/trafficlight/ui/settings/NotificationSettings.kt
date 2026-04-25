@@ -48,8 +48,8 @@ fun NotificationSettings(paddingValues: PaddingValues) {
             .hazeSource(hazeState),
         contentPadding = paddingValues
     ) {
+        categoryTitleSmall { stringResource(R.string.appearance) }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
-            categoryTitleSmall { stringResource(R.string.live_notification) }
             item {
                 val liveNotification by viewModel.liveNotification.collectAsState()
                 Row (
@@ -70,17 +70,6 @@ fun NotificationSettings(paddingValues: PaddingValues) {
                     )
                 }
             }
-        }
-        categoryTitleSmall { stringResource(R.string.appearance) }
-        item {
-            val bigIcon by appPreferenceRepo.bigIcon.collectAsState(false)
-            SwitchPreference(
-                title = stringResource(R.string.oversample_icon),
-                summary = stringResource(R.string.oversample_icon_description),
-                icon = painterResource(R.drawable.oversample),
-                value = bigIcon,
-                onValueChanged = { scope.launch { appPreferenceRepo.setBigIcon(it) } }
-            )
         }
         item {
             val speedBits by appPreferenceRepo.speedBits.collectAsState(false)
