@@ -112,4 +112,5 @@
     <string name="live_notification">إشعار حي</string>
     <string name="very_big">كبير جدًا</string>
     <string name="plan_notification_description">تتبع استخدام الخطة في شريط الحالة.</string>
+    <string name="unsupported_by_play_store_version">غير مدعوم من نسخة متجر Play</string>
 </resources>
