@@ -17,6 +17,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import kotlin.concurrent.atomics.AtomicBoolean
+import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
 class WidgetReceiver: GlanceAppWidgetReceiver(), KoinComponent {
     private val applicationScope: CoroutineScope by inject()
@@ -73,18 +75,17 @@ class WidgetReceiver: GlanceAppWidgetReceiver(), KoinComponent {
         }
     }
 
-
+    @OptIn(ExperimentalAtomicApi::class)
     fun registerReceiver(context: Context) {
-        if (registered) return
+        if (registered.exchange(true)) return
         context.applicationContext.registerReceiver(this, IntentFilter().apply {
             addAction(ACTION_SCREEN_ON)
             addAction(ACTION_SCREEN_OFF)
         })
-
-        registered = true
     }
 
     companion object {
-        private var registered: Boolean = false
+        @OptIn(ExperimentalAtomicApi::class)
+        private var registered = AtomicBoolean(false)
     }
 }

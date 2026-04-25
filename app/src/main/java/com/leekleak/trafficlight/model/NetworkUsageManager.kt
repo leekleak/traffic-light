@@ -137,30 +137,18 @@ class NetworkUsageManager(
         } else {
             networkStatsManager.queryDetailsForUid(type.queryIndex ?: return@withContext listOf(), subscriberId, startStamp, endStamp, uid)
         }.use { summary ->
-            val list = mutableListOf<UsageData>()
+            val map = mutableMapOf<LocalDateTime, UsageData>()
             while (summary.hasNextBucket()) {
                 val bucket = NetworkStats.Bucket()
                 summary.getNextBucket(bucket)
                 val end = fromTimestamp(bucket.endTimeStamp)
                 val start = fromTimestamp(bucket.startTimeStamp)
-                val item = list.find { it.start == start }
 
-                item?.let {
-                    list.add(UsageData(
-                        upload = it.upload + bucket.txBytes,
-                        download = it.download + bucket.rxBytes,
-                        start = start,
-                        end = end
-                    ))
-                    list.remove(item)
-                } ?: list.add(UsageData(
-                    upload = bucket.txBytes,
-                    download = bucket.rxBytes,
-                    start = start,
-                    end = end
-                ))
+                map.merge(start, UsageData(bucket.txBytes, bucket.rxBytes, start = start, end = end)) { old, new ->
+                    old.copy(upload = old.upload + new.upload, download = old.download + new.download)
+                }
             }
-            return@withContext list.toList()
+            return@withContext map.values.toList()
         }
     }
 
@@ -189,8 +177,8 @@ class NetworkUsageManager(
 
         val totalUsage = DayUsage(
             date = dateParams.day,
-            usage1 = totalDayUsage(query1, dates.first, dates.second),
-            usage2 = totalDayUsage(query2, dates.first, dates.second)
+            usage1 = list.sumOf { it.usage.usage1 },
+            usage2 = list.sumOf { it.usage.usage2 }
         )
 
         list.sortByDescending { it.usage.totalUsage }
