@@ -59,12 +59,12 @@ data class DataPlan(
 
     fun resetString(context: Context): String {
         val now = LocalDateTime.now()
-        val startDate = getStartDate()
+        val startDate = getStartDate(true)
         val duration = Duration.between(now, startDate).toDays().toInt() + 1
         return context.resources.getQuantityString(R.plurals.resets_in_days, duration, duration)
     }
 
-    fun getStartDate(): LocalDateTime {
+    fun getStartDate(next: Boolean = false): LocalDateTime {
         val now = LocalDateTime.now()
         return when (interval) {
             TimeInterval.MONTH -> {
@@ -72,14 +72,14 @@ data class DataPlan(
                 while (startDate <= now) {
                     startDate = startDate.plusMonths(1)
                 }
-                startDate.minusMonths(1)
+                startDate.apply { if (!next) minusMonths(1) }
             }
             TimeInterval.DAY -> {
                 var startDate = fromTimestamp(startDate)
                 while (startDate <= now) {
                     startDate = startDate.plusDays(intervalMultiplier.toLong())
                 }
-                startDate.minusDays(intervalMultiplier.toLong())
+                startDate.apply { if (!next) minusDays(intervalMultiplier.toLong()) }
             }
         }
     }

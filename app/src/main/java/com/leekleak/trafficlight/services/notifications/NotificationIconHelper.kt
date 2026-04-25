@@ -65,6 +65,10 @@ class NotificationIconHelper(private val context: Context) {
              *
              * Making caching more aggressive is probably a bad idea as duplicating bitmaps is quite
              * expensive and not worth it if the value appears once a day.
+             *
+             * Generally one would worry about bitmap corruption, but as the icon never updates more than
+             * once every 900ms, that's incredibly unlikely and duplicating is not worth the performance/
+             * efficiency cost.
              */
             if (speed.count(Char::isDigit) == 1) {
                 cachedIcons.put(

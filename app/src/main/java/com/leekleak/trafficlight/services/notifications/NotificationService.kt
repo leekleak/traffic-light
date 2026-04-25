@@ -20,6 +20,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
 import timber.log.Timber
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
@@ -27,7 +28,7 @@ class NotificationService : LifecycleService() {
     private val appPreferenceRepo: AppPreferenceRepo by inject()
     private val dataPlanDao: DataPlanDao by inject()
     private var foregroundNotification: PersistentNotification? = null
-    private var notificationIDCounter = 1
+    private var notificationIDCounter = AtomicInteger(1)
     private val activeNotifications: MutableList<PersistentNotification> = mutableListOf()
     private val screenStateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -54,7 +55,7 @@ class NotificationService : LifecycleService() {
         lifecycleScope.launch {
             appPreferenceRepo.notification.collect { enabled ->
                 if (enabled) {
-                    val id = notificationIDCounter.also { notificationIDCounter++ }
+                    val id = notificationIDCounter.getAndIncrement()
                     val notif = get<SpeedNotification> { parametersOf(lifecycleScope, id) }
                     notif.start()
                     activeNotifications.add(notif)
@@ -76,7 +77,7 @@ class NotificationService : LifecycleService() {
                     val notification = activePlanNotifications.find { it.dataPlan == plan }
                     if (notification != null || !plan.notification) return@forEach
 
-                    val id = notificationIDCounter.also { notificationIDCounter++ }
+                    val id = notificationIDCounter.getAndIncrement()
                     val notif = get<PlanNotification> { parametersOf(lifecycleScope, id, plan) }
                     notif.start()
                     activeNotifications.add(notif)
@@ -103,7 +104,7 @@ class NotificationService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
         Timber.i("Starting foreground service")
-        val id = notificationIDCounter.also { notificationIDCounter++ }
+        val id = notificationIDCounter.getAndIncrement()
         startForeground(id, placeholderNotification())
         activeNotifications.forEach { it.start() }
         updateForegroundNotification()
