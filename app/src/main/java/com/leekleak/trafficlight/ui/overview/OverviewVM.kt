@@ -16,16 +16,16 @@ class OverviewVM(
     private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
     @OptIn(ExperimentalCoroutinesApi::class)
     val weekUsage = refreshTrigger.flatMapLatest { networkUsageManager.weekUsage() }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val todayUsage = refreshTrigger.map { networkUsageManager.todayMobileUsage() }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, 0)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     val prediction = refreshTrigger.map { networkUsageManager.predictUsage() }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, 0)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     val trend = refreshTrigger.map { networkUsageManager.getTrend() }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, 0.0)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
     fun refresh() = refreshTrigger.tryEmit(Unit)
 }

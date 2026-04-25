@@ -11,8 +11,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import timber.log.Timber
 import java.io.File
 import java.time.LocalDate
@@ -44,14 +42,14 @@ data class HourUsage(
 }
 
 class TrafficSnapshot (
-    val scope: CoroutineScope,
-    var lastDown: Long = 0,
-    var lastUp: Long = 0,
-    var currentDown: Long = 0,
-    var currentUp: Long = 0,
-) : KoinComponent {
-    private val appPreferenceRepo: AppPreferenceRepo by inject()
-    private val connectivityManager: ConnectivityManager by inject()
+    private val scope: CoroutineScope,
+    private val appPreferenceRepo: AppPreferenceRepo,
+    private val connectivityManager: ConnectivityManager,
+    @Volatile private var lastDown: Long = 0,
+    @Volatile private var lastUp: Long = 0,
+    @Volatile private var currentDown: Long = 0,
+    @Volatile private var currentUp: Long = 0,
+) {
     @Volatile private var useFallback: Boolean = TrafficStats.getTotalTxBytes() == TrafficStats.UNSUPPORTED.toLong()
     @Volatile private var altVpnWorkaround: Boolean = false
 

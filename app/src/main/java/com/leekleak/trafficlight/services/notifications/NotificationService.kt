@@ -23,7 +23,7 @@ import timber.log.Timber
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
-class NotificationService : LifecycleService(), KoinComponent {
+class NotificationService : LifecycleService() {
     private val appPreferenceRepo: AppPreferenceRepo by inject()
     private val dataPlanDao: DataPlanDao by inject()
     private var foregroundNotification: PersistentNotification? = null

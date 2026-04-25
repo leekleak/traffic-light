@@ -52,12 +52,12 @@ class SpeedNotification(
     private val notificationManager: NotificationManager,
     private val connectivityManager: ConnectivityManager,
     private val appPreferenceRepo: AppPreferenceRepo,
+    private val trafficSnapshot: TrafficSnapshot,
 ) : PersistentNotification {
     private val scope = CoroutineScope(serviceScope.coroutineContext + SupervisorJob(serviceScope.coroutineContext[Job]))
     private var job: Job? = null
     private lateinit var notificationBuilder: NotificationCompat.Builder
     private lateinit var notification: Notification
-    private val trafficSnapshot = TrafficSnapshot(scope)
     private var updateCounter = DATA_UPDATE_FREQ
 
     private val queryMobile =
