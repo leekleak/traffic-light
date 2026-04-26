@@ -284,7 +284,7 @@ class NetworkUsageManager(
         var daySum = 0.0
 
         for (i in 1..4) {
-            val pivotStamp = nowStamp - i * 24 * 7 * 3_600_000
+            val pivotStamp = nowStamp - i * 24 * 7 * 3_600_000L
             val futureHours = getNetworkDataForType(pivotStamp, pivotStamp + hoursLeft * 3_600_000, null, DataType.Mobile)
                 .sumOf { it.total }
             val pastHours = getNetworkDataForType(pivotStamp - 24 * 3_600_000, pivotStamp, null, DataType.Mobile)
