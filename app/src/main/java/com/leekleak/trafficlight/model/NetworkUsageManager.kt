@@ -283,15 +283,18 @@ class NetworkUsageManager(
         var hourSum = 0.0
         var daySum = 0.0
 
-        for (i in 1..4) {
-            val pivotStamp = nowStamp - i * 24 * 7 * 3_600_000L
-            val futureHours = getNetworkDataForType(pivotStamp, pivotStamp + hoursLeft * 3_600_000, null, DataType.Mobile)
-                .sumOf { it.total }
-            val pastHours = getNetworkDataForType(pivotStamp - 24 * 3_600_000, pivotStamp, null, DataType.Mobile)
-                .sumOf { it.total }
 
-            daySum += futureHours + pastHours
-            hourSum += pastHours
+        coroutineScope {
+            (1..4).map { i ->
+                async {
+                    val pivotStamp = nowStamp - i * 24 * 7 * 3_600_000L
+                    val futureHours = getNetworkDataForType(pivotStamp, pivotStamp + hoursLeft * 3_600_000, null, DataType.Mobile).sumOf { it.total }
+                    val pastHours = getNetworkDataForType(pivotStamp - 24 * 3_600_000, pivotStamp, null, DataType.Mobile).sumOf { it.total }
+
+                    daySum += futureHours + pastHours
+                    hourSum += pastHours
+                }
+            }.awaitAll()
         }
 
         return if (hourSum == 0.0) {
