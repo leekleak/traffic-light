@@ -799,7 +799,7 @@ fun LineGraphHeader() {
             if (usageQueries.first.dataType != DataType.None) {
                 Text(
                     modifier = Modifier.weight(1f),
-                    text = usageQueries.second.toString(context),
+                    text = usageQueries.first.toString(context),
                     style = MaterialTheme.typography.titleMedium,
                     color = colorScheme.tertiary
                 )
@@ -807,7 +807,7 @@ fun LineGraphHeader() {
             if (usageQueries.second.dataType != DataType.None) {
                 Text(
                     modifier = Modifier.weight(1f),
-                    text = usageQueries.first.toString(context),
+                    text = usageQueries.second.toString(context),
                     textAlign = TextAlign.End,
                     style = MaterialTheme.typography.titleMedium,
                     color = colorScheme.tertiary
