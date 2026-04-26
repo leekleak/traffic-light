@@ -24,8 +24,8 @@ android {
         applicationId = "com.leekleak.trafficlight"
         minSdk = 26
         targetSdk = 37
-        versionCode = 29
-        versionName = "2.15.2"
+        versionCode = 30
+        versionName = "2.15.3"
         base.archivesName = "$namespace-$versionName"
 
     }
@@ -45,11 +45,11 @@ android {
     }
     flavorDimensions += "version"
     productFlavors {
-        create("Full") {
+        create("full") {
             dimension = "version"
             buildConfigField("Boolean", "SHIZUKU", "true")
         }
-        create("Play") {
+        create("play") {
             buildConfigField("Boolean", "SHIZUKU", "false")
         }
     }
