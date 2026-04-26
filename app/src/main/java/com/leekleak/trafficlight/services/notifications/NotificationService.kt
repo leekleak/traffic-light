@@ -30,7 +30,7 @@ class NotificationService : LifecycleService() {
     private val dataPlanDao: DataPlanDao by inject()
     private var foregroundNotification: PersistentNotification? = null
     private var notificationIDCounter = AtomicInteger(1)
-    private val activeNotifications = Collections.synchronizedList(emptyList<PersistentNotification>())
+    private val activeNotifications = Collections.synchronizedList(mutableListOf<PersistentNotification>())
     private val screenStateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
