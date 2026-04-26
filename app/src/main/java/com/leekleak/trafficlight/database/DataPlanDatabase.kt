@@ -54,6 +54,11 @@ data class DataPlan(
      */
     @ColumnInfo val uiBackground: Int = 0,
 ) {
+    init {
+        require(intervalMultiplier > 0) {
+            "intervalMultiplier must be positive, got $intervalMultiplier"
+        }
+    }
     val decryptedID: String?
         get() = CryptoManager.decrypt(encryptedSubscriberID)
 
@@ -66,16 +71,15 @@ data class DataPlan(
 
     fun getStartDate(next: Boolean = false): LocalDateTime {
         val now = LocalDateTime.now()
+        var startDate = fromTimestamp(startDate)
         return when (interval) {
             TimeInterval.MONTH -> {
-                var startDate = fromTimestamp(startDate)
                 while (startDate <= now) {
                     startDate = startDate.plusMonths(1)
                 }
                 if (!next) startDate.minusMonths(1) else startDate
             }
             TimeInterval.DAY -> {
-                var startDate = fromTimestamp(startDate)
                 while (startDate <= now) {
                     startDate = startDate.plusDays(intervalMultiplier.toLong())
                 }

@@ -20,6 +20,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
 import timber.log.Timber
+import java.util.Collections
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
@@ -29,7 +30,7 @@ class NotificationService : LifecycleService() {
     private val dataPlanDao: DataPlanDao by inject()
     private var foregroundNotification: PersistentNotification? = null
     private var notificationIDCounter = AtomicInteger(1)
-    private val activeNotifications: MutableList<PersistentNotification> = mutableListOf()
+    private val activeNotifications = Collections.synchronizedList(emptyList<PersistentNotification>())
     private val screenStateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
