@@ -14,7 +14,6 @@
     <string name="help">Aide</string>
     <string name="cellular">Données mobiles</string>
     <string name="screen_off_update_description">Autoriser le suivi d\'utilisation sur l\'AOD, mais impacte la batterie.</string>
-    <string name="oversample_icon_description">Afficher l’icône en plus haute résolution si elle est floue.</string>
     <string name="about">A propos</string>
     <string name="speed_in_bits">Afficher la vitesse en bits</string>
     <string name="github_description">Suivre le développement ou signaler des problèmes.</string>
@@ -31,7 +30,6 @@
     <string name="missing_permissions">Permissions manquantes</string>
     <string name="grant">Autoriser</string>
     <string name="usage_statistics_description">Requis pour le suivi d\'utilisation des données sur le long terme.</string>
-    <string name="oversample_icon">Sur-échantillonnage de l’icône</string>
     <string name="mobile">Mobile : %1$s</string>
     <string name="force_fallback_description">Utile avec une ROM boguée ou avec ethernet</string>
     <string name="advanced_settings">Paramètres avancés</string>
@@ -81,7 +79,6 @@
     <string name="mobile_data">Données mobiles</string>
     <string name="notification_channels">Réglages du canal de notification</string>
     <string name="go_back">Revenir</string>
-    <string name="connected_to_network">Connecté au réseau</string>
     <string name="disconnected_from_network">Déconnecté du réseau</string>
     <string name="overview">Aperçu</string>
     <string name="app_name_short">Traffic Light</string>
