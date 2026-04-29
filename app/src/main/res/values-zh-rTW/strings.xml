@@ -21,8 +21,6 @@
     <string name="warning">警告</string>
     <string name="screen_off_update">於螢幕關閉時持續更新</string>
     <string name="screen_off_update_description">讓AOD顯示時也能持續更新使用量，但影響電池續航。</string>
-    <string name="oversample_icon">圖示過取樣</string>
-    <string name="oversample_icon_description">以更高解析度繪製圖示以改善模糊。</string>
     <string name="selected">已選取</string>
     <string name="background">小工具背景</string>
     <string name="prediction">預測</string>
