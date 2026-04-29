@@ -24,8 +24,6 @@
     <string name="grant">Разрешить</string>
     <string name="screen_off_update">Обновлять когда экран выключен</string>
     <string name="screen_off_update_description">Позволяет отслеживать использование при постоянно включенном (Always On) экране. Повышает использование батареи.</string>
-    <string name="oversample_icon">Передискретизация иконки</string>
-    <string name="oversample_icon_description">Отображает иконку в большем качестве если она размытая.</string>
     <string name="force_fallback">Использовать резервный метод отслеживания скорости</string>
     <string name="force_fallback_description">Полезно при использовании неисправной ОС или интернета</string>
     <string name="fallback_unsupported">Резервный вариант не поддерживается</string>
@@ -74,7 +72,6 @@
     <string name="mobile_data">Мобильные данные</string>
     <string name="notification_channels">Настройки канала уведомлений</string>
     <string name="go_back">Вернуться</string>
-    <string name="connected_to_network">Подключено к сети</string>
     <string name="disconnected_from_network">Отключено от сети</string>
     <string name="overview">Обзор</string>
     <string name="multi_sim_tracking">Отслеживание нескольких SIM</string>
