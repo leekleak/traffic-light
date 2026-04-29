@@ -17,8 +17,6 @@
     <string name="notifications">Notification</string>
     <string name="screen_off_update">Update when screen is off</string>
     <string name="screen_off_update_description">Allows tracking usage on the AOD, but impacts battery.</string>
-    <string name="oversample_icon">Oversample Icon</string>
-    <string name="oversample_icon_description">Render the icon at a larger resolution if it\'s blurry.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Mobile: %1$s</string>
     <string name="about">About</string>
@@ -81,7 +79,6 @@
     <string name="mobile_data">Mobile data</string>
     <string name="notification_channels">Notification Channel Settings</string>
     <string name="go_back">Go back</string>
-    <string name="connected_to_network">Connected to network</string>
     <string name="disconnected_from_network">Disconnected from network</string>
     <string name="overview">Overview</string>
     <string name="multi_sim_tracking">Multi-SIM tracking</string>
