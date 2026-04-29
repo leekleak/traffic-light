@@ -16,8 +16,6 @@
     <string name="notifications">Powiadomienie</string>
     <string name="screen_off_update">Aktualizuj, gdy ekran jest wyłączony</string>
     <string name="screen_off_update_description">Umożliwia śledzenie użytkowania w trybie AOD, ale ma wpływ na baterię.</string>
-    <string name="oversample_icon">Przykładowa ikona</string>
-    <string name="oversample_icon_description">Jeśli ikona jest rozmyta, wyświetl ją w większej rozdzielczości.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Sieć: %1$s</string>
     <string name="about">O</string>
