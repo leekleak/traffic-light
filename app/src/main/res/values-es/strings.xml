@@ -16,8 +16,6 @@
     <string name="notifications">Notificacioń</string>
     <string name="screen_off_update">Actualizar mientras la pantalla este apagada</string>
     <string name="screen_off_update_description">Permite el seguimiento en la pantalla siempre encendida (AOD), pero afecta a la batería.</string>
-    <string name="oversample_icon">Sobremuestrar icono</string>
-    <string name="oversample_icon_description">Renderiza el icono a mayor resolución si se ve borroso.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Datos Móviles: %1$s</string>
     <string name="about">Acerca de</string>
