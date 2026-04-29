@@ -16,8 +16,6 @@
     <string name="notifications">Benachrichtigung</string>
     <string name="screen_off_update">Aktualisieren wenn Bildschirm aus ist</string>
     <string name="screen_off_update_description">Ermöglicht die Nachverfolgung der Nutzung auf dem AOD, wirkt sich jedoch auf den Akku aus.</string>
-    <string name="oversample_icon">Überabtastungssymbol</string>
-    <string name="oversample_icon_description">Das Symbol mit einer höheren Auflösung rendern, wenn es unscharf ist.</string>
     <string name="wi_fi">WLAN: %1$s</string>
     <string name="mobile">Mobilfunk: %1$s</string>
     <string name="about">Über</string>
@@ -81,7 +79,6 @@
     <string name="go_back">Zurück</string>
     <string name="app_name_short">Traffic Light</string>
     <string name="notification_channels">Einstellungen für Benachrichtigungskanäle</string>
-    <string name="connected_to_network">Mit dem Netzwerk verbunden</string>
     <string name="disconnected_from_network">Verbindung zum Netzwerk unterbrochen</string>
     <string name="overview">Überblick</string>
     <string name="multi_sim_tracking">Multi-SIM Tracking</string>
@@ -108,4 +105,5 @@
     <string name="live_notification">Live Benachrichtigung</string>
     <string name="very_big">Sehr groß</string>
     <string name="plan_notification_description">Verfolgen Sie die Nutzung Ihres Tarifs in der Statusleiste.</string>
+    <string name="unsupported_by_play_store_version">Von der Play Store-Version nicht unterstützt</string>
 </resources>
