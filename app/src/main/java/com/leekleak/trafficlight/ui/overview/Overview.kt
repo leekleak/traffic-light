@@ -1,13 +1,19 @@
 package com.leekleak.trafficlight.ui.overview
 
 import androidx.activity.compose.LocalActivity
+import androidx.annotation.StringRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,11 +23,10 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialShapes.Companion.Cookie12Sided
@@ -29,24 +34,29 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.toPath
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.copy
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -62,9 +72,9 @@ import com.leekleak.trafficlight.ui.settings.PermissionButton
 import com.leekleak.trafficlight.ui.settings.PermissionCard
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.googleSans
+import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.PageTitle
-import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.openLink
 import com.leekleak.trafficlight.util.px
 import dev.chrisbanes.haze.hazeSource
@@ -92,50 +102,50 @@ fun Overview(
     val shizukuHint by remember { appPreferenceRepo.shizukuHint }.collectAsState(false)
     val shizukuTracking by remember { appPreferenceRepo.shizukuTracking }.collectAsState(true)
 
-    val columnState = rememberLazyListState()
     val hazeState = rememberHazeState()
+    val scrollState = rememberScrollState()
 
     LifecycleResumeEffect(Unit) {
         viewModel.refresh()
         onPauseOrDispose {}
     }
 
-    LazyColumn(
+    val paddingSide = paddingValues.calculateLeftPadding(LayoutDirection.Ltr)
+    val paddingTop = paddingValues.calculateTopPadding()
+    val paddingBottom = paddingValues.calculateBottomPadding()
+
+    Column(
         modifier = Modifier
             .background(colorScheme.surface)
             .fillMaxSize()
-            .hazeSource(hazeState),
+            .hazeSource(hazeState)
+            .padding(horizontal = paddingSide)
+            .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = paddingValues,
-        state = columnState
     ) {
-        item {
-            OverviewHero()
+        Box(Modifier.height(paddingTop - 8.dp))
+        OverviewHero(scrollState)
+        Row (horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            PredictionCard()
+            TrendCard()
         }
-        item {
-            Row (horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                PredictionCard()
-                TrendCard()
-            }
-        }
-        categoryTitle { stringResource(R.string.data_plans) }
 
-        items(activePlans, {it.hashedSubscriberID}) {
-            if (it.dataMax != 0L) {
-                ConfiguredDataPlan(it) {
-                    navigator.goTo(PlanConfig(it))
+        CategoryTitleText(stringResource(R.string.data_plans))
+
+        for (i in activePlans) {
+            if (i.dataMax != 0L) {
+                ConfiguredDataPlan(i) {
+                    navigator.goTo(PlanConfig(i))
                 }
             } else {
-                UnconfiguredDataPlan(it) {
-                    navigator.goTo(PlanConfig(it))
+                UnconfiguredDataPlan(i) {
+                    navigator.goTo(PlanConfig(i))
                 }
             }
         }
 
         if (shizukuHint && !shizukuTracking) {
-            item {
                 PermissionCard(
-                    modifier = Modifier.animateItem(),
                     title = stringResource(R.string.shizuku_hint),
                     description = stringResource(R.string.shizuku_hint_description),
                     icon = painterResource(R.drawable.warning),
@@ -148,17 +158,17 @@ fun Overview(
                         )
                     }
                 )
-            }
         }
 
         if (weeklyUsage.isNotEmpty()) {
-            overviewTab(
+            OverviewTab(
                 label = R.string.this_week,
                 data = weeklyUsage,
                 finalGridPoint = "",
                 centerLabels = true
             )
         }
+        Box(Modifier.height(paddingBottom - 8.dp))
     }
     PageTitle(false, hazeState, stringResource(R.string.today)) {
         IconButton(
@@ -174,8 +184,14 @@ fun Overview(
 }
 
 @Composable
-private fun OverviewHero() {
+private fun OverviewHero(scrollState: ScrollState) {
     val viewModel: OverviewVM = koinViewModel()
+    val haptic = LocalHapticFeedback.current
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val pressed by interactionSource.collectIsPressedAsState()
+
+    val offset by animateFloatAsState(if (pressed) 30.dp.px else 0f)
 
     val scheme = colorScheme
     val shape1 = Cookie12Sided.toPath()
@@ -209,40 +225,60 @@ private fun OverviewHero() {
     }
     Box(
         modifier = Modifier
-            .aspectRatio(1f)
             .fillMaxWidth()
-            .clipToBounds()
-            .drawBehind {
-                val a = size.width / 5
-                val b = a * 4
+            .aspectRatio(1f)
+    ) {
+        Box(
+            modifier = Modifier
+            .fillMaxSize()
+            .graphicsLayer {
+                translationY = scrollState.value * 0.4f
+            }
+            .drawWithContent {
+                val a = size.width / 5 - offset
+                val b = (a + offset) * 4 + offset
 
                 drawCircle(Brush.radialGradient(listOf(scheme.primaryContainer, Color.Transparent)))
                 translate(a, b) { drawPath(shape1Transformed, scheme.surface) }
                 translate(b, a) { drawPath(shape2Transformed, scheme.surface) }
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            }
+        )
+        Column(modifier = Modifier.align(Alignment.Center)) {
             val todayUsage by viewModel.todayUsage.collectAsState()
             val string = DataSize(todayUsage).toStringParts(extraPrecision = true)
-            val fontFamily1 = remember { googleSans(weight = 800f, width = 120f, roundness = 50f) }
-            val fontFamily2 = remember { googleSans(weight = 600f, width = 120f, roundness = 50f) }
-            Row {
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontFamily = fontFamily1, fontSize = 62.sp)) {
-                            append("${string.first}${string.second}")
-                        }
-                        withStyle(style = SpanStyle(fontFamily = fontFamily1, fontSize = 42.sp)) {
-                            append(string.third)
-                        }
-                    }
-                )
+
+            val width by animateFloatAsState(if (pressed) 60f else 30f)
+            val weight by animateFloatAsState(if (pressed) 800f else 400f)
+            val fontFamily1 = remember(weight, width) { googleSans(weight = weight, width = width, roundness = 100f) }
+            val fontFamily2 = remember { googleSans(weight = 600f, width = 100f, roundness = 50f) }
+
+            LaunchedEffect(pressed) {
+                if (pressed) {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                } else {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                }
             }
             Text(
-                text = stringResource(R.string.mobile_data),
-                fontFamily = fontFamily2,
-                fontSize = 20.sp
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null,
+                        onClick = { }
+                    ),
+                textAlign = TextAlign.Center,
+                text = buildAnnotatedString {
+                    withStyle(style = SpanStyle(fontFamily = fontFamily1, fontSize = 100.sp)) {
+                        append("${string.first}${string.second}")
+                    }
+                    withStyle(style = SpanStyle(fontFamily = fontFamily1, fontSize = 42.sp)) {
+                        appendLine(string.third)
+                    }
+                    withStyle(style = SpanStyle(fontFamily = fontFamily2, fontSize = 20.sp)) {
+                        append(stringResource(R.string.mobile_data))
+                    }
+                }
             )
         }
     }
@@ -333,24 +369,23 @@ private fun RowScope.TrendCard() {
     }
 }
 
-fun LazyListScope.overviewTab(
-    label: Int,
+@Composable
+fun OverviewTab(
+    @StringRes label: Int,
     data: List<BarData>,
     finalGridPoint: String = "24",
     centerLabels: Boolean = false
 ) {
-    categoryTitle { stringResource(label) }
-    item {
-        Box(
-            modifier = Modifier
-                .card()
-                .padding(6.dp)
-        ) {
-            BarGraph(
-                data = data,
-                finalGridPoint = finalGridPoint,
-                centerLabels = centerLabels
-            )
-        }
+    CategoryTitleText(stringResource(label))
+    Box(
+        modifier = Modifier
+            .card()
+            .padding(6.dp)
+    ) {
+        BarGraph(
+            data = data,
+            finalGridPoint = finalGridPoint,
+            centerLabels = centerLabels
+        )
     }
 }
