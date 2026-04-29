@@ -16,8 +16,6 @@
     <string name="notifications">Pranešimas</string>
     <string name="screen_off_update">Atnaujinti išjungus ekraną</string>
     <string name="screen_off_update_description">Leidžia sekti duomenų naudojimą \"AOD\" režime.</string>
-    <string name="oversample_icon">Paaštrinti ikoną</string>
-    <string name="oversample_icon_description">Padeda išspręsti išsiliejusią ikoną.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Mobilieji: %1$s</string>
     <string name="about">Apie</string>
@@ -82,7 +80,6 @@
     <string name="mobile_data">Mobilieji duomenis</string>
     <string name="notification_channels">Pranešimo kanalų nustatymai</string>
     <string name="go_back">Grįžti</string>
-    <string name="connected_to_network">Prisijungta prie tinklo</string>
     <string name="disconnected_from_network">Atsijungta nuo tinklo</string>
     <string name="overview">Apžvalga</string>
     <string name="app_name_short">Šviesoforas</string>
@@ -110,4 +107,5 @@
     <string name="live_notification">Tiesioginis pranešimas</string>
     <string name="very_big">Labai daug</string>
     <string name="plan_notification_description">Rodo plano duomenis pranešimų juostoje.</string>
+    <string name="unsupported_by_play_store_version">Funkcija nepalaikoma Google Play programėlės versijoje</string>
 </resources>

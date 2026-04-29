@@ -16,8 +16,6 @@
     <string name="notifications">Bildirim</string>
     <string name="screen_off_update">Ekran kapandığında güncelle</string>
     <string name="screen_off_update_description">Always-on-Display\'de takibe olanak sağlar ama pil tüketimini arttırır.</string>
-    <string name="oversample_icon">Simge Ölçeğini Arttır</string>
-    <string name="oversample_icon_description">Eğer simge bulanıksa daha yüksek bir ölçekte çiz.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Mobil: %1$s</string>
     <string name="about">Hakkında</string>
@@ -83,7 +81,6 @@
     <string name="all_apps">Tüm uygulamalar</string>
     <string name="notification_channels">Bildirim Kanalı Ayarları</string>
     <string name="go_back">Geri git</string>
-    <string name="connected_to_network">Ağa bağlanıldı</string>
     <string name="disconnected_from_network">Ağ bağlantısı kesildi</string>
     <string name="overview">Genel bakış</string>
     <string name="multi_sim_tracking">Çoklu SIM takibi</string>

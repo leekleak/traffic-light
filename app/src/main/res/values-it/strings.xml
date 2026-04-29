@@ -17,8 +17,6 @@
     <string name="notifications">Notifica</string>
     <string name="screen_off_update">Aggiornamento a schermo spento</string>
     <string name="screen_off_update_description">Permette il monitoraggio nell\'Always-On Display, ma incide sul consumo della batteria.</string>
-    <string name="oversample_icon">Icona in sovraimpressione</string>
-    <string name="oversample_icon_description">Renderizza l\'icona ad una risoluzione più alta se risulta sfocata.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Dati Mobili: %1$s</string>
     <string name="about">A riguardo</string>
@@ -79,7 +77,6 @@
     <string name="mobile_data">Dati mobili</string>
     <string name="notification_channels">Impostazioni canale di notifica</string>
     <string name="go_back">Torna indietro</string>
-    <string name="connected_to_network">Connesso alla rete</string>
     <string name="disconnected_from_network">Disconnesso dalla rete</string>
     <string name="overview">Panoramica</string>
     <string name="multi_sim_tracking">Monitoraggio multi-SIM</string>

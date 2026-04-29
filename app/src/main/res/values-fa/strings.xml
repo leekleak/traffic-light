@@ -25,8 +25,6 @@
     <string name="help">کمک</string>
     <string name="advanced_settings">تنظیمات پیشرفته</string>
     <string name="screen_off_update_description">اجازه ردیابی داده روی AOD را می دهد، ولی باتری تحت تاثیر قرار میگیرد.</string>
-    <string name="oversample_icon">نمونه‌ برداری بیش‌ از حد آیکون</string>
-    <string name="oversample_icon_description">اگر آیکون تار باشد، آن را با وضوح بالاتر رندر می‌کند.</string>
     <string name="github_description">دنبال کردن توسعه یا گزارش مشکلات.</string>
     <string name="force_fallback">اجبار به ردیابی سرعت جایگزین</string>
     <string name="force_fallback_description">هنگام استفاده از رام مشکل‌ دار یا اترنت مفید است</string>

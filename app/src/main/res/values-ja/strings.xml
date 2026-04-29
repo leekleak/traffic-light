@@ -15,8 +15,6 @@
     <string name="notifications">通知</string>
     <string name="screen_off_update">画面がオフのときに更新する</string>
     <string name="screen_off_update_description">常時表示ディスプレイでの使用状況の追跡は可能ですが、バッテリー消費に影響します。</string>
-    <string name="oversample_icon">オーバーサンプルアイコン</string>
-    <string name="oversample_icon_description">アイコンがぼやけている場合は、より大きな解像度でレンダリングします。</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">モバイル: %1$s</string>
     <string name="about">概要</string>
@@ -80,7 +78,6 @@
     <string name="app_name_short">Traffic Light</string>
     <string name="notification_channels">通知チャンネル設定</string>
     <string name="go_back">戻る</string>
-    <string name="connected_to_network">ネットワークに接続済み</string>
     <string name="disconnected_from_network">ネットワークから切断されました</string>
     <string name="overview">概要</string>
     <string name="multi_sim_tracking">複数SIMトラッキング</string>

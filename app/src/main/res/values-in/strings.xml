@@ -16,8 +16,6 @@
     <string name="notifications">Notifikasi</string>
     <string name="screen_off_update">Perbarui ketika layar mati</string>
     <string name="screen_off_update_description">Izinkan pemantauan penggunaan pada AOD, tetapi berdampak pada daya baterai.</string>
-    <string name="oversample_icon">Perbesar Ikon</string>
-    <string name="oversample_icon_description">Hasilkan ikon dengan resolusi yang lebih tinggi jika ikon tersebut buram.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Seluler: %1$s</string>
     <string name="about">Tentang</string>

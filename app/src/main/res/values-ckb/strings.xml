@@ -17,8 +17,6 @@
     <string name="notifications">ئاگانامە</string>
     <string name="screen_off_update">نوێکردنەوە لە کاتی کوژانەوەی شاشەدا</string>
     <string name="screen_off_update_description">ڕێگە دەدات بە بەدواداچوونی بەکارهێنان لەسەر شاشەی هەمیشە داگیرساو (AOD)، بەڵام کاریگەری لەسەر پاتری دەبێت.</string>
-    <string name="oversample_icon">ئایکۆنی زیادنموونەکردن</string>
-    <string name="oversample_icon_description">ئایکۆنەکە بە ڕوونییەکی بەرزتر پیشان بدە ئەگەر لێڵ بوو.</string>
     <string name="wi_fi">وای فای: %1$s</string>
     <string name="mobile">مۆبایل: %1$s</string>
     <string name="about">دەربارە</string>
@@ -77,7 +75,6 @@
     <string name="mobile_data">داتای مۆبایل</string>
     <string name="notification_channels">ڕێکخستنەکانی کەناڵی ئاگانامە</string>
     <string name="go_back">گەڕانەوە</string>
-    <string name="connected_to_network">پەیوەستە بە تۆڕەوە</string>
     <string name="disconnected_from_network">دابڕاوە لە تۆڕەوە</string>
     <string name="overview">کورتەی گشتی</string>
     <string name="multi_sim_tracking">چاودێریکردنی فڕەسیمکارت</string>

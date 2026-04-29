@@ -16,8 +16,6 @@
     <string name="notifications">إشعار</string>
     <string name="screen_off_update">تحديث عندما تكون الشاشة مغلقة</string>
     <string name="screen_off_update_description">يتيح تتبع الاستخدام على شاشة القفل الدائم (AOD)، لكنه يؤثر على البطارية.</string>
-    <string name="oversample_icon">أيقونة ذات دقة عالية</string>
-    <string name="oversample_icon_description">عرض الأيقونة بدقة أعلى إذا كانت غير واضحة.</string>
     <string name="wi_fi">واي فاي: %1$s</string>
     <string name="mobile">الجوّال: %1$s</string>
     <string name="about">حول</string>
@@ -84,7 +82,6 @@
     <string name="mobile_data">بيانات الجوّال</string>
     <string name="notification_channels">إعدادات قنوات الإشعارات</string>
     <string name="go_back">ارجع</string>
-    <string name="connected_to_network">متصل بالشبكة</string>
     <string name="disconnected_from_network">غير متصل بالشبكة</string>
     <string name="overview">نظرة عامة</string>
     <string name="app_name_short">إشارة مرور</string>

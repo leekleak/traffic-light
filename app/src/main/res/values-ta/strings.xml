@@ -15,6 +15,5 @@
     <string name="notifications">அறிவிப்பு</string>
     <string name="screen_off_update">திரை அணைந்திருக்கும்போது புதுப்பிக்கவும்</string>
     <string name="screen_off_update_description">AOD-இல் பயன்பாட்டைக் கண்காணிக்க அனுமதிக்கும், ஆனால் பேட்டரி பயன்பாடு அதிகரிக்கும்.</string>
-    <string name="oversample_icon_description">மங்கலாக இருந்தால், சின்னத்தை உயர்தரத்தில் காட்டவும்.</string>
     <string name="speed_in_bits">வேகத்தை பிட்களில் காட்டவும்</string>
 </resources>
