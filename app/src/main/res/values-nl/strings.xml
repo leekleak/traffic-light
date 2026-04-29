@@ -16,8 +16,6 @@
     <string name="notifications">Melding</string>
     <string name="screen_off_update">Updaten wanneer het scherm uit is</string>
     <string name="screen_off_update_description">Staat volgen van gebruik toe op de AOD, maar kan invloed hebben op de batterij.</string>
-    <string name="oversample_icon">Oversample-icoon</string>
-    <string name="oversample_icon_description">Laat het icoon met een hogere resolutie zien als het wazig is.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Mobiel: %1$s</string>
     <string name="about">Over</string>
@@ -80,7 +78,6 @@
     <string name="mobile_data">Mobiele gegevens</string>
     <string name="notification_channels">Instellingen van meldingskanaal</string>
     <string name="go_back">Terug</string>
-    <string name="connected_to_network">Verbonden met het netwerk</string>
     <string name="disconnected_from_network">Verbinding met het netwerk verbroken</string>
     <string name="overview">Overzicht</string>
     <string name="app_name_short">Traffic Light</string>
