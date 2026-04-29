@@ -16,8 +16,6 @@
     <string name="notifications">Notificação</string>
     <string name="screen_off_update">Atualizar quando a tela estiver desligada</string>
     <string name="screen_off_update_description">Permite acompanhar o uso no AOD, mas tem impactos na bateria.</string>
-    <string name="oversample_icon">Melhorar a nitidez do ícone</string>
-    <string name="oversample_icon_description">Renderiza o ícone com uma resolução maior se ele estiver embaçado.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Dados móveis: %1$s</string>
     <string name="about">Sobre</string>
