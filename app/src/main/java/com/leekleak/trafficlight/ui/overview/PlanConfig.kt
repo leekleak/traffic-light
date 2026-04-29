@@ -24,6 +24,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +39,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -64,6 +66,7 @@ import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDialog
@@ -111,6 +114,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.R
@@ -127,6 +131,7 @@ import com.leekleak.trafficlight.ui.settings.SwitchPreference
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.doHyeonFont
+import com.leekleak.trafficlight.ui.theme.googleSans
 import com.leekleak.trafficlight.ui.theme.longGoogleSans
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.DataSizeUnit
@@ -155,7 +160,6 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
-@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun PlanConfig(currentPlan: DataPlan) {
     val appManager: AppManager = koinInject()
@@ -170,7 +174,6 @@ fun PlanConfig(currentPlan: DataPlan) {
     val activity = LocalActivity.current
 
     var newPlan by remember { mutableStateOf(DataPlan("", "", uiBackground = 3)) }
-    val fontFamily = remember { longGoogleSans() }
     LaunchedEffect(currentPlan) {
         newPlan = currentPlan
     }
@@ -222,93 +225,7 @@ fun PlanConfig(currentPlan: DataPlan) {
                 }
             }
             categoryTitleSmall { stringResource(R.string.type) }
-            item {
-                Column(
-                    modifier = Modifier
-                        .card()
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    val interval by remember { derivedStateOf { newPlan.interval } }
-                    ButtonGroup(
-                        modifier = Modifier.fillMaxWidth(),
-                        expandedRatio = 0.05f,
-                        overflowIndicator = {}
-                    ) {
-                        toggleableItem(
-                            checked = interval == TimeInterval.MONTH,
-                            label = context.getString(R.string.monthly),
-                            icon = {
-                                Icon(
-                                    painter = painterResource(R.drawable.calendar),
-                                    contentDescription = null
-                                )
-                            },
-                            onCheckedChange = {
-                                newPlan = newPlan.copy(interval = TimeInterval.MONTH)
-                                haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
-                            },
-                            weight = 1f,
-                        )
-                        toggleableItem(
-                            checked = interval == TimeInterval.DAY,
-                            label = context.getString(R.string.custom),
-                            icon = {
-                                Icon(
-                                    painter = painterResource(R.drawable.custom),
-                                    contentDescription = null
-                                )
-                            },
-                            onCheckedChange = {
-                                newPlan = newPlan.copy(interval = TimeInterval.DAY)
-                                haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
-                            },
-                            weight = 1f,
-                        )
-                    }
-
-                    var selectedMonthDay by remember(newPlan) {
-                        mutableIntStateOf(fromTimestamp(newPlan.startDate).dayOfMonth)
-                    }
-                    AnimatedContent(interval) { currentInterval ->
-                        if (currentInterval == TimeInterval.MONTH) {
-                            Column {
-                                Text(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 16.dp),
-                                    text = stringResource(R.string.resets_on, selectedMonthDay),
-                                    fontSize = 18.sp,
-                                    fontFamily = fontFamily,
-                                    textAlign = TextAlign.Center,
-                                )
-                                Slider(
-                                    value = selectedMonthDay.toFloat(),
-                                    onValueChange = {
-                                        val newDate = LocalDate.now().withDayOfMonth(it.roundToInt()).atStartOfDay().toTimestamp()
-                                        if (newDate != newPlan.startDate) {
-                                            haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
-                                            newPlan = newPlan.copy(startDate = newDate)
-                                        }
-                                    },
-                                    enabled = true,
-                                    valueRange = 1f..28f,
-                                    steps = 26
-                                )
-                            }
-                        } else {
-                            CustomPlanSetup(
-                                newPlan = newPlan,
-                                onChange = { date, time, multiplier ->
-                                    newPlan = newPlan.copy(
-                                        startDate = date.atStartOfDay().toTimestamp() + time.toSecondOfDay() * 1000,
-                                        intervalMultiplier = multiplier
-                                    )
-                                }
-                            )
-                        }
-                    }
-                }
-            }
+            typeConfig(newPlan) { newPlan = it }
             categoryTitleSmall { stringResource(R.string.zero_rated_apps) }
             item {
                 val suspiciousApps by produceState(emptyList()) { value = appManager.allApps }
@@ -455,12 +372,130 @@ fun PlanConfig(currentPlan: DataPlan) {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+private fun LazyListScope.typeConfig(newPlan: DataPlan, onPlanChange: (plan: DataPlan) -> Unit) {
+    item {
+        val context = LocalContext.current
+        val haptic = LocalHapticFeedback.current
+        val fontFamily = remember { googleSans(weight = 600f) }
+        val fontFamilyBold = remember { googleSans(weight = 800f) }
+        Column(
+            modifier = Modifier
+                .card()
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+        ) {
+            val interval by remember(newPlan) { derivedStateOf { newPlan.interval } }
+            ButtonGroup(
+                modifier = Modifier.fillMaxWidth(),
+                expandedRatio = 0.05f,
+                overflowIndicator = {}
+            ) {
+                toggleableItem(
+                    checked = interval == TimeInterval.MONTH,
+                    label = context.getString(R.string.monthly),
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.calendar),
+                            contentDescription = null
+                        )
+                    },
+                    onCheckedChange = {
+                        onPlanChange(newPlan.copy(interval = TimeInterval.MONTH))
+                        haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                    },
+                    weight = 1f,
+                )
+                toggleableItem(
+                    checked = interval == TimeInterval.DAY,
+                    label = context.getString(R.string.custom),
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.custom),
+                            contentDescription = null
+                        )
+                    },
+                    onCheckedChange = {
+                        onPlanChange(newPlan.copy(interval = TimeInterval.DAY))
+                        haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                    },
+                    weight = 1f,
+                )
+            }
+
+            var selectedMonthDay by remember(newPlan) {
+                mutableIntStateOf(fromTimestamp(newPlan.startDate).dayOfMonth)
+            }
+            AnimatedContent(interval) { currentInterval ->
+                if (currentInterval == TimeInterval.MONTH) {
+                    Column(Modifier.padding(horizontal = 4.dp)) {
+                        Row(
+                            modifier = Modifier.padding(top = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(painterResource(R.drawable.history_2), null)
+                            Text(
+                                text = stringResource(R.string.reset_day),
+                                fontFamily = fontFamily,
+                            )
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            val interactionSource = remember { MutableInteractionSource() }
+                            Slider(
+                                modifier = Modifier.weight(1f),
+                                value = selectedMonthDay.toFloat(),
+                                onValueChange = {
+                                    val newDate =
+                                        LocalDate.now().withDayOfMonth(it.roundToInt())
+                                            .atStartOfDay().toTimestamp()
+                                    if (newDate != newPlan.startDate) {
+                                        onPlanChange(newPlan.copy(startDate = newDate))
+                                        haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                                    }
+                                },
+                                thumb = {
+                                    SliderDefaults.Thumb(
+                                        interactionSource = interactionSource,
+                                        thumbSize = DpSize(4.dp, 28.dp)
+                                    )
+                                },
+                                interactionSource = interactionSource,
+                                enabled = true,
+                                valueRange = 1f..28f,
+                                steps = 26
+                            )
+                            Text(
+                                modifier = Modifier.width(36.dp),
+                                text = selectedMonthDay.toString(),
+                                fontFamily = fontFamilyBold,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                } else {
+                    CustomPlanSetup(
+                        newPlan = newPlan,
+                        onChange = { date, time, multiplier ->
+                            onPlanChange(
+                                newPlan.copy(
+                                    startDate = date.atStartOfDay().toTimestamp() + time.toSecondOfDay() * 1000,
+                                    intervalMultiplier = multiplier
+                                )
+                            )
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: LocalTime, multiplier: Int) -> Unit) {
     var selectedDate by remember { mutableStateOf(fromTimestamp(newPlan.startDate).toLocalDate()) }
     var selectedTime by remember { mutableStateOf(fromTimestamp(newPlan.startDate).toLocalTime()) }
-    val fontFamily = remember { longGoogleSans() }
+    val fontFamily = remember { googleSans(weight = 600f) }
 
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = newPlan.startDate,
@@ -493,7 +528,10 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(painterResource(R.drawable.day), null)
-                    Text(stringResource(R.string.day))
+                    Text(
+                        text = stringResource(R.string.day),
+                        fontFamily = fontFamily
+                    )
                 }
                 Button(
                     shape = MaterialTheme.shapes.medium,
@@ -501,7 +539,6 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                 ) {
                     Text(
                         text = selectedDate.toString(),
-                        fontFamily = fontFamily,
                     )
                 }
             }
@@ -513,7 +550,10 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(painterResource(R.drawable.clock), null)
-                    Text(stringResource(R.string.time))
+                    Text(
+                        text = stringResource(R.string.time),
+                        fontFamily = fontFamily,
+                    )
                 }
                 Button(
                     shape = MaterialTheme.shapes.medium,
@@ -521,7 +561,6 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                 ) {
                     Text(
                         text = selectedTime.toString(),
-                        fontFamily = fontFamily,
                     )
                 }
             }
@@ -535,7 +574,10 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(painterResource(R.drawable.length), null)
-                    Text(stringResource(R.string.length))
+                    Text(
+                        text = stringResource(R.string.length),
+                        fontFamily = fontFamily,
+                    )
                 }
                 Row(
                     modifier = Modifier
@@ -553,7 +595,6 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         inputTransformation = InputTransformation.maxLength(3),
                         textStyle = TextStyle(
-                            fontFamily = fontFamily,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onPrimary
                         ),
@@ -561,7 +602,6 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                     )
                     Text(
                         text = stringResource(R.string.days),
-                        fontFamily = fontFamily,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onPrimary
                     )

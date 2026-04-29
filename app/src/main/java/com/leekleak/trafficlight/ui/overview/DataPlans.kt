@@ -4,6 +4,7 @@ package com.leekleak.trafficlight.ui.overview
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -74,6 +75,7 @@ private fun BoxBackground(
 ) {
     Box (modifier = Modifier
         .fillMaxWidth()
+        .background(MaterialTheme.colorScheme.surface)
         .clip(MaterialTheme.shapes.medium)
         .clickable { onClick() }
         .border(2.dp, MaterialTheme.colorScheme.primaryContainer, MaterialTheme.shapes.medium)
