@@ -30,8 +30,6 @@
     <string name="help">Ajutor</string>
     <string name="advanced_settings">Configurări Avansate</string>
     <string name="missing_permissions">Permisiuni Lipsă</string>
-    <string name="oversample_icon">Eșantionare suplimentară iconiță</string>
-    <string name="oversample_icon_description">Randează iconița la o rezoluție mai mare dacă este blurată.</string>
     <string name="force_fallback">Forțează fallback pentru urmărirea vitezei</string>
     <string name="force_fallback_description">Util când folosești un ROM cu erori sau o conexiune prin cablu (ethernet)</string>
     <string name="fallback_unsupported">Fallback nesuportat</string>
@@ -81,7 +79,6 @@
     <string name="mobile_data">Date mobile</string>
     <string name="notification_channels">Setări canal de notificare</string>
     <string name="go_back">Înapoi</string>
-    <string name="connected_to_network">Conectat la rețea</string>
     <string name="disconnected_from_network">Deconectat de la rețea</string>
     <string name="overview">Prezentare generală</string>
     <string name="multi_sim_tracking">Urmărire multi-SIM</string>
