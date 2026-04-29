@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Traffic Light</string>
+    <string name="app_name">红绿灯：网络追踪器</string>
     <string name="today">今天</string>
     <string name="this_week">本周</string>
     <string name="history">历史</string>
@@ -16,8 +16,6 @@
     <string name="notifications">通知</string>
     <string name="screen_off_update">熄屏更新</string>
     <string name="screen_off_update_description">允许在熄屏显示时跟踪，但会增加耗电</string>
-    <string name="oversample_icon">高清图标</string>
-    <string name="oversample_icon_description">用更高的分辨率绘制通知图标</string>
     <string name="mobile">流量: %1$s</string>
     <string name="about">关于</string>
     <string name="speed_in_bits">网速使用 bit 单位</string>
@@ -74,4 +72,37 @@
     <string name="removed_apps">已删除的软件</string>
     <string name="shizuku_hint">要追踪多个SIM卡吗？</string>
     <string name="close">关闭</string>
+    <string name="app_name_short">红绿灯</string>
+    <string name="total">总量</string>
+    <string name="tethering">热点共享</string>
+    <string name="all_apps">全部应用</string>
+    <string name="prediction">流量预测</string>
+    <string name="trend">趋势</string>
+    <string name="data_intensive_apps">高流量消耗应用</string>
+    <string name="mobile_data">移动数据</string>
+    <string name="notification_channels">通知渠道设置</string>
+    <string name="go_back">返回</string>
+    <string name="disconnected_from_network">网络已断开</string>
+    <string name="overview">概览</string>
+    <string name="multi_sim_tracking">多SIM卡跟踪</string>
+    <string name="shizuku_required">需要Shizuku服务</string>
+    <string name="shizuku_hint_description">为此，你需要配置 Shizuku，并在设置中启用该功能。</string>
+    <string name="filter">筛选</string>
+    <string name="none">无</string>
+    <string name="primary">主卡</string>
+    <string name="secondary">副卡</string>
+    <string name="upload">上传</string>
+    <string name="download">下载</string>
+    <string name="bidirectional">双向</string>
+    <string name="app_list">应用列表</string>
+    <string name="hour_list">每小时列表</string>
+    <string name="quick_filter">快速筛选</string>
+    <string name="persist">持久留存</string>
+    <string name="open_app">打开应用</string>
+    <string name="list">列表</string>
+    <string name="reset">重置</string>
+    <string name="live_notification">实时通知</string>
+    <string name="very_big">非常大</string>
+    <string name="plan_notification_description">在状态栏中追踪套餐用量。</string>
+    <string name="unsupported_by_play_store_version">Play Store 版本不支持</string>
 </resources>
