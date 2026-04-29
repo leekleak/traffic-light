@@ -16,8 +16,6 @@
     <string name="notifications">Notificação</string>
     <string name="screen_off_update">Atualizar quando o ecrã estiver desligado</string>
     <string name="screen_off_update_description">Permite acompanhar a utilização no AOD, mas tem impactos na bateria.</string>
-    <string name="oversample_icon">Melhorar a nitidez do ícone</string>
-    <string name="oversample_icon_description">Renderiza o ícone com uma resolução maior se estiver desfocado.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Rede móvel: %1$s</string>
     <string name="about">Sobre</string>
@@ -74,7 +72,6 @@
     <string name="data_intensive_apps">Aplicações de dados intensivos</string>
     <string name="mobile_data">Dados móveis</string>
     <string name="go_back">Ir para trás</string>
-    <string name="connected_to_network">Conectado á rede</string>
     <string name="disconnected_from_network">Desconectado da rede</string>
     <string name="list">Lista</string>
     <string name="reset">Reiniciar</string>
