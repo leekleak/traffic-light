@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Semáforo</string>
+    <string name="app_name">Semáforo: Monitor de rede</string>
     <string name="today">Hoxe</string>
     <string name="this_week">Esta semama</string>
     <string name="history">Historial</string>
@@ -11,7 +11,7 @@
     <string name="settings">Axustes</string>
     <string name="battery_optimization">Optimización da batería</string>
     <string name="battery_optimization_description">Debe estar desactivada para evitar co teléfono peche o servizo en segundo plano ao cabo dun tempo.</string>
-    <string name="usage_statistics">Estatísticas de uso</string>
+    <string name="usage_statistics">Permiso de uso</string>
     <string name="usage_statistics_description">Preciso para o seguimento do uso de datos a longo prazo.</string>
     <string name="notifications">Notificacioń</string>
     <string name="screen_off_update">Actualizar cando a pantalla está apagada</string>
@@ -39,9 +39,9 @@
     <string name="appearance">aparencia</string>
     <string name="behavior">Comportamento</string>
     <string name="alt_vpn_workaround">Solución alternativa pra a VPN</string>
-    <string name="alt_vpn_workaround_description">Reduce a precisión das medicións, pero admite o túnel dividido (Split Tunneling).</string>
+    <string name="alt_vpn_workaround_description">Mellora precisión das medicións, pero rompe o túnel dividido (Split Tunneling).</string>
     <string name="support_development">Apoiar o desenvolvemento</string>
-    <string name="shizuku_not_running">Shizuku non está en execución.</string>
+    <string name="shizuku_not_running">Shizuku non está en execución</string>
     <string name="sim_card">Tarxeta SIM</string>
     <string name="data_plans">Plans de datos</string>
     <string name="configure_plan">Configurar o plan</string>
@@ -63,11 +63,48 @@
     <string name="configured_plans">Plans configurados</string>
     <string name="data_plan_widget_description">Consulta os teus plans de datos na pantalla de inicio</string>
     <string name="widget_warning">A compatibilidade con trebellos é experimental. Se detectas algún problema, repórtao en GitHub.</string>
-    <string name="no_configured_plans_description">Asegúrate de ter concedido permiso a Shizuku e de ter configurado polo menos 1 plan de datos.</string>
+    <string name="no_configured_plans_description">Asegúrate de ter configurado polo menos 1 plan de datos.</string>
     <string name="no_configured_plans">Sen plans configurados</string>
     <string name="warning">Aviso</string>
     <plurals name="resets_in_days">
         <item quantity="one">Reiníciase mañá</item>
         <item quantity="other">Reiníciase dentro de %d días</item>
     </plurals>
+    <string name="app_name_short">Semáforo</string>
+    <string name="total">Total</string>
+    <string name="tethering">Compartición de conexión</string>
+    <string name="removed_apps">Aplicacións eliminadas</string>
+    <string name="all_apps">Tódalas aplicacións</string>
+    <string name="prediction">Predición</string>
+    <string name="trend">Tendencia</string>
+    <string name="data_intensive_apps">Aplicacións de alto consumo de datos</string>
+    <string name="mobile_data">Datos móbiles</string>
+    <string name="notification_channels">Axustes da canle de notificacións</string>
+    <string name="go_back">Voltar atrás</string>
+    <string name="disconnected_from_network">Desconectado da rede</string>
+    <string name="overview">Visión xeral</string>
+    <string name="multi_sim_tracking">Seguimento multi-SIM</string>
+    <string name="shizuku_required">Requírese Shizuku</string>
+    <string name="close">Pechar</string>
+    <string name="shizuku_hint">Queres facer seguimento de varias tarxetas SIM?</string>
+    <string name="shizuku_hint_description">Para conseguilo, terás que configurar Shizuku e activar a función nos axustes.</string>
+    <string name="filter">Filtro</string>
+    <string name="none">Ningún</string>
+    <string name="primary">Principal</string>
+    <string name="secondary">Secundario</string>
+    <string name="upload">Subida</string>
+    <string name="download">Descarga</string>
+    <string name="bidirectional">Bidireccional</string>
+    <string name="app_list">Lista de aplicacións</string>
+    <string name="hour_list">Lista por horas</string>
+    <string name="quick_filter">Filtro rápido</string>
+    <string name="persist">Manter</string>
+    <string name="open_app">Abrir aplicación</string>
+    <string name="list">Lista</string>
+    <string name="reset">Restablecer</string>
+    <string name="live_notification">Notificación en directo</string>
+    <string name="very_big">Moi grande</string>
+    <string name="plan_notification_description">Seguimento do uso do plan na barra de estado.</string>
+    <string name="unsupported_by_play_store_version">Non compatible coa versión da Play Store</string>
+    <string name="reset_day">Día de reinicio</string>
 </resources>
