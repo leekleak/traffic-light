@@ -4,4 +4,13 @@
     <string name="today">Сьогодні</string>
     <string name="this_week">Цього Тижня</string>
     <string name="history">Історія</string>
+    <string name="app_name">Світлофор: Мережевий Трекер</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="cellular">Мобільний</string>
+    <string name="grant">Грант</string>
+    <string name="speed">Швидкість: %1$s</string>
+    <string name="settings">Налаштування</string>
+    <string name="battery_optimization">Оптимізація акумулятора</string>
+    <string name="battery_optimization_description">Має бути вимкнено, щоб телефон не зупиняв фонову службу через деякий час.</string>
+    <string name="usage_statistics">Дозвіл на Використання</string>
 </resources>
