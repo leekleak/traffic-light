@@ -107,4 +107,5 @@
     <string name="very_big">Très gros</string>
     <string name="plan_notification_description">Suivre l\'utilisation du forfait dans la barre d\'état.</string>
     <string name="unsupported_by_play_store_version">Non supporté par la version du Play Store</string>
+    <string name="reset_day">Jour de réinitialisation</string>
 </resources>
