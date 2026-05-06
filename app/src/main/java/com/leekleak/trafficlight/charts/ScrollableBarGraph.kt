@@ -29,12 +29,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.trafficlight.util.px
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -51,6 +52,8 @@ fun ScrollableBarGraph(
     val scope = rememberCoroutineScope()
     val textMeasurer = rememberTextMeasurer()
     val haptic = LocalHapticFeedback.current
+    val displayMetrics = LocalResources.current.displayMetrics
+    val paddingPx = 64.dp.px
 
     val primaryColor = GraphTheme.primaryColor
     val secondaryColor = GraphTheme.secondaryColor
@@ -63,12 +66,11 @@ fun ScrollableBarGraph(
     var selectorOffset by remember { mutableFloatStateOf(0f) }
     val selectorOffsetSnapped = remember { Animatable(0f) }
 
-    var canvasWidth by remember { mutableFloatStateOf(1f) }
+    val canvasWidth by remember { derivedStateOf { displayMetrics.widthPixels - paddingPx } }
     val barWidth by remember { derivedStateOf {
-        val safeWidth = if (canvasWidth.isNaN()) 1f else canvasWidth
-        var barCount = (safeWidth / GOOD_BAR_SIZE).roundToInt()
+        var barCount = (canvasWidth / GOOD_BAR_SIZE).roundToInt()
         barCount += if (barCount % 2 == 0) 1 else 0
-        safeWidth / barCount
+        canvasWidth / barCount
     } }
     val offset = remember(canvasWidth) { Animatable(-barWidth * data.size + canvasWidth) }
 
@@ -229,9 +231,6 @@ fun ScrollableBarGraph(
                 }
             }
             .scrollable(scrollableState, Orientation.Horizontal, flingBehavior = snapFlingBehavior)
-            .onSizeChanged { size ->
-                canvasWidth = size.width.toFloat()
-            }
     ) {
         val barGraphHelper = ScrollableBarGraphHelper(
             scope = this,
