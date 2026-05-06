@@ -56,7 +56,6 @@ import com.leekleak.trafficlight.ui.settings.Settings
 import com.leekleak.trafficlight.ui.settings.UsagePermissionRequest
 import com.leekleak.trafficlight.ui.theme.navBarShadow
 import com.leekleak.trafficlight.util.TOP_BAR_HEIGHT
-import com.leekleak.trafficlight.util.WideScreenWrapper
 import org.koin.compose.koinInject
 import org.koin.core.annotation.KoinExperimentalAPI
 
@@ -114,37 +113,35 @@ fun NavigationManager() {
             }
         }
     ) {
-        WideScreenWrapper {
-            NavDisplay(
-                backStack = navigator.backStack,
-                onBack = { navigator.goBack() },
-                entryProvider = entryProvider {
-                    entry<Blank> { Box(modifier = Modifier.fillMaxSize())}
-                    entry<Overview> { Overview(paddingValues) }
-                    entry<History> { History(paddingValues) }
-                    entry<Settings> { Settings(paddingValues) }
+        NavDisplay(
+            backStack = navigator.backStack,
+            onBack = { navigator.goBack() },
+            entryProvider = entryProvider {
+                entry<Blank> { Box(modifier = Modifier.fillMaxSize())}
+                entry<Overview> { Overview(paddingValues) }
+                entry<History> { History(paddingValues) }
+                entry<Settings> { Settings(paddingValues) }
 
-                    entry<UsagePermissionRequest> { UsagePermissionRequest(paddingValues) }
-                    entry<PlanConfig> { PlanConfig(it.dataPlan) }
-                    entry<NotificationSettings> { NotificationSettings(paddingValues) }
-                },
-                transitionSpec = {
-                    if (backStack.size == 1) fadeIn() togetherWith fadeOut()
-                    else {
-                        slideInHorizontally { it } togetherWith
-                        slideOutHorizontally { -it / 2 } + scaleOut(targetScale = 0.7f) + fadeOut()
-                    }
-                },
-                popTransitionSpec = {
-                    slideInHorizontally { -it / 2 } + scaleIn(initialScale = 0.7f) + fadeIn() togetherWith
-                    slideOutHorizontally { it }
-                },
-                predictivePopTransitionSpec = {
-                    slideInHorizontally { -it/2 } + scaleIn(initialScale = 0.7f) + fadeIn() togetherWith
-                    slideOutHorizontally { it }
+                entry<UsagePermissionRequest> { UsagePermissionRequest(paddingValues) }
+                entry<PlanConfig> { PlanConfig(it.dataPlan) }
+                entry<NotificationSettings> { NotificationSettings(paddingValues) }
+            },
+            transitionSpec = {
+                if (backStack.size == 1) fadeIn() togetherWith fadeOut()
+                else {
+                    slideInHorizontally { it } togetherWith
+                    slideOutHorizontally { -it / 2 } + scaleOut(targetScale = 0.7f) + fadeOut()
                 }
-            )
-        }
+            },
+            popTransitionSpec = {
+                slideInHorizontally { -it / 2 } + scaleIn(initialScale = 0.7f) + fadeIn() togetherWith
+                slideOutHorizontally { it }
+            },
+            predictivePopTransitionSpec = {
+                slideInHorizontally { -it/2 } + scaleIn(initialScale = 0.7f) + fadeIn() togetherWith
+                slideOutHorizontally { it }
+            }
+        )
     }
 }
 

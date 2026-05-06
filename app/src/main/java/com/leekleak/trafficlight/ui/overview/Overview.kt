@@ -1,7 +1,6 @@
 package com.leekleak.trafficlight.ui.overview
 
 import androidx.activity.compose.LocalActivity
-import androidx.annotation.StringRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
@@ -18,10 +17,13 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,6 +36,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialShapes.Companion.Cookie12Sided
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.toPath
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,7 +67,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.BarGraph
-import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.ui.navigation.Navigator
@@ -76,6 +78,7 @@ import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.googleSans
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.trafficlight.util.EqualHeightRow
 import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.openLink
 import com.leekleak.trafficlight.util.px
@@ -91,18 +94,9 @@ fun Overview(
     paddingValues: PaddingValues,
 ) {
     val viewModel: OverviewVM = koinViewModel()
-    val dataPlanDao: DataPlanDao = koinInject()
-    val appPreferenceRepo: AppPreferenceRepo = koinInject()
     val navigator: Navigator = koinInject()
 
-    val scope = rememberCoroutineScope()
-    val activity = LocalActivity.current
-
-    val weeklyUsage by viewModel.weekUsage.collectAsState()
-    val activePlans by remember { dataPlanDao.getActivePlansFlow() }.collectAsState(listOf())
-
-    val shizukuHint by remember { appPreferenceRepo.shizukuHint }.collectAsState(false)
-    val shizukuTracking by remember { appPreferenceRepo.shizukuTracking }.collectAsState(true)
+    val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
 
     val hazeState = rememberHazeState()
     val scrollState = rememberScrollState()
@@ -126,49 +120,27 @@ fun Overview(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Box(Modifier.height(paddingTop - 8.dp))
-        OverviewHero(scrollState)
-        Row (horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            PredictionCard()
-            TrendCard()
-        }
-
-        CategoryTitleText(stringResource(R.string.data_plans))
-
-        for (i in activePlans) {
-            if (i.dataMax != 0L) {
-                ConfiguredDataPlan(i) {
-                    navigator.goTo(PlanConfig(i))
-                }
-            } else {
-                UnconfiguredDataPlan(i) {
-                    navigator.goTo(PlanConfig(i))
-                }
-            }
-        }
-
-        if (shizukuHint && !shizukuTracking) {
-                PermissionCard(
-                    title = stringResource(R.string.shizuku_hint),
-                    description = stringResource(R.string.shizuku_hint_description),
-                    icon = painterResource(R.drawable.warning),
-                    onHelp = { openLink(activity, "https://github.com/leekleak/traffic-light/wiki/Setting-up-Shizuku-for-multi%E2%80%90SIM-tracking") },
-                    actionButton = {
-                        PermissionButton(
-                            icon = painterResource(R.drawable.close),
-                            contentDescription = stringResource(R.string.close),
-                            onClick = { scope.launch { appPreferenceRepo.setShizukuHint(false) } }
-                        )
+        if (windowSizeClass.isWidthAtLeastBreakpoint(400)) {
+            EqualHeightRow (
+                modifier = Modifier
+                    .padding(horizontal = 16.dp),
+                first = {
+                    Column (Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.SpaceBetween) {
+                        HeroItems(scrollState)
                     }
-                )
-        }
-
-        if (weeklyUsage.isNotEmpty()) {
-            OverviewTab(
-                label = R.string.this_week,
-                data = weeklyUsage,
-                finalGridPoint = "",
-                centerLabels = true
+                },
+                second = {
+                    Column (Modifier.weight(1f)) {
+                        DataPlanItems(navigator)
+                        OverviewItems()
+                    }
+                },
+                spacing = 16.dp
             )
+        } else {
+            HeroItems(scrollState)
+            DataPlanItems(navigator)
+            OverviewItems()
         }
         Box(Modifier.height(paddingBottom - 8.dp))
     }
@@ -182,6 +154,69 @@ fun Overview(
                 contentDescription = stringResource(R.string.settings)
             )
         }
+    }
+}
+
+@Composable
+private fun DataPlanItems(
+    navigator: Navigator,
+) {
+    val dataPlanDao: DataPlanDao = koinInject()
+    val appPreferenceRepo: AppPreferenceRepo = koinInject()
+
+    val activity = LocalActivity.current
+    val scope = rememberCoroutineScope()
+
+    val activePlans by remember { dataPlanDao.getActivePlansFlow() }.collectAsState(listOf())
+    val shizukuHint by remember { appPreferenceRepo.shizukuHint }.collectAsState(false)
+    val shizukuTracking by remember { appPreferenceRepo.shizukuTracking }.collectAsState(true)
+
+    CategoryTitleText(stringResource(R.string.data_plans))
+
+    for (i in activePlans) {
+        if (i.dataMax != 0L) {
+            ConfiguredDataPlan(i) {
+                navigator.goTo(PlanConfig(i))
+            }
+        } else {
+            UnconfiguredDataPlan(i) {
+                navigator.goTo(PlanConfig(i))
+            }
+        }
+    }
+
+    if (shizukuHint && !shizukuTracking) {
+        PermissionCard(
+            title = stringResource(R.string.shizuku_hint),
+            description = stringResource(R.string.shizuku_hint_description),
+            icon = painterResource(R.drawable.warning),
+            onHelp = {
+                openLink(
+                    activity,
+                    "https://github.com/leekleak/traffic-light/wiki/Setting-up-Shizuku-for-multi%E2%80%90SIM-tracking"
+                )
+            },
+            actionButton = {
+                PermissionButton(
+                    icon = painterResource(R.drawable.close),
+                    contentDescription = stringResource(R.string.close),
+                    onClick = { scope.launch { appPreferenceRepo.setShizukuHint(false) } }
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun ColumnScope.HeroItems(scrollState: ScrollState) {
+    OverviewHero(scrollState)
+    //Spacer(modifier = Modifier.weight(1f))
+    Row(
+        modifier = Modifier.height(IntrinsicSize.Min),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        PredictionCard()
+        TrendCard()
     }
 }
 
@@ -261,7 +296,7 @@ private fun OverviewHero(scrollState: ScrollState) {
             )
             val weight by animateFloatAsState(if (pressed) 800f else 400f, spring())
             val fontFamily1 = remember(weight, width) { googleSans(weight = weight, width = width, roundness = 100f) }
-            val fontFamily2 = remember(width) { googleSans(weight = 600f, width = width + 70f, roundness = 50f) }
+            val fontFamily2 = remember(weight, width) { googleSans(weight = weight + 200f, width = width + 70f, roundness = 50f) }
 
             LaunchedEffect(pressed) {
                 if (pressed) {
@@ -297,7 +332,8 @@ private fun RowScope.PredictionCard() {
         modifier = Modifier
             .card()
             .padding(16.dp)
-            .weight(1f),
+            .weight(1f)
+            .fillMaxHeight(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         val prediction by viewModel.prediction.collectAsState()
@@ -375,22 +411,21 @@ private fun RowScope.TrendCard() {
 }
 
 @Composable
-fun OverviewTab(
-    @StringRes label: Int,
-    data: List<BarData>,
-    finalGridPoint: String = "24",
-    centerLabels: Boolean = false
-) {
-    CategoryTitleText(stringResource(label))
-    Box(
-        modifier = Modifier
-            .card()
-            .padding(6.dp)
-    ) {
-        BarGraph(
-            data = data,
-            finalGridPoint = finalGridPoint,
-            centerLabels = centerLabels
-        )
+fun OverviewItems() {
+    val viewModel: OverviewVM = koinViewModel()
+    val data by viewModel.weekUsage.collectAsState()
+    if (data.isNotEmpty()) {
+        CategoryTitleText(stringResource(R.string.this_week))
+        Box(
+            modifier = Modifier
+                .card()
+                .padding(6.dp)
+        ) {
+            BarGraph(
+                data = data,
+                finalGridPoint = "24",
+                centerLabels = true
+            )
+        }
     }
 }
