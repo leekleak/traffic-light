@@ -22,32 +22,35 @@ import coil3.fetch.Fetcher
 import coil3.fetch.ImageFetchResult
 import coil3.request.Options
 import com.leekleak.trafficlight.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.withContext
 
-class AppManager(context: Context) {
+class AppManager(context: Context, scope: CoroutineScope) {
     private val packageManager: PackageManager = context.packageManager
-    private var allApps: List<DataUIDApp>? = null
-    suspend fun getAllApps(): List<DataUIDApp> = withContext(Dispatchers.IO) {
-        if (allApps != null) return@withContext allApps!!
-
-        allApps = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            packageManager.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0L))
-        } else {
-            packageManager.getInstalledApplications(0)
-        }.distinctBy { it.uid }.map {
-            async {
-                DataUIDApp(
-                    uid = it.uid,
-                    packageName = it.packageName,
-                    label = it.loadLabel(packageManager).toString()
-                )
+    
+    private val allAppsDeferred: Deferred<List<DataUIDApp>> by lazy {
+        scope.async(Dispatchers.IO) {
+            val installed = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageManager.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0L))
+            } else {
+                packageManager.getInstalledApplications(0)
             }
-        }.awaitAll()
-        return@withContext allApps!!
+
+            installed.distinctBy { it.uid }.map { appInfo ->
+                async {
+                    DataUIDApp(
+                        uid = appInfo.uid,
+                        packageName = appInfo.packageName,
+                        label = appInfo.loadLabel(packageManager).toString()
+                    )
+                }
+            }.awaitAll()
+        }
     }
+    suspend fun getAllApps(): List<DataUIDApp> = allAppsDeferred.await()
 
     suspend fun getAppForUID(uid: Int): DataUID = getAllApps().plus(specialApps).find { it.uid == uid } ?: unknownApp
 
