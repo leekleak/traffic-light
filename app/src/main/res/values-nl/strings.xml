@@ -104,4 +104,7 @@
     <string name="reset">Resetten</string>
     <string name="live_notification">Livemelding</string>
     <string name="very_big">Heel groot</string>
+    <string name="plan_notification_description">Volg datagebruik in de statusbalk.</string>
+    <string name="unsupported_by_play_store_version">Niet ondersteund door de Play Store-versie</string>
+    <string name="reset_day">Dag resetten</string>
 </resources>
