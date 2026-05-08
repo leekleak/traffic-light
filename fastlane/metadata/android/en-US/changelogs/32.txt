@@ -1,0 +1,12 @@
+Enhancements:
+- Added proper support for wide screens such as foldables and tablets
+- Made overview a bit more expressive
+- Performance improvements
+- Further reduced font variety
+
+Bug fixes:
+- Minor UI fixes
+- Fix speed notification stuck on 0KB/s on network change
+
+Translations:
+- Updated translations
