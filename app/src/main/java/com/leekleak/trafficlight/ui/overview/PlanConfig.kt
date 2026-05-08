@@ -227,7 +227,7 @@ fun PlanConfig(currentPlan: DataPlan) {
             typeConfig(newPlan) { newPlan = it }
             categoryTitleSmall { stringResource(R.string.zero_rated_apps) }
             item {
-                val suspiciousApps by produceState(emptyList()) { value = appManager.allApps }
+                val suspiciousApps by produceState(emptyList()) { value = appManager.getAllApps() }
 
                 val excludedApps by remember { derivedStateOf {
                     suspiciousApps.filter { newPlan.excludedApps.contains(it.uid) }

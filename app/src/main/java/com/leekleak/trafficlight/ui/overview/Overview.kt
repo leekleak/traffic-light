@@ -423,7 +423,6 @@ fun OverviewItems() {
         ) {
             BarGraph(
                 data = data,
-                finalGridPoint = "24",
                 centerLabels = true
             )
         }

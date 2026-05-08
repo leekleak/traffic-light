@@ -22,23 +22,34 @@ import coil3.fetch.Fetcher
 import coil3.fetch.ImageFetchResult
 import coil3.request.Options
 import com.leekleak.trafficlight.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.withContext
 
 class AppManager(context: Context) {
     private val packageManager: PackageManager = context.packageManager
-    val allApps =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    private var allApps: List<DataUIDApp>? = null
+    suspend fun getAllApps(): List<DataUIDApp> = withContext(Dispatchers.IO) {
+        if (allApps != null) return@withContext allApps!!
+
+        allApps = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             packageManager.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0L))
         } else {
             packageManager.getInstalledApplications(0)
         }.distinctBy { it.uid }.map {
-            DataUIDApp(
-                uid = it.uid,
-                packageName = it.packageName,
-                label = it.loadLabel(packageManager).toString()
-            )
-        }
+            async {
+                DataUIDApp(
+                    uid = it.uid,
+                    packageName = it.packageName,
+                    label = it.loadLabel(packageManager).toString()
+                )
+            }
+        }.awaitAll()
+        return@withContext allApps!!
+    }
 
-    fun getAppForUID(uid: Int): DataUID = allApps.plus(specialApps).find { it.uid == uid } ?: unknownApp
+    suspend fun getAppForUID(uid: Int): DataUID = getAllApps().plus(specialApps).find { it.uid == uid } ?: unknownApp
 
     companion object {
         val allApp = DataUIDSpecial(

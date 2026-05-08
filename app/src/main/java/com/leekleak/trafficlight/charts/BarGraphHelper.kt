@@ -47,7 +47,6 @@ internal class BarGraphHelper(
     private val scope: DrawScope,
     private val yAxisData: List<Pair<Long, Long>>,
     private val xAxisData: List<String>,
-    private val finalGridPoint: String,
     private val stretch: List<Animatable<Float, *>>
 ) {
     internal val metrics = scope.buildMetrics()
@@ -211,7 +210,6 @@ internal class BarGraphHelper(
             }
 
             val xPos = metrics.xItemSpacing * yAxisData.size
-            drawContext.canvas.nativeCanvas.drawText(finalGridPoint, xPos, size.height, paint)
 
             drawLine(
                 start = Offset(xPos, metrics.gridHeight + 12),

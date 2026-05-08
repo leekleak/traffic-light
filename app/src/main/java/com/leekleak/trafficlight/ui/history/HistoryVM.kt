@@ -149,7 +149,7 @@ class HistoryVM(
         updateListQuery(prefs.listParam.first())
     }
 
-    fun openPackageSettings(activity: Activity?, uid: Int) {
+    suspend fun openPackageSettings(activity: Activity?, uid: Int) {
         val app = appManager.getAppForUID(uid)
         if (app.packageName.isNotEmpty()) {
             activity?.startActivity(

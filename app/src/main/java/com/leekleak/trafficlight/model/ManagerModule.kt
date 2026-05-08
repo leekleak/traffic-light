@@ -6,7 +6,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val managerModule = module {
-    single(createdAtStart = true) { AppManager(get()) }
+    single { AppManager(get()) }
     single { AppIconFetcher.Factory(get()) }
     single {
         ImageLoader.Builder(get())

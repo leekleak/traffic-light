@@ -482,6 +482,7 @@ fun RowScope.HistoryItemSettings(
     val context = LocalContext.current
     val viewModel: HistoryVM = koinViewModel()
     val appManager: AppManager = koinInject()
+    val scope = rememberCoroutineScope()
 
     Column (modifier = Modifier.weight(1f)) {
         Text(
@@ -530,8 +531,10 @@ fun RowScope.HistoryItemSettings(
         if (showAppPicker) {
             AppSearchDialog (
                 onSelect = { uid ->
-                    viewModel.updateQuery(n, query.copy(dataUID = appManager.getAppForUID(uid)))
-                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                    scope.launch {
+                        viewModel.updateQuery(n, query.copy(dataUID = appManager.getAppForUID(uid)))
+                        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                    }
                 }
             ){
                 showAppPicker = false
@@ -571,17 +574,14 @@ private fun AppSearchDialog(onSelect: (uid: Int) -> Unit, onDismiss: () -> Unit)
             }
         }
 
-        val includedApps by produceState(emptyList()) { value = appManager.allApps }
+        val includedApps by produceState(emptyList()) { value = appManager.getAllApps() }
         val appsPlusOther by remember { derivedStateOf {
             listOf(allApp, tetheringApp, removedApp).plus(includedApps)
         } }
-        val searchResults by remember {
-            derivedStateOf {
-                if (textFieldState.text.isEmpty()) appsPlusOther
-                else appsPlusOther.filter { it.getName(context).lowercase().contains(
-                    textFieldState.text.toString().lowercase()
-                ) }
-            }
+        val searchResults by produceState(initialValue = emptyList(), textFieldState.text) {
+            val query = textFieldState.text.toString().lowercase()
+            value = if (textFieldState.text.isEmpty()) appsPlusOther
+                    else appsPlusOther.filter { it.getName(context).lowercase().contains(query) }
         }
         Column(
             modifier = Modifier
@@ -685,6 +685,7 @@ fun AppItem(
     val viewModel: HistoryVM = koinViewModel()
     val appManager: AppManager = koinInject()
     val usageQueries by viewModel.queryFlow.collectAsState()
+    val scope = rememberCoroutineScope()
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Column(
@@ -741,17 +742,19 @@ fun AppItem(
                                     modifier = Modifier.padding(end = 4.dp),
                                     shape = MaterialTheme.shapes.small,
                                     onClick = {
-                                        app?.uid?.let {
-                                            viewModel.updateQuery(1, usageQueries.first.copy(dataUID = appManager.getAppForUID(it)))
-                                            viewModel.updateQuery(2, usageQueries.second.copy(dataUID = appManager.getAppForUID(it)))
-                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        scope.launch {
+                                            app?.uid?.let {
+                                                viewModel.updateQuery(1, usageQueries.first.copy(dataUID = appManager.getAppForUID(it)))
+                                                viewModel.updateQuery(2, usageQueries.second.copy(dataUID = appManager.getAppForUID(it)))
+                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            }
                                         }
                                     }
                                 ) {
                                     Text(stringResource(R.string.quick_filter))
                                 }
                                 if (app is DataUIDApp) {
-                                    val app by remember { mutableStateOf(appManager.getAppForUID(app.uid)) }
+                                    val app by produceState<DataUID>(allApp) { value = appManager.getAppForUID(app.uid) }
                                     val launchIntent by remember { derivedStateOf {
                                         activity?.packageManager?.getLaunchIntentForPackage(app.packageName)
                                     } }
@@ -769,8 +772,10 @@ fun AppItem(
                                     }
                                     FilledIconButton(
                                         onClick = {
-                                            viewModel.openPackageSettings(activity, app.uid)
-                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            scope.launch {
+                                                viewModel.openPackageSettings(activity, app.uid)
+                                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            }
                                         }
                                     ) {
                                         Icon(

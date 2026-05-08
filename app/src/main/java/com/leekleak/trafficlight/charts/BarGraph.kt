@@ -37,7 +37,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun BarGraph(
     data: List<BarData>,
-    finalGridPoint: String = "24",
     centerLabels: Boolean = false,
     onClick: (i: Int) -> Unit = {}
 ) {
@@ -49,7 +48,6 @@ fun BarGraph(
         BarGraphImpl(
             xAxisData = data.map { it.x },
             yAxisData = data.map { Pair(it.y1, it.y2) },
-            finalGridPoint = finalGridPoint,
             centerLabels = centerLabels,
             onClick = onClick
         )
@@ -61,7 +59,6 @@ fun BarGraph(
 private fun BarGraphImpl(
     xAxisData: List<String>,
     yAxisData: List<Pair<Long, Long>>,
-    finalGridPoint: String,
     centerLabels: Boolean,
     onClick: (i: Int) -> Unit
 ) {
@@ -171,7 +168,6 @@ private fun BarGraphImpl(
             scope = this,
             yAxisData = yAxisData,
             xAxisData = xAxisData,
-            finalGridPoint = finalGridPoint,
             stretch = barAnimation
         )
 
