@@ -20,10 +20,10 @@ class NotificationIconHelper(private val context: Context) {
     private val paintValue by lazy {
         Paint().apply {
             color = context.getColor(R.color.white)
-            typeface = convertFontFamilyToTypeface(context, googleSans(weight = 500f, width = 60f))
+            typeface = convertFontFamilyToTypeface(context, googleSans(weight = 600f, width = 60f))
             textAlign = Paint.Align.CENTER
             textSize = 72f * multiplier
-            letterSpacing = -0.05f * multiplier
+            letterSpacing = 0f
         }
     }
     private val paintUnit by lazy {
@@ -32,7 +32,7 @@ class NotificationIconHelper(private val context: Context) {
             typeface = convertFontFamilyToTypeface(context, googleSans(weight = 600f, width = 80f))
             textAlign = Paint.Align.CENTER
             textSize = 46f * multiplier
-            letterSpacing = 0f * multiplier
+            letterSpacing = 0f
         }
     }
     private var cachedIcons = LruCache<String, IconCompat>(50)
