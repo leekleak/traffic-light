@@ -538,6 +538,7 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                 ) {
                     Text(
                         text = selectedDate.toString(),
+                        style = MaterialTheme.typography.titleMediumEmphasized
                     )
                 }
             }
@@ -560,6 +561,7 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                 ) {
                     Text(
                         text = selectedTime.toString(),
+                        style = MaterialTheme.typography.titleMediumEmphasized
                     )
                 }
             }
@@ -581,10 +583,10 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp)
+                        .padding(vertical = 2.dp)
                         .clip(MaterialTheme.shapes.medium)
                         .background(MaterialTheme.colorScheme.primary)
-                        .padding(6.dp),
+                        .padding(horizontal = 6.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)
                 ) {
@@ -593,16 +595,14 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                         state = textFieldState,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         inputTransformation = InputTransformation.maxLength(3),
-                        textStyle = TextStyle(
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        ),
+                        textStyle = MaterialTheme.typography.titleMediumEmphasized.copy(color = MaterialTheme.colorScheme.onPrimary),
                         cursorBrush = SolidColor(MaterialTheme.colorScheme.onPrimary),
                     )
                     Text(
                         text = stringResource(R.string.days),
                         textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.titleMediumEmphasized
                     )
                 }
             }

@@ -93,10 +93,9 @@ class ShizukuDataManager(
     fun updateSimData() = scope.launch {
         val infos = getSubscriptionInfos().sortedBy { it.simSlotIndex }
         val activeSubscriberIDs = infos.map { getSubscriberID(it.subscriptionId) }
-        var plans = dataPlanDao.getAll()
-        plans = plans.map { plan ->
+        val plans = dataPlanDao.getAll().map { plan ->
             plan.copy(simIndex = activeSubscriberIDs.indexOf(plan.decryptedID))
-        }.toMutableList()
+        }
         activeSubscriberIDs.forEachIndexed { index, activeID ->
             if (activeID !in plans.map { it.decryptedID } && activeID != null) {
                 dataPlanRepository.savePlan(
@@ -110,7 +109,7 @@ class ShizukuDataManager(
     }
 
     fun updateSimDataBasic() = scope.launch {
-        val plans = dataPlanDao.getAll().toMutableList()
+        val plans = dataPlanDao.getAll()
         val newPlans = plans.map { it.copy(simIndex = if (it.decryptedID == NULL_SUBSCRIBER) 0 else -1) }
         if (plans.isEmpty()) {
             dataPlanRepository.savePlan(
