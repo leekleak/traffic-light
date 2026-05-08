@@ -98,6 +98,7 @@ import com.leekleak.trafficlight.model.AppManager.Companion.tetheringApp
 import com.leekleak.trafficlight.model.AppManager.Companion.unknownApp
 import com.leekleak.trafficlight.model.DataUID
 import com.leekleak.trafficlight.model.DataUIDApp
+import com.leekleak.trafficlight.model.search
 import com.leekleak.trafficlight.ui.overview.AppSelector
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.historyItemFont
@@ -574,14 +575,9 @@ private fun AppSearchDialog(onSelect: (uid: Int) -> Unit, onDismiss: () -> Unit)
             }
         }
 
-        val includedApps by produceState(emptyList()) { value = appManager.getAllApps() }
-        val appsPlusOther by remember { derivedStateOf {
-            listOf(allApp, tetheringApp, removedApp).plus(includedApps)
-        } }
-        val searchResults by produceState(initialValue = emptyList(), textFieldState.text) {
-            val query = textFieldState.text.toString().lowercase()
-            value = if (textFieldState.text.isEmpty()) appsPlusOther
-                    else appsPlusOther.filter { it.getName(context).lowercase().contains(query) }
+        val includedApps by produceState(emptyList()) { value = listOf(allApp, tetheringApp, removedApp).plus(appManager.getAllApps()) }
+        val searchResults by produceState(initialValue = includedApps, textFieldState.text) {
+            value = includedApps.search(textFieldState.text.toString(), context)
         }
         Column(
             modifier = Modifier

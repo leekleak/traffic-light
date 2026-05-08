@@ -163,3 +163,39 @@ class AppIconFetcher(
         }
     }
 }
+
+fun List<DataUID>.search(query: String, context: Context): List<DataUID> {
+    return this.sortedByDescending {
+            if (it is DataUIDSpecial) 100
+            else specialApps.indexOf(it.packageName)
+        }
+        .filter {
+            it.getName(context).lowercase().contains(query.lowercase()) ||
+            it.packageName.lowercase().contains(query.lowercase())
+        }
+}
+
+/**
+ * Apps most often included as zero-rated.
+ *
+ * The further down the list the app, the higher it will be placed when sorted.
+ */
+val specialApps = listOf(
+    "com.amazon.avod.thirdpartyclient", // Prime Video
+    "org.telegram.messenger",
+    "com.microsoft.teams",
+    "us.zoom.videomeetings",
+    "com.waze",
+    "com.google.android.apps.maps",
+    "com.apple.android.music",
+    "com.netflix.mediaclient",
+    "com.ss.android.ugc.trill", // TikTok
+    "com.google.android.youtube",
+    "com.spotify.music",
+    "com.snapchat.android",
+    "com.twitter.android",
+    "com.instagram.android",
+    "com.facebook.orca", // Facebook Messenger
+    "com.facebook.katana", // Facebook
+    "com.whatsapp",
+)

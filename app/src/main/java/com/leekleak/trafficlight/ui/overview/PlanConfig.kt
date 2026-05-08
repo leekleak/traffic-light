@@ -124,6 +124,7 @@ import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.DataUID
 import com.leekleak.trafficlight.model.PermissionManager
+import com.leekleak.trafficlight.model.search
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.settings.IconPreference
 import com.leekleak.trafficlight.ui.settings.SwitchPreference
@@ -278,10 +279,9 @@ fun PlanConfig(currentPlan: DataPlan) {
 
                     AnimatedVisibility(addApps, modifier = Modifier.fillMaxWidth()) {
                         val textFieldState = rememberTextFieldState()
-                        val searchResults by remember { derivedStateOf {
-                            if (textFieldState.text.isEmpty()) includedApps.sortedByDescending { specialApps.indexOf(it.packageName) }
-                            else includedApps.filter { it.getName(context).lowercase().contains(textFieldState.text.toString().lowercase()) }
-                        } }
+                        val searchResults by produceState<List<DataUID>>(initialValue = includedApps, textFieldState.text) {
+                            value = includedApps.search(textFieldState.text.toString(), context)
+                        }
 
                         Column(
                             modifier = Modifier.padding(top = 8.dp),
@@ -856,31 +856,6 @@ fun PlanSizeConfig(size: Double, onSizeUpdate: (Float) -> Unit) {
         }
     }
 }
-
-/**
- * Apps most often included as zero-rated.
- *
- * The further down the list the app, the higher it will be placed when sorted.
- */
-val specialApps = listOf(
-    "com.amazon.avod.thirdpartyclient", // Prime Video
-    "org.telegram.messenger",
-    "com.microsoft.teams",
-    "us.zoom.videomeetings",
-    "com.waze",
-    "com.google.android.apps.maps",
-    "com.apple.android.music",
-    "com.netflix.mediaclient",
-    "com.ss.android.ugc.trill", // TikTok
-    "com.google.android.youtube",
-    "com.spotify.music",
-    "com.snapchat.android",
-    "com.twitter.android",
-    "com.instagram.android",
-    "com.facebook.orca", // Facebook Messenger
-    "com.facebook.katana", // Facebook
-    "com.whatsapp",
-)
 
 object PastOrPresentSelectableDates: SelectableDates {
     override fun isSelectableDate(utcTimeMillis: Long): Boolean {

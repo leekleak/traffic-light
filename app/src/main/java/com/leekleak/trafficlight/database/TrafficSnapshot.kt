@@ -73,18 +73,16 @@ class TrafficSnapshot (
     }
 
     fun updateSnapshot() {
-        useFallback.let {
-            if (it) {
-                try {
-                    fallbackUpdateSnapshot()
-                } catch (e: Exception) {
-                    Timber.e("Fallback unsupported: $e")
-                    scope.launch { appPreferenceRepo.setForceFallback(false) }
-                    useFallback = false
-                }
-            } else {
-                regularUpdateSnapshot()
+        if (useFallback) {
+            try {
+                fallbackUpdateSnapshot()
+            } catch (e: Exception) {
+                Timber.e("Fallback unsupported: $e")
+                scope.launch { appPreferenceRepo.setForceFallback(false) }
+                useFallback = false
             }
+        } else {
+            regularUpdateSnapshot()
         }
     }
 
