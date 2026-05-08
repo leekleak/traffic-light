@@ -62,8 +62,8 @@ enum class Theme {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             return when (this) {
                 AutoMaterial -> colorScheme
-                LightMaterial -> colorScheme
-                DarkMaterial -> colorScheme
+                LightMaterial -> lightColorScheme()
+                DarkMaterial -> darkColorScheme()
                 Auto -> if (darkTheme) darkScheme else lightScheme
                 Light -> lightScheme
                 Dark -> darkScheme
