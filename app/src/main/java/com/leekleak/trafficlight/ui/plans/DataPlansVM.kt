@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.model.NetworkUsageManager
+import com.leekleak.trafficlight.util.MiniCardState
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -20,6 +21,12 @@ class DataPlansVM(networkUsageManager: NetworkUsageManager): ViewModel() {
     fun selectDataPlan(dataPlan: DataPlan?) = selectedDataPlan.tryEmit(dataPlan)
 
     val planFlow = combine(selectedDataPlan, refreshTrigger) { plan, _ -> plan }.filterNotNull()
+
+    val dataSafety = planFlow.map { dataPlansLogic.getDataSafety(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MiniCardState.NEGATIVE)
+
+    val trend = planFlow.map { dataPlansLogic.getTrend(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
     val todayBudget = planFlow.map { dataPlansLogic.getRemainingDailyBudgetToday(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)

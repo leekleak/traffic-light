@@ -208,7 +208,7 @@ private fun DataPlanInsights(contentPadding: PaddingValues) {
                     modifier = Modifier.background(colorScheme.surface),
                     state = MiniCardState.NEUTRAL,
                     icon = painterResource(R.drawable.search),
-                    title = "Today"
+                    title = "Todo"
                 ) { fontFamily ->
                     val string by remember { derivedStateOf { DataSize(todayBudget).toStringParts() } }
                     Text(
@@ -225,25 +225,27 @@ private fun DataPlanInsights(contentPadding: PaddingValues) {
                     )
                 }
 
-                val remainingDailyBudget by viewModel.remainingDailyBudget.collectAsState()
+                val trend by viewModel.trend.collectAsState()
+                val state = when {
+                    trend > 50 -> MiniCardState.NEGATIVE
+                    trend < -25 -> MiniCardState.POSITIVE
+                    else -> MiniCardState.NEUTRAL
+                }
                 MiniCard(
                     modifier = Modifier.background(colorScheme.surface),
                     state = MiniCardState.NEUTRAL,
-                    icon = painterResource(R.drawable.search),
-                    title = "Daily"
+                    icon = when(state) {
+                        MiniCardState.NEGATIVE -> painterResource(R.drawable.trending_up)
+                        MiniCardState.POSITIVE -> painterResource(R.drawable.trending_down)
+                        MiniCardState.NEUTRAL -> painterResource(R.drawable.trending_flat)
+                    },
+                    title = "Trend"
                 ) { fontFamily ->
-                    val string by remember { derivedStateOf { DataSize(remainingDailyBudget).toStringParts() } }
                     Text(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.alignByBaseline(),
+                        text = if (trend < 1000)"%+d%%".format(trend.toInt()) else stringResource(R.string.very_big),
                         fontFamily = fontFamily,
-                        text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontSize = 24.sp)) {
-                                append("${string.first}${string.second}")
-                            }
-                            withStyle(style = SpanStyle(fontSize = 20.sp)) {
-                                append(string.third)
-                            }
-                        }
+                        fontSize = 24.sp
                     )
                 }
             }
