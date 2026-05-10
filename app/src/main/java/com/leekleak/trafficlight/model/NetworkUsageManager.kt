@@ -256,7 +256,6 @@ class NetworkUsageManager(
             val x = firstDay.plus(i.toLong()).getName(TextStyle.SHORT_STANDALONE)
             BarData(x, 0, 0)
         }
-        emit(data.toList())
         val now = LocalDate.now()
         val daysPassed = now.get(field.dayOfWeek()) - 1
 
