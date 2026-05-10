@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.text.format.DateFormat
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -39,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -320,23 +322,24 @@ enum class MiniCardState {
 
 @Composable
 fun RowScope.MiniCard(
-    modifier: Modifier = Modifier,
     state: MiniCardState,
+    baseColor: Color = colorScheme.surfaceContainer,
     icon: Painter,
     title: String,
     description: @Composable (font: FontFamily) -> Unit
 ) {
     val fontFamily = remember { googleSans(weight = 600f) }
+    val color by animateColorAsState(
+        when(state) {
+            MiniCardState.NEGATIVE -> colorScheme.errorContainer
+            MiniCardState.POSITIVE -> colorScheme.primaryContainer
+            MiniCardState.NEUTRAL -> baseColor
+        }
+    )
     Column(
         modifier = Modifier
             .card()
-            .then(
-                when(state) {
-                    MiniCardState.NEGATIVE -> modifier.background(colorScheme.errorContainer)
-                    MiniCardState.POSITIVE -> modifier.background(colorScheme.primaryContainer)
-                    MiniCardState.NEUTRAL -> modifier
-                }
-            )
+            .background(color)
             .padding(16.dp)
             .weight(1f),
         verticalArrangement = Arrangement.spacedBy(8.dp)

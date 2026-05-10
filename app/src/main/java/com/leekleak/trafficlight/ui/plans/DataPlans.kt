@@ -219,8 +219,8 @@ private fun LazyListScope.usageInsights() {
                 val viewModel: DataPlansVM = koinViewModel()
                 val dataSafety by viewModel.dataSafety.collectAsState()
                 MiniCard(
-                    modifier = Modifier.background(colorScheme.surface),
                     state = dataSafety,
+                    baseColor = colorScheme.surface,
                     icon = painterResource(R.drawable.shield),
                     title = stringResource(R.string.safety)
                 ) { fontFamily ->
@@ -242,8 +242,8 @@ private fun LazyListScope.usageInsights() {
                     else -> MiniCardState.NEUTRAL
                 }
                 MiniCard(
-                    modifier = Modifier.background(colorScheme.surface),
-                    state = MiniCardState.NEUTRAL,
+                    state = state,
+                    baseColor = colorScheme.surface,
                     icon = when (state) {
                         MiniCardState.NEGATIVE -> painterResource(R.drawable.trending_up)
                         MiniCardState.POSITIVE -> painterResource(R.drawable.trending_down)
@@ -271,8 +271,8 @@ private fun LazyListScope.budgetInsights() {
                 val viewModel: DataPlansVM = koinViewModel()
                 val todayBudget by viewModel.todayBudget.collectAsState()
                 MiniCard(
-                    modifier = Modifier.background(colorScheme.surface),
                     state = MiniCardState.NEUTRAL,
+                    baseColor = colorScheme.surface,
                     icon = painterResource(R.drawable.today),
                     title = stringResource(R.string.today)
                 ) { fontFamily ->
@@ -293,8 +293,8 @@ private fun LazyListScope.budgetInsights() {
 
                 val remainingDailyBudget by viewModel.remainingDailyBudget.collectAsState()
                 MiniCard(
-                    modifier = Modifier.background(colorScheme.surface),
                     state = MiniCardState.NEUTRAL,
+                    baseColor = colorScheme.surface,
                     icon = painterResource(R.drawable.calendar_month),
                     title = stringResource(R.string.daily)
                 ) { fontFamily ->
