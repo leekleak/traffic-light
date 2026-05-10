@@ -6,19 +6,25 @@ import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.MiniCardState
 import com.leekleak.trafficlight.util.toTimestamp
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.math.max
 
 class DataPlanLogic(private val networkUsageManager: NetworkUsageManager) {
     suspend fun getDataSafety(dataPlan: DataPlan): MiniCardState {
-        val dailyBudget = getRemainingDailyBudget(dataPlan)
-        val todayUsage = networkUsageManager.totalDayUsage(
-            query = UsageQuery(dataType = DataType.Mobile),
-            startDate = LocalDate.now()
-        )
-        val remaining = max(dailyBudget - todayUsage, 0L)
-        return MiniCardState.NEGATIVE
+        val planUsage = networkUsageManager.planUsage(dataPlan)
+        val usageRatio = planUsage.toDouble() / dataPlan.dataMax.toDouble()
+        val startDate = dataPlan.getStartDate()
+        val endDate = dataPlan.getStartDate(next = true)
+        val timeRatio = Duration.between(startDate, endDate).seconds / Duration.between(LocalDateTime.now(), endDate).seconds
+        val difference = if (usageRatio.isNaN()) 0.0 else usageRatio - timeRatio
+
+        return when {
+            difference <= 0.0 -> MiniCardState.POSITIVE
+            difference <= 0.1 -> MiniCardState.NEUTRAL
+            else -> MiniCardState.NEGATIVE
+        }
     }
 
     suspend fun getTrend(dataPlan: DataPlan): Double {

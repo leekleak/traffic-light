@@ -396,7 +396,7 @@ private fun LazyListScope.typeConfig(newPlan: DataPlan, onPlanChange: (plan: Dat
                     label = monthlyString,
                     icon = {
                         Icon(
-                            painter = painterResource(R.drawable.calendar),
+                            painter = painterResource(R.drawable.calendar_month),
                             contentDescription = null
                         )
                     },

@@ -17,13 +17,13 @@ class DataPlansVM(networkUsageManager: NetworkUsageManager): ViewModel() {
     private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
     fun refresh() = refreshTrigger.tryEmit(Unit)
 
-    private val selectedDataPlan = MutableSharedFlow<DataPlan?>(replay = 1).apply { tryEmit(null) }
+    val selectedDataPlan = MutableSharedFlow<DataPlan?>(replay = 1).apply { tryEmit(null) }
     fun selectDataPlan(dataPlan: DataPlan?) = selectedDataPlan.tryEmit(dataPlan)
 
     val planFlow = combine(selectedDataPlan, refreshTrigger) { plan, _ -> plan }.filterNotNull()
 
     val dataSafety = planFlow.map { dataPlansLogic.getDataSafety(it) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MiniCardState.NEGATIVE)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MiniCardState.NEUTRAL)
 
     val trend = planFlow.map { dataPlansLogic.getTrend(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)

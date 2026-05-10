@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
@@ -49,7 +50,6 @@ import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.PlanConfigKey
-import com.leekleak.trafficlight.ui.overview.OverviewVM
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.MiniCard
@@ -65,7 +65,7 @@ import org.koin.compose.koinInject
 fun DataPlans(
     paddingValues: PaddingValues,
 ) {
-    val viewModel: OverviewVM = koinViewModel()
+    val viewModel: DataPlansVM = koinViewModel()
     val navigator: Navigator = koinInject()
 
     LifecycleResumeEffect(Unit) {
@@ -139,7 +139,8 @@ private fun DataPlanPager(
             }
         } else {
             Column(
-                modifier = Modifier.height(200.dp)
+                modifier = Modifier
+                    .height(200.dp)
                     .card()
                     .padding(16.dp),
                 horizontalAlignment = Alignment.End
@@ -189,6 +190,7 @@ private fun DataPlanPager(
 @Composable
 private fun DataPlanInsights(contentPadding: PaddingValues) {
     val viewModel: DataPlansVM = koinViewModel()
+    val dataPlan by viewModel.selectedDataPlan.collectAsState(null)
     val listState = rememberLazyListState()
     LazyColumn(
         modifier = Modifier
@@ -200,102 +202,107 @@ private fun DataPlanInsights(contentPadding: PaddingValues) {
         verticalArrangement = Arrangement.spacedBy(6.dp),
         state = listState
     ) {
-        categoryTitle { "Usage" }
-        item {
-            Row (horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                val todayBudget by viewModel.todayBudget.collectAsState()
-                MiniCard(
-                    modifier = Modifier.background(colorScheme.surface),
-                    state = MiniCardState.NEUTRAL,
-                    icon = painterResource(R.drawable.search),
-                    title = "Todo"
-                ) { fontFamily ->
-                    val string by remember { derivedStateOf { DataSize(todayBudget).toStringParts() } }
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        fontFamily = fontFamily,
-                        text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontSize = 24.sp)) {
-                                append("${string.first}${string.second}")
-                            }
-                            withStyle(style = SpanStyle(fontSize = 20.sp)) {
-                                append(string.third)
-                            }
-                        }
-                    )
-                }
+        if ((dataPlan?.dataMax ?: 0) > 0) usageInsights()
+        if ((dataPlan?.dataMax ?: 0) > 0) budgetInsights()
+    }
+}
 
-                val trend by viewModel.trend.collectAsState()
-                val state = when {
-                    trend > 50 -> MiniCardState.NEGATIVE
-                    trend < -25 -> MiniCardState.POSITIVE
-                    else -> MiniCardState.NEUTRAL
-                }
-                MiniCard(
-                    modifier = Modifier.background(colorScheme.surface),
-                    state = MiniCardState.NEUTRAL,
-                    icon = when(state) {
-                        MiniCardState.NEGATIVE -> painterResource(R.drawable.trending_up)
-                        MiniCardState.POSITIVE -> painterResource(R.drawable.trending_down)
-                        MiniCardState.NEUTRAL -> painterResource(R.drawable.trending_flat)
+private fun LazyListScope.usageInsights() {
+    categoryTitle { stringResource(R.string.usage) }
+    item {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            val viewModel: DataPlansVM = koinViewModel()
+            val dataSafety by viewModel.dataSafety.collectAsState()
+            MiniCard(
+                modifier = Modifier.background(colorScheme.surface),
+                state = dataSafety,
+                icon = painterResource(R.drawable.shield),
+                title = stringResource(R.string.safety)
+            ) { fontFamily ->
+                Text(
+                    text = when (dataSafety) {
+                        MiniCardState.POSITIVE -> stringResource(R.string.safe)
+                        MiniCardState.NEUTRAL -> stringResource(R.string.neutral)
+                        MiniCardState.NEGATIVE -> stringResource(R.string.unsafe)
                     },
-                    title = "Trend"
-                ) { fontFamily ->
-                    Text(
-                        modifier = Modifier.alignByBaseline(),
-                        text = if (trend < 1000)"%+d%%".format(trend.toInt()) else stringResource(R.string.very_big),
-                        fontFamily = fontFamily,
-                        fontSize = 24.sp
-                    )
-                }
+                    fontFamily = fontFamily,
+                    fontSize = 24.sp
+                )
+            }
+
+            val trend by viewModel.trend.collectAsState()
+            val state = when {
+                trend > 50 -> MiniCardState.NEGATIVE
+                trend < -25 -> MiniCardState.POSITIVE
+                else -> MiniCardState.NEUTRAL
+            }
+            MiniCard(
+                modifier = Modifier.background(colorScheme.surface),
+                state = MiniCardState.NEUTRAL,
+                icon = when (state) {
+                    MiniCardState.NEGATIVE -> painterResource(R.drawable.trending_up)
+                    MiniCardState.POSITIVE -> painterResource(R.drawable.trending_down)
+                    MiniCardState.NEUTRAL -> painterResource(R.drawable.trending_flat)
+                },
+                title = stringResource(R.string.trend)
+            ) { fontFamily ->
+                Text(
+                    text = if (trend < 1000) "%+d%%".format(trend.toInt()) else stringResource(R.string.very_big),
+                    fontFamily = fontFamily,
+                    fontSize = 24.sp
+                )
             }
         }
-        categoryTitle { "Remaining Budget" }
-        item {
-            Row (horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                val todayBudget by viewModel.todayBudget.collectAsState()
-                MiniCard(
-                    modifier = Modifier.background(colorScheme.surface),
-                    state = MiniCardState.NEUTRAL,
-                    icon = painterResource(R.drawable.search),
-                    title = "Today"
-                ) { fontFamily ->
-                    val string by remember { derivedStateOf { DataSize(todayBudget).toStringParts() } }
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        fontFamily = fontFamily,
-                        text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontSize = 24.sp)) {
-                                append("${string.first}${string.second}")
-                            }
-                            withStyle(style = SpanStyle(fontSize = 20.sp)) {
-                                append(string.third)
-                            }
-                        }
-                    )
-                }
+    }
+}
 
-                val remainingDailyBudget by viewModel.remainingDailyBudget.collectAsState()
-                MiniCard(
-                    modifier = Modifier.background(colorScheme.surface),
-                    state = MiniCardState.NEUTRAL,
-                    icon = painterResource(R.drawable.search),
-                    title = "Daily"
-                ) { fontFamily ->
-                    val string by remember { derivedStateOf { DataSize(remainingDailyBudget).toStringParts() } }
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        fontFamily = fontFamily,
-                        text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontSize = 24.sp)) {
-                                append("${string.first}${string.second}")
-                            }
-                            withStyle(style = SpanStyle(fontSize = 20.sp)) {
-                                append(string.third)
-                            }
+private fun LazyListScope.budgetInsights() {
+    categoryTitle { stringResource(R.string.budget) }
+    item {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            val viewModel: DataPlansVM = koinViewModel()
+            val todayBudget by viewModel.todayBudget.collectAsState()
+            MiniCard(
+                modifier = Modifier.background(colorScheme.surface),
+                state = MiniCardState.NEUTRAL,
+                icon = painterResource(R.drawable.today),
+                title = stringResource(R.string.today)
+            ) { fontFamily ->
+                val string by remember { derivedStateOf { DataSize(todayBudget).toStringParts() } }
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    fontFamily = fontFamily,
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontSize = 24.sp)) {
+                            append("${string.first}${string.second}")
                         }
-                    )
-                }
+                        withStyle(style = SpanStyle(fontSize = 20.sp)) {
+                            append(string.third)
+                        }
+                    }
+                )
+            }
+
+            val remainingDailyBudget by viewModel.remainingDailyBudget.collectAsState()
+            MiniCard(
+                modifier = Modifier.background(colorScheme.surface),
+                state = MiniCardState.NEUTRAL,
+                icon = painterResource(R.drawable.calendar_month),
+                title = stringResource(R.string.daily)
+            ) { fontFamily ->
+                val string by remember { derivedStateOf { DataSize(remainingDailyBudget).toStringParts() } }
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    fontFamily = fontFamily,
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontSize = 24.sp)) {
+                            append("${string.first}${string.second}")
+                        }
+                        withStyle(style = SpanStyle(fontSize = 20.sp)) {
+                            append(string.third)
+                        }
+                    }
+                )
             }
         }
     }
