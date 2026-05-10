@@ -118,4 +118,8 @@
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>
     </plurals>
+    <plurals name="resets_in_hours">
+        <item quantity="one">Resets in %d hour</item>
+        <item quantity="other">Resets in %d hours</item>
+    </plurals>
 </resources>
