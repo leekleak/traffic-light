@@ -62,11 +62,15 @@ data class DataPlan(
     val decryptedID: String?
         get() = CryptoManager.decrypt(encryptedSubscriberID)
 
-    fun resetString(context: Context): String {
+    fun getRemainingDays(): Int {
         val now = LocalDateTime.now()
         val startDate = getStartDate(true)
-        val duration = Duration.between(now, startDate).toDays().toInt() + 1
-        return context.resources.getQuantityString(R.plurals.resets_in_days, duration, duration)
+        return Duration.between(now, startDate).toDays().toInt() + 1
+    }
+
+    fun resetString(context: Context): String {
+        val remaining = getRemainingDays()
+        return context.resources.getQuantityString(R.plurals.resets_in_days, remaining, remaining)
     }
 
     fun getStartDate(next: Boolean = false): LocalDateTime {

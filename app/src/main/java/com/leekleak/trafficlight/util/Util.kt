@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -40,7 +39,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -57,8 +55,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.ui.navigation.Navigator
-import com.leekleak.trafficlight.ui.overview.MiniCardState
 import com.leekleak.trafficlight.ui.theme.card
+import com.leekleak.trafficlight.ui.theme.googleSans
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
@@ -181,18 +179,6 @@ fun CategoryTitleSmallText(text: String) {
         style = MaterialTheme.typography.titleMedium,
         color = colorScheme.tertiary
     )
-}
-
-@Composable
-fun WideScreenWrapper(content: @Composable () -> Unit) {
-    Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.TopCenter
-    ) {
-        Box(Modifier.widthIn(20.dp, 500.dp).clipToBounds()) {
-            content()
-        }
-    }
 }
 
 @Composable
@@ -325,21 +311,30 @@ fun EqualHeightRow(
     }
 }
 
+
+enum class MiniCardState {
+    POSITIVE,
+    NEUTRAL,
+    NEGATIVE
+}
+
 @Composable
 fun RowScope.MiniCard(
+    modifier: Modifier = Modifier,
     state: MiniCardState,
     icon: Painter,
     title: String,
-    description: @Composable () -> Unit
+    description: @Composable (font: FontFamily) -> Unit
 ) {
+    val fontFamily = remember { googleSans(weight = 600f) }
     Column(
         modifier = Modifier
             .card()
             .then(
                 when(state) {
-                    MiniCardState.NEGATIVE -> Modifier.background(colorScheme.errorContainer)
-                    MiniCardState.POSITIVE -> Modifier.background(colorScheme.primaryContainer)
-                    MiniCardState.NEUTRAL -> Modifier
+                    MiniCardState.NEGATIVE -> modifier.background(colorScheme.errorContainer)
+                    MiniCardState.POSITIVE -> modifier.background(colorScheme.primaryContainer)
+                    MiniCardState.NEUTRAL -> modifier
                 }
             )
             .padding(16.dp)
@@ -353,7 +348,7 @@ fun RowScope.MiniCard(
             Icon(icon, null)
             Text(title)
         }
-        description()
+        description(fontFamily)
     }
 }
 

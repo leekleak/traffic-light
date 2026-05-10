@@ -24,7 +24,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -33,10 +35,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
@@ -45,7 +51,11 @@ import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.PlanConfigKey
 import com.leekleak.trafficlight.ui.overview.OverviewVM
 import com.leekleak.trafficlight.ui.theme.card
+import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.trafficlight.util.MiniCard
+import com.leekleak.trafficlight.util.MiniCardState
 import com.leekleak.trafficlight.util.PageTitle
+import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.openLink
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -86,6 +96,7 @@ private fun DataPlanPager(
 ) {
     val dataPlanDao: DataPlanDao = koinInject()
     val appPreferenceRepo: AppPreferenceRepo = koinInject()
+    val viewModel: DataPlansVM = koinViewModel()
 
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
@@ -97,6 +108,17 @@ private fun DataPlanPager(
     val pagerState = rememberPagerState(pageCount = {
         activePlans.size + if (shizukuHint && !shizukuTracking) 1 else 0
     })
+
+    LaunchedEffect(activePlans.size, pagerState.currentPage) {
+        viewModel.selectDataPlan(
+            if (pagerState.currentPage < activePlans.size) {
+                activePlans[pagerState.currentPage]
+            } else {
+                null
+            }
+        )
+    }
+
     HorizontalPager(
         state = pagerState,
         contentPadding = PaddingValues(vertical = 8.dp, horizontal = horizontalPadding),
@@ -166,6 +188,7 @@ private fun DataPlanPager(
 
 @Composable
 private fun DataPlanInsights(contentPadding: PaddingValues) {
+    val viewModel: DataPlansVM = koinViewModel()
     val listState = rememberLazyListState()
     LazyColumn(
         modifier = Modifier
@@ -177,6 +200,101 @@ private fun DataPlanInsights(contentPadding: PaddingValues) {
         verticalArrangement = Arrangement.spacedBy(6.dp),
         state = listState
     ) {
+        categoryTitle { "Usage" }
+        item {
+            Row (horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                val todayBudget by viewModel.todayBudget.collectAsState()
+                MiniCard(
+                    modifier = Modifier.background(colorScheme.surface),
+                    state = MiniCardState.NEUTRAL,
+                    icon = painterResource(R.drawable.search),
+                    title = "Today"
+                ) { fontFamily ->
+                    val string by remember { derivedStateOf { DataSize(todayBudget).toStringParts() } }
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        fontFamily = fontFamily,
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontSize = 24.sp)) {
+                                append("${string.first}${string.second}")
+                            }
+                            withStyle(style = SpanStyle(fontSize = 20.sp)) {
+                                append(string.third)
+                            }
+                        }
+                    )
+                }
 
+                val remainingDailyBudget by viewModel.remainingDailyBudget.collectAsState()
+                MiniCard(
+                    modifier = Modifier.background(colorScheme.surface),
+                    state = MiniCardState.NEUTRAL,
+                    icon = painterResource(R.drawable.search),
+                    title = "Daily"
+                ) { fontFamily ->
+                    val string by remember { derivedStateOf { DataSize(remainingDailyBudget).toStringParts() } }
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        fontFamily = fontFamily,
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontSize = 24.sp)) {
+                                append("${string.first}${string.second}")
+                            }
+                            withStyle(style = SpanStyle(fontSize = 20.sp)) {
+                                append(string.third)
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        categoryTitle { "Remaining Budget" }
+        item {
+            Row (horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                val todayBudget by viewModel.todayBudget.collectAsState()
+                MiniCard(
+                    modifier = Modifier.background(colorScheme.surface),
+                    state = MiniCardState.NEUTRAL,
+                    icon = painterResource(R.drawable.search),
+                    title = "Today"
+                ) { fontFamily ->
+                    val string by remember { derivedStateOf { DataSize(todayBudget).toStringParts() } }
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        fontFamily = fontFamily,
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontSize = 24.sp)) {
+                                append("${string.first}${string.second}")
+                            }
+                            withStyle(style = SpanStyle(fontSize = 20.sp)) {
+                                append(string.third)
+                            }
+                        }
+                    )
+                }
+
+                val remainingDailyBudget by viewModel.remainingDailyBudget.collectAsState()
+                MiniCard(
+                    modifier = Modifier.background(colorScheme.surface),
+                    state = MiniCardState.NEUTRAL,
+                    icon = painterResource(R.drawable.search),
+                    title = "Daily"
+                ) { fontFamily ->
+                    val string by remember { derivedStateOf { DataSize(remainingDailyBudget).toStringParts() } }
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        fontFamily = fontFamily,
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontSize = 24.sp)) {
+                                append("${string.first}${string.second}")
+                            }
+                            withStyle(style = SpanStyle(fontSize = 20.sp)) {
+                                append(string.third)
+                            }
+                        }
+                    )
+                }
+            }
+        }
     }
 }

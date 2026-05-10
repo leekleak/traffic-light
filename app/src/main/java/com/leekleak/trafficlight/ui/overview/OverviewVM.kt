@@ -13,6 +13,7 @@ class OverviewVM(
 ) : ViewModel() {
     private val overviewLogic = OverviewLogic(networkUsageManager)
     private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
+    fun refresh() = refreshTrigger.tryEmit(Unit)
 
     val weekUsage = refreshTrigger.map { overviewLogic.getWeekUsage() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -25,6 +26,4 @@ class OverviewVM(
 
     val trend = refreshTrigger.map { overviewLogic.getTrend() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
-
-    fun refresh() = refreshTrigger.tryEmit(Unit)
 }

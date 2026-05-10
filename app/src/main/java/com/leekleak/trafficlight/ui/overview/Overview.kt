@@ -72,6 +72,7 @@ import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.EqualHeightRow
 import com.leekleak.trafficlight.util.MiniCard
+import com.leekleak.trafficlight.util.MiniCardState
 import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.px
 import dev.chrisbanes.haze.hazeSource
@@ -265,7 +266,6 @@ private fun OverviewHero(scrollState: ScrollState) {
 @Composable
 private fun RowScope.PredictionCard() {
     val viewModel: OverviewVM = koinViewModel()
-    val fontFamily = remember { googleSans(weight = 600f) }
     val prediction by viewModel.prediction.collectAsState()
     val string = DataSize(prediction).toStringParts(extraPrecision = true)
 
@@ -273,7 +273,7 @@ private fun RowScope.PredictionCard() {
         state = MiniCardState.NEUTRAL,
         icon = painterResource(R.drawable.query_stats),
         title = stringResource(R.string.prediction)
-    ) {
+    ) { fontFamily ->
         Text(
             modifier = Modifier.fillMaxWidth(),
             fontFamily = fontFamily,
@@ -293,7 +293,6 @@ private fun RowScope.PredictionCard() {
 private fun RowScope.TrendCard() {
     val viewModel: OverviewVM = koinViewModel()
     val trend by viewModel.trend.collectAsState()
-    val fontFamily = remember { googleSans(weight = 600f) }
     val state = when {
         trend > 50 -> MiniCardState.NEGATIVE
         trend < -25 -> MiniCardState.POSITIVE
@@ -307,7 +306,7 @@ private fun RowScope.TrendCard() {
             MiniCardState.NEUTRAL -> painterResource(R.drawable.trending_flat)
         },
         title = stringResource(R.string.trend)
-    ) {
+    ) { fontFamily ->
         Text(
             modifier = Modifier.alignByBaseline(),
             text = if (trend < 1000)"%+d%%".format(trend.toInt()) else stringResource(R.string.very_big),
@@ -315,12 +314,6 @@ private fun RowScope.TrendCard() {
             fontSize = 24.sp
         )
     }
-}
-
-enum class MiniCardState {
-    POSITIVE,
-    NEUTRAL,
-    NEGATIVE
 }
 
 @Composable

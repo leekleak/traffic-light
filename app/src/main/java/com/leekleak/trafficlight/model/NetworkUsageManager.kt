@@ -2,7 +2,6 @@ package com.leekleak.trafficlight.model
 
 import android.app.usage.NetworkStats
 import android.app.usage.NetworkStatsManager
-import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataDirection
@@ -55,11 +54,12 @@ class NetworkUsageManager(
     suspend fun totalDayUsage(
         query: UsageQuery,
         startDate: LocalDate,
+        subscriberId: String? = null,
         endDate: LocalDate = startDate.plusDays(1),
     ): Long {
         val startStamp = startDate.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
         val endStamp = endDate.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
-        return getNetworkDataForType(startStamp, endStamp, null, query.dataType).sumOf {
+        return getNetworkDataForType(startStamp, endStamp, subscriberId, query.dataType).sumOf {
                 if (it.uid == query.dataUID.uid || query.dataUID.uidQuery == null) {
                     return@sumOf it.forDirection(query.dataDirection)
                 } else {
@@ -240,10 +240,6 @@ class NetworkUsageManager(
             }.awaitAll()
         }
         emit(data.toList())
-    }
-
-    fun weekUsage(): Flow<List<BarData>> = flow {
-
     }
 
     companion object {
