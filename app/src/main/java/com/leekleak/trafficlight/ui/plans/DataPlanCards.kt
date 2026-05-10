@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -58,7 +57,7 @@ fun ConfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
     val haptic = LocalHapticFeedback.current
 
     BoxBackground(
-        background = backgrounds[dataPlan.uiBackground],
+        dataPlan = dataPlan,
         onClick = {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             onConfigure()
@@ -74,29 +73,17 @@ fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
     val networkUsageManager: NetworkUsageManager = koinInject()
     val fontFamilyGoogleSans = remember { longGoogleSans() }
     val fontFamilyDoHyeon = remember { doHyeonFont() }
-    val fontFamilyCarrier = remember { carrierFont() }
 
     val dataUsage by produceState(0L) { value = networkUsageManager.planUsage(dataPlan) }
     val usage = DataSize(dataUsage).getAsUnit(DataSizeUnit.GB)
     val formatter = remember { DecimalFormat("0.##") }
     BoxBackground(
-        background = backgrounds[dataPlan.uiBackground],
+        dataPlan = dataPlan,
         onClick = {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             onConfigure()
         }
     ) {
-        Row {
-            SimIcon(dataPlan.simIndex)
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 4.dp),
-                text = dataPlan.carrierName,
-                fontFamily = fontFamilyCarrier,
-                textAlign = TextAlign.End
-            )
-        }
         Column(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -141,10 +128,12 @@ fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
 
 @Composable
 private fun BoxBackground(
-    background: Int? = null,
+    dataPlan: DataPlan,
     onClick: () -> Unit,
     content: @Composable BoxScope.() -> Unit
 ) {
+    val fontFamilyCarrier = remember { carrierFont() }
+    val background = backgrounds[dataPlan.uiBackground]
     Box (modifier = Modifier
         .fillMaxWidth()
         .height(200.dp)
@@ -165,22 +154,11 @@ private fun BoxBackground(
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primaryContainer)
             )
         }
-        content()
-    }
-}
-
-@Composable
-private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
-    val context = LocalContext.current
-    val networkUsageManager: NetworkUsageManager = koinInject()
-    val fontFamilyGoogleSans = remember { longGoogleSans() }
-    val fontFamilyDoHyeon = remember { doHyeonFont() }
-    val fontFamilyCarrier = remember { carrierFont() }
-    val dataUsage by produceState(0L) { value = networkUsageManager.planUsage(dataPlan) }
-
-    Box(Modifier.fillMaxSize()) {
-        Row(Modifier.fillMaxWidth()) {
-            SimIcon(dataPlan.simIndex)
+        Row {
+            Icon(
+                painterResource(simIconRes(dataPlan.simIndex)),
+                contentDescription = stringResource(R.string.sim_card)
+            )
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -190,72 +168,73 @@ private fun ConfiguredDataPlanContent(dataPlan: DataPlan) {
                 textAlign = TextAlign.End
             )
         }
-        val usage by remember(dataUsage) {
-            derivedStateOf {
-                DataSize(dataUsage).getAsUnit(DataSizeUnit.GB)
-            }
-        }
-        Row(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            val formatter = remember { DecimalFormat("0.##") }
-            Text(
-                modifier = Modifier.alignByBaseline(),
-                text = formatter.format(usage),
-                fontFamily = fontFamilyDoHyeon,
-                fontSize = 64.sp,
-            )
-            val data by remember(dataPlan) {
-                derivedStateOf {
-                    formatter.format(
-                        DataSize(dataPlan.dataMax).getAsUnit(DataSizeUnit.GB)
-                    )
-                }
-            }
-            Text(
-                modifier = Modifier.alignByBaseline(),
-                text = "/${data}GB",
-                fontFamily = fontFamilyDoHyeon,
-                fontSize = 36.sp,
-            )
-        }
-
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(8.dp)
-                .height(48.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Bottom),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = dataPlan.resetString(context),
-                fontFamily = fontFamilyGoogleSans
-            )
-            val lineUsage = DataSize((usage * DataSizeUnit.GB.toBits()).toLong())
-            LinearWavyProgressIndicator(
-                modifier = Modifier.fillMaxWidth(),
-                progress = {
-                    if (dataPlan.dataMax == 0L) 0f
-                    else (lineUsage.byteValue
-                        .toDouble() / dataPlan.dataMax.toDouble()).toFloat()
-                        .coerceIn(0f, 1f)
-                },
-            )
-        }
+        content()
     }
 }
 
 @Composable
-fun SimIcon(number: Int) {
-    Box(contentAlignment = Alignment.Center) {
-        Icon(
-            painterResource(simIconRes(number)),
-            contentDescription = stringResource(R.string.sim_card)
+private fun BoxScope.ConfiguredDataPlanContent(dataPlan: DataPlan) {
+    val context = LocalContext.current
+    val networkUsageManager: NetworkUsageManager = koinInject()
+    val fontFamilyGoogleSans = remember { longGoogleSans() }
+    val fontFamilyDoHyeon = remember { doHyeonFont() }
+    val dataUsage by produceState(0L) { value = networkUsageManager.planUsage(dataPlan) }
+    val usage by remember(dataUsage) {
+        derivedStateOf {
+            DataSize(dataUsage).getAsUnit(DataSizeUnit.GB)
+        }
+    }
+
+    Row(
+        modifier = Modifier
+            .align(Alignment.Center)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.Bottom
+    ) {
+        val formatter = remember { DecimalFormat("0.##") }
+        Text(
+            modifier = Modifier.alignByBaseline(),
+            text = formatter.format(usage),
+            fontFamily = fontFamilyDoHyeon,
+            fontSize = 64.sp,
+        )
+        val data by remember(dataPlan) {
+            derivedStateOf {
+                formatter.format(
+                    DataSize(dataPlan.dataMax).getAsUnit(DataSizeUnit.GB)
+                )
+            }
+        }
+        Text(
+            modifier = Modifier.alignByBaseline(),
+            text = "/${data}GB",
+            fontFamily = fontFamilyDoHyeon,
+            fontSize = 36.sp,
+        )
+    }
+
+    Column(
+        modifier = Modifier
+            .align(Alignment.BottomCenter)
+            .padding(8.dp)
+            .height(48.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Bottom),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = dataPlan.resetString(context),
+            fontFamily = fontFamilyGoogleSans
+        )
+        val lineUsage = DataSize((usage * DataSizeUnit.GB.toBits()).toLong())
+        LinearWavyProgressIndicator(
+            modifier = Modifier.fillMaxWidth(),
+            progress = {
+                if (dataPlan.dataMax == 0L) 0f
+                else (lineUsage.byteValue
+                    .toDouble() / dataPlan.dataMax.toDouble()).toFloat()
+                    .coerceIn(0f, 1f)
+            },
         )
     }
 }
