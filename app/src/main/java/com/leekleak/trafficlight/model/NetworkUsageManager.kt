@@ -19,7 +19,6 @@ import com.leekleak.trafficlight.model.AppManager.Companion.specialUIDs
 import com.leekleak.trafficlight.model.AppManager.Companion.unknownApp
 import com.leekleak.trafficlight.ui.history.DateParams
 import com.leekleak.trafficlight.util.fromTimestamp
-import com.leekleak.trafficlight.util.getName
 import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -30,11 +29,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
-import java.time.temporal.WeekFields
-import java.util.Locale
-import kotlin.math.max
 
 data class UsageData(
     val upload: Long = 0,
@@ -72,8 +67,6 @@ class NetworkUsageManager(
                 }
             }
     }
-
-    suspend fun todayMobileUsage(): Long = totalDayUsage(UsageQuery(DataType.Mobile), LocalDate.now())
 
     suspend fun planUsage(dataPlan: DataPlan): Long {
         val now = LocalDateTime.now()
@@ -250,65 +243,7 @@ class NetworkUsageManager(
     }
 
     fun weekUsage(): Flow<List<BarData>> = flow {
-        val field = WeekFields.of(Locale.getDefault())
-        val firstDay = field.firstDayOfWeek
-        val data: MutableList<BarData> = MutableList(7) { i ->
-            val x = firstDay.plus(i.toLong()).getName(TextStyle.SHORT_STANDALONE)
-            BarData(x, 0, 0)
-        }
-        val now = LocalDate.now()
-        val daysPassed = now.get(field.dayOfWeek()) - 1
 
-        coroutineScope {
-            (0..daysPassed).map { i ->
-                async {
-                    val now = now.minusDays(daysPassed.toLong() - i)
-                    val usage1 = totalDayUsage(UsageQuery(DataType.Mobile), now)
-                    val usage2 = totalDayUsage(UsageQuery(DataType.Wifi), now)
-                    data[i] = data[i].copy(y1 = usage1, y2 = usage2)
-                }
-            }.awaitAll()
-        }
-        emit(data.toList())
-    }
-
-    suspend fun predictUsage(): Long {
-        val hour = LocalDateTime.now().hour
-        val hoursLeft = 23 - hour
-        val nowStamp = LocalDateTime.now().toTimestamp()
-        val last24HourUsage = getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, DataType.Mobile).sumOf { it.total }
-        val todayUsage = totalDayUsage(UsageQuery(DataType.Mobile), LocalDate.now())
-
-        val out = coroutineScope {
-            (1..4).map { i ->
-                async {
-                    val pivotStamp = nowStamp - i * 24 * 7 * 3_600_000L
-                    val futureHours = getNetworkDataForType(pivotStamp, pivotStamp + hoursLeft * 3_600_000, null, DataType.Mobile).sumOf { it.total }
-                    val pastHours = getNetworkDataForType(pivotStamp - 24 * 3_600_000, pivotStamp, null, DataType.Mobile).sumOf { it.total }
-
-                    (pastHours) to (futureHours + pastHours)
-                }
-            }.awaitAll()
-        }
-
-        val hourSum = out.sumOf { it.first }.toDouble()
-        val daySum = out.sumOf { it.second }.toDouble()
-
-        return if (hourSum == 0.0) {
-            todayUsage
-        } else {
-            (last24HourUsage * (daySum / hourSum - 1)).toLong() + todayUsage
-        }
-    }
-
-    suspend fun getTrend(): Double {
-        val nowStamp = LocalDateTime.now().toTimestamp()
-        // Last 24 hours
-        val hourAverage24 = getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, DataType.Mobile).sumOf { it.total } / 24.0
-        // Last week average excluding last 24 hours
-        val weekAverage = getNetworkDataForType(nowStamp - 168 * 3_600_000, nowStamp - 24 * 3_600_000, null, DataType.Mobile).sumOf { it.total } / 144.0
-
-        return (hourAverage24 / max(weekAverage, 1.0) - 1) * 100.0
     }
 
     companion object {
