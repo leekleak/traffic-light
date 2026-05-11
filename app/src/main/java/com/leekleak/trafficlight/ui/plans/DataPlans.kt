@@ -47,8 +47,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.charts.AppGraph
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.database.AppPreferenceRepo
+import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.PlanConfigKey
@@ -193,6 +195,7 @@ private fun DataPlanPager(
 private fun DataPlanInsights(contentPadding: PaddingValues) {
     val viewModel: DataPlansVM = koinViewModel()
     val dataPlan by viewModel.selectedDataPlan.collectAsState(null)
+    val topAppsList by viewModel.topApps.collectAsState()
     val listState = rememberLazyListState()
     LazyColumn(
         modifier = Modifier
@@ -205,9 +208,12 @@ private fun DataPlanInsights(contentPadding: PaddingValues) {
         state = listState
     ) {
         item{}
-        if ((dataPlan?.dataMax ?: 0) > 0) usageInsights()
-        if (dataPlan != null) thisWeek()
-        if ((dataPlan?.dataMax ?: 0) > 0) budgetInsights()
+        dataPlan?.let { plan ->
+            if (plan.dataMax > 0) usageInsights()
+            thisWeek()
+            if (plan.dataMax > 0) budgetInsights()
+            if (topAppsList.isNotEmpty()) topApps(topAppsList)
+        }
     }
 }
 
@@ -334,6 +340,22 @@ private fun LazyListScope.thisWeek() {
                     showLegend = false,
                     centerLabels = true
                 )
+            }
+        }
+    }
+}
+
+private fun LazyListScope.topApps(topAppsList: List<AppUsage>) {
+    item(key = "top_apps") {
+        Column(Modifier.animateItem()) {
+            CategoryTitleText(stringResource(R.string.top_apps))
+            Box(
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(colorScheme.surface)
+                    .padding(6.dp)
+            ) {
+                AppGraph(topAppsList)
             }
         }
     }

@@ -31,7 +31,6 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.TextStyle
-import java.time.temporal.ChronoUnit
 import java.time.temporal.WeekFields
 import java.util.Locale
 
@@ -62,8 +61,8 @@ class NetworkUsageManager(
         subscriberId: String? = null,
         endDate: LocalDate = startDate.plusDays(1),
     ): Long {
-        val startStamp = startDate.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
-        val endStamp = endDate.atStartOfDay().truncatedTo(ChronoUnit.DAYS).toTimestamp()
+        val startStamp = startDate.toTimestamp()
+        val endStamp = endDate.toTimestamp()
         return getNetworkDataForType(startStamp, endStamp, subscriberId, query.dataType).sumOf {
                 if (it.uid == query.dataUID.uid || query.dataUID.uidQuery == null) {
                     return@sumOf it.forDirection(query.dataDirection)
@@ -132,13 +131,15 @@ class NetworkUsageManager(
         }
     }
 
-    suspend fun getAllAppUsage(dateParams: DateParams, query1: UsageQuery, query2: UsageQuery): List<AppUsage> {
-        val dates = dateParams.getStartEndDates()
-        val startTime = dates.first.atStartOfDay().toTimestamp()
-        val endTime = dates.second.atStartOfDay().toTimestamp()
-
-        val usage1 = getNetworkDataForType(startTime, endTime, null, query1.dataType)
-        val usage2 = getNetworkDataForType(startTime, endTime, null, query2.dataType)
+    suspend fun getAllAppUsage(
+        startStamp: Long,
+        endStamp: Long,
+        query1: UsageQuery,
+        query2: UsageQuery,
+        subscriberId: String? = null
+    ): List<AppUsage> {
+        val usage1 = getNetworkDataForType(startStamp, endStamp, subscriberId, query1.dataType)
+        val usage2 = getNetworkDataForType(startStamp, endStamp, subscriberId, query2.dataType)
 
         val uids = usage1.map { it.uid }.union(usage2.map { it.uid }).union(specialUIDs).filterNotNull()
 
@@ -148,7 +149,6 @@ class NetworkUsageManager(
             AppUsage(
                 app = appManager.getAppForUID(uid),
                 usage = DayUsage(
-                    date = dateParams.day,
                     usage1 = uid1.forDirection(query1.dataDirection),
                     usage2 = uid2.forDirection(query2.dataDirection)
                 ),
@@ -156,7 +156,6 @@ class NetworkUsageManager(
         }.toMutableList()
 
         val totalUsage = DayUsage(
-            date = dateParams.day,
             usage1 = list.sumOf { it.usage.usage1 },
             usage2 = list.sumOf { it.usage.usage2 }
         )

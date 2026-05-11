@@ -17,6 +17,7 @@ import com.leekleak.trafficlight.database.HourUsage
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.NetworkUsageManager
+import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -106,7 +107,13 @@ class HistoryVM(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val appList: StateFlow<List<AppUsage>> = dateQueryFlow.mapLatest { (date, queries) ->
-            networkUsageManager.getAllAppUsage(date, queries.first, queries.second)
+            val dates = date.getStartEndDates()
+            networkUsageManager.getAllAppUsage(
+                startStamp = dates.first.atStartOfDay().toTimestamp(),
+                endStamp = dates.second.atStartOfDay().toTimestamp(),
+                query1 = queries.first,
+                query2 = queries.second
+            )
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 

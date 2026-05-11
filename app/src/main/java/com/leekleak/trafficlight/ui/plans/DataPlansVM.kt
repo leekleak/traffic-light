@@ -36,4 +36,7 @@ class DataPlansVM(networkUsageManager: NetworkUsageManager): ViewModel() {
 
     val weekUsage = planFlow.map { dataPlansLogic.getWeekUsage(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val topApps = planFlow.map { dataPlansLogic.getTopAppUsage(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 }

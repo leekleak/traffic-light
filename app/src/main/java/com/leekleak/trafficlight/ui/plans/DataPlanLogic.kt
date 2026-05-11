@@ -1,9 +1,11 @@
 package com.leekleak.trafficlight.ui.plans
 
 import com.leekleak.trafficlight.charts.model.BarData
+import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.UsageQuery
+import com.leekleak.trafficlight.model.DataUIDApp
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.MiniCardState
 import com.leekleak.trafficlight.util.toTimestamp
@@ -63,4 +65,15 @@ class DataPlanLogic(private val networkUsageManager: NetworkUsageManager) {
     }
 
     suspend fun getWeekUsage(dataPlan: DataPlan): List<BarData> = networkUsageManager.getWeekUsage(dataPlan.decryptedID, false)
+
+    suspend fun getTopAppUsage(dataPlan: DataPlan): List<AppUsage> {
+        val todayUsage = networkUsageManager.getAllAppUsage(
+            startStamp = dataPlan.getStartDate().toTimestamp(),
+            endStamp = LocalDate.now().toTimestamp(),
+            query1 = UsageQuery(DataType.Mobile),
+            query2 = UsageQuery(DataType.None),
+            subscriberId = dataPlan.decryptedID
+        )
+        return todayUsage.filter { !dataPlan.excludedApps.contains(it.app.uid) && it.app is DataUIDApp }.take(3)
+    }
 }

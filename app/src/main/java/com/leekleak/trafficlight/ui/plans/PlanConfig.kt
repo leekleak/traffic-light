@@ -447,8 +447,7 @@ private fun LazyListScope.typeConfig(newPlan: DataPlan, onPlanChange: (plan: Dat
                                 value = selectedMonthDay.toFloat(),
                                 onValueChange = {
                                     val newDate =
-                                        LocalDate.now().withDayOfMonth(it.roundToInt())
-                                            .atStartOfDay().toTimestamp()
+                                        LocalDate.now().withDayOfMonth(it.roundToInt()).toTimestamp()
                                     if (newDate != newPlan.startDate) {
                                         onPlanChange(newPlan.copy(startDate = newDate))
                                         haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)

@@ -52,6 +52,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
@@ -67,6 +68,7 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import org.koin.compose.koinInject
 import java.time.DayOfWeek
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.Month
@@ -96,7 +98,11 @@ inline val Dp.px: Float
 inline val Int.toDp: Dp
     @Composable get() = with(LocalDensity.current) { this@toDp.toDp() }
 
+inline val Dp.toSp: TextUnit
+    @Composable get() = with(LocalDensity.current) { this@toSp.toSp() }
+
 fun LocalDateTime.toTimestamp(): Long = toInstant(currentTimezone()).toEpochMilli()
+fun LocalDate.toTimestamp(): Long = atStartOfDay().toInstant(currentTimezone()).toEpochMilli()
 fun fromTimestamp(stamp: Long): LocalDateTime {
     return LocalDateTime.ofInstant(
         Instant.ofEpochMilli(stamp),
