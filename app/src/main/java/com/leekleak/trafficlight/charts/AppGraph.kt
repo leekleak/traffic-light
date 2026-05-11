@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
@@ -39,7 +39,7 @@ fun AppGraph(
     val onBackgroundColor = GraphTheme.onBackgroundColor
 
     BoxWithConstraints(
-        Modifier.fillMaxSize().padding(8.dp)
+        Modifier.fillMaxWidth().padding(8.dp)
     ) {
         val maxBarWidth = maxWidth - 52.dp
         val maxUsage = data.firstOrNull()?.usage?.totalUsage?.toFloat() ?: return@BoxWithConstraints

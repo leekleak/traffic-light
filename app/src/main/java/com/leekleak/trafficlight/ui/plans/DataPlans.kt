@@ -61,6 +61,7 @@ import com.leekleak.trafficlight.util.MiniCard
 import com.leekleak.trafficlight.util.MiniCardState
 import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.openLink
+import com.leekleak.trafficlight.util.shelfShape
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -200,7 +201,7 @@ private fun DataPlanInsights(contentPadding: PaddingValues) {
     LazyColumn(
         modifier = Modifier
             .padding(top = 8.dp)
-            .clip(MaterialTheme.shapes.large)
+            .clip(shelfShape)
             .background(colorScheme.surfaceContainer)
             .fillMaxSize(),
         contentPadding = contentPadding,

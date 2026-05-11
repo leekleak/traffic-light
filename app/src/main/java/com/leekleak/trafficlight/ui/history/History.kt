@@ -105,6 +105,7 @@ import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.SearchField
 import com.leekleak.trafficlight.util.getName
 import com.leekleak.trafficlight.util.iconButton
+import com.leekleak.trafficlight.util.shelfShape
 import com.leekleak.trafficlight.util.toDp
 import com.leekleak.trafficlight.util.toLocaleHourString
 import kotlinx.coroutines.launch
@@ -228,7 +229,7 @@ private fun AppList(paddingValues: PaddingValues) {
     LazyColumn(
         modifier = Modifier
             .padding(top = 8.dp)
-            .clip(MaterialTheme.shapes.large)
+            .clip(shelfShape)
             .background(colorScheme.surfaceContainer)
             .fillMaxSize(),
         contentPadding = paddingValues,
@@ -274,7 +275,7 @@ private fun HourList(paddingValues: PaddingValues) {
     LazyColumn(
         modifier = Modifier
             .padding(top = 8.dp)
-            .clip(MaterialTheme.shapes.large)
+            .clip(shelfShape)
             .background(colorScheme.surfaceContainer)
             .fillMaxSize(),
         contentPadding = paddingValues,

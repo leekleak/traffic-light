@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -68,7 +67,6 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.AppGraph
 import com.leekleak.trafficlight.charts.BarGraph
-import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.SettingsKey
 import com.leekleak.trafficlight.ui.theme.card
@@ -352,14 +350,6 @@ fun OverviewItems() {
                 data = data,
                 centerLabels = true
             )
-        }
-    }
-}
-
-private fun LazyListScope.topApps(topAppsList: List<AppUsage>) {
-    item(key = "top_apps") {
-        Column(Modifier.animateItem()) {
-
         }
     }
 }
