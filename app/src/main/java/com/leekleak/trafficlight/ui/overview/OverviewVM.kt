@@ -26,4 +26,7 @@ class OverviewVM(
 
     val trend = refreshTrigger.map { overviewLogic.getTrend() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    val topApps = refreshTrigger.map { overviewLogic.getTopAppUsage() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 }

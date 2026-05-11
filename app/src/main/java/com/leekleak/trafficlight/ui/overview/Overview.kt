@@ -1,5 +1,6 @@
 package com.leekleak.trafficlight.ui.overview
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
@@ -8,6 +9,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,13 +28,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialShapes.Companion.Cookie12Sided
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
@@ -44,7 +46,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -65,7 +66,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.charts.AppGraph
 import com.leekleak.trafficlight.charts.BarGraph
+import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.SettingsKey
 import com.leekleak.trafficlight.ui.theme.card
@@ -322,6 +325,22 @@ private fun RowScope.TrendCard() {
 fun OverviewItems() {
     val viewModel: OverviewVM = koinViewModel()
     val data by viewModel.weekUsage.collectAsState()
+    val topAppsList by viewModel.topApps.collectAsState()
+    AnimatedVisibility(
+        visible = topAppsList.isNotEmpty(),
+        enter = expandVertically()
+    ) {
+        Column {
+            CategoryTitleText(stringResource(R.string.top_apps))
+            Box(
+                modifier = Modifier
+                    .card()
+                    .padding(6.dp)
+            ) {
+                AppGraph(topAppsList)
+            }
+        }
+    }
     if (data.isNotEmpty()) {
         CategoryTitleText(stringResource(R.string.this_week))
         Box(
@@ -329,16 +348,18 @@ fun OverviewItems() {
                 .card()
                 .padding(6.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(colorScheme.surface)
-            ) {
-                BarGraph(
-                    data = data,
-                    centerLabels = true
-                )
-            }
+            BarGraph(
+                data = data,
+                centerLabels = true
+            )
+        }
+    }
+}
+
+private fun LazyListScope.topApps(topAppsList: List<AppUsage>) {
+    item(key = "top_apps") {
+        Column(Modifier.animateItem()) {
+
         }
     }
 }

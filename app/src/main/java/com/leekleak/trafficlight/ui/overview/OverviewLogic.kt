@@ -1,8 +1,10 @@
 package com.leekleak.trafficlight.ui.overview
 
 import com.leekleak.trafficlight.charts.model.BarData
+import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.UsageQuery
+import com.leekleak.trafficlight.model.DataUIDApp
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.async
@@ -81,4 +83,14 @@ class OverviewLogic(val networkUsageManager: NetworkUsageManager) {
     }
 
     suspend fun getWeekUsage(): List<BarData> = networkUsageManager.getWeekUsage(null, true)
+
+    suspend fun getTopAppUsage(): List<AppUsage> {
+        val todayUsage = networkUsageManager.getAllAppUsage(
+            startStamp = LocalDate.now().toTimestamp(),
+            endStamp = LocalDateTime.now().toTimestamp(),
+            query1 = UsageQuery(DataType.Mobile),
+            query2 = UsageQuery(DataType.None),
+        )
+        return todayUsage.filter { it.app is DataUIDApp }.take(3)
+    }
 }
