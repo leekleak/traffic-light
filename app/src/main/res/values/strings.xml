@@ -21,7 +21,7 @@
     <string name="mobile">Mobile: %1$s</string>
     <string name="about">About</string>
     <string name="speed_in_bits">Show speed in bits</string>
-    <string name="github" translatable="false">Github</string>
+    <string name="github" translatable="false">GitHub</string>
     <string name="github_description">Track development or report issues.</string>
     <string name="version">Version %1$s</string>
     <string name="force_fallback">Force fallback speed tracking</string>
@@ -51,7 +51,7 @@
     <string name="configure_plan">Configure Plan</string>
     <string name="background">Background</string>
     <string name="type">Type</string>
-    <string name="selected">Selected</string>
+    <string name="selected_item">Selected</string>
     <string name="monthly">Monthly</string>
     <string name="custom">Custom</string>
     <string name="this_month">This Month</string>
@@ -66,7 +66,7 @@
     <string name="add_widget">Add widget</string>
     <string name="configured_plans">Configured plans</string>
     <string name="data_plan_widget_description">Track your data plans on your home screen</string>
-    <string name="widget_warning">Widget support is experimental. If you encounter issues please report them on Github.</string>
+    <string name="widget_warning">Widget support is experimental. If you encounter issues please report them on GitHub.</string>
     <string name="no_configured_plans_description">Please ensure that you have configured at least 1 data plan.</string>
     <string name="no_configured_plans">No plans configured</string>
     <string name="warning">Warning</string>
