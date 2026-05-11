@@ -744,7 +744,7 @@ fun BackgroundSelector(i: Int, newPlan: DataPlan, onClick: () -> Unit) {
         ) {
             Icon (
                 painter = painterResource(R.drawable.checkmark),
-                contentDescription = stringResource(R.string.selected),
+                contentDescription = stringResource(R.string.selected_item),
             )
         }
     }
