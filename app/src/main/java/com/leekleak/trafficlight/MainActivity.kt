@@ -12,6 +12,7 @@ import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataPlanDao
+import com.leekleak.trafficlight.integrations.PlayServicesProvider
 import com.leekleak.trafficlight.services.notifications.NotificationService
 import com.leekleak.trafficlight.ui.app.App
 import com.leekleak.trafficlight.ui.theme.Theme
@@ -27,6 +28,7 @@ class MainActivity : ComponentActivity() {
 
     private val appPreferenceRepo: AppPreferenceRepo by inject()
     private val dataPlanDao: DataPlanDao by inject()
+    private val playServicesProvider: PlayServicesProvider by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +47,10 @@ class MainActivity : ComponentActivity() {
             }.collectLatest {
                 NotificationService.startService(this@MainActivity, this)
             }
+        }
+
+        lifecycleScope.launch {
+            playServicesProvider.onAppLaunch(this@MainActivity)
         }
 
         setContent {

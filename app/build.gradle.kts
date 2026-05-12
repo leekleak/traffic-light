@@ -131,4 +131,5 @@ dependencies {
 
     implementation(libs.haze)
     implementation(libs.haze.materials)
+    "playImplementation"(project(":playIntegration"))
 }

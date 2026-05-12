@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.app.NotificationManager.IMPORTANCE_DEFAULT
 import android.app.NotificationManager.IMPORTANCE_NONE
 import com.leekleak.trafficlight.database.databaseModule
+import com.leekleak.trafficlight.integrations.integrationsModule
 import com.leekleak.trafficlight.model.managerModule
 import com.leekleak.trafficlight.services.notifications.PlanNotification
 import com.leekleak.trafficlight.services.notifications.SpeedNotification
@@ -15,6 +16,7 @@ import com.leekleak.trafficlight.ui.viewModelModule
 import com.leekleak.trafficlight.widget.startAlarmManager
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
+import rikka.shizuku.shared.BuildConfig
 import timber.log.Timber
 
 class TrafficLightApplication : Application() {
@@ -35,7 +37,8 @@ class TrafficLightApplication : Application() {
                 managerModule,
                 viewModelModule,
                 navigationModule,
-                notificationModule
+                notificationModule,
+                integrationsModule
             )
         }
         startAlarmManager(this)
