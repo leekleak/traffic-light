@@ -178,12 +178,12 @@ class NetworkUsageManager(
         val (startDate, endDate) = dateParams.getStartEndDates()
         val startTime = startDate.atStartOfDay().toTimestamp()
         val endTime = endDate.atStartOfDay().toTimestamp()
+        val oneHourMilli = 60 * 60 * 1000L
+        val twoHoursMilli = oneHourMilli * 2
 
         val usage1 = getNetworkDataForTypeHourly(startTime, endTime, null, query1.dataType, query1.dataUID.uidQuery)
         val usage2 = getNetworkDataForTypeHourly(startTime, endTime, null, query2.dataType, query2.dataUID.uidQuery)
-
-        val twoHoursMilli = 2 * 60 * 60 * 1000L
-        val slots = 0..11
+        val slots = 0..(endTime - startTime) step twoHoursMilli
         val map1 = slots.associateWith { 0L }.toMutableMap()
         val map2 = slots.associateWith { 0L }.toMutableMap()
 
@@ -194,25 +194,42 @@ class NetworkUsageManager(
             usageList.forEach { usage ->
                 val stampStart = usage.start.toTimestamp() - startTime
                 val stampEnd = usage.end.toTimestamp() - startTime
-                val bucket1 = ((stampStart - stampStart % twoHoursMilli) / twoHoursMilli).toInt() % 12
-                val bucket2 = ((stampEnd - stampEnd % twoHoursMilli) / twoHoursMilli).toInt() % 12
-                val bucket2ratio = (stampStart % twoHoursMilli) / twoHoursMilli.toFloat()
+                val bucketRange = stampStart..stampEnd
 
-                map[bucket1] = map.getValue(bucket1) + (usage.forDirection(query.dataDirection) * (1-bucket2ratio)).toLong()
-                map[bucket2] = map.getValue(bucket2) + (usage.forDirection(query.dataDirection) * bucket2ratio).toLong()
+                for (slot in slots) {
+                    val mapRange = slot..(slot+twoHoursMilli)
+                    val overlap = overlapRatio(bucketRange, mapRange)
+                    map[slot] = map.getValue(slot) + (usage.forDirection(query.dataDirection) * overlap).toLong()
+                }
             }
         }
 
         val start = fromTimestamp(startTime)
-        val result = (0..11).map { i ->
+        val result = (0..22 step 2).map { i ->
             HourUsage(
-                start = start.withHour(i * 2),
-                end = start.withHour(i * 2).plusHours(2),
-                usage = DayUsage(dateParams.day, map1.getValue(i), map2.getValue(i)),
+                start = start.withHour(i),
+                end = start.withHour(i).plusHours(2),
+                usage = DayUsage(
+                    date = dateParams.day,
+                    usage1 = map1.filter { it.key % (12 * twoHoursMilli) == i * oneHourMilli }.values.sum(),
+                    usage2 = map2.filter { it.key % (12 * twoHoursMilli) == i * oneHourMilli }.values.sum()
+                ),
             )
         }
 
         return result
+    }
+
+    fun overlapRatio(range1: ClosedRange<Long>, range2: ClosedRange<Long>): Double {
+        val overlapStart = maxOf(range1.start, range2.start)
+        val overlapEnd = minOf(range1.endInclusive, range2.endInclusive)
+
+        val overlapLength = maxOf(0L, overlapEnd - overlapStart).toDouble()
+        val range1Length = range1.endInclusive - range1.start
+
+        if (range1Length == 0L) return if (range2.contains(range1.start)) 1.0 else 0.0
+
+        return overlapLength / (range1Length.toDouble())
     }
 
     fun daysUsage(
