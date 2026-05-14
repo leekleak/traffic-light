@@ -47,10 +47,8 @@
     <string name="configure_plan">Konfigūruoti planą</string>
     <string name="background">Fonas</string>
     <string name="type">Tipas</string>
-    <string name="selected">Pasirinktas</string>
     <string name="monthly">Mėnesinis</string>
     <string name="this_month">Šį mėnesį</string>
-    <string name="resets_on">Atsinaujinimo diena: %1$d</string>
     <string name="zero_rated_apps">Neribotos programėlės</string>
     <string name="save">Išsaugoti</string>
     <plurals name="resets_in_days">
@@ -68,15 +66,11 @@
     <string name="add_widget">Pridėti valdiklį</string>
     <string name="configured_plans">Sukonfigūruoti planai</string>
     <string name="data_plan_widget_description">Sekite savo duomenų planus pradiniame ekrane</string>
-    <string name="widget_warning">Valdiklių palaikymas yra eksperimentinis. Iškilus problemoms, praneškite apie jas per Github.</string>
-    <string name="no_configured_plans_description">Užtikrinkite, kad sukonfigūruotas bent vienas duomenų planas.</string>
-    <string name="no_configured_plans">Sukonfigūruotų planų nėra</string>
     <string name="warning">Įspėjimas</string>
     <string name="tethering">Mobilusis interneto prieigos taškas</string>
     <string name="removed_apps">Panaikintos programėlės</string>
     <string name="prediction">Prognozė</string>
     <string name="trend">Tendencija</string>
-    <string name="data_intensive_apps">Daug duomenų naudojančios programėlės</string>
     <string name="mobile_data">Mobilieji duomenis</string>
     <string name="notification_channels">Pranešimo kanalų nustatymai</string>
     <string name="go_back">Grįžti</string>
@@ -88,7 +82,6 @@
     <string name="close">Uždaryti</string>
     <string name="shizuku_hint">Norite sekti kelias SIM korteles?</string>
     <string name="shizuku_hint_description">Norėdami tai pasiekti, reikia įrašyti ir paleisti „Shizuku“ bei įjungti funkciją nustatymuose.</string>
-    <string name="total">Bendri</string>
     <string name="all_apps">Visos programėlės</string>
     <string name="filter">Filtras</string>
     <string name="none">Nieko</string>
