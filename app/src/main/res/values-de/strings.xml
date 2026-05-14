@@ -47,10 +47,8 @@
     <string name="configure_plan">Plan konfigurieren</string>
     <string name="background">Hintergrund</string>
     <string name="type">Typ</string>
-    <string name="selected">Ausgewählt</string>
     <string name="monthly">Monatlich</string>
     <string name="this_month">Dieser Monat</string>
-    <string name="resets_on">Wird zurückgesetzt am Tag: %1$d</string>
     <string name="zero_rated_apps">Nulltarif-Apps</string>
     <string name="save">Speichern</string>
     <string name="no_apps">Keine Apps</string>
@@ -62,9 +60,6 @@
     <string name="add_widget">Widget hinzufügen</string>
     <string name="configured_plans">Konfigurierte Pläne</string>
     <string name="data_plan_widget_description">Verfolge deine Datentarife auf deinem Startbildschirm</string>
-    <string name="widget_warning">Die Widget-Unterstützung ist experimentell. Solltest du auf Probleme stoßen, melde diese bitte auf GitHub.</string>
-    <string name="no_configured_plans_description">Bitte stelle sicher, dass du mindestens einen Datentarif konfiguriert hast.</string>
-    <string name="no_configured_plans">Keine Tarife konfiguriert</string>
     <string name="day">Tag:</string>
     <string name="time">Zeit:</string>
     <string name="length">Zeitraum:</string>
@@ -74,7 +69,6 @@
     <string name="removed_apps">Entfernte Apps</string>
     <string name="prediction">Vorhersage</string>
     <string name="trend">Trend</string>
-    <string name="data_intensive_apps">Datenintensive Apps</string>
     <string name="mobile_data">Mobile Daten</string>
     <string name="go_back">Zurück</string>
     <string name="app_name_short">Traffic Light</string>
@@ -86,7 +80,6 @@
     <string name="close">Schließen</string>
     <string name="shizuku_hint">Möchtest du mehrere SIM-Karten verfolgen?</string>
     <string name="shizuku_hint_description">Dazu musst du Shizuku einrichten und die Funktion in den Einstellungen aktivieren.</string>
-    <string name="total">Insgesamt</string>
     <string name="all_apps">Alle Apps</string>
     <string name="filter">Filter</string>
     <string name="none">Keine</string>
@@ -107,4 +100,20 @@
     <string name="plan_notification_description">Verfolgen Sie die Nutzung Ihres Tarifs in der Statusleiste.</string>
     <string name="unsupported_by_play_store_version">Von der Play Store-Version nicht unterstützt</string>
     <string name="reset_day">Reset Tag</string>
+    <string name="selected_item">Ausgewählt</string>
+    <string name="top_apps">Top Apps</string>
+    <string name="usage">Verwendung</string>
+    <string name="safety">Sicherheit</string>
+    <string name="safe">Sicher</string>
+    <string name="neutral">Neutral</string>
+    <string name="unsafe">Unsicher</string>
+    <string name="budget">Budget</string>
+    <string name="daily">Täglich</string>
+    <string name="notes">Anmerkungen</string>
+    <string name="color">Farbe</string>
+    <string name="plans">Pläne</string>
+    <plurals name="resets_in_hours">
+        <item quantity="one">Zurücksetzung in %d Stunde</item>
+        <item quantity="other">Zurücksetzung in %d Stunden</item>
+    </plurals>
 </resources>
