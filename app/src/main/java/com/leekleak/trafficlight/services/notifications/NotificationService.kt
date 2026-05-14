@@ -115,14 +115,17 @@ class NotificationService : LifecycleService() {
     fun updateForegroundNotification() {
         if (activeNotifications.contains(foregroundNotification)) return
         val firstNotification = activeNotifications.firstOrNull()
-        firstNotification?.let {
+        if (firstNotification != null) {
             try {
-                it.startForeground(this)
-                foregroundNotification = it
+                firstNotification.startForeground(this)
+                foregroundNotification = firstNotification
             } catch (e: Exception) {
                 Timber.e("Failed to start foreground service: $e")
             }
-        } ?: stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+        }
     }
 
     fun placeholderNotification(): Notification {
