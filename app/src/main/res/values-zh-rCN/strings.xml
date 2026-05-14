@@ -47,7 +47,6 @@
     <string name="configure_plan">配置计划</string>
     <string name="background">背景</string>
     <string name="type">类型</string>
-    <string name="selected">选中</string>
     <string name="monthly">每月</string>
     <string name="custom">自定义</string>
     <string name="this_month">本月</string>
@@ -59,12 +58,8 @@
     <string name="add_widget">添加小工具</string>
     <string name="configured_plans">设置计划</string>
     <string name="data_plan_widget_description">在主屏幕上追踪你的数据计划</string>
-    <string name="widget_warning">小部件支持还处于实验阶段，有什么问题请在Github报告。</string>
-    <string name="no_configured_plans_description">请确保已得Shizuku授权，并至少配置了一个数据计划。</string>
-    <string name="no_configured_plans">尚未配置计划</string>
     <string name="warning">警告</string>
     <string name="no_apps">没有应用</string>
-    <string name="resets_on">每月 %1$d 号重置</string>
     <string name="zero_rated_apps">免流应用</string>
     <plurals name="resets_in_days">
         <item quantity="other">%d 天后重置</item>
@@ -73,12 +68,10 @@
     <string name="shizuku_hint">要追踪多个SIM卡吗？</string>
     <string name="close">关闭</string>
     <string name="app_name_short">红绿灯</string>
-    <string name="total">总量</string>
     <string name="tethering">热点共享</string>
     <string name="all_apps">全部应用</string>
     <string name="prediction">流量预测</string>
     <string name="trend">趋势</string>
-    <string name="data_intensive_apps">高流量消耗应用</string>
     <string name="mobile_data">移动数据</string>
     <string name="notification_channels">通知渠道设置</string>
     <string name="go_back">返回</string>
