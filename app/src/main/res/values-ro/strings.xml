@@ -47,11 +47,9 @@
     <string name="configure_plan">Configurare plan</string>
     <string name="background">Fundal</string>
     <string name="type">Tip</string>
-    <string name="selected">Selectat</string>
     <string name="monthly">Lunar</string>
     <string name="custom">Personalizat</string>
     <string name="this_month">Această lună</string>
-    <string name="resets_on">Resetare în ziua: %1$d</string>
     <string name="zero_rated_apps">Aplicații cu trafic nelimitat</string>
     <string name="save">Salvează</string>
     <string name="no_apps">Nicio aplicație</string>
@@ -62,9 +60,6 @@
     <string name="add_widget">Adaugă widget</string>
     <string name="configured_plans">Configurează planurile</string>
     <string name="data_plan_widget_description">Urmărește planurile de date pe ecranul de pornire</string>
-    <string name="widget_warning">Suportul pentru widget-uri este experimental. Dacă întâmpini probleme, raportează-le pe Github.</string>
-    <string name="no_configured_plans_description">Asigură-te că ai configurat cel puțin un plan de date.</string>
-    <string name="no_configured_plans">Niciun plan configurat</string>
     <string name="warning">Avertizare</string>
     <plurals name="resets_in_days">
         <item quantity="one">Se va reseta mâine</item>
@@ -75,7 +70,6 @@
     <string name="removed_apps">Aplicații eliminate</string>
     <string name="prediction">Predicție</string>
     <string name="trend">Tendinţă</string>
-    <string name="data_intensive_apps">Aplicații cu date intensive</string>
     <string name="mobile_data">Date mobile</string>
     <string name="notification_channels">Setări canal de notificare</string>
     <string name="go_back">Înapoi</string>
@@ -87,7 +81,6 @@
     <string name="shizuku_hint">Dorești să urmărești mai multe carduri SIM?</string>
     <string name="shizuku_hint_description">Pentru a realiza acest lucru, va trebui să configurezi Shizuku și să activezi funcția în setări.</string>
     <string name="app_name_short">Semafor</string>
-    <string name="total">Total</string>
     <string name="all_apps">Toate aplicațiile</string>
     <string name="filter">Filtru</string>
     <string name="open_app">Deschide aplicația</string>
