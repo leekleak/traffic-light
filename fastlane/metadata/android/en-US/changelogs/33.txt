@@ -1,0 +1,19 @@
+Data plans:
+- Moved to a new page revealing a load of extra information
+- See most used apps
+- See your plan usage trend, safety and daily budget
+- See your plan's weekly usage
+
+Enhancements:
+- See today's most used apps in the overview
+- Unconfigured data plans now support backgrounds
+- Unconfigured data plans can now be added as a widget
+- App search now also queries the package name to better find localized apps
+- Minor UI improvements
+
+Bug fixes:
+- Fix material dark theme not working on Android 11 and under
+- Fix weekly graph flicker
+
+Translations:
+- Updated translations

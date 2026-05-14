@@ -24,8 +24,8 @@ android {
         applicationId = "com.leekleak.trafficlight"
         minSdk = 26
         targetSdk = 37
-        versionCode = 32
-        versionName = "2.16"
+        versionCode = 33
+        versionName = "2.17"
         base.archivesName = "$namespace-$versionName"
 
     }
@@ -121,7 +121,7 @@ dependencies {
      * Without this manual import the widget still works fine on debug but on release it never loads
      * throwing WorkManager errors into the logs.
      *
-     * Really really stupid and I hope I'll be able to remove this some time in the future.
+     * Really, really stupid and I hope I'll be able to remove this some time in the future.
      */
     implementation(libs.androidx.work.runtime.ktx)
 

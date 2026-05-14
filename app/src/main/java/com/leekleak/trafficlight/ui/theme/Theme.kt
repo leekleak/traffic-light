@@ -61,7 +61,7 @@ enum class Theme {
         val darkTheme = isSystemInDarkTheme()
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             return when (this) {
-                AutoMaterial -> colorScheme
+                AutoMaterial -> if (darkTheme) darkColorScheme() else lightColorScheme()
                 LightMaterial -> lightColorScheme()
                 DarkMaterial -> darkColorScheme()
                 Auto -> if (darkTheme) darkScheme else lightScheme
