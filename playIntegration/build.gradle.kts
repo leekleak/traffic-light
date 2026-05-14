@@ -4,9 +4,7 @@ plugins {
 
 android {
     namespace = "com.leekleak.play_integration"
-    compileSdk {
-        version = release(37)
-    }
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 26
