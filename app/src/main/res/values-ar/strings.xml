@@ -47,10 +47,8 @@
     <string name="configure_plan">اضبط الخطة</string>
     <string name="background">الخلفية</string>
     <string name="type">النوع</string>
-    <string name="selected">محدد</string>
     <string name="monthly">شهريًا</string>
     <string name="this_month">هذا الشهر</string>
-    <string name="resets_on">يُصفّر في اليوم: %1$d</string>
     <string name="zero_rated_apps">التطبيقات المستثناة من الرصيد</string>
     <string name="save">حفظ</string>
     <plurals name="resets_in_days">
@@ -66,9 +64,6 @@
     <string name="add_widget">أضف ويدجت</string>
     <string name="configured_plans">الخطط المضبوطة</string>
     <string name="data_plan_widget_description">تتبع خطط بياناتك من شاشتك الرئيسية</string>
-    <string name="widget_warning">دعم الأدوات ويدجات لا يزال تجريبيًا. إذا واجهت أي مشاكل، يُرجى الإبلاغ عنها عبر Github.</string>
-    <string name="no_configured_plans_description">يُرجى التأكد أنك ضبطت خطة بيانات واحدة على الأقل.</string>
-    <string name="no_configured_plans">لا توجد خطط مضبوطة</string>
     <string name="warning">تحذير</string>
     <string name="day">اليوم:</string>
     <string name="time">الوقت:</string>
@@ -78,7 +73,6 @@
     <string name="removed_apps">التطبيقات المُزالة</string>
     <string name="prediction">التوقع</string>
     <string name="trend">رائج</string>
-    <string name="data_intensive_apps">تطبيقات كثيفة البيانات</string>
     <string name="mobile_data">بيانات الجوّال</string>
     <string name="notification_channels">إعدادات قنوات الإشعارات</string>
     <string name="go_back">ارجع</string>
@@ -90,7 +84,6 @@
     <string name="close">أغلِق</string>
     <string name="shizuku_hint">أتريد تتبع عدة شرائح SIM؟</string>
     <string name="shizuku_hint_description">لتحقيق ذلك، ستحتاج إلى إعداد Shizuku وتفعيل الميزة من الإعدادات.</string>
-    <string name="total">إجمالي</string>
     <string name="all_apps">جميع التطبيقات</string>
     <string name="filter">تصفية</string>
     <string name="none">لا شئ</string>
@@ -111,4 +104,24 @@
     <string name="plan_notification_description">تتبع استخدام الخطة في شريط الحالة.</string>
     <string name="unsupported_by_play_store_version">غير مدعوم من نسخة متجر Play</string>
     <string name="reset_day">يوم التصفير</string>
+    <string name="usage">الاستخدام</string>
+    <string name="safety">السلامة</string>
+    <string name="safe">آمن</string>
+    <string name="neutral">حيادي</string>
+    <string name="unsafe">غير آمن</string>
+    <string name="budget">الميزانية</string>
+    <string name="daily">يوميًا</string>
+    <string name="notes">الملاحظات</string>
+    <string name="color">اللون</string>
+    <string name="plans">الخطط</string>
+    <string name="top_apps">التطبيقات العالية</string>
+    <string name="selected_item">محدد</string>
+    <plurals name="resets_in_hours">
+        <item quantity="zero">سيتم إعادة الضبط بعد %d ساعة</item>
+        <item quantity="one">سيتم إعادة الضبط بعد ساعة</item>
+        <item quantity="two">سيتم إعادة الضبط بعد ساعتين</item>
+        <item quantity="few">سيتم إعادة الضبط بعد %d ساعات</item>
+        <item quantity="many">سيتم إعادة الضبط بعد %d ساعة</item>
+        <item quantity="other">سيتم إعادة الضبط بعد %d ساعة</item>
+    </plurals>
 </resources>
