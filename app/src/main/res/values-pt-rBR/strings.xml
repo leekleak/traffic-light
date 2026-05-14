@@ -39,9 +39,6 @@
     <string name="add_widget">Adicionar widget</string>
     <string name="configured_plans">Planos definidos</string>
     <string name="data_plan_widget_description">Acompanhe seus planos de dados na tela inicial</string>
-    <string name="widget_warning">O suporte a widgets é experimental. Caso encontre problemas, por favor reporte-os no GitHub.</string>
-    <string name="no_configured_plans_description">Certifique-se de que você concedeu permissão ao Shizuku e configurou pelo menos 1 plano de dados.</string>
-    <string name="no_configured_plans">Nenhum plano configurado</string>
     <string name="warning">Aviso</string>
     <plurals name="resets_in_days">
         <item quantity="one">Reiniciará amanhã</item>
@@ -60,11 +57,9 @@
     <string name="configure_plan">Configurar Plano</string>
     <string name="background">Segundo plano</string>
     <string name="type">Tipo</string>
-    <string name="selected">Selecionado</string>
     <string name="monthly">Mensal</string>
     <string name="custom">Customizado</string>
     <string name="this_month">Este Mês</string>
-    <string name="resets_on">Reiniciará no dia %1$d</string>
     <string name="zero_rated_apps">Aplicativos com dados ilimitados</string>
     <string name="save">Salvar</string>
     <string name="no_apps">Sem aplicativos</string>
