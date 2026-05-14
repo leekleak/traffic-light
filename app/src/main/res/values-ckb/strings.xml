@@ -48,11 +48,9 @@
     <string name="configure_plan">پلان ڕێکبخە</string>
     <string name="background">پاشبنەما</string>
     <string name="type">جۆر</string>
-    <string name="selected">هەڵبژێردراو</string>
     <string name="monthly">مانگانە</string>
     <string name="custom">تایبەت</string>
     <string name="this_month">ئەم مانگە</string>
-    <string name="resets_on">لە ڕۆژی %1$d ـدا سفر دەبێتەوە</string>
     <string name="zero_rated_apps">ئەپە بێ تێچووەکانی داتا</string>
     <string name="save">پاشەکەوتکردن</string>
     <string name="no_apps">هیچ ئەپێک</string>
@@ -63,15 +61,11 @@
     <string name="add_widget">ئامڕازۆک زیادبکە</string>
     <string name="configured_plans">پلانە ڕێکخراوەکان</string>
     <string name="data_plan_widget_description">چاودێری پلانەکانی داتات بکە لەسەر شاشەی سەرەکی</string>
-    <string name="widget_warning">پاڵپشتیی ئامڕازۆک تاقیکارییە. ئەگەر ڕووبەڕووی کێشە بوویتەوە، تکایە لە گیتھەب ڕاپۆرتیان بکە.</string>
-    <string name="no_configured_plans_description">تکایە دڵنیابەرەوە کە لانی کەم ١ پلانی داتات ڕێکخستووە.</string>
-    <string name="no_configured_plans">هیچ پلانێک ڕێکنەخراوە</string>
     <string name="warning">هۆشداری</string>
     <string name="tethering">پەخشەخاڵی مۆبایل</string>
     <string name="removed_apps">ئەپە لابراوەکان</string>
     <string name="prediction">پێشبینی</string>
     <string name="trend">ڕەوت</string>
-    <string name="data_intensive_apps">ئەپە داتا چڕەکان</string>
     <string name="mobile_data">داتای مۆبایل</string>
     <string name="notification_channels">ڕێکخستنەکانی کەناڵی ئاگانامە</string>
     <string name="go_back">گەڕانەوە</string>
