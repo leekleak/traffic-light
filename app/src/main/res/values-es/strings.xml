@@ -47,11 +47,9 @@
     <string name="configure_plan">Configurar Plan</string>
     <string name="background">Fondo</string>
     <string name="type">Tipo</string>
-    <string name="selected">Seleccionado</string>
     <string name="monthly">Mensual</string>
     <string name="custom">Personalizado</string>
     <string name="this_month">Este Mes</string>
-    <string name="resets_on">Se reinicia el día: %1$d</string>
     <string name="zero_rated_apps">Servicios de navegación gratuita</string>
     <string name="save">Guardar</string>
     <string name="no_apps">Sin aplicaciones</string>
@@ -62,9 +60,6 @@
     <string name="add_widget">Agregar widget</string>
     <string name="configured_plans">Planes configurados</string>
     <string name="data_plan_widget_description">Consulta tu plan de datos desde la pantalla de inicio</string>
-    <string name="widget_warning">El soporte a widgets es experimental. Reporta en Github si encuentras algún problema.</string>
-    <string name="no_configured_plans_description">Asegúrese de haber otorgado permiso a Shizuku y de haber configurado al menos 1 plan de datos.</string>
-    <string name="no_configured_plans">No hay planes configurados</string>
     <string name="warning">Advertencia</string>
     <plurals name="resets_in_days">
         <item quantity="one">Reiniciará mañana</item>
