@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="today">Ass-a</string>
+    <string name="history">Amazray</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="settings">Iɣewwaren</string>
+    <string name="notifications">Alɣu</string>
+    <string name="about">Ɣef</string>
+    <string name="ui">Agrudem</string>
+    <string name="auto">Awurman</string>
+    <string name="light">Aceɛlal</string>
+    <string name="dark">Ubrik</string>
+    <string name="default_theme">Amezwar</string>
+    <string name="help">Tallalt</string>
+    <string name="unknown">D arussin</string>
+    <string name="appearance">Askan</string>
+    <string name="behavior">Tikli</string>
+    <string name="type">Askar</string>
+    <string name="monthly">Yal ayyur</string>
+    <string name="custom">Udmawan</string>
+    <string name="save">Sekles</string>
+    <string name="day">Ass:</string>
+    <string name="time">Akud:</string>
+    <string name="days">n wussan</string>
+    <string name="close">Mdel</string>
+    <string name="list">Tabdart</string>
+    <string name="notes">Tizmilin</string>
+    <string name="color">Ini</string>
+    <string name="this_week">Ddurt-a</string>
+    <string name="wi_fi">Wi-Fi: %1$s</string>
+    <string name="mobile">Aziraz: %1$s</string>
+    <string name="version">Lqem %1$s</string>
+    <string name="sim_card">Takarḍa SIM</string>
+    <string name="this_month">Ayyur-a</string>
+    <string name="add_widget">Rnu awiǧit</string>
+    <string name="all_apps">Akk isnasen</string>
+    <string name="go_back">Tuɣalin</string>
+    <string name="open_app">Ldi asnas</string>
+</resources>

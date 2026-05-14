@@ -36,7 +36,6 @@
     <string name="notification_description">Monitora la velocità di rete nella Barra di Stato.</string>
     <string name="missing_permissions">Permessi richiesti</string>
     <string name="total_usage">Utilizzo totale</string>
-    <string name="total">Totale</string>
     <string name="unknown">Sconosciuto</string>
     <string name="appearance">Aspetto</string>
     <string name="behavior">Comportamento</string>
@@ -49,11 +48,9 @@
     <string name="configure_plan">Configura Piano</string>
     <string name="background">Sfondo</string>
     <string name="type">Tipo</string>
-    <string name="selected">Selezionato</string>
     <string name="monthly">Mensile</string>
     <string name="custom">Personalizzato</string>
     <string name="this_month">Questo mese</string>
-    <string name="resets_on">Si resetta il giorno: %1$d</string>
     <string name="zero_rated_apps">Applicazioni senza limiti dati</string>
     <string name="save">Salva</string>
     <string name="no_apps">Nessuna app</string>
@@ -64,16 +61,12 @@
     <string name="add_widget">Aggiungi widget</string>
     <string name="configured_plans">Piani configurati</string>
     <string name="data_plan_widget_description">Monitora i piani dati nella schermata home</string>
-    <string name="widget_warning">Il supporto ai widget è sperimentale. Se incontri problemi segnalali su GitHub.</string>
-    <string name="no_configured_plans_description">Assicurati di aver configurato almeno un piano dati.</string>
-    <string name="no_configured_plans">Nessun piano configurato</string>
     <string name="warning">Avviso</string>
     <string name="tethering">Hotspot</string>
     <string name="removed_apps">Applicazioni rimosse</string>
     <string name="all_apps">Tutte le app</string>
     <string name="prediction">Previsione</string>
     <string name="trend">Andamento</string>
-    <string name="data_intensive_apps">App ad uso dati intensivo</string>
     <string name="mobile_data">Dati mobili</string>
     <string name="notification_channels">Impostazioni canale di notifica</string>
     <string name="go_back">Torna indietro</string>

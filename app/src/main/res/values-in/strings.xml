@@ -47,10 +47,8 @@
     <string name="configure_plan">Atur Paket</string>
     <string name="background">Latar belakang</string>
     <string name="type">Jenis</string>
-    <string name="selected">Dipilih</string>
     <string name="monthly">Bulanan</string>
     <string name="this_month">Bulan Ini</string>
-    <string name="resets_on">Atur ulang pada hari: %1$d</string>
     <string name="zero_rated_apps">Aplikasi yang bebas biaya</string>
     <string name="save">Simpan</string>
     <string name="no_apps">Tidak ada aplikasi</string>
@@ -61,9 +59,6 @@
     <string name="add_widget">Tambah widget</string>
     <string name="configured_plans">Data yang telah diatur</string>
     <string name="data_plan_widget_description">Lacak paket data Anda di layar utama</string>
-    <string name="widget_warning">Dukungan widget masih dalam tahap percobaan. Jika Anda menemui masalah, silakan laporkan di GitHub.</string>
-    <string name="no_configured_plans_description">Pastikan Anda telah memberikan izin kepada Shizuku dan telah mengatur setidaknya 1 paket data.</string>
-    <string name="no_configured_plans">Tidak ditemukan paket data yang telah diatur</string>
     <string name="warning">Peringatan</string>
     <string name="day">Hari:</string>
     <string name="time">Waktu:</string>

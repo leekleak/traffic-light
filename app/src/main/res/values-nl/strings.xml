@@ -47,11 +47,9 @@
     <string name="configure_plan">Bundel instellen</string>
     <string name="background">Achtergrond</string>
     <string name="type">Type</string>
-    <string name="selected">Geselecteerd</string>
     <string name="monthly">Maandelijks</string>
     <string name="custom">Aangepast</string>
     <string name="this_month">Deze maand</string>
-    <string name="resets_on">Reset op dag: %1$d</string>
     <string name="zero_rated_apps">Apps met nultarief</string>
     <string name="save">Opslaan</string>
     <string name="no_apps">Geen apps</string>
@@ -62,9 +60,6 @@
     <string name="add_widget">Widget toevoegen</string>
     <string name="configured_plans">Ingestelde bundels</string>
     <string name="data_plan_widget_description">Volg je databundels op je startscherm</string>
-    <string name="widget_warning">De widgetondersteuning is experimenteel. Als je problemen ondervindt kun je ze melden op Github.</string>
-    <string name="no_configured_plans_description">Zorg ervoor dat je minimaal 1 databundel hebt ingesteld.</string>
-    <string name="no_configured_plans">Geen bundels ingesteld</string>
     <string name="day">Dag:</string>
     <string name="time">Tijd:</string>
     <string name="length">Duur:</string>
@@ -74,7 +69,6 @@
     <string name="removed_apps">Verwijderde apps</string>
     <string name="prediction">Voorspelling</string>
     <string name="trend">Trend</string>
-    <string name="data_intensive_apps">Gegevensintensieve apps</string>
     <string name="mobile_data">Mobiele gegevens</string>
     <string name="notification_channels">Instellingen van meldingskanaal</string>
     <string name="go_back">Terug</string>
@@ -86,7 +80,6 @@
     <string name="close">Sluiten</string>
     <string name="shizuku_hint">Wil je meerdere SIM-kaarten volgen?</string>
     <string name="shizuku_hint_description">Om dat te bereiken, moet je Shizuku instellen en deze functie aanzetten in de instellingen.</string>
-    <string name="total">Totaal</string>
     <string name="all_apps">Alle apps</string>
     <string name="filter">Filteren</string>
     <string name="none">Geen</string>

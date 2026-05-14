@@ -47,11 +47,9 @@
     <string name="configure_plan">Configurar o plan</string>
     <string name="background">En segundo plano</string>
     <string name="type">Tipo</string>
-    <string name="selected">Escollido</string>
     <string name="monthly">Mensual</string>
     <string name="custom">Personalizado</string>
     <string name="this_month">Este Mes</string>
-    <string name="resets_on">Reiníciase o día: %1$d</string>
     <string name="zero_rated_apps">Aplicacións sen consumo de datos</string>
     <string name="save">Gardar</string>
     <string name="no_apps">Sen aplicacións</string>
@@ -62,22 +60,17 @@
     <string name="add_widget">Engadir trebello</string>
     <string name="configured_plans">Plans configurados</string>
     <string name="data_plan_widget_description">Consulta os teus plans de datos na pantalla de inicio</string>
-    <string name="widget_warning">A compatibilidade con trebellos é experimental. Se detectas algún problema, repórtao en GitHub.</string>
-    <string name="no_configured_plans_description">Asegúrate de ter configurado polo menos 1 plan de datos.</string>
-    <string name="no_configured_plans">Sen plans configurados</string>
     <string name="warning">Aviso</string>
     <plurals name="resets_in_days">
         <item quantity="one">Reiníciase mañá</item>
         <item quantity="other">Reiníciase dentro de %d días</item>
     </plurals>
     <string name="app_name_short">Semáforo</string>
-    <string name="total">Total</string>
     <string name="tethering">Compartición de conexión</string>
     <string name="removed_apps">Aplicacións eliminadas</string>
     <string name="all_apps">Tódalas aplicacións</string>
     <string name="prediction">Predición</string>
     <string name="trend">Tendencia</string>
-    <string name="data_intensive_apps">Aplicacións de alto consumo de datos</string>
     <string name="mobile_data">Datos móbiles</string>
     <string name="notification_channels">Axustes da canle de notificacións</string>
     <string name="go_back">Voltar atrás</string>

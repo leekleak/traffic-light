@@ -47,11 +47,9 @@
     <string name="configure_plan">Skonfiguruj plan</string>
     <string name="background">Tło</string>
     <string name="type">Typ</string>
-    <string name="selected">Wybrane</string>
     <string name="monthly">Miesięczny</string>
     <string name="custom">Niestandardowy</string>
     <string name="this_month">Ten miesiąc</string>
-    <string name="resets_on">Resetuje się dnia: %1$d</string>
     <string name="zero_rated_apps">Aplikacje niezużywające limitu danych</string>
     <string name="save">Zapisz</string>
     <string name="no_apps">Brak aplikacji</string>
@@ -62,15 +60,11 @@
     <string name="add_widget">Dodaj widżet</string>
     <string name="configured_plans">Skonfigurowane plany</string>
     <string name="data_plan_widget_description">Śledź swoje pakiety danych na ekranie głównym</string>
-    <string name="widget_warning">Obsługa widżetów jest w fazie eksperymentalnej. W przypadku wystąpienia problemów prosimy o zgłoszenie ich na Githubie.</string>
-    <string name="no_configured_plans_description">Upewnij się, że udzieliłeś Shizuku odpowiednich uprawnień i skonfigurowałeś co najmniej 1 pakiet danych.</string>
-    <string name="no_configured_plans">Brak skonfigurowanych pakietów</string>
     <string name="warning">Ostrzeżenie</string>
     <string name="tethering">Mobilny hotspot</string>
     <string name="removed_apps">Usunięte aplikacje</string>
     <string name="prediction">Prognoza</string>
     <string name="trend">Trend</string>
-    <string name="data_intensive_apps">Aplikacje intensywnie wykorzystujące dane</string>
     <string name="mobile_data">Dane mobilne</string>
     <plurals name="resets_in_days">
         <item quantity="one">Zresetuje się jutro</item>

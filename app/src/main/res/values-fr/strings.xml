@@ -47,10 +47,8 @@
     <string name="configure_plan">Configurer le plan</string>
     <string name="background">Arrière-plan</string>
     <string name="type">Type</string>
-    <string name="selected">Sélectionné</string>
     <string name="monthly">Mensuel</string>
     <string name="this_month">Ce mois</string>
-    <string name="resets_on">Réinitialisation le : %1$d</string>
     <string name="zero_rated_apps">Applications non comptées</string>
     <string name="save">Sauvegarder</string>
     <string name="no_apps">Aucune application</string>
@@ -63,9 +61,6 @@
     <string name="add_widget">Ajouter un widget</string>
     <string name="configured_plans">Forfaits configurés</string>
     <string name="data_plan_widget_description">Suivez votre forfait de données sur votre écran d\'accueil</string>
-    <string name="widget_warning">Le support des widgets est experimental. Si vous rencontrez des problèmes, veuillez les signaler sur GitHub.</string>
-    <string name="no_configured_plans_description">Veuillez vous assurer que vous avez configuré au moins un forfait de données.</string>
-    <string name="no_configured_plans">Aucun forfait configuré</string>
     <string name="day">Jour :</string>
     <string name="time">Heure :</string>
     <string name="length">Durée :</string>
@@ -75,7 +70,6 @@
     <string name="removed_apps">Applications supprimées</string>
     <string name="prediction">Prédiction</string>
     <string name="trend">Tendance</string>
-    <string name="data_intensive_apps">Applications consommatrices</string>
     <string name="mobile_data">Données mobiles</string>
     <string name="notification_channels">Réglages du canal de notification</string>
     <string name="go_back">Revenir</string>
@@ -87,7 +81,6 @@
     <string name="close">Fermer</string>
     <string name="shizuku_hint">Vous souhaitez suivre plusieurs cartes SIM ?</string>
     <string name="shizuku_hint_description">Pour y arriver, vous aurez besoin de paramétrer Shizuku et d\'autoriser la fonctionnalité dans les réglages.</string>
-    <string name="total">Total</string>
     <string name="all_apps">Toutes les applications</string>
     <string name="filter">Filtre</string>
     <string name="none">Aucun</string>
@@ -108,4 +101,21 @@
     <string name="plan_notification_description">Suivre l\'utilisation du forfait dans la barre d\'état.</string>
     <string name="unsupported_by_play_store_version">Non supporté par la version du Play Store</string>
     <string name="reset_day">Jour de réinitialisation</string>
+    <string name="top_apps">Top des applications</string>
+    <string name="usage">Utilisation</string>
+    <string name="safety">Sécurité</string>
+    <string name="safe">Sure</string>
+    <string name="neutral">Neutre</string>
+    <string name="unsafe">Dangereuse</string>
+    <string name="budget">Budget</string>
+    <string name="daily">Quotidien</string>
+    <string name="notes">Notes</string>
+    <string name="color">Couleur</string>
+    <string name="plans">Forfaits</string>
+    <plurals name="resets_in_hours">
+        <item quantity="one">Réinitialisation dans %d heure</item>
+        <item quantity="many">Réinitialisation dans %d heures</item>
+        <item quantity="other">Réinitialisation dans %d heures</item>
+    </plurals>
+    <string name="selected_item">Sélectionné</string>
 </resources>
