@@ -36,7 +36,6 @@
     <string name="missing_permissions">Отсутствуют разрешения</string>
     <string name="app_name_short">Traffic Light</string>
     <string name="total_usage">Всего использовано</string>
-    <string name="total">Всего</string>
     <string name="unknown">Неизвестно</string>
     <string name="appearance">Внешний вид</string>
     <string name="behavior">Поведение</string>
@@ -52,7 +51,6 @@
     <string name="monthly">Ежемесячный</string>
     <string name="custom">Пользовательский</string>
     <string name="this_month">В этом месяце</string>
-    <string name="resets_on">Сбрасывается в день: %1$d</string>
     <string name="save">Сохранить</string>
     <string name="no_apps">Нет приложений</string>
     <string name="day">День:</string>
@@ -62,13 +60,10 @@
     <string name="add_widget">Добавить виджет</string>
     <string name="configured_plans">Настроенные планы</string>
     <string name="data_plan_widget_description">Отслеживайте ваши тарифные планы на вашем домашнем экране</string>
-    <string name="widget_warning">Поддержка виджетов находится в разработке. Если вы обнаружите проблемы, пожалуйста сообщите о них на Github.</string>
-    <string name="no_configured_plans">Нет настроенных планов</string>
     <string name="warning">Предупреждение</string>
     <string name="all_apps">Все приложения</string>
     <string name="prediction">Предсказание</string>
     <string name="trend">Тренд</string>
-    <string name="data_intensive_apps">Приложения потребляющие много мобильных данных</string>
     <string name="mobile_data">Мобильные данные</string>
     <string name="notification_channels">Настройки канала уведомлений</string>
     <string name="go_back">Вернуться</string>
@@ -100,8 +95,6 @@
         <item quantity="other">Сбрасывается в %d дней</item>
     </plurals>
     <string name="zero_rated_apps">Не отслеживающиеся приложения</string>
-    <string name="no_configured_plans_description">Пожалуйста убедитесь в том, что у вас настроен хотя бы 1 тарифный план.</string>
-    <string name="selected">Выбранный</string>
     <string name="tethering">Привязывание</string>
     <string name="removed_apps">Удалённые приложения</string>
 </resources>
