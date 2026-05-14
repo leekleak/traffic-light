@@ -38,7 +38,6 @@
     <string name="notification_description">Track network speed in the status bar.</string>
     <string name="missing_permissions">Missing Permissions</string>
     <string name="total_usage">Total usage</string>
-    <string name="total">Total</string>
     <string name="unknown">Unknown</string>
     <string name="appearance">Appearance</string>
     <string name="behavior">Behavior</string>
@@ -55,7 +54,6 @@
     <string name="monthly">Monthly</string>
     <string name="custom">Custom</string>
     <string name="this_month">This Month</string>
-    <string name="resets_on">Resets on day: %1$d</string>
     <string name="zero_rated_apps">Zero-rated apps</string>
     <string name="save">Save</string>
     <string name="no_apps">No apps</string>
@@ -66,9 +64,6 @@
     <string name="add_widget">Add widget</string>
     <string name="configured_plans">Configured plans</string>
     <string name="data_plan_widget_description">Track your data plans on your home screen</string>
-    <string name="widget_warning">Widget support is experimental. If you encounter issues please report them on GitHub.</string>
-    <string name="no_configured_plans_description">Please ensure that you have configured at least 1 data plan.</string>
-    <string name="no_configured_plans">No plans configured</string>
     <string name="warning">Warning</string>
     <string name="tethering">Tethering</string>
     <string name="removed_apps">Removed apps</string>

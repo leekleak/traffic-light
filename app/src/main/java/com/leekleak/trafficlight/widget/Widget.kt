@@ -14,6 +14,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.LocalContext
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
@@ -114,15 +115,24 @@ class Widget: GlanceAppWidget() {
         Timber.i("Updating widget")
         provideContent {
             GlanceTheme {
-                WidgetContent(
-                    dataPlan = dataPlan,
-                    simNumber = currentState(SIM_NUMBER) ?: 0,
-                    carrierName = currentState(CARRIER_NAME) ?: "",
-                    usageString = usageString,
-                    quotaString = quotaString,
-                    progress = usageSize/max(dataMax, 1.0),
-                    resetString = dataPlan.resetString(context)
-                )
+                if (dataPlan.dataMax != 0L) {
+                    WidgetContent(
+                        dataPlan = dataPlan,
+                        simNumber = currentState(SIM_NUMBER) ?: 0,
+                        carrierName = currentState(CARRIER_NAME) ?: "",
+                        usageString = usageString,
+                        quotaString = quotaString,
+                        progress = usageSize / max(dataMax, 1.0),
+                        resetString = dataPlan.resetString(context)
+                    )
+                } else {
+                    UnconfiguredWidgetContent(
+                        dataPlan = dataPlan,
+                        simNumber = currentState(SIM_NUMBER) ?: 0,
+                        carrierName = currentState(CARRIER_NAME) ?: "",
+                        usageString = usageString,
+                    )
+                }
             }
         }
     }
@@ -238,6 +248,82 @@ class Widget: GlanceAppWidget() {
                         color = GlanceTheme.colors.primary,
                         backgroundColor = GlanceTheme.colors.primaryContainer,
                         progress = progress.toFloat(),
+                    )
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun UnconfiguredWidgetContent(
+        dataPlan: DataPlan,
+        simNumber: Int,
+        carrierName: String,
+        usageString: String,
+    ) {
+        val cornerRadius = 24.dp
+        Column(
+            modifier = GlanceModifier
+                .background(GlanceTheme.colors.primaryContainer)
+                .padding(1.5.dp)
+                .cornerRadius(cornerRadius)
+                .clickable(actionStartActivity<MainActivity>()),
+        ) {
+            Box(
+                modifier = GlanceModifier
+                    .background(GlanceTheme.colors.surface)
+                    .cornerRadius(cornerRadius)
+            ) {
+                backgrounds[dataPlan.uiBackground]?.let { background ->
+                    Image(
+                        modifier = GlanceModifier.fillMaxSize(),
+                        provider = ImageProvider(background),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        colorFilter = ColorFilter.tint(GlanceTheme.colors.primaryContainer)
+                    )
+                }
+                Row(GlanceModifier.padding(12.dp).fillMaxWidth()) {
+                    SimIcon(simNumber)
+                    Text(
+                        modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
+                        text = carrierName,
+                        style = TextStyle(
+                            color = GlanceTheme.colors.onSurface,
+                            textAlign = TextAlign.End
+                        )
+                    )
+                }
+                Column(
+                    modifier = GlanceModifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        modifier = GlanceModifier.padding(bottom = 8.dp),
+                        verticalAlignment = Alignment.Bottom,
+                    ) {
+                        Text(
+                            text = usageString,
+                            style = TextStyle(
+                                color = GlanceTheme.colors.onSurface,
+                                fontSize = 64.sp,
+                            ),
+                        )
+                        Text(
+                            text = "GB",
+                            style = TextStyle(
+                                color = GlanceTheme.colors.onSurface,
+                                fontSize = 36.sp,
+                            ),
+                        )
+                    }
+                    Text(
+                        text = LocalContext.current.getString(R.string.this_month),
+                        style = TextStyle(
+                            color = GlanceTheme.colors.onSurface,
+                            fontSize = 18.sp,
+                        ),
                     )
                 }
             }

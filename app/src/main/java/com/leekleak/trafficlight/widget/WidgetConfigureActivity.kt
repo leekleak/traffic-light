@@ -7,36 +7,27 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.ui.plans.ConfiguredDataPlan
+import com.leekleak.trafficlight.ui.plans.UnconfiguredDataPlan
 import com.leekleak.trafficlight.ui.theme.Theme
-import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.categoryTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.widget.Widget.Companion.CARRIER_NAME
@@ -74,7 +65,6 @@ class WidgetConfigureActivity : ComponentActivity() {
         val scope = rememberCoroutineScope()
 
         val activePlans by remember { dataPlanDao.getActivePlansFlow() }.collectAsState(listOf())
-        val configuredPlans = activePlans.filter { it.dataMax != 0L }
 
         LazyColumn (
             modifier = Modifier.padding(horizontal = 16.dp),
@@ -82,24 +72,9 @@ class WidgetConfigureActivity : ComponentActivity() {
             contentPadding = paddingValues
         ){
             categoryTitle { stringResource(R.string.add_widget) }
-            item {
-                Warning(
-                    title = stringResource(R.string.warning),
-                    description = stringResource(R.string.widget_warning) ,
-                )
-            }
             categoryTitleSmall { stringResource(R.string.configured_plans) }
-            if (configuredPlans.isEmpty()) {
-                item {
-                    Warning(
-                        title = stringResource(R.string.no_configured_plans),
-                        description = stringResource(R.string.no_configured_plans_description),
-                        painter = painterResource(R.drawable.help),
-                    )
-                }
-            }
-            items(configuredPlans, {it.hashedSubscriberID}) {
-                ConfiguredDataPlan(it) {
+            items(activePlans, {it.hashedSubscriberID}) {
+                fun onSelect() {
                     val glanceManager = GlanceAppWidgetManager(this@WidgetConfigureActivity)
                     val glanceId = glanceManager.getGlanceIdBy(appWidgetId)
 
@@ -116,36 +91,9 @@ class WidgetConfigureActivity : ComponentActivity() {
                         finish()
                     }
                 }
+                if (it.dataMax != 0L) ConfiguredDataPlan(it) { onSelect() }
+                else UnconfiguredDataPlan(it, false) { onSelect() }
             }
         }
-    }
-}
-
-@Composable
-private fun Warning(
-    title: String = stringResource(R.string.warning),
-    description: String = "",
-    painter: Painter = painterResource(R.drawable.warning),
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .card()
-            .padding(16.dp),
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painter,
-                contentDescription = null
-            )
-            Text(
-                text = title,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        Text(description)
     }
 }

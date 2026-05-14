@@ -138,7 +138,7 @@ private fun DataPlanPager(
                     navigator.goTo(PlanConfigKey(plan))
                 }
             } else {
-                UnconfiguredDataPlan(plan) {
+                UnconfiguredDataPlan(plan, true) {
                     navigator.goTo(PlanConfigKey(plan))
                 }
             }

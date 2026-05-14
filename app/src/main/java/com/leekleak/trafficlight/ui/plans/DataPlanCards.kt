@@ -36,7 +36,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.R
@@ -68,7 +71,7 @@ fun ConfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
 }
 
 @Composable
-fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
+fun UnconfiguredDataPlan(dataPlan: DataPlan, showSettings: Boolean, onConfigure: () -> Unit) {
     val haptic = LocalHapticFeedback.current
     val networkUsageManager: NetworkUsageManager = koinInject()
     val fontFamilyGoogleSans = remember { longGoogleSans() }
@@ -84,44 +87,41 @@ fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
             onConfigure()
         }
     ) {
-        Column(
-            modifier = Modifier.align(Alignment.Center),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.Bottom
-            ) {
-                Text(
-                    modifier = Modifier.alignByBaseline(),
-                    text = formatter.format(usage),
-                    fontFamily = fontFamilyDoHyeon,
-                    fontSize = 64.sp,
-                )
-                Text(
-                    modifier = Modifier.alignByBaseline(),
-                    text = "GB",
-                    fontFamily = fontFamilyDoHyeon,
-                    fontSize = 36.sp,
-                )
-            }
+        Box (Modifier.align(Alignment.Center)) {
             Text(
-                text = stringResource(R.string.this_month),
-                fontSize = 18.sp,
-                fontFamily = fontFamilyGoogleSans
+                fontFamily = fontFamilyDoHyeon,
+                textAlign = TextAlign.Center,
+                text = buildAnnotatedString {
+                    withStyle(style = SpanStyle(fontSize = 64.sp, fontFamily = fontFamilyDoHyeon)) {
+                        append(formatter.format(usage))
+                    }
+                    withStyle(style = SpanStyle(fontSize = 36.sp, fontFamily = fontFamilyDoHyeon)) {
+                        appendLine("GB")
+                    }
+                    withStyle(
+                        style = SpanStyle(
+                            fontSize = 18.sp,
+                            fontFamily = fontFamilyGoogleSans
+                        )
+                    ) {
+                        append(stringResource(R.string.this_month))
+                    }
+                }
             )
         }
-        FilledIconButton(
-            modifier = Modifier.align(Alignment.BottomEnd),
-            onClick = {
-                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                onConfigure()
+        if (showSettings) {
+            FilledIconButton(
+                modifier = Modifier.align(Alignment.BottomEnd),
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onConfigure()
+                }
+            ) {
+                Icon(
+                    painterResource(R.drawable.settings),
+                    contentDescription = stringResource(R.string.configure_plan)
+                )
             }
-        ) {
-            Icon(
-                painterResource(R.drawable.settings),
-                contentDescription = stringResource(R.string.configure_plan)
-            )
         }
     }
 }
@@ -185,32 +185,21 @@ private fun BoxScope.ConfiguredDataPlanContent(dataPlan: DataPlan) {
         }
     }
 
-    Row(
-        modifier = Modifier
-            .align(Alignment.Center)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.Bottom
-    ) {
-        val formatter = remember { DecimalFormat("0.##") }
+    val formatter = remember { DecimalFormat("0.##") }
+    val data = remember(dataPlan) { formatter.format(DataSize(dataPlan.dataMax).getAsUnit(DataSizeUnit.GB)) }
+
+    Box (Modifier.align(Alignment.Center)) {
         Text(
-            modifier = Modifier.alignByBaseline(),
-            text = formatter.format(usage),
             fontFamily = fontFamilyDoHyeon,
-            fontSize = 64.sp,
-        )
-        val data by remember(dataPlan) {
-            derivedStateOf {
-                formatter.format(
-                    DataSize(dataPlan.dataMax).getAsUnit(DataSizeUnit.GB)
-                )
+            textAlign = TextAlign.Center,
+            text = buildAnnotatedString {
+                withStyle(style = SpanStyle(fontSize = 64.sp, fontFamily = fontFamilyDoHyeon)) {
+                    append(formatter.format(usage))
+                }
+                withStyle(style = SpanStyle(fontSize = 36.sp, fontFamily = fontFamilyDoHyeon)) {
+                    appendLine("/${data}GB")
+                }
             }
-        }
-        Text(
-            modifier = Modifier.alignByBaseline(),
-            text = "/${data}GB",
-            fontFamily = fontFamilyDoHyeon,
-            fontSize = 36.sp,
         )
     }
 
