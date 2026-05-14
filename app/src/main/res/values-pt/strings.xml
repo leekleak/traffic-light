@@ -40,7 +40,6 @@
     <string name="behavior">Comportamento</string>
     <string name="alt_vpn_workaround">Solução alternativa da VPN</string>
     <string name="app_name_short">Traffic Light</string>
-    <string name="total">Total</string>
     <string name="support_development">Ajudar desenvolvimento</string>
     <string name="shizuku_not_running">Shizuku não foi iniciado</string>
     <string name="sim_card">Cartão SIM</string>
@@ -48,11 +47,9 @@
     <string name="configure_plan">Configurar Plano</string>
     <string name="background">Fundo</string>
     <string name="type">Tipo</string>
-    <string name="selected">Selecionado</string>
     <string name="monthly">Mensal</string>
     <string name="custom">Personalizado</string>
     <string name="this_month">Este mês</string>
-    <string name="resets_on">Reinicia no dia: %1$d</string>
     <string name="save">Guardar</string>
     <string name="no_apps">Sem aplicações</string>
     <string name="day">Dia:</string>
@@ -62,14 +59,10 @@
     <string name="add_widget">Adicionar widget</string>
     <string name="configured_plans">Planos configurados</string>
     <string name="data_plan_widget_description">Rastreia os teus planos de dados no teu ecrã inicial</string>
-    <string name="widget_warning">Suporte a widgets é exprimental. Se tu enfrentares problemas por favor reporta-os no GitHub.</string>
-    <string name="no_configured_plans_description">Por favor confirma que configuraste pelo menos 1 plano de dados.</string>
-    <string name="no_configured_plans">Sem planos configurados</string>
     <string name="warning">Aviso</string>
     <string name="removed_apps">Aplicações removidas</string>
     <string name="all_apps">Todas as aplicações</string>
     <string name="prediction">Previsão</string>
-    <string name="data_intensive_apps">Aplicações de dados intensivos</string>
     <string name="mobile_data">Dados móveis</string>
     <string name="go_back">Ir para trás</string>
     <string name="disconnected_from_network">Desconectado da rede</string>
