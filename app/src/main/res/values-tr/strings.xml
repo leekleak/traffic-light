@@ -47,11 +47,9 @@
     <string name="configure_plan">Plan Ayarla</string>
     <string name="background">Arka plan</string>
     <string name="type">Tip</string>
-    <string name="selected">Seçildi</string>
     <string name="monthly">Aylık</string>
     <string name="custom">Kişisel</string>
     <string name="this_month">Bu Ay</string>
-    <string name="resets_on">Sıfırlanacak gün: %1$d</string>
     <string name="save">Kaydet</string>
     <string name="no_apps">Uygulama yok</string>
     <string name="day">Gün:</string>
@@ -60,9 +58,6 @@
     <string name="days">günler</string>
     <string name="add_widget">Araç takımı ekle</string>
     <string name="data_plan_widget_description">Ana ekranınızda veri planlarınızı takip edin</string>
-    <string name="widget_warning">Araç takımı desteği deneyseldir. Eğer bir sorunla karşılaşırsanız lütfen bunu Github\'da bildirin.</string>
-    <string name="no_configured_plans_description">Lütfen en az 1 veri planı ayarladığınızdan emin olun.</string>
-    <string name="no_configured_plans">Ayarlanmış plan yok</string>
     <string name="warning">Uyarı</string>
     <plurals name="resets_in_days">
         <item quantity="one">Yarın sıfırlanacak</item>
@@ -74,10 +69,8 @@
     <string name="removed_apps">Silinmiş uygulamalar</string>
     <string name="prediction">Tahmin</string>
     <string name="trend">Eğilim</string>
-    <string name="data_intensive_apps">Yoğun veri kullanan uygulamalar</string>
     <string name="mobile_data">Hücresel veri</string>
     <string name="app_name_short">Traffic Light</string>
-    <string name="total">Toplam</string>
     <string name="all_apps">Tüm uygulamalar</string>
     <string name="notification_channels">Bildirim Kanalı Ayarları</string>
     <string name="go_back">Geri git</string>
@@ -107,4 +100,19 @@
     <string name="plan_notification_description">Durum çubuğunda plan kullanımını takip et.</string>
     <string name="unsupported_by_play_store_version">Play Store sürümünde desteklenmiyor</string>
     <string name="reset_day">Sıfırlanma günü</string>
+    <string name="top_apps">En çok kullanılan uygulamalar</string>
+    <string name="usage">Kullanım</string>
+    <string name="safety">Güvenlik</string>
+    <string name="safe">Güvenli</string>
+    <string name="neutral">Nötr</string>
+    <string name="unsafe">Güvensiz</string>
+    <string name="budget">Bütçe</string>
+    <string name="daily">Günlük</string>
+    <string name="notes">Notlar</string>
+    <string name="color">Renk</string>
+    <string name="plans">Planlar</string>
+    <plurals name="resets_in_hours">
+        <item quantity="one">%d saat içinde sıfırlanacak</item>
+        <item quantity="other">%d saat içinde sıfırlanacak</item>
+    </plurals>
 </resources>
