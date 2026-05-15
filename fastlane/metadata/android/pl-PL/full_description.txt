@@ -1,0 +1,10 @@
+<p>Traffic Light to narzędzie typu open source służące do śledzenia wykorzystania sieci przy jednoczesnym zapewnieniu całkowitej prywatności. Inspirowane programami Internet Speed Meter i GlassWire.</p>
+<h2>Dlaczego?</h2>
+<ul>
+<li>Bezpłatne i otwarte oprogramowanie</li>
+<li>Używa niewielkiej liczby <a href="https://github.com/leekleak/traffic-light/wiki/Permission-Comparison">uprawnień</a></li>
+<li>Zużywa <a href="https://github.com/leekleak/traffic-light/wiki/Battery-Usage">mniej baterii</a></li>
+<li>Brak śledzenia</li>
+<li>Piękny interfejs użytkownika</li>
+<li>Szybki i nowoczesny</li>
+</ul>
