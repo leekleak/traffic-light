@@ -198,7 +198,7 @@ class SpeedNotification(
 
     companion object {
         private const val DATA_UPDATE_FREQ = 4
-        const val NOTIFICATION_CHANNEL_ID = "PersistentNotification"
-        const val NOTIFICATION_CHANNEL_ID_SILENT = "PersistentNotification (Silent)"
+        const val NOTIFICATION_CHANNEL_ID = "Persistent Notification"
+        const val NOTIFICATION_CHANNEL_ID_SILENT = "Persistent Notification Silent"
     }
 }

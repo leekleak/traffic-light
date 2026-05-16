@@ -4,7 +4,6 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.NotificationManager.IMPORTANCE_DEFAULT
-import android.app.NotificationManager.IMPORTANCE_NONE
 import com.leekleak.trafficlight.database.databaseModule
 import com.leekleak.trafficlight.integrations.integrationsModule
 import com.leekleak.trafficlight.model.managerModule
@@ -47,7 +46,7 @@ class TrafficLightApplication : Application() {
         val speedChannel = NotificationChannel(SpeedNotification.NOTIFICATION_CHANNEL_ID, "Persistent Notification", IMPORTANCE_DEFAULT).apply {
             setShowBadge(false)
         }
-        val speedChannelSilent = NotificationChannel(SpeedNotification.NOTIFICATION_CHANNEL_ID_SILENT, "Persistent Notification (Disconnected)", IMPORTANCE_NONE).apply {
+        val speedChannelSilent = NotificationChannel(SpeedNotification.NOTIFICATION_CHANNEL_ID_SILENT, "Persistent Notification (Disconnected)", IMPORTANCE_DEFAULT).apply {
             setShowBadge(false)
         }
         val planChannel = NotificationChannel(PlanNotification.NOTIFICATION_CHANNEL_ID, "Plan Notification", IMPORTANCE_DEFAULT).apply {
