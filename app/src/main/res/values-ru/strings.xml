@@ -94,7 +94,30 @@
         <item quantity="many">Сбрасывается в %d дней</item>
         <item quantity="other">Сбрасывается в %d дней</item>
     </plurals>
-    <string name="zero_rated_apps">Не отслеживающиеся приложения</string>
+    <string name="zero_rated_apps">Неотслеживаемые приложения</string>
     <string name="tethering">Привязывание</string>
     <string name="removed_apps">Удалённые приложения</string>
+    <string name="reset_day">День сброса</string>
+    <string name="usage">Использование</string>
+    <string name="safety">Безопасность</string>
+    <string name="top_apps">Популярные приложения</string>
+    <string name="none">Ничто</string>
+    <string name="bidirectional">Двусторонний</string>
+    <string name="unsupported_by_play_store_version">Не поддерживается версией с Play Store</string>
+    <string name="safe">Безопасный</string>
+    <string name="neutral">Нейтральный</string>
+    <string name="unsafe">Небезопасный</string>
+    <string name="budget">Бюджет</string>
+    <string name="daily">Ежедневно</string>
+    <string name="notes">Заметки</string>
+    <string name="color">Цвет</string>
+    <string name="plans">Планы</string>
+    <plurals name="resets_in_hours">
+        <item quantity="one">Сбрасывается в течение %d часа</item>
+        <item quantity="few">Сбрасывается в течение %d часов</item>
+        <item quantity="many">Сбрасывается в течение %d часов</item>
+        <item quantity="other">Сбрасывается в течение %d часов</item>
+    </plurals>
+    <string name="selected_item">Выбран</string>
+    <string name="live_notification">Уведомление в реальном времени</string>
 </resources>
