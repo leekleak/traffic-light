@@ -100,4 +100,16 @@
     <string name="plan_notification_description">Volg datagebruik in de statusbalk.</string>
     <string name="unsupported_by_play_store_version">Niet ondersteund door de Play Store-versie</string>
     <string name="reset_day">Dag resetten</string>
+    <string name="selected_item">Geselecteerd</string>
+    <string name="top_apps">Top apps</string>
+    <string name="usage">Gebruik</string>
+    <string name="safety">Veiligheid</string>
+    <string name="safe">Veilig</string>
+    <string name="neutral">Neutraal</string>
+    <string name="unsafe">Onveilig</string>
+    <string name="budget">Budget</string>
+    <string name="daily">Dagelijks</string>
+    <string name="notes">Opmerkingen</string>
+    <string name="color">Kleur</string>
+    <string name="plans">Bundels</string>
 </resources>
