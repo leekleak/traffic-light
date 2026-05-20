@@ -50,6 +50,7 @@ class SpeedNotification(
 
     private var aodMode = false
     private var inBits = false
+    private var separateUpDown = false
     private var liveNotification = false
     private var todayUsage = DayUsage()
 
@@ -59,6 +60,9 @@ class SpeedNotification(
         }
         scope.launch {
             appPreferenceRepo.speedBits.collect { inBits = it }
+        }
+        scope.launch {
+            appPreferenceRepo.separateUpDown.collect { separateUpDown = it }
         }
         scope.launch {
             appPreferenceRepo.liveNotification.collect { liveNotification = it; updateNotification(trafficSnapshot) }
@@ -127,7 +131,15 @@ class SpeedNotification(
         notification = notificationBuilder
             .apply {
                 if (!liveNotification) {
-                    setSmallIcon(notificationIconHelper.createIcon(speed, unit))
+                    setSmallIcon(
+                        if (!separateUpDown) {
+                            notificationIconHelper.createIcon(speed, unit)
+                        } else {
+                            val regex = """(\d+)(?:\.\d+)?\s*([KMGT])B?""".toRegex()
+                            val speedUp = DataSize(trafficSnapshot.upSpeed).toString(inBits = inBits).replace(regex, "$1$2")
+                            val speedDown = DataSize(trafficSnapshot.downSpeed).toString(inBits = inBits).replace(regex, "$1$2")
+                            notificationIconHelper.createIconSeparate(speedUp, speedDown)
+                        })
                     setWhen(Long.MAX_VALUE) // Keep above other notifications
                     setShowWhen(false) // Hide timestamp
                 }

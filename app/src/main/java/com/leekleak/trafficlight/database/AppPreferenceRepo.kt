@@ -31,6 +31,9 @@ class AppPreferenceRepo (
     val speedBits: Flow<Boolean> = data.map { it[SPEED_BITS] ?: false }.distinctUntilChanged()
     suspend fun setSpeedBits(value: Boolean) = dataStore.edit { it[SPEED_BITS] = value }
 
+    val separateUpDown: Flow<Boolean> = data.map { it[SEPARATE_UP_DOWN] ?: false }.distinctUntilChanged()
+    suspend fun setSeparateUpDown(value: Boolean) = dataStore.edit { it[SEPARATE_UP_DOWN] = value }
+
     val forceFallback: Flow<Boolean> = data.map { it[FORCE_FALLBACK] ?: false }.distinctUntilChanged()
     suspend fun setForceFallback(value: Boolean) = dataStore.edit { it[FORCE_FALLBACK] = value }
 
@@ -54,6 +57,7 @@ class AppPreferenceRepo (
         private val LIVE_NOTIFICATION = booleanPreferencesKey("live_notification")
         private val MODE_AOD = booleanPreferencesKey("mode_aod")
         private val SPEED_BITS = booleanPreferencesKey("speed_bits")
+        private val SEPARATE_UP_DOWN = booleanPreferencesKey("separate_up_down")
         private val FORCE_FALLBACK = booleanPreferencesKey("force_fallback")
         private val ALT_VPN_WORKAROUND = booleanPreferencesKey("alt_vpn")
         private val THEME = stringPreferencesKey("theme")

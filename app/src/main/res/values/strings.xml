@@ -110,6 +110,7 @@
     <string name="notes">Notes</string>
     <string name="color">Color</string>
     <string name="plans">Plans</string>
+    <string name="separate_upload_and_download">Separate upload and download</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

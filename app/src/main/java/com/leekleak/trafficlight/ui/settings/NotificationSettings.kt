@@ -52,6 +52,7 @@ fun NotificationSettings(paddingValues: PaddingValues) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
             item {
                 val liveNotification by viewModel.liveNotification.collectAsState()
+                val separateUpDown by appPreferenceRepo.separateUpDown.collectAsState(false)
                 Row (
                     modifier = Modifier.height(IntrinsicSize.Min),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -61,6 +62,7 @@ fun NotificationSettings(paddingValues: PaddingValues) {
                         title = stringResource(R.string.live_notification),
                         icon = painterResource(R.drawable.app_badging),
                         value = liveNotification,
+                        enabled = !separateUpDown,
                         onValueChanged = { scope.launch { appPreferenceRepo.setLiveNotification(it) } }
                     )
                     IconPreference(
@@ -70,6 +72,18 @@ fun NotificationSettings(paddingValues: PaddingValues) {
                     )
                 }
             }
+        }
+        item {
+            val separateUpDown by appPreferenceRepo.separateUpDown.collectAsState(false)
+            val liveNotification by viewModel.liveNotification.collectAsState()
+            SwitchPreference(
+                title = stringResource(R.string.separate_upload_and_download),
+                summary = null,
+                icon = painterResource(R.drawable.speed_separate),
+                value = separateUpDown,
+                enabled = !liveNotification,
+                onValueChanged = { scope.launch { appPreferenceRepo.setSeparateUpDown(it) } }
+            )
         }
         item {
             val speedBits by appPreferenceRepo.speedBits.collectAsState(false)

@@ -35,6 +35,15 @@ class NotificationIconHelper(private val context: Context) {
             letterSpacing = 0f
         }
     }
+    private val paintSeparate by lazy {
+        Paint().apply {
+            color = context.getColor(R.color.white)
+            typeface = convertFontFamilyToTypeface(context, googleSans(width = 30f))
+            textAlign = Paint.Align.LEFT
+            textSize = 62f * multiplier
+            letterSpacing = 0f
+        }
+    }
     private var cachedIcons = LruCache<String, IconCompat>(50)
     private var bitmap: Bitmap? = null
     private val bitmapMutex = Mutex()
@@ -80,6 +89,25 @@ class NotificationIconHelper(private val context: Context) {
             } else {
                 return IconCompat.createWithBitmap(bitmap!!)
             }
+        }
+    }
+
+    suspend fun createIconSeparate(speed1: String, speed2: String): IconCompat {
+        val height = (96 * multiplier).toInt()
+
+
+        bitmapMutex.withLock {
+            if (bitmap == null || bitmap!!.height != height) {
+                bitmap = createBitmap(height, height, Bitmap.Config.ARGB_8888)
+            } else {
+                bitmap?.eraseColor(Color.TRANSPARENT)
+            }
+
+            val canvas = Canvas(bitmap!!)
+
+            canvas.drawText(speed1, 0f, 46f * multiplier, paintSeparate)
+            canvas.drawText(speed2, 0f, 94f * multiplier, paintSeparate)
+            return IconCompat.createWithBitmap(bitmap!!)
         }
     }
 }

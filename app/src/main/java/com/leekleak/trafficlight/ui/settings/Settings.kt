@@ -104,7 +104,7 @@ fun Settings(paddingValues: PaddingValues) {
             SwitchPreference (
                 title = stringResource(R.string.notifications),
                 summary = stringResource(R.string.notification_description),
-                icon = painterResource(R.drawable.notification),
+                icon = painterResource(R.drawable.speed_notification),
                 value = notification,
                 onValueChanged = {
                     if (!notificationPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
