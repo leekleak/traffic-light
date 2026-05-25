@@ -124,4 +124,10 @@
         <item quantity="many">سيتم إعادة الضبط بعد %d ساعة</item>
         <item quantity="other">سيتم إعادة الضبط بعد %d ساعة</item>
     </plurals>
+    <string name="separate_upload_and_download">تنزيل و رفع منفصل</string>
+    <string name="supporter_ads">إعلانات الداعمين</string>
+    <string name="supporter_ads_description">فعّل الإعلانات لدعم التطوير</string>
+    <string name="supporter_ads_disabled">إعلانات الداعمين مدعومة فقط في إصدار متجر Play</string>
+    <string name="ad">إعلان</string>
+    <string name="loading_ad">يحمل الإعلان...</string>
 </resources>
