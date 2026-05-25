@@ -116,4 +116,5 @@
         <item quantity="one">Zurücksetzung in %d Stunde</item>
         <item quantity="other">Zurücksetzung in %d Stunden</item>
     </plurals>
+    <string name="separate_upload_and_download">Upload und Download trennen</string>
 </resources>
