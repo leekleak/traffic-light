@@ -3,10 +3,14 @@ package com.leekleak.trafficlight.integrations
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
-import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -75,11 +79,11 @@ fun Ad(
         AdType.NativeBanner -> BuildConfig.ADMOB_UNIT_ID_OVERVIEW
     }
     var nativeAdState by remember { mutableStateOf<NativeAd?>(null) }
-    var adStatus by remember { mutableStateOf("loading") }
+    var adLoaded by remember { mutableStateOf(false) }
 
     LaunchedEffect(adUnitId) {
         Timber.d("Loading ad: $adUnitId")
-        adStatus = "loading"
+        adLoaded = false
 
         val adRequest = NativeAdRequest.Builder(adUnitId, listOf(NativeAd.NativeAdType.NATIVE))
             .setAdChoicesPlacement(AdChoicesPlacement.TOP_RIGHT)
@@ -89,12 +93,12 @@ fun Ad(
             override fun onNativeAdLoaded(nativeAd: NativeAd) {
                 Timber.d("Ad loaded successfully")
                 nativeAdState = nativeAd
-                adStatus = "loaded"
+                adLoaded = true
             }
 
             override fun onAdFailedToLoad(adError: LoadAdError) {
                 Timber.e("Ad failed to load: ${adError.message} (code ${adError.code})")
-                adStatus = "failed"
+                adLoaded = false
             }
         })
     }
@@ -105,32 +109,13 @@ fun Ad(
             adToDestroy?.destroy()
         }
     }
-    
-    AnimatedContent(
-        targetState = adStatus,
-        transitionSpec = { fadeIn() togetherWith fadeOut() },
-        label = "AdStatus"
-    ) { status ->
-        when (status) {
-            "loaded" -> nativeAdState?.let { CallNativeAd(it, backgroundColor) }
-            "loading" -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(144.dp)
-                        .card()
-                        .background(backgroundColor),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(R.string.loading_ad),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-            "failed" -> { }
-        }
+
+    AnimatedVisibility (
+        visible = adLoaded,
+        enter = fadeIn(tween()) + slideInVertically() + expandVertically(),
+        exit = fadeOut(tween()) + slideOutVertically() + shrinkVertically()
+    ) {
+        nativeAdState?.let { CallNativeAd(it, backgroundColor) }
     }
 }
 

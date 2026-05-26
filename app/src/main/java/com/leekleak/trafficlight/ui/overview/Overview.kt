@@ -127,7 +127,7 @@ fun Overview(
                     }
                 },
                 second = {
-                    Column (Modifier.weight(1f)) {
+                    Column (Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         OverviewItems()
                     }
                 },
