@@ -118,4 +118,10 @@
         <item quantity="other">Réinitialisation dans %d heures</item>
     </plurals>
     <string name="selected_item">Sélectionné</string>
+    <string name="separate_upload_and_download">Séparer les entrées des sorties</string>
+    <string name="supporter_ads">Pubs de soutien</string>
+    <string name="supporter_ads_description">Activer les pubs pour soutenir le développement</string>
+    <string name="supporter_ads_disabled">Pubs de soutien, uniquement pour la version Google Play</string>
+    <string name="ad">Pubs</string>
+    <string name="loading_ad">Chargement des pubs ...</string>
 </resources>

@@ -112,4 +112,8 @@
     <string name="notes">Opmerkingen</string>
     <string name="color">Kleur</string>
     <string name="plans">Bundels</string>
+    <plurals name="resets_in_hours">
+        <item quantity="one">Reset in %d uur</item>
+        <item quantity="other">Reset in %d uren</item>
+    </plurals>
 </resources>

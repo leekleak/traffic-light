@@ -6,20 +6,20 @@
     <string name="history">历史</string>
     <string name="wifi">Wi-Fi</string>
     <string name="cellular">流量</string>
-    <string name="battery_optimization_description">禁用电池优化，防止手机杀掉后台服务</string>
+    <string name="battery_optimization_description">禁用电池优化，防止手机杀掉后台服务。</string>
     <string name="usage_statistics">使用统计</string>
     <string name="speed">网速: %1$s</string>
     <string name="settings">设置</string>
     <string name="grant">授权</string>
     <string name="battery_optimization">电池优化</string>
-    <string name="usage_statistics_description">用于分析历史网络使用情况</string>
+    <string name="usage_statistics_description">用于分析历史网络使用情况。</string>
     <string name="notifications">通知</string>
     <string name="screen_off_update">熄屏更新</string>
-    <string name="screen_off_update_description">允许在熄屏显示时跟踪，但会增加耗电</string>
+    <string name="screen_off_update_description">允许在熄屏显示时跟踪，但会增加耗电。</string>
     <string name="mobile">流量: %1$s</string>
     <string name="about">关于</string>
     <string name="speed_in_bits">网速使用 bit 单位</string>
-    <string name="github_description">反馈问题 | 查看动态</string>
+    <string name="github_description">反馈问题 | 查看动态。</string>
     <string name="version">版本 %1$s</string>
     <string name="force_fallback">开启备用网速监测</string>
     <string name="force_fallback_description">适用于有问题的系统或有线连接</string>
@@ -32,7 +32,7 @@
     <string name="default_theme">默认</string>
     <string name="help">帮助</string>
     <string name="advanced_settings">高级设置</string>
-    <string name="notification_description">在状态栏显示网速</string>
+    <string name="notification_description">在状态栏显示网速。</string>
     <string name="missing_permissions">缺少权限</string>
     <string name="total_usage">总用量</string>
     <string name="unknown">未知</string>
@@ -41,7 +41,7 @@
     <string name="alt_vpn_workaround">替代性VPN计算方法</string>
     <string name="alt_vpn_workaround_description">降低了测量精度，但兼容隧道分离。</string>
     <string name="support_development">支持开发</string>
-    <string name="shizuku_not_running">Shizuku未运行。</string>
+    <string name="shizuku_not_running">Shizuku未运行</string>
     <string name="sim_card">SIM卡</string>
     <string name="data_plans">数据计划</string>
     <string name="configure_plan">配置计划</string>
@@ -59,7 +59,7 @@
     <string name="configured_plans">设置计划</string>
     <string name="data_plan_widget_description">在主屏幕上追踪你的数据计划</string>
     <string name="warning">警告</string>
-    <string name="no_apps">没有应用</string>
+    <string name="no_apps">无应用</string>
     <string name="zero_rated_apps">免流应用</string>
     <plurals name="resets_in_days">
         <item quantity="other">%d 天后重置</item>
@@ -79,7 +79,7 @@
     <string name="overview">概览</string>
     <string name="multi_sim_tracking">多SIM卡跟踪</string>
     <string name="shizuku_required">需要Shizuku服务</string>
-    <string name="shizuku_hint_description">为此，你需要配置 Shizuku，并在设置中启用该功能。</string>
+    <string name="shizuku_hint_description">要完成这个过程，你需要配置 Shizuku 然后在设置中启用该功能。</string>
     <string name="filter">筛选</string>
     <string name="none">无</string>
     <string name="primary">主卡</string>
@@ -98,4 +98,21 @@
     <string name="very_big">非常大</string>
     <string name="plan_notification_description">在状态栏中追踪套餐用量。</string>
     <string name="unsupported_by_play_store_version">Play Store 版本不支持</string>
+    <string name="selected_item">已选择</string>
+    <string name="top_apps">流量消耗最多的应用</string>
+    <string name="reset_day">重置日期</string>
+    <string name="usage">用量</string>
+    <string name="safety">安全性</string>
+    <string name="safe">安全</string>
+    <string name="neutral">常规</string>
+    <string name="unsafe">网络连接不安全</string>
+    <string name="budget">预算</string>
+    <string name="daily">每日</string>
+    <string name="notes">注释</string>
+    <string name="color">颜色</string>
+    <string name="plans">套餐</string>
+    <plurals name="resets_in_hours">
+        <item quantity="other">%d小时后重置</item>
+    </plurals>
+    <string name="separate_upload_and_download">分别显示上传与下载</string>
 </resources>

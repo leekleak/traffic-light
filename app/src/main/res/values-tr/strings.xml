@@ -115,4 +115,5 @@
         <item quantity="one">%d saat içinde sıfırlanacak</item>
         <item quantity="other">%d saat içinde sıfırlanacak</item>
     </plurals>
+    <string name="selected_item">Seçildi</string>
 </resources>
