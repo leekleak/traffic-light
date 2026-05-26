@@ -173,7 +173,7 @@ private fun OverviewHero(scrollState: ScrollState) {
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
 
-    val offset by animateFloatAsState(if (pressed) 30.dp.px else 0f)
+    val offset by animateFloatAsState(if (pressed) 132.dp.px else 116.dp.px)
 
     val scheme = colorScheme
     val shape1 = Cookie12Sided.toPath()
@@ -222,8 +222,8 @@ private fun OverviewHero(scrollState: ScrollState) {
                 translationY = scrollState.value * 0.4f
             }
             .drawWithContent {
-                val a = size.width / 5 - offset
-                val b = (a + offset) * 4 + offset
+                val a = size.width / 2 - offset
+                val b = size.width / 2 + offset
 
                 drawCircle(Brush.radialGradient(listOf(scheme.primaryContainer, Color.Transparent)))
                 translate(a, b) { drawPath(shape1Transformed, scheme.surface) }
