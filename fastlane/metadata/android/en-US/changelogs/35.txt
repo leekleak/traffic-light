@@ -1,0 +1,10 @@
+Enhancements:
+- Added ability to separate upload and download speeds in the notification
+- Starting with this version, the Google Play build now has optional (off by default) supporter ads. If you enjoy the app, consider enabling them :D
+
+Bug fixes:
+- Several UI fixes
+- Couple of crash fixes
+
+Translations:
+- Updated translations
