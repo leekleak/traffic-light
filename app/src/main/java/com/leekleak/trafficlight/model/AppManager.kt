@@ -167,7 +167,7 @@ class AppIconFetcher(
 fun List<DataUID>.search(query: String, context: Context): List<DataUID> {
     return this.sortedByDescending {
             if (it is DataUIDSpecial) 100
-            else specialApps.indexOf(it.packageName)
+            else priorityApps.indexOf(it.packageName)
         }
         .filter {
             it.getName(context).lowercase().contains(query.lowercase()) ||
@@ -180,7 +180,7 @@ fun List<DataUID>.search(query: String, context: Context): List<DataUID> {
  *
  * The further down the list the app, the higher it will be placed when sorted.
  */
-val specialApps = listOf(
+private val priorityApps = listOf(
     "com.amazon.avod.thirdpartyclient", // Prime Video
     "org.telegram.messenger",
     "com.microsoft.teams",

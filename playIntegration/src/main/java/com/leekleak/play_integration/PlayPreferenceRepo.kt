@@ -18,10 +18,10 @@ class PlayPreferenceRepo (
     private val dataStore get() = context.playPreferences
     private val data get() = dataStore.data
 
-    val reviewPromptStamp: Flow<Long> = data.map { it[APP_OPENS] ?: 0 }.distinctUntilChanged()
-    suspend fun setReviewPromptStamp(value: Long) = dataStore.edit { it[APP_OPENS] = value }
+    val reviewPromptStamp: Flow<Long> = data.map { it[REVIEW_PROMPT_STAMP] ?: 0 }.distinctUntilChanged()
+    suspend fun setReviewPromptStamp(value: Long) = dataStore.edit { it[REVIEW_PROMPT_STAMP] = value }
 
     private companion object {
-        private val APP_OPENS = longPreferencesKey("app_opens")
+        private val REVIEW_PROMPT_STAMP = longPreferencesKey("review_prompt_stamp")
     }
 }
