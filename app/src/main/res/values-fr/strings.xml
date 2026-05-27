@@ -123,5 +123,4 @@
     <string name="supporter_ads_description">Activer les pubs pour soutenir le développement</string>
     <string name="supporter_ads_disabled">Pubs de soutien, uniquement pour la version Google Play</string>
     <string name="ad">Pubs</string>
-    <string name="loading_ad">Chargement des pubs ...</string>
 </resources>
