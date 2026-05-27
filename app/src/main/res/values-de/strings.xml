@@ -117,4 +117,9 @@
         <item quantity="other">Zurücksetzung in %d Stunden</item>
     </plurals>
     <string name="separate_upload_and_download">Upload und Download trennen</string>
+    <string name="supporter_ads_description">Werbung aktivieren, um die Entwicklung zu unterstützen</string>
+    <string name="supporter_ads">Werbeanzeigen zur Unterstützung</string>
+    <string name="supporter_ads_disabled">Werbeanzeigen zur Unterstützung werden nur von der Google Play-Version unterstützt</string>
+    <string name="ad">Werbung</string>
+    <string name="no_browser_found">Kein Browser gefunden</string>
 </resources>
