@@ -47,7 +47,7 @@ class TrafficLightApplication : Application() {
     private fun createNotificationChannel() {
         val speedChannel = NotificationChannel(
             SpeedNotification.NOTIFICATION_CHANNEL_ID,
-            "Persistent Notification",
+            getString(R.string.persistent_notification),
             IMPORTANCE_DEFAULT
         ).apply {
             setShowBadge(false)
@@ -55,7 +55,7 @@ class TrafficLightApplication : Application() {
 
         val speedChannelSilent = NotificationChannel(
             SpeedNotification.NOTIFICATION_CHANNEL_ID_SILENT,
-            "Persistent Notification (Disconnected)",
+            getString(R.string.persistent_notification_disconnected),
             IMPORTANCE_DEFAULT
         ).apply {
             setShowBadge(false)
@@ -63,7 +63,7 @@ class TrafficLightApplication : Application() {
 
         val planChannel = NotificationChannel(
             PlanNotification.NOTIFICATION_CHANNEL_ID,
-            "Plan Notification",
+            getString(R.string.plan_notification),
             IMPORTANCE_DEFAULT
         ).apply {
             setShowBadge(false)
@@ -71,7 +71,7 @@ class TrafficLightApplication : Application() {
 
         val planWarningChannel = NotificationChannel(
             WarningNotificationHelper.NOTIFICATION_CHANNEL_ID,
-            "Plan Warning Notification",
+            getString(R.string.plan_warning_notification),
             IMPORTANCE_HIGH
         ).apply {
             enableLights(true)

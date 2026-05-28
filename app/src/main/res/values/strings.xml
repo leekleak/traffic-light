@@ -124,6 +124,10 @@
     <string name="supporter_ads_disabled">Supporter ADs only supported by Google Play version</string>
     <string name="ad">Ad</string>
     <string name="no_browser_found">No browser found</string>
+    <string name="persistent_notification">Persistent Notification</string>
+    <string name="persistent_notification_disconnected">Persistent Notification (Disconnected)</string>
+    <string name="plan_notification">Plan Notification</string>
+    <string name="plan_warning_notification">Plan Warning Notification</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>
