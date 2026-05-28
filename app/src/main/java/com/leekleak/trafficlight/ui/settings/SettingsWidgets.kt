@@ -87,6 +87,7 @@ fun Preference(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
+                    modifier = Modifier.size(24.dp),
                     painter = icon,
                     contentDescription = null,
                 )
