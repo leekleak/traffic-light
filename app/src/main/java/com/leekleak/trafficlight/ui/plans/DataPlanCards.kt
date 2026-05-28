@@ -133,7 +133,7 @@ private fun BoxBackground(
     content: @Composable BoxScope.() -> Unit
 ) {
     val fontFamilyCarrier = remember { carrierFont() }
-    val background = backgrounds[dataPlan.uiBackground]
+    val background = backgrounds.getOrNull(dataPlan.uiBackground)
     Box (modifier = Modifier
         .fillMaxWidth()
         .height(200.dp)

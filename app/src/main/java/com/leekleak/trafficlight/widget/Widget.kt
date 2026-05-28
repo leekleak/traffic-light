@@ -271,7 +271,7 @@ class Widget: GlanceAppWidget() {
                     .background(GlanceTheme.colors.surface)
                     .cornerRadius(cornerRadius)
             ) {
-                backgrounds[dataPlan.uiBackground]?.let { background ->
+                backgrounds.getOrNull(dataPlan.uiBackground)?.let { background ->
                     Image(
                         modifier = GlanceModifier.fillMaxSize(),
                         provider = ImageProvider(background),

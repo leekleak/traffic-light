@@ -59,7 +59,7 @@ data class DataPlan(
     /**
      * Customization
      */
-    @ColumnInfo val uiBackground: Int = 0,
+    @ColumnInfo val uiBackground: Int = if (simIndex != -1) simIndex + 1 else 0,
 ) {
     init {
         require(intervalMultiplier > 0) {
