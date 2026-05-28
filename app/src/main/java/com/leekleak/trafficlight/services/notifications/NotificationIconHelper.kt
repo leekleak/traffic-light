@@ -17,31 +17,32 @@ import kotlinx.coroutines.sync.withLock
 
 class NotificationIconHelper(private val context: Context) {
     private val multiplier = 24 * Density(context).density / 96f
-    private val paintValue by lazy {
+    private val paintBase by lazy {
         Paint().apply {
             color = context.getColor(R.color.white)
-            typeface = convertFontFamilyToTypeface(context, googleSans(weight = 600f, width = 60f))
             textAlign = Paint.Align.CENTER
-            textSize = 72f * multiplier
             letterSpacing = 0f
+            isAntiAlias = true
+            isSubpixelText = true
+        }
+    }
+    private val paintValue by lazy {
+        paintBase.apply {
+            typeface = convertFontFamilyToTypeface(context, googleSans(weight = 600f, width = 60f))
+            textSize = 72f * multiplier
         }
     }
     private val paintUnit by lazy {
-        Paint().apply {
-            color = context.getColor(R.color.white)
+        paintBase.apply {
             typeface = convertFontFamilyToTypeface(context, googleSans(weight = 600f, width = 80f))
-            textAlign = Paint.Align.CENTER
             textSize = 46f * multiplier
-            letterSpacing = 0f
         }
     }
     private val paintSeparate by lazy {
-        Paint().apply {
-            color = context.getColor(R.color.white)
+        paintBase.apply {
             typeface = convertFontFamilyToTypeface(context, googleSans(weight = 600f, width = 35f))
             textAlign = Paint.Align.RIGHT
             textSize = 52f * multiplier
-            letterSpacing = 0f
         }
     }
     private var cachedIcons = LruCache<String, IconCompat>(50)
@@ -104,8 +105,8 @@ class NotificationIconHelper(private val context: Context) {
 
             val canvas = Canvas(bitmap!!)
 
-            canvas.drawText(speed1, 96f * multiplier, 46f * multiplier, paintSeparate)
-            canvas.drawText(speed2, 96f * multiplier, 94f * multiplier, paintSeparate)
+            canvas.drawText(speed1, 96f * multiplier, 48f * multiplier, paintSeparate)
+            canvas.drawText(speed2, 96f * multiplier, 96f * multiplier, paintSeparate)
             return IconCompat.createWithBitmap(bitmap!!)
         }
     }
