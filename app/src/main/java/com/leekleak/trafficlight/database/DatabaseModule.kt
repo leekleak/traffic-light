@@ -3,6 +3,7 @@ package com.leekleak.trafficlight.database
 import androidx.room.Room
 import com.leekleak.trafficlight.database.migrations.MIGRATION_1_2
 import com.leekleak.trafficlight.database.migrations.MIGRATION_2_3
+import com.leekleak.trafficlight.database.migrations.MIGRATION_3_4
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -19,7 +20,8 @@ val databaseModule = module {
         )
             .addMigrations(
                 MIGRATION_1_2,
-                MIGRATION_2_3
+                MIGRATION_2_3,
+                MIGRATION_3_4
             )
             .build()
     }

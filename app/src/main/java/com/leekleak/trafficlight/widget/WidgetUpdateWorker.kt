@@ -7,6 +7,9 @@ import android.content.Context
 import android.content.Context.ALARM_SERVICE
 import android.content.Intent
 import androidx.glance.appwidget.updateAll
+import com.leekleak.trafficlight.database.DataPlanDao
+import com.leekleak.trafficlight.services.notifications.WarningNotificationHelper
+import com.leekleak.trafficlight.ui.plans.DataPlanLogic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -39,15 +42,45 @@ fun killAlarmManager(context: Context) {
 
 class WidgetUpdateReceiver: BroadcastReceiver(), KoinComponent {
     private val applicationScope: CoroutineScope by inject()
+    private val dataPlanDao: DataPlanDao by inject()
+    private val dataPlanLogic: DataPlanLogic by inject()
+
     override fun onReceive(context: Context, intent: Intent) {
         val pendingResult = goAsync()
         applicationScope.launch {
             try {
                 Widget().updateAll(context)
+                checkWarnings(context)
             } catch (e: Exception) {
                 Timber.e(e)
             } finally {
                 pendingResult.finish()
+            }
+        }
+    }
+
+    private suspend fun checkWarnings(context: Context) {
+        val plans = dataPlanDao.getActivePlans()
+        plans.forEach { plan ->
+            if (plan.budgetWarning) {
+                val remainingBudget = dataPlanLogic.getRemainingDailyBudgetToday(plan)
+                if (remainingBudget <= 0L && !plan.budgetOvershotNotified) {
+                    WarningNotificationHelper.showBudgetWarning(context, plan)
+                    dataPlanDao.add(plan.copy(budgetOvershotNotified = true))
+                } else if (remainingBudget > 0L && plan.budgetOvershotNotified) {
+                    dataPlanDao.add(plan.copy(budgetOvershotNotified = false))
+                }
+            }
+
+            if (plan.safetyWarning) {
+                val safetyState = dataPlanLogic.getDataSafety(plan)
+                val stateInt = safetyState.ordinal
+                if (plan.lastSafetyState != -1 && plan.lastSafetyState != stateInt) {
+                    WarningNotificationHelper.showSafetyWarning(context, plan, safetyState)
+                }
+                if (plan.lastSafetyState != stateInt) {
+                    dataPlanDao.add(plan.copy(lastSafetyState = stateInt))
+                }
             }
         }
     }

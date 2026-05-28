@@ -191,6 +191,7 @@ fun PlanConfig(currentPlan: DataPlan) {
                 ExtendedFloatingActionButton (
                     onClick = {
                         scope.launch(Dispatchers.IO) {
+                            newPlan = newPlan.copy(lastSafetyState = -1, budgetOvershotNotified = false)
                             dataPlanDao.add(newPlan)
                             haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                             navigator.goBack()
@@ -352,6 +353,28 @@ fun PlanConfig(currentPlan: DataPlan) {
                         )
                     }
                 }
+                SwitchPreference(
+                    title = stringResource(R.string.budget_overshoot_warning),
+                    summary = stringResource(R.string.budget_overshoot_warning_description),
+                    icon = painterResource(R.drawable.warning),
+                    value = newPlan.budgetWarning,
+                    onValueChanged = {
+                        scope.launch {
+                            newPlan = newPlan.copy(budgetWarning = it)
+                        }
+                    }
+                )
+                SwitchPreference(
+                    title = stringResource(R.string.safety_status_warning),
+                    summary = stringResource(R.string.safety_status_warning_description),
+                    icon = painterResource(R.drawable.shield),
+                    value = newPlan.safetyWarning,
+                    onValueChanged = {
+                        scope.launch {
+                            newPlan = newPlan.copy(safetyWarning = it)
+                        }
+                    }
+                )
             }
             categoryTitleSmall { stringResource(R.string.background) }
             item {

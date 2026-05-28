@@ -98,6 +98,14 @@
     <string name="live_notification">Live Notification</string>
     <string name="very_big">Very big</string>
     <string name="plan_notification_description">Track plan usage in the status bar.</string>
+    <string name="budget_overshoot_warning">Budget Warning</string>
+    <string name="budget_overshoot_warning_description">Notify when the daily budget is overshot.</string>
+    <string name="safety_status_warning">Safety Status Warning</string>
+    <string name="safety_status_warning_description">Notify when the plan safety status changes.</string>
+    <string name="budget_overshoot_notif_title">Daily budget overshot</string>
+    <string name="budget_overshoot_notif_text">You have used more than your daily budget for %1$s.</string>
+    <string name="safety_status_notif_title">Safety status changed</string>
+    <string name="safety_status_notif_text">Your safety status for %1$s is now %2$s.</string>
     <string name="unsupported_by_play_store_version">Unsupported by Play Store version</string>
     <string name="reset_day">Reset day</string>
     <string name="usage">Usage</string>

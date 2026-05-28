@@ -1,0 +1,121 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 4,
+    "identityHash": "cfebdb6beb21600990ec0239ae07e544",
+    "entities": [
+      {
+        "tableName": "DataPlan",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`hashedSubscriberID` TEXT NOT NULL, `encryptedSubscriberID` TEXT NOT NULL, `simIndex` INTEGER NOT NULL, `carrierName` TEXT NOT NULL, `dataMax` INTEGER NOT NULL, `startDate` INTEGER NOT NULL, `interval` TEXT NOT NULL, `intervalMultiplier` INTEGER NOT NULL, `excludedApps` TEXT NOT NULL, `notification` INTEGER NOT NULL, `liveNotification` INTEGER NOT NULL, `budgetWarning` INTEGER NOT NULL, `safetyWarning` INTEGER NOT NULL, `lastSafetyState` INTEGER NOT NULL, `budgetOvershotNotified` INTEGER NOT NULL, `uiBackground` INTEGER NOT NULL, PRIMARY KEY(`hashedSubscriberID`))",
+        "fields": [
+          {
+            "fieldPath": "hashedSubscriberID",
+            "columnName": "hashedSubscriberID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "encryptedSubscriberID",
+            "columnName": "encryptedSubscriberID",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "simIndex",
+            "columnName": "simIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "carrierName",
+            "columnName": "carrierName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dataMax",
+            "columnName": "dataMax",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startDate",
+            "columnName": "startDate",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "interval",
+            "columnName": "interval",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "intervalMultiplier",
+            "columnName": "intervalMultiplier",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "excludedApps",
+            "columnName": "excludedApps",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notification",
+            "columnName": "notification",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "liveNotification",
+            "columnName": "liveNotification",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "budgetWarning",
+            "columnName": "budgetWarning",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "safetyWarning",
+            "columnName": "safetyWarning",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastSafetyState",
+            "columnName": "lastSafetyState",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "budgetOvershotNotified",
+            "columnName": "budgetOvershotNotified",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uiBackground",
+            "columnName": "uiBackground",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "hashedSubscriberID"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cfebdb6beb21600990ec0239ae07e544')"
+    ]
+  }
+}

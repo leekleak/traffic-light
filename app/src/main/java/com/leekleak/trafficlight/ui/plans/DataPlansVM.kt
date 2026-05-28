@@ -3,7 +3,6 @@ package com.leekleak.trafficlight.ui.plans
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leekleak.trafficlight.database.DataPlan
-import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.MiniCardState
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -12,8 +11,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-class DataPlansVM(networkUsageManager: NetworkUsageManager): ViewModel() {
-    private val dataPlansLogic = DataPlanLogic(networkUsageManager)
+class DataPlansVM(val dataPlansLogic: DataPlanLogic): ViewModel() {
     private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
     fun refresh() = refreshTrigger.tryEmit(Unit)
 

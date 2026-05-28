@@ -50,6 +50,12 @@ data class DataPlan(
     @ColumnInfo val notification: Boolean = false,
     @ColumnInfo val liveNotification: Boolean = false,
 
+    @ColumnInfo val budgetWarning: Boolean = false,
+    @ColumnInfo val safetyWarning: Boolean = false,
+
+    @ColumnInfo val lastSafetyState: Int = -1,
+    @ColumnInfo val budgetOvershotNotified: Boolean = false,
+
     /**
      * Customization
      */
@@ -112,6 +118,9 @@ interface DataPlanDao {
     @Query("SELECT * FROM dataplan WHERE simIndex != -1 ORDER BY simIndex ASC")
     fun getActivePlansFlow(): Flow<List<DataPlan>>
 
+    @Query("SELECT * FROM dataplan WHERE simIndex != -1 ORDER BY simIndex ASC")
+    suspend fun getActivePlans(): List<DataPlan>
+
     @Query("SELECT * FROM dataplan WHERE (simIndex != -1 AND notification == 1) ORDER BY simIndex ASC")
     fun getActivePlansWithNotificationsFlow(): Flow<List<DataPlan>>
 
@@ -122,7 +131,7 @@ interface DataPlanDao {
     suspend fun addAll(plans: List<DataPlan>)
 }
 
-@Database(entities = [DataPlan::class], version = 3, exportSchema = true)
+@Database(entities = [DataPlan::class], version = 4, exportSchema = true)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun dataPlanDao(): DataPlanDao
