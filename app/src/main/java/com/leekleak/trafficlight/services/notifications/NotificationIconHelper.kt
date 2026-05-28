@@ -17,32 +17,38 @@ import kotlinx.coroutines.sync.withLock
 
 class NotificationIconHelper(private val context: Context) {
     private val multiplier = 24 * Density(context).density / 96f
-    private val paintBase by lazy {
+    private val paintValue by lazy {
         Paint().apply {
+            typeface = convertFontFamilyToTypeface(context, googleSans(weight = 600f, width = 60f))
+            textSize = 72f * multiplier
             color = context.getColor(R.color.white)
             textAlign = Paint.Align.CENTER
             letterSpacing = 0f
-            isAntiAlias = true
             isSubpixelText = true
-        }
-    }
-    private val paintValue by lazy {
-        paintBase.apply {
-            typeface = convertFontFamilyToTypeface(context, googleSans(weight = 600f, width = 60f))
-            textSize = 72f * multiplier
+            isAntiAlias = true
         }
     }
     private val paintUnit by lazy {
-        paintBase.apply {
+        Paint().apply {
             typeface = convertFontFamilyToTypeface(context, googleSans(weight = 600f, width = 80f))
             textSize = 46f * multiplier
+            color = context.getColor(R.color.white)
+            textAlign = Paint.Align.CENTER
+            letterSpacing = 0f
+            isSubpixelText = true
+            isAntiAlias = true
         }
     }
     private val paintSeparate by lazy {
-        paintBase.apply {
+        Paint().apply {
             typeface = convertFontFamilyToTypeface(context, googleSans(weight = 600f, width = 35f))
             textAlign = Paint.Align.RIGHT
             textSize = 52f * multiplier
+            color = context.getColor(R.color.white)
+            textAlign = Paint.Align.RIGHT
+            letterSpacing = 0f
+            isSubpixelText = true
+            isAntiAlias = true
         }
     }
     private var cachedIcons = LruCache<String, IconCompat>(50)
