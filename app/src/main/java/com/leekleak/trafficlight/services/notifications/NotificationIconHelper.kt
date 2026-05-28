@@ -104,8 +104,8 @@ class NotificationIconHelper(private val context: Context) {
 
             val canvas = Canvas(bitmap!!)
 
-            canvas.drawText(speed1, 64f, 46f * multiplier, paintSeparate)
-            canvas.drawText(speed2, 64f, 94f * multiplier, paintSeparate)
+            canvas.drawText(speed1, 96f * multiplier, 46f * multiplier, paintSeparate)
+            canvas.drawText(speed2, 96f * multiplier, 94f * multiplier, paintSeparate)
             return IconCompat.createWithBitmap(bitmap!!)
         }
     }

@@ -59,13 +59,13 @@ class SpeedNotification(
             appPreferenceRepo.modeAOD.collect { aodMode = it }
         }
         scope.launch {
-            appPreferenceRepo.speedBits.collect { inBits = it }
+            appPreferenceRepo.speedBits.collect { inBits = it; updateNotification(trafficSnapshot, true) }
         }
         scope.launch {
-            appPreferenceRepo.separateUpDown.collect { separateUpDown = it }
+            appPreferenceRepo.separateUpDown.collect { separateUpDown = it; updateNotification(trafficSnapshot, true) }
         }
         scope.launch {
-            appPreferenceRepo.liveNotification.collect { liveNotification = it; updateNotification(trafficSnapshot) }
+            appPreferenceRepo.liveNotification.collect { liveNotification = it; updateNotification(trafficSnapshot, true) }
         }
         updateBaseNotification()
     }
@@ -113,11 +113,11 @@ class SpeedNotification(
     }
 
     private var lastTitle: String = ""
-    private suspend fun updateNotification(trafficSnapshot: TrafficSnapshot) {
+    private suspend fun updateNotification(trafficSnapshot: TrafficSnapshot, force: Boolean = false) {
         val data = DataSize(trafficSnapshot.totalSpeed).toString(speed = true, inBits = inBits)
         val title = context.getString(R.string.speed, data)
 
-        if (lastTitle == data) return // If the title is the same, so is the icon.
+        if (lastTitle == data && !force) return // If the title is the same, so is the icon.
         else lastTitle = data
 
         val spacing = 18
