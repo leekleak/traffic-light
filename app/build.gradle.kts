@@ -26,8 +26,8 @@ android {
         applicationId = "com.leekleak.trafficlight"
         minSdk = 28
         targetSdk = 37
-        versionCode = 35
-        versionName = "2.18"
+        versionCode = 37
+        versionName = "2.18.1"
         base.archivesName = "$namespace-$versionName"
 
         manifestPlaceholders["admobAppId"] = "ca-app-pub-3940256099942544~3347511713"

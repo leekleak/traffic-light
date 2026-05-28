@@ -1,0 +1,8 @@
+Note: This is the first release to remove support for Android 8.0 and 8.1. This was done due to a very low userbase and some major graphical bugs present when running the app on such devices.
+
+Bug fixes:
+- Fix notification icon text being clipped off
+- Fix some setting icons being sized incorrectly
+
+Translations:
+- Updated translations
