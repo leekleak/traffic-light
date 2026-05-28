@@ -101,4 +101,29 @@
     <string name="very_big">Labai daug</string>
     <string name="plan_notification_description">Rodo plano duomenis pranešimų juostoje.</string>
     <string name="unsupported_by_play_store_version">Funkcija nepalaikoma Google Play programėlės versijoje</string>
+    <string name="selected_item">Pasirinkta</string>
+    <string name="top_apps">Aktyviausios programėlės</string>
+    <string name="reset_day">Atsistatymo diena</string>
+    <string name="usage">Naudojimas</string>
+    <string name="safety">Saugumas</string>
+    <string name="safe">Saugu</string>
+    <string name="neutral">Neutralu</string>
+    <string name="unsafe">Nesaugu</string>
+    <string name="budget">Biudžetas</string>
+    <string name="daily">Kasdieninis</string>
+    <string name="notes">Užrašai</string>
+    <string name="color">Spalva</string>
+    <string name="plans">Planai</string>
+    <string name="separate_upload_and_download">Atskirti įkėlimą ir atsisiuntimą</string>
+    <string name="supporter_ads">Palaikytojo reklamos</string>
+    <string name="supporter_ads_description">Įjungti reklamas kūrimo palaikymui</string>
+    <string name="supporter_ads_disabled">Palaikytojo reklamos galimos tik Google Play versijoje</string>
+    <string name="ad">Reklama</string>
+    <string name="no_browser_found">Naršyklė nerasta</string>
+    <plurals name="resets_in_hours">
+        <item quantity="one">Atsinaujins po %d valandos</item>
+        <item quantity="few">Atsinaujins po %d valandų</item>
+        <item quantity="many">Atsinaujins po %d valandų</item>
+        <item quantity="other">Atsinaujins po %d valandų</item>
+    </plurals>
 </resources>

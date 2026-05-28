@@ -129,5 +129,5 @@
     <string name="supporter_ads_description">فعّل الإعلانات لدعم التطوير</string>
     <string name="supporter_ads_disabled">إعلانات الداعمين مدعومة فقط في إصدار متجر Play</string>
     <string name="ad">إعلان</string>
-    <string name="loading_ad">يحمل الإعلان...</string>
+    <string name="no_browser_found">لم يُعثر على متصفح</string>
 </resources>
