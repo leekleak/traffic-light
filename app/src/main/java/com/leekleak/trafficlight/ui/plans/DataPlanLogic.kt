@@ -51,7 +51,7 @@ class DataPlanLogic(private val networkUsageManager: NetworkUsageManager) {
     suspend fun getRemainingDailyBudget(dataPlan: DataPlan): Long {
         val planUsage = networkUsageManager.planUsage(dataPlan)
         val remaining = max(dataPlan.dataMax - planUsage, 0L)
-        val dailyBudget = remaining / dataPlan.getRemainingDays()
+        val dailyBudget = remaining / (dataPlan.getRemainingDuration().toDays() + 1)
         return dailyBudget
     }
 

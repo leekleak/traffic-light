@@ -72,15 +72,22 @@ data class DataPlan(
             return if (decrypted == NULL_SUBSCRIBER) null else decrypted
         }
 
-    fun getRemainingDays(): Int {
+    fun getRemainingDuration(): Duration {
         val now = LocalDateTime.now()
         val startDate = getStartDate(true)
-        return Duration.between(now, startDate).toDays().toInt() + 1
+        return Duration.between(now, startDate)
     }
 
     fun resetString(context: Context): String {
-        val remaining = getRemainingDays()
-        return context.resources.getQuantityString(R.plurals.resets_in_days, remaining, remaining)
+        val remaining = getRemainingDuration()
+
+        val days = remaining.toDays().toInt() + 1
+        return if (days == 1) {
+            val hours = remaining.toHours().toInt() + 1
+            context.resources.getQuantityString(R.plurals.resets_in_hours, hours, hours)
+        } else {
+            context.resources.getQuantityString(R.plurals.resets_in_days, days,days)
+        }
     }
 
     fun getStartDate(next: Boolean = false): LocalDateTime {
