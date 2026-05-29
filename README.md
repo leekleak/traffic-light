@@ -16,7 +16,9 @@ Traffic Light is an open-source tool for tracking your network usage while ensur
 
 | Method | [<img alt='Get it on GitHub' height="80" src='branding/badge_github.png'>](https://github.com/leekleak/traffic-light/releases) | [<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/com.leekleak.trafficlight/) | [<img alt='Get it on Play Store' height="80" src='branding/badge_playstore.png'>](https://play.google.com/store/apps/details?id=com.leekleak.trafficlight) |
 |--------|-------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| Delay | No delay | Delay depends on F-Droid maintainers | Delay until stable release |
+| Delay | No delay | Delay depends on F-Droid maintainers | 1-3 days after last stable GitHub release |
+| Features | Multi-SIM support | Multi-SIM support | - |
+
 
 ## Screenshots
 
