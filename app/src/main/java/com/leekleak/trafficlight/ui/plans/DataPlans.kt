@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -239,7 +240,10 @@ private fun LazyListScope.usageInsights() {
     item(key = "usage") {
         Column(Modifier.animateItem()) {
             CategoryTitleText(stringResource(R.string.usage))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                modifier = Modifier.height(IntrinsicSize.Max),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 val viewModel: DataPlansVM = koinViewModel()
                 val dataSafety by viewModel.dataSafety.collectAsState()
                 MiniCard(
