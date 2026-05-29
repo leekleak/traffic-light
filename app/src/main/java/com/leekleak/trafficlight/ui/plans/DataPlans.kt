@@ -56,6 +56,7 @@ import com.leekleak.trafficlight.integrations.Ad
 import com.leekleak.trafficlight.integrations.AdType
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.PlanConfigKey
+import com.leekleak.trafficlight.ui.settings.InfoCard
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.DataSize
@@ -140,7 +141,7 @@ private fun DataPlanPager(
                     navigator.goTo(PlanConfigKey(plan))
                 }
             } else {
-                UnconfiguredDataPlan(plan, true) {
+                UnconfiguredDataPlan(plan) {
                     navigator.goTo(PlanConfigKey(plan))
                 }
             }
@@ -214,6 +215,16 @@ private fun DataPlanInsights(contentPadding: PaddingValues) {
         state = listState
     ) {
         item{}
+        if ((dataPlan?.dataMax ?: 0) == 0L) {
+            item {
+                InfoCard(
+                    title = stringResource(R.string.hint),
+                    description = stringResource(R.string.press_the_card_to_configure_plan_data),
+                    icon = painterResource(R.drawable.info),
+                    backgroundColor = colorScheme.surface
+                )
+            }
+        }
         dataPlan?.let { plan ->
             if (plan.dataMax > 0) usageInsights()
             thisWeek()

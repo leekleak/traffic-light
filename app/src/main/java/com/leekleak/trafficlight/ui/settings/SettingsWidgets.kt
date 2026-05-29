@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,8 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonColors
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +36,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.copy
 import androidx.compose.ui.graphics.drawscope.rotate
@@ -436,6 +434,26 @@ fun PermissionCard(
     icon: Painter,
     onClick: () -> Unit,
 ) {
+    InfoCard(
+        title = title,
+        description = description,
+        icon = icon,
+        buttonIcon = painterResource(R.drawable.grant),
+        buttonDescription = stringResource(R.string.grant),
+        onClick = onClick,
+    )
+}
+
+@Composable
+fun InfoCard(
+    title: String,
+    description: String,
+    icon: Painter,
+    backgroundColor: Color = colorScheme.surfaceContainer,
+    buttonIcon: Painter? = null,
+    buttonDescription: String? = null,
+    onClick: (() -> Unit)? = null,
+) {
     Row (
         modifier = Modifier.height(IntrinsicSize.Max).padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -444,6 +462,7 @@ fun PermissionCard(
         Column(
             modifier = Modifier.weight(1f)
                 .card()
+                .background(backgroundColor)
                 .padding(16.dp),
             horizontalAlignment = Alignment.End
         ) {
@@ -451,48 +470,22 @@ fun PermissionCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(icon, "Icon")
+                Icon(icon, null)
                 Text(modifier = Modifier.fillMaxWidth(), fontWeight = FontWeight.Bold, text = title)
             }
             Text(modifier = Modifier.fillMaxWidth(), text = description)
         }
-        Column (
-            modifier = Modifier.fillMaxHeight().width(56.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ){
-            FilledIconButton (
-                modifier = Modifier.fillMaxSize(),
+        if (onClick != null && buttonIcon != null) {
+            FilledIconButton(
+                modifier = Modifier.fillMaxHeight().width(56.dp),
                 shape = MaterialTheme.shapes.large,
                 onClick = onClick,
             ) {
                 Icon(
-                    painterResource(R.drawable.grant),
-                    contentDescription = stringResource(R.string.grant),
+                    painter = buttonIcon,
+                    contentDescription = buttonDescription,
                 )
             }
-
         }
-    }
-}
-
-@Composable
-fun PermissionButton(
-    icon: Painter,
-    contentDescription: String,
-    enabled: Boolean = true,
-    colors: IconButtonColors = IconButtonDefaults.filledIconButtonColors(),
-    onClick: () -> Unit
-) {
-    FilledIconButton (
-        modifier = Modifier.size(56.dp),
-        colors = colors,
-        enabled = enabled,
-        shape = MaterialTheme.shapes.large,
-        onClick = onClick,
-    ) {
-        Icon(
-            icon,
-            contentDescription = contentDescription,
-        )
     }
 }

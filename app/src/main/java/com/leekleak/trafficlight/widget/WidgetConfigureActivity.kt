@@ -92,7 +92,7 @@ class WidgetConfigureActivity : ComponentActivity() {
                     }
                 }
                 if (it.dataMax != 0L) ConfiguredDataPlan(it) { onSelect() }
-                else UnconfiguredDataPlan(it, false) { onSelect() }
+                else UnconfiguredDataPlan(it) { onSelect() }
             }
         }
     }

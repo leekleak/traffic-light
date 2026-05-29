@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -71,7 +70,7 @@ fun ConfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
 }
 
 @Composable
-fun UnconfiguredDataPlan(dataPlan: DataPlan, showSettings: Boolean, onConfigure: () -> Unit) {
+fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
     val haptic = LocalHapticFeedback.current
     val networkUsageManager: NetworkUsageManager = koinInject()
     val fontFamilyGoogleSans = remember { longGoogleSans() }
@@ -108,20 +107,6 @@ fun UnconfiguredDataPlan(dataPlan: DataPlan, showSettings: Boolean, onConfigure:
                     }
                 }
             )
-        }
-        if (showSettings) {
-            FilledIconButton(
-                modifier = Modifier.align(Alignment.BottomEnd),
-                onClick = {
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    onConfigure()
-                }
-            ) {
-                Icon(
-                    painterResource(R.drawable.settings),
-                    contentDescription = stringResource(R.string.configure_plan)
-                )
-            }
         }
     }
 }
