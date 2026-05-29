@@ -24,8 +24,9 @@ class DataPlanLogic(private val networkUsageManager: NetworkUsageManager) {
         val difference = if (usageRatio.isNaN()) 0.0 else usageRatio - timeRatio
 
         return when {
-            difference <= 0.0 -> MiniCardState.POSITIVE
-            difference <= 0.1 -> MiniCardState.NEUTRAL
+            (usageRatio > 0.95) -> MiniCardState.NEGATIVE
+            (difference <= 0.0 || usageRatio < 0.1) -> MiniCardState.POSITIVE
+            (difference <= 0.1) -> MiniCardState.NEUTRAL
             else -> MiniCardState.NEGATIVE
         }
     }
