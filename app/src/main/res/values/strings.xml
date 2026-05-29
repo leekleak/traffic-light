@@ -23,7 +23,7 @@
     <string name="speed_in_bits">Show speed in bits</string>
     <string name="github" translatable="false">GitHub</string>
     <string name="github_description">Track development or report issues.</string>
-    <string name="version">Version %1$s</string>
+    <string name="version_short" translatable="false">v%1$s</string>
     <string name="force_fallback">Force fallback speed tracking</string>
     <string name="force_fallback_description">Helpful when using a buggy ROM or ethernet</string>
     <string name="fallback_unsupported">Fallback unsupported</string>
@@ -43,7 +43,7 @@
     <string name="behavior">Behavior</string>
     <string name="alt_vpn_workaround">Alternate VPN workaround</string>
     <string name="alt_vpn_workaround_description">Improves accuracy but breaks split tunneling.</string>
-    <string name="support_development">Support development</string>
+    <string name="donate">Donate</string>
     <string name="shizuku_not_running">Shizuku is not running</string>
     <string name="sim_card">SIM card</string>
     <string name="data_plans">Data Plans</string>
@@ -121,7 +121,7 @@
     <string name="separate_upload_and_download">Separate upload and download</string>
     <string name="supporter_ads">Supporter ADs</string>
     <string name="supporter_ads_description">Enable ADs to support development</string>
-    <string name="supporter_ads_disabled">Supporter ADs only supported by Google Play version</string>
+    <string name="supporter_ads_disabled">Only supported in Google Play version.</string>
     <string name="ad">Ad</string>
     <string name="no_browser_found">No browser found</string>
     <string name="persistent_notification">Persistent Notification</string>

@@ -23,14 +23,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.R
@@ -41,6 +45,7 @@ import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.NotificationSettingsKey
 import com.leekleak.trafficlight.ui.theme.Theme
 import com.leekleak.trafficlight.ui.theme.card
+import com.leekleak.trafficlight.ui.theme.googleSans
 import com.leekleak.trafficlight.util.CategoryTitleSmallText
 import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
@@ -212,25 +217,30 @@ fun Settings(paddingValues: PaddingValues) {
             )
         }
         item {
-            NavigatePreference(
-                title = stringResource(R.string.github),
-                summary = stringResource(R.string.github_description),
-                icon = painterResource(R.drawable.github),
-                onClick = { openLink(activity, "https://github.com/leekleak/traffic-light") },
-            )
+            Row (horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                NavigatePreference(
+                    modifier = Modifier.weight(1f),
+                    title = stringResource(R.string.github),
+                    icon = painterResource(R.drawable.github),
+                    onClick = { openLink(activity, "https://github.com/leekleak/traffic-light") },
+                    showControl = false
+                )
+                NavigatePreference(
+                    modifier = Modifier.weight(1f),
+                    title = stringResource(R.string.donate),
+                    icon = painterResource(R.drawable.donate),
+                    onClick = { openLink(activity, "https://github.com/sponsors/leekleak") },
+                    showControl = false
+                )
+            }
         }
         item {
-            NavigatePreference(
-                title = stringResource(R.string.support_development),
-                icon = painterResource(R.drawable.donate),
-                onClick = { openLink(activity, "https://github.com/sponsors/leekleak") },
-            )
-        }
-        item {
-            NavigatePreference(
-                title = stringResource(R.string.version, BuildConfig.VERSION_NAME),
-                icon = painterResource(R.drawable.version),
-                onClick = { viewModel.openAppSettings(activity) },
+            val fontFamily = remember { googleSans(weight = 600f, roundness = 100f) }
+            Text(
+                modifier = Modifier.fillMaxWidth().alpha(0.6f).padding(vertical = 4.dp),
+                fontFamily = fontFamily,
+                text = stringResource(R.string.version_short, BuildConfig.VERSION_NAME),
+                textAlign = TextAlign.Center
             )
         }
     }

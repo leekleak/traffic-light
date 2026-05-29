@@ -132,6 +132,7 @@ fun NavigatePreference(
     icon: Painter? = null,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
+    showControl: Boolean = true
 ) {
     Preference(
         modifier = modifier,
@@ -140,12 +141,17 @@ fun NavigatePreference(
         icon = icon,
         onClick = onClick,
         enabled = enabled,
-        controls = {
-            Icon(
-                painter = painterResource(R.drawable.arrow_forward),
-                contentDescription = null,
-            )
-        }
+        controls =
+            if (showControl) {
+                {
+                    Icon(
+                        painter = painterResource(R.drawable.arrow_forward),
+                        contentDescription = null,
+                    )
+                }
+            } else {
+                null
+            }
     )
 }
 
