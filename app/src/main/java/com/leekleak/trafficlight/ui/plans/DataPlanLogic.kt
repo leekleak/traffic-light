@@ -4,6 +4,7 @@ import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataType
+import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.DataUIDApp
 import com.leekleak.trafficlight.model.NetworkUsageManager
@@ -57,6 +58,7 @@ class DataPlanLogic(private val networkUsageManager: NetworkUsageManager) {
 
     suspend fun getRemainingDailyBudgetToday(dataPlan: DataPlan): Long {
         val dailyBudget = getRemainingDailyBudget(dataPlan)
+        if (dataPlan.interval == TimeInterval.DAY && dataPlan.intervalMultiplier == 1) return dailyBudget
         val todayUsage = networkUsageManager.totalDayUsage(
             query = UsageQuery(dataType = DataType.Mobile),
             startDate = LocalDate.now()

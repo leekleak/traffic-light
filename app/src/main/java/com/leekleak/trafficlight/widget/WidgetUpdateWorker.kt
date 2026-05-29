@@ -75,10 +75,8 @@ class WidgetUpdateReceiver: BroadcastReceiver(), KoinComponent {
             if (plan.safetyWarning) {
                 val safetyState = dataPlanLogic.getDataSafety(plan)
                 val stateInt = safetyState.ordinal
-                if (plan.lastSafetyState != -1 && plan.lastSafetyState != stateInt) {
-                    WarningNotificationHelper.showSafetyWarning(context, plan, safetyState)
-                }
                 if (plan.lastSafetyState != stateInt) {
+                    WarningNotificationHelper.showSafetyWarning(context, plan, safetyState)
                     dataPlanDao.add(plan.copy(lastSafetyState = stateInt))
                 }
             }

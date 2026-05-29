@@ -53,7 +53,7 @@ data class DataPlan(
     @ColumnInfo val budgetWarning: Boolean = false,
     @ColumnInfo val safetyWarning: Boolean = false,
 
-    @ColumnInfo val lastSafetyState: Int = -1,
+    @ColumnInfo val lastSafetyState: Int = 0,
     @ColumnInfo val budgetOvershotNotified: Boolean = false,
 
     /**
