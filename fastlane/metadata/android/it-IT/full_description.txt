@@ -1,0 +1,9 @@
+Traffic Light è uno strumento open source per tracciare l'utilizzo di rete garantendo una privacy totale. Ispirato da Internet Speed Meter e Glasswire.
+
+Funzionalità:
+- Gratuito e open source
+- Richiede pochi permessi
+- Usa poca batteria
+- Niente telemetria
+- Interfaccia stupenda
+- Veloce e moderno

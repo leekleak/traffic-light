@@ -1,0 +1,9 @@
+Semáforo (Traffic Light) é unha ferramenta de código aberto para facer seguimento do uso da túa rede garantindo unha privacidade total. Inspirada en Internet Speed Meter e GlassWire.
+
+Características:
+- Gratuíta e de código aberto
+- Usa poucos permisos
+- Consome pouca batería
+- Sen seguimento
+- Interface atractiva
+- Rápida e moderna
