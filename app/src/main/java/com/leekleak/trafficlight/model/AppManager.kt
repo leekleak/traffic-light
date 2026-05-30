@@ -73,14 +73,21 @@ class AppManager(context: Context, scope: CoroutineScope) {
             drawableResource = R.drawable.deleted,
             stringResource = R.string.removed_apps
         )
+        val otherUsersApp = DataUIDSpecial(
+            uid = UID_OTHER_USERS,
+            packageName = "",
+            drawableResource = R.drawable.group,
+            stringResource = R.string.other_users
+        )
         val unknownApp = DataUIDSpecial(
             uid = UID_UNKNOWN,
             packageName = "",
             drawableResource = R.drawable.help,
             stringResource = R.string.unknown
         )
-        val specialApps = listOf(allApp, tetheringApp, removedApp, unknownApp)
-        val specialUIDs = listOf(UID_REMOVED, UID_TETHERING)
+        val specialApps = listOf(allApp, tetheringApp, removedApp, otherUsersApp, unknownApp)
+        val specialUIDs = listOf(UID_REMOVED, UID_TETHERING, UID_OTHER_USERS)
+        const val UID_OTHER_USERS = -98
         const val UID_UNKNOWN = -99
         const val UID_ALL = -100
     }

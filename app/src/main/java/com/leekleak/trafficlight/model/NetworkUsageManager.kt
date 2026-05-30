@@ -15,6 +15,7 @@ import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HourUsage
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
+import com.leekleak.trafficlight.model.AppManager.Companion.otherUsersApp
 import com.leekleak.trafficlight.model.AppManager.Companion.specialUIDs
 import com.leekleak.trafficlight.model.AppManager.Companion.unknownApp
 import com.leekleak.trafficlight.ui.history.DateParams
@@ -91,7 +92,9 @@ class NetworkUsageManager(
         subscriberId: String?,
         type: DataType
     ): List<UsageData> = withContext(Dispatchers.IO) {
-        networkStatsManager.querySummary(type.queryIndex ?: return@withContext listOf(), subscriberId, startStamp, endStamp).use { summary ->
+        val queryIndex = type.queryIndex ?: return@withContext listOf()
+        val buckets = mutableListOf<UsageData>()
+        networkStatsManager.querySummary(queryIndex, subscriberId, startStamp, endStamp).use { summary ->
             val map = mutableMapOf<Int, UsageData>()
             while (summary.hasNextBucket()) {
                 val bucket = NetworkStats.Bucket()
@@ -100,8 +103,28 @@ class NetworkUsageManager(
                     old.copy(upload = old.upload + new.upload, download = old.download + new.download)
                 }
             }
-            return@withContext map.values.toList()
+            buckets.addAll(map.values)
         }
+
+        // Reconcile with device total to include other users/Secure Folder
+        val deviceTotal = networkStatsManager.querySummaryForDevice(queryIndex, subscriberId, startStamp, endStamp)
+        val diffUpload = maxOf(0L, deviceTotal.txBytes - buckets.sumOf { it.upload })
+        val diffDownload = maxOf(0L, deviceTotal.rxBytes - buckets.sumOf { it.download })
+
+        if (diffUpload > 0 || diffDownload > 0) {
+            val otherUsersUsage = buckets.find { it.uid == otherUsersApp.uid }
+            if (otherUsersUsage != null) {
+                val index = buckets.indexOf(otherUsersUsage)
+                buckets[index] = otherUsersUsage.copy(
+                    upload = otherUsersUsage.upload + diffUpload,
+                    download = otherUsersUsage.download + diffDownload
+                )
+            } else {
+                buckets.add(UsageData(diffUpload, diffDownload, otherUsersApp.uid))
+            }
+        }
+
+        return@withContext buckets
     }
 
     suspend fun getNetworkDataForTypeHourly(

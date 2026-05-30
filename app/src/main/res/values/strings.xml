@@ -68,6 +68,7 @@
     <string name="tethering">Tethering</string>
     <string name="removed_apps">Removed apps</string>
     <string name="all_apps">All apps</string>
+    <string name="other_users">Other users</string>
     <string name="prediction">Prediction</string>
     <string name="trend">Trend</string>
     <string name="top_apps">Top apps</string>
