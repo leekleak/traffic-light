@@ -62,7 +62,7 @@ class PermissionManager(
                     shizukuServicesProvider.enable()
                 } else if (!setting) {
                     shizukuServicesProvider.disable()
-                    updateSimDataBasic(scope, dataPlanRepository)
+                    updateSimDataBasic(dataPlanRepository)
                 }
             }
         }
