@@ -128,6 +128,7 @@ import com.leekleak.trafficlight.database.DataPlanExtra
 import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.DataUID
+import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.model.search
 import com.leekleak.trafficlight.ui.navigation.Navigator
@@ -170,6 +171,7 @@ import kotlin.math.roundToInt
 fun PlanConfig(currentPlan: DataPlan) {
     val appManager: AppManager = koinInject()
     val dataPlanDao: DataPlanDao = koinInject()
+    val networkUsageManager: NetworkUsageManager = koinInject()
 
     val scope = rememberCoroutineScope()
     val navigator: Navigator = koinInject()
@@ -196,6 +198,8 @@ fun PlanConfig(currentPlan: DataPlan) {
                 ExtendedFloatingActionButton (
                     onClick = {
                         scope.launch(Dispatchers.IO) {
+                            newPlan.resetUsage()
+                            newPlan.updateUsage(networkUsageManager)
                             newPlan = newPlan.copy(lastSafetyState = -1, budgetOvershotNotified = false)
                             dataPlanDao.add(newPlan)
                             haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
@@ -233,7 +237,7 @@ fun PlanConfig(currentPlan: DataPlan) {
             }
             categoryTitleSmall { stringResource(R.string.type) }
             typeConfig(newPlan) { newPlan = it }
-            categoryTitleSmall { stringResource(R.string.plans) }
+            categoryTitleSmall { stringResource(R.string.extras) }
             extrasConfig(newPlan) { newPlan = it }
             categoryTitleSmall { stringResource(R.string.zero_rated_apps) }
             item {

@@ -133,6 +133,7 @@
     <string name="allow_app_to_send_notifications">Allow app to send notifications</string>
     <string name="hint">Hint</string>
     <string name="press_the_card_to_configure_plan_data">Press the card to configure plan data.</string>
+    <string name="extras">Extras</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

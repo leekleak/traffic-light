@@ -116,6 +116,12 @@ data class DataPlan(
         }
     }
 
+    fun resetUsage() {
+        mainUsage.dataUsed = 0
+        extras.forEach { it.dataUsed = 0 }
+        lastUpdateStamp = 0
+    }
+
     suspend fun updateUsage(networkUsageManager: NetworkUsageManager) {
         val now = System.currentTimeMillis()
 
