@@ -216,7 +216,7 @@ private fun DataPlanInsights(contentPadding: PaddingValues) {
         state = listState
     ) {
         item{}
-        if ((dataPlan?.mainUsage?.dataAmount ?: 0) == 0L) {
+        if (dataPlan != null && (dataPlan?.mainUsage?.dataAmount ?: 0) == 0L ) {
             item {
                 InfoCard(
                     title = stringResource(R.string.hint),

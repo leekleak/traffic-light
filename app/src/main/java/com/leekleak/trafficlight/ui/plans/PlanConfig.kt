@@ -233,6 +233,8 @@ fun PlanConfig(currentPlan: DataPlan) {
             }
             categoryTitleSmall { stringResource(R.string.type) }
             typeConfig(newPlan) { newPlan = it }
+            categoryTitleSmall { stringResource(R.string.plans) }
+            extrasConfig(newPlan) { newPlan = it }
             categoryTitleSmall { stringResource(R.string.zero_rated_apps) }
             item {
                 val suspiciousApps by produceState(emptyList()) { value = appManager.getAllApps() }
@@ -409,7 +411,6 @@ fun PlanConfig(currentPlan: DataPlan) {
                     }
                 }
             }
-            extrasConfig(newPlan) { newPlan = it }
         }
         PageTitle (true, hazeState, stringResource(R.string.configure_plan))
     }
@@ -901,7 +902,6 @@ fun PlanSizeConfig(size: Double, onSizeUpdate: (Float) -> Unit) {
 }
 
 private fun LazyListScope.extrasConfig(newPlan: DataPlan, onPlanChange: (plan: DataPlan) -> Unit) {
-    categoryTitleSmall { stringResource(R.string.plans) }
     item {
         val haptic = LocalHapticFeedback.current
         var showAddExtraDialog by remember { mutableStateOf(false) }
