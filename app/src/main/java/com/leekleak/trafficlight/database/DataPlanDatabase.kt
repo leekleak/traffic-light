@@ -135,8 +135,16 @@ data class DataPlan(
         lastUpdateStamp = 0
     }
 
+    private fun calculateNextReset(from: Long): Long {
+        val date = fromTimestamp(from)
+        return when (interval) {
+            TimeInterval.MONTH -> date.plusMonths(1).toTimestamp()
+            TimeInterval.DAY -> date.plusDays(intervalMultiplier.toLong()).toTimestamp()
+        }
+    }
+
     suspend fun updateUsage(networkUsageManager: NetworkUsageManager) = mutex.withLock {
-        val now = System.currentTimeMillis()
+        val now = LocalDateTime.now().toTimestamp()
 
         val currentStart = getStartDate(false).toTimestamp()
         val currentEnd = getStartDate(true).toTimestamp()
@@ -145,11 +153,9 @@ data class DataPlan(
             lastUpdateStamp = currentStart
         }
 
-        if (mainStartStamp != currentStart) {
-            mainDataUsed = 0
+        if (mainExpiryStamp == Long.MAX_VALUE || mainExpiryStamp == 0L) {
             mainStartStamp = currentStart
             mainExpiryStamp = currentEnd
-            lastUpdateStamp = maxOf(lastUpdateStamp, currentStart)
         }
 
         val usageBuckets = networkUsageManager.queryDetails(DataType.Mobile.queryIndex!!, decryptedID, lastUpdateStamp, now)
@@ -158,8 +164,8 @@ data class DataPlan(
         while (usageBuckets.hasNextBucket()) {
             val bucket = NetworkStats.Bucket()
             usageBuckets.getNextBucket(bucket)
-            if (bucket.endTimeStamp >= now) {
-                bestEnd = bucket.startTimeStamp
+            if (bucket.endTimeStamp > now) {
+                bestEnd = maxOf(bestEnd, bucket.startTimeStamp)
                 break
             }
             bestEnd = bucket.endTimeStamp
@@ -177,14 +183,25 @@ data class DataPlan(
                     }
                 }
             }
-            val sortedStamps = stamps.sorted()
 
+            var nextReset = mainExpiryStamp
+            while (nextReset in lastUpdateStamp..bestEnd) {
+                stamps.add(nextReset)
+                nextReset = calculateNextReset(nextReset)
+            }
+
+            val sortedStamps = stamps.sorted()
             val updatedExtras = extras.toMutableList()
-            var totalMainUsageIncrease = 0L
 
             for (i in 0 until sortedStamps.size - 1) {
                 val start = sortedStamps[i]
                 val end = sortedStamps[i + 1]
+
+                if (start >= mainExpiryStamp) {
+                    mainDataUsed = 0
+                    mainStartStamp = mainExpiryStamp
+                    mainExpiryStamp = calculateNextReset(mainStartStamp)
+                }
 
                 val usageData = networkUsageManager.getNetworkDataForType(start, end, decryptedID, DataType.Mobile)
                 var usageToDistribute = usageData.filter { !excludedApps.contains(it.uid) }.sumOf { it.total }
@@ -200,15 +217,20 @@ data class DataPlan(
                     usageToDistribute -= used
                     updatedExtras[idx] = extra.copy(dataUsed = extra.dataUsed + used)
                 }
-                totalMainUsageIncrease += usageToDistribute
+                mainDataUsed += usageToDistribute
             }
 
             extras = updatedExtras
-            mainDataUsed += totalMainUsageIncrease
-
             lastUpdateStamp = bestEnd
         }
-        
+
+        if (mainStartStamp < currentStart) {
+            mainDataUsed = 0
+            mainStartStamp = currentStart
+            mainExpiryStamp = currentEnd
+            lastUpdateStamp = maxOf(lastUpdateStamp, currentStart)
+        }
+
         extras = extras.map { extra ->
             if (!extra.expired && extra.expiryStamp <= now) {
                 extra.copy(expired = true)

@@ -291,6 +291,115 @@ class DataPlanTest {
         assertEquals("Total max sum mismatch", 6000L, plan.getTotalMax())
     }
 
+    @Test
+    fun `complex scenario with multiple extras and cycle reset`() = runTest {
+        val startOct = LocalDateTime.of(2023, 10, 1, 0, 0)
+        val startNov = LocalDateTime.of(2023, 11, 1, 0, 0)
+
+        // Initial state at Oct 15
+        val tOct15 = LocalDateTime.of(2023, 10, 15, 12, 0)
+        setCurrentTime(tOct15)
+
+        val extraA = DataPlanExtra(id = "extraA", dataAmount = 1000L, dataUsed = 0L, startStamp = startOct.toTimestamp(), expiryStamp = LocalDateTime.of(2023, 10, 20, 12, 0).toTimestamp())
+        val extraB = DataPlanExtra(id = "extraB", dataAmount = 2000L, dataUsed = 0L, startStamp = startOct.toTimestamp(), expiryStamp = LocalDateTime.of(2023, 11, 5, 12, 0).toTimestamp())
+
+        val plan = DataPlan(
+            hashedSubscriberID = "hash",
+            encryptedSubscriberID = "enc",
+            startDate = startOct.toTimestamp(),
+            mainDataAmount = 5000L,
+            mainDataUsed = 500L,
+            mainStartStamp = startOct.toTimestamp(),
+            mainExpiryStamp = startNov.toTimestamp(),
+            extras = listOf(extraA, extraB),
+            lastUpdateStamp = tOct15.toTimestamp()
+        )
+
+        val mockStats = mockk<NetworkStats>(relaxed = true)
+        every { networkUsageManager.queryDetails(any(), any(), any(), any()) } returns mockStats
+
+        // --- Update 1: Oct 18. Usage 600MB ---
+        val tOct18 = LocalDateTime.of(2023, 10, 18, 12, 0)
+        setCurrentTime(tOct18)
+
+        var bucketCount = 0
+        val bucketSlot = slot<NetworkStats.Bucket>()
+        every { mockStats.hasNextBucket() } answers { bucketCount < 1 }
+        every { mockStats.getNextBucket(capture(bucketSlot)) } answers {
+            setBucketFields(bucketSlot.captured, startTime = tOct15.toTimestamp(), endTime = tOct18.toTimestamp())
+            bucketCount++
+            true
+        }
+
+        coEvery { networkUsageManager.getNetworkDataForType(tOct15.toTimestamp(), tOct18.toTimestamp(), any(), any()) } returns listOf(
+            UsageData(upload = 200L, download = 400L)
+        )
+
+        plan.updateUsage(networkUsageManager)
+
+        assertEquals("Update 1: Extra A should have taken usage", 600L, plan.extras.find { it.id == "extraA" }?.dataUsed)
+        assertEquals("Update 1: mainDataUsed should be unchanged", 500L, plan.mainDataUsed)
+
+        // --- Update 2: Oct 22. Usage 1000MB total from Oct 18 to Oct 22 ---
+        // Split by Extra A expiry at Oct 20.
+        // Oct 18 - Oct 20: 400MB (fills Extra A)
+        // Oct 20 - Oct 22: 600MB (goes to Extra B)
+        val tOct20 = LocalDateTime.of(2023, 10, 20, 12, 0)
+        val tOct22 = LocalDateTime.of(2023, 10, 22, 12, 0)
+        setCurrentTime(tOct22)
+
+        bucketCount = 0
+        every { mockStats.hasNextBucket() } answers { bucketCount < 1 }
+        every { mockStats.getNextBucket(capture(bucketSlot)) } answers {
+            setBucketFields(bucketSlot.captured, startTime = tOct18.toTimestamp(), endTime = tOct22.toTimestamp())
+            bucketCount++
+            true
+        }
+
+        coEvery { networkUsageManager.getNetworkDataForType(tOct18.toTimestamp(), tOct20.toTimestamp(), any(), any()) } returns listOf(
+            UsageData(upload = 100L, download = 300L)
+        )
+        coEvery { networkUsageManager.getNetworkDataForType(tOct20.toTimestamp(), tOct22.toTimestamp(), any(), any()) } returns listOf(
+            UsageData(upload = 200L, download = 400L)
+        )
+
+        plan.updateUsage(networkUsageManager)
+
+        val updatedExtraA = plan.extras.find { it.id == "extraA" }!!
+        val updatedExtraB = plan.extras.find { it.id == "extraB" }!!
+
+        assertEquals("Update 2: Extra A should be full", 1000L, updatedExtraA.dataUsed)
+        assertTrue("Update 2: Extra A should be marked expired", updatedExtraA.expired)
+        assertEquals("Update 2: Extra B should have taken usage", 600L, updatedExtraB.dataUsed)
+        assertEquals("Update 2: mainDataUsed should be unchanged", 500L, plan.mainDataUsed)
+
+        // --- Update 3: Nov 2 ---
+        // Plan reset at Nov 1.
+        // Usage from Nov 1 to Nov 2: 300MB.
+        val tNov2 = LocalDateTime.of(2023, 11, 2, 12, 0)
+        setCurrentTime(tNov2)
+
+        bucketCount = 0
+        every { mockStats.hasNextBucket() } answers { bucketCount < 1 }
+        every { mockStats.getNextBucket(capture(bucketSlot)) } answers {
+            setBucketFields(bucketSlot.captured, startTime = tOct22.toTimestamp(), endTime = tNov2.toTimestamp())
+            bucketCount++
+            true
+        }
+
+        coEvery { networkUsageManager.getNetworkDataForType(tOct22.toTimestamp(), startNov.toTimestamp(), any(), any()) } returns emptyList()
+        coEvery { networkUsageManager.getNetworkDataForType(startNov.toTimestamp(), tNov2.toTimestamp(), any(), any()) } returns listOf(
+            UsageData(upload = 100L, download = 200L)
+        )
+
+        plan.updateUsage(networkUsageManager)
+
+        assertEquals("Update 3: mainDataUsed should be reset", 0L, plan.mainDataUsed)
+        assertEquals("Update 3: mainStartStamp should be Nov 1", startNov.toTimestamp(), plan.mainStartStamp)
+        assertEquals("Update 3: Extra B should have taken more usage", 900L, plan.extras.find { it.id == "extraB" }?.dataUsed)
+        assertEquals("Update 3: lastUpdateStamp should be Nov 2", tNov2.toTimestamp(), plan.lastUpdateStamp)
+    }
+
     private fun setBucketFields(bucket: NetworkStats.Bucket, uid: Int = 0, txBytes: Long = 0, rxBytes: Long = 0, startTime: Long = 0, endTime: Long = 0) {
         val fields = NetworkStats.Bucket::class.java.declaredFields
         fields.forEach { field ->
