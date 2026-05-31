@@ -160,7 +160,6 @@ import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.LocalTime
-import java.util.Locale
 import kotlin.math.E
 import kotlin.math.max
 import kotlin.math.pow
@@ -181,10 +180,7 @@ fun PlanConfig(currentPlan: DataPlan) {
     val haptic = LocalHapticFeedback.current
     val activity = LocalActivity.current
 
-    var newPlan by remember { mutableStateOf(DataPlan("", "", uiBackground = 3)) }
-    LaunchedEffect(currentPlan) {
-        newPlan = currentPlan
-    }
+    var newPlan by remember(currentPlan) { mutableStateOf(currentPlan.copy()) }
 
     Scaffold(
         bottomBar = {
@@ -228,11 +224,11 @@ fun PlanConfig(currentPlan: DataPlan) {
         ) {
             item {
                 val size by remember { derivedStateOf {
-                    DataSize(currentPlan.mainUsage.dataAmount).getAsUnit(DataSizeUnit.GB)
+                    DataSize(newPlan.mainDataAmount).getAsUnit(DataSizeUnit.GB)
                 } }
                 PlanSizeConfig (size = size) {
                     val data = DataSize((it * DataSizeUnit.GB.toBits()).toLong())
-                    newPlan = newPlan.copy(mainUsage = newPlan.mainUsage.copy(dataAmount = data.byteValue))
+                    newPlan = newPlan.copy(mainDataAmount = data.byteValue)
                 }
             }
             categoryTitleSmall { stringResource(R.string.type) }
@@ -822,13 +818,13 @@ fun PlanSizeConfig(size: Double, onSizeUpdate: (Float) -> Unit) {
         }
 
         val formatter = remember { DecimalFormat("0.#") }
-        val numberFormat = NumberFormat.getInstance(Locale.US)
+        val numberFormat = remember { NumberFormat.getInstance() }
         val fieldState = remember(size) {
             TextFieldState(formatter.format(size))
         }
 
         LaunchedEffect(fieldState.text) {
-            val number = numberFormat.parse(fieldState.text.toString())
+            val number = try { numberFormat.parse(fieldState.text.toString()) } catch (_: Exception) { null }
             if (number != null) {
                 onSizeUpdate(number.toFloat())
                 scale.animateTo(

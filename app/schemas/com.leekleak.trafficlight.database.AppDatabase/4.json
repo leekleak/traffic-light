@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "8e2655efe2c0a9244d547cfd64c866a8",
+    "identityHash": "77e263f47d1a3cdf447cacc23b44cbee",
     "entities": [
       {
         "tableName": "DataPlan",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`hashedSubscriberID` TEXT NOT NULL, `encryptedSubscriberID` TEXT NOT NULL, `simIndex` INTEGER NOT NULL, `carrierName` TEXT NOT NULL, `startDate` INTEGER NOT NULL, `interval` TEXT NOT NULL, `intervalMultiplier` INTEGER NOT NULL, `excludedApps` TEXT NOT NULL, `notification` INTEGER NOT NULL, `liveNotification` INTEGER NOT NULL, `budgetWarning` INTEGER NOT NULL, `safetyWarning` INTEGER NOT NULL, `lastSafetyState` INTEGER NOT NULL, `budgetOvershotNotified` INTEGER NOT NULL, `mainUsage` TEXT NOT NULL, `extras` TEXT NOT NULL, `lastUpdateStamp` INTEGER NOT NULL, `uiBackground` INTEGER NOT NULL, `uiColor` INTEGER NOT NULL, `note` TEXT NOT NULL, PRIMARY KEY(`hashedSubscriberID`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`hashedSubscriberID` TEXT NOT NULL, `encryptedSubscriberID` TEXT NOT NULL, `simIndex` INTEGER NOT NULL, `carrierName` TEXT NOT NULL, `startDate` INTEGER NOT NULL, `interval` TEXT NOT NULL, `intervalMultiplier` INTEGER NOT NULL, `excludedApps` TEXT NOT NULL, `notification` INTEGER NOT NULL, `liveNotification` INTEGER NOT NULL, `budgetWarning` INTEGER NOT NULL, `safetyWarning` INTEGER NOT NULL, `lastSafetyState` INTEGER NOT NULL, `budgetOvershotNotified` INTEGER NOT NULL, `mainDataAmount` INTEGER NOT NULL, `mainDataUsed` INTEGER NOT NULL, `mainStartStamp` INTEGER NOT NULL, `mainExpiryStamp` INTEGER NOT NULL, `extras` TEXT NOT NULL, `lastUpdateStamp` INTEGER NOT NULL, `uiBackground` INTEGER NOT NULL, `uiColor` INTEGER NOT NULL, `note` TEXT NOT NULL, PRIMARY KEY(`hashedSubscriberID`))",
         "fields": [
           {
             "fieldPath": "hashedSubscriberID",
@@ -93,9 +93,27 @@
             "notNull": true
           },
           {
-            "fieldPath": "mainUsage",
-            "columnName": "mainUsage",
-            "affinity": "TEXT",
+            "fieldPath": "mainDataAmount",
+            "columnName": "mainDataAmount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mainDataUsed",
+            "columnName": "mainDataUsed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mainStartStamp",
+            "columnName": "mainStartStamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mainExpiryStamp",
+            "columnName": "mainExpiryStamp",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -139,7 +157,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8e2655efe2c0a9244d547cfd64c866a8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '77e263f47d1a3cdf447cacc23b44cbee')"
     ]
   }
 }

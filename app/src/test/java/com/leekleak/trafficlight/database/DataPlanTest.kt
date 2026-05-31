@@ -84,7 +84,10 @@ class DataPlanTest {
             hashedSubscriberID = "hash",
             encryptedSubscriberID = "enc",
             startDate = startStamp,
-            mainUsage = DataPlanMain(dataAmount = 5000L, dataUsed = 0L, startStamp = startStamp, expiryStamp = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp()),
+            mainDataAmount = 5000L,
+            mainDataUsed = 0L,
+            mainStartStamp = startStamp,
+            mainExpiryStamp = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp(),
             extras = listOf(extra1),
             lastUpdateStamp = startStamp
         )
@@ -108,7 +111,7 @@ class DataPlanTest {
         plan.updateUsage(networkUsageManager)
 
         assertEquals("Extra usage attribution failed", 1000L, plan.extras[0].dataUsed)
-        assertEquals("Main usage attribution failed", 500L, plan.mainUsage.dataUsed)
+        assertEquals("Main usage attribution failed", 500L, plan.mainDataUsed)
     }
 
     @Test
@@ -146,7 +149,10 @@ class DataPlanTest {
             hashedSubscriberID = "hash",
             encryptedSubscriberID = "enc",
             startDate = octStart,
-            mainUsage = DataPlanMain(dataAmount = 5000L, dataUsed = 2000L, startStamp = octStart, expiryStamp = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp()),
+            mainDataAmount = 5000L,
+            mainDataUsed = 2000L,
+            mainStartStamp = octStart,
+            mainExpiryStamp = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp(),
             lastUpdateStamp = octStart
         )
 
@@ -157,8 +163,8 @@ class DataPlanTest {
         plan.updateUsage(networkUsageManager)
 
         val novStart = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp()
-        assertEquals("Cycle start mismatch", novStart, plan.mainUsage.startStamp)
-        assertEquals("Cycle usage not cleared", 0L, plan.mainUsage.dataUsed)
+        assertEquals("Cycle start mismatch", novStart, plan.mainStartStamp)
+        assertEquals("Cycle usage not cleared", 0L, plan.mainDataUsed)
         assertTrue("lastUpdateStamp not moved forward", plan.lastUpdateStamp >= novStart)
     }
 
@@ -173,7 +179,10 @@ class DataPlanTest {
             hashedSubscriberID = "hash",
             encryptedSubscriberID = "enc",
             startDate = startStamp,
-            mainUsage = DataPlanMain(dataAmount = 5000L, dataUsed = 1000L, startStamp = startStamp, expiryStamp = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp()),
+            mainDataAmount = 5000L,
+            mainDataUsed = 1000L,
+            mainStartStamp = startStamp,
+            mainExpiryStamp = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp(),
             lastUpdateStamp = lastUpdate
         )
 
@@ -203,7 +212,10 @@ class DataPlanTest {
             hashedSubscriberID = "hash",
             encryptedSubscriberID = "enc",
             startDate = startStamp,
-            mainUsage = DataPlanMain(dataAmount = 5000L, dataUsed = 500L, startStamp = startStamp, expiryStamp = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp()),
+            mainDataAmount = 5000L,
+            mainDataUsed = 500L,
+            mainStartStamp = startStamp,
+            mainExpiryStamp = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp(),
             extras = listOf(extra1),
             lastUpdateStamp = now.minusHours(1).toTimestamp()
         )
@@ -266,7 +278,10 @@ class DataPlanTest {
         val plan = DataPlan(
             hashedSubscriberID = "hash",
             encryptedSubscriberID = "enc",
-            mainUsage = DataPlanMain(dataAmount = 5000L, dataUsed = 0L, startStamp = 0L, expiryStamp = 0L),
+            mainDataAmount = 5000L,
+            mainDataUsed = 0L,
+            mainStartStamp = 0L,
+            mainExpiryStamp = 0L,
             extras = listOf(
                 DataPlanExtra(dataAmount = 1000L, dataUsed = 0L, startStamp = 0L, expiryStamp = 0L, expired = false),
                 DataPlanExtra(dataAmount = 2000L, dataUsed = 0L, startStamp = 0L, expiryStamp = 0L, expired = true)

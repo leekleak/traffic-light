@@ -91,7 +91,7 @@ class WidgetConfigureActivity : ComponentActivity() {
                         finish()
                     }
                 }
-                if (it.mainUsage.dataAmount != 0L) ConfiguredDataPlan(it) { onSelect() }
+                if (it.mainDataAmount != 0L) ConfiguredDataPlan(it) { onSelect() }
                 else UnconfiguredDataPlan(it) { onSelect() }
             }
         }

@@ -21,7 +21,10 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
                 `safetyWarning` INTEGER NOT NULL, 
                 `lastSafetyState` INTEGER NOT NULL, 
                 `budgetOvershotNotified` INTEGER NOT NULL, 
-                `mainUsage` TEXT NOT NULL, 
+                `mainDataAmount` INTEGER NOT NULL, 
+                `mainDataUsed` INTEGER NOT NULL, 
+                `mainStartStamp` INTEGER NOT NULL, 
+                `mainExpiryStamp` INTEGER NOT NULL, 
                 `extras` TEXT NOT NULL, 
                 `lastUpdateStamp` INTEGER NOT NULL, 
                 `uiBackground` INTEGER NOT NULL, 
@@ -36,15 +39,16 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
                 `hashedSubscriberID`, `encryptedSubscriberID`, `simIndex`, `carrierName`, 
                 `startDate`, `interval`, `intervalMultiplier`, `excludedApps`, 
                 `notification`, `liveNotification`, `budgetWarning`, `safetyWarning`, 
-                `lastSafetyState`, `budgetOvershotNotified`, `mainUsage`, `extras`, 
-                `lastUpdateStamp`, `uiBackground`, `uiColor`, `note`
+                `lastSafetyState`, `budgetOvershotNotified`, 
+                `mainDataAmount`, `mainDataUsed`, `mainStartStamp`, `mainExpiryStamp`,
+                `extras`, `lastUpdateStamp`, `uiBackground`, `uiColor`, `note`
             )
             SELECT 
                 `hashedSubscriberID`, `encryptedSubscriberID`, `simIndex`, `carrierName`, 
                 `startDate`, `interval`, `intervalMultiplier`, `excludedApps`, 
                 `notification`, `liveNotification`, 0, 0, 
                 -1, 0,
-                '{"dataAmount":' || `dataMax` || ',"dataUsed":0,"startStamp":' || `startDate` || ',"expiryStamp":9223372036854775807,"id":"MAIN","expired":false}', 
+                `dataMax`, 0, `startDate`, 9223372036854775807,
                 '[]', 0, `uiBackground`, 0, ''
             FROM `DataPlan`
         """.trimIndent())
