@@ -8,6 +8,7 @@ import android.content.Context.ALARM_SERVICE
 import android.content.Intent
 import androidx.glance.appwidget.updateAll
 import com.leekleak.trafficlight.database.DataPlanDao
+import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.services.notifications.WarningNotificationHelper
 import com.leekleak.trafficlight.ui.plans.DataPlanLogic
 import kotlinx.coroutines.CoroutineScope
@@ -44,6 +45,7 @@ class WidgetUpdateReceiver: BroadcastReceiver(), KoinComponent {
     private val applicationScope: CoroutineScope by inject()
     private val dataPlanDao: DataPlanDao by inject()
     private val dataPlanLogic: DataPlanLogic by inject()
+    private val networkUsageManager: NetworkUsageManager by inject()
 
     override fun onReceive(context: Context, intent: Intent) {
         val pendingResult = goAsync()
@@ -62,6 +64,7 @@ class WidgetUpdateReceiver: BroadcastReceiver(), KoinComponent {
     private suspend fun checkWarnings(context: Context) {
         val plans = dataPlanDao.getActivePlans()
         plans.forEach { plan ->
+            plan.updateUsage(networkUsageManager)
             if (plan.budgetWarning) {
                 val remainingBudget = dataPlanLogic.getRemainingDailyBudgetToday(plan)
                 if (remainingBudget <= 0L && !plan.budgetOvershotNotified) {
@@ -81,5 +84,6 @@ class WidgetUpdateReceiver: BroadcastReceiver(), KoinComponent {
                 }
             }
         }
+        dataPlanDao.addAll(plans)
     }
 }

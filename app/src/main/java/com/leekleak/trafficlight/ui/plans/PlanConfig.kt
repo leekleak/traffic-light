@@ -86,6 +86,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -223,11 +224,11 @@ fun PlanConfig(currentPlan: DataPlan) {
         ) {
             item {
                 val size by remember { derivedStateOf {
-                    DataSize(currentPlan.dataMax).getAsUnit(DataSizeUnit.GB)
+                    DataSize(currentPlan.mainUsage.dataAmount).getAsUnit(DataSizeUnit.GB)
                 } }
                 PlanSizeConfig (size = size) {
                     val data = DataSize((it * DataSizeUnit.GB.toBits()).toLong())
-                    newPlan = newPlan.copy(dataMax = data.byteValue)
+                    newPlan = newPlan.copy(mainUsage = newPlan.mainUsage.copy(dataAmount = data.byteValue))
                 }
             }
             categoryTitleSmall { stringResource(R.string.type) }
@@ -929,9 +930,10 @@ private fun LazyListScope.extrasConfig(newPlan: DataPlan, onPlanChange: (plan: D
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         val dataSizeStr = DataSize(extra.dataAmount).toString()
-                        val expiryStr = extra.expiryDate?.let { " • Exp: ${fromTimestamp(it).toLocalDate()}" } ?: ""
+                        val startStr = fromTimestamp(extra.startStamp).toLocalDate().toString()
+                        val expiryStr = if (extra.expiryStamp != Long.MAX_VALUE) " • Exp: ${fromTimestamp(extra.expiryStamp).toLocalDate()}" else ""
                         Text(
-                            text = "+$dataSizeStr$expiryStr",
+                            text = "+$dataSizeStr ($startStr$expiryStr)",
                             style = MaterialTheme.typography.titleMedium,
                         )
                     }
@@ -974,21 +976,41 @@ private fun AddExtraDialog(
 ) {
     val amountState = rememberTextFieldState("1")
     var unit by remember { mutableStateOf(DataSizeUnit.GB) }
+    var startDate by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var expiryDate by remember { mutableStateOf<Long?>(null) }
-    var showDatePicker by remember { mutableStateOf(false) }
+    var showStartDatePicker by remember { mutableStateOf(false) }
+    var showExpiryDatePicker by remember { mutableStateOf(false) }
 
-    if (showDatePicker) {
-        val datePickerState = rememberDatePickerState()
+    if (showStartDatePicker) {
+        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = startDate)
         DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
+            onDismissRequest = { showStartDatePicker = false },
             confirmButton = {
                 TextButton(onClick = {
-                    expiryDate = datePickerState.selectedDateMillis
-                    showDatePicker = false
+                    startDate = datePickerState.selectedDateMillis ?: System.currentTimeMillis()
+                    showStartDatePicker = false
                 }) { Text(stringResource(R.string.save)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text(stringResource(R.string.close)) }
+                TextButton(onClick = { showStartDatePicker = false }) { Text(stringResource(R.string.close)) }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    if (showExpiryDatePicker) {
+        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = expiryDate)
+        DatePickerDialog(
+            onDismissRequest = { showExpiryDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    expiryDate = datePickerState.selectedDateMillis
+                    showExpiryDatePicker = false
+                }) { Text(stringResource(R.string.save)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showExpiryDatePicker = false }) { Text(stringResource(R.string.close)) }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -1004,7 +1026,10 @@ private fun AddExtraDialog(
                 onConfirm(
                     DataPlanExtra(
                         dataAmount = amountBytes,
-                        expiryDate = expiryDate
+                        dataUsed = 0L,
+                        startStamp = startDate,
+                        expiryStamp = expiryDate ?: Long.MAX_VALUE,
+                        expired = false
                     )
                 )
                 onDismiss()
@@ -1049,12 +1074,31 @@ private fun AddExtraDialog(
                 }
 
                 Column {
+                    Text("Start Date", style = MaterialTheme.typography.labelMedium)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .card()
+                            .clickable { showStartDatePicker = true }
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(painterResource(R.drawable.calendar_month), null)
+                        Text(
+                            text = fromTimestamp(startDate).toLocalDate().toString(),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+
+                Column {
                     Text("Expiry Date (Optional)", style = MaterialTheme.typography.labelMedium)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .card()
-                            .clickable { showDatePicker = true }
+                            .clickable { showExpiryDatePicker = true }
                             .padding(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)

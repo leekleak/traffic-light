@@ -1,5 +1,6 @@
 package com.leekleak.trafficlight.database
 
+import android.app.usage.NetworkStats
 import android.content.Context
 import androidx.room.ColumnInfo
 import androidx.room.Dao
@@ -14,6 +15,7 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan.Companion.NULL_SUBSCRIBER
+import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.flow.Flow
@@ -23,6 +25,7 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.math.min
 
 enum class TimeInterval {
     DAY,
@@ -39,10 +42,7 @@ data class DataPlan(
 
     @ColumnInfo val simIndex: Int = -1,
     @ColumnInfo val carrierName: String = "",
-
-    @ColumnInfo val dataMax: Long = 0,
-
-    // Recurring data plan settings
+    
     @ColumnInfo val startDate: Long = LocalDate.now().withDayOfMonth(1).atStartOfDay().toTimestamp(), // LocalDate as timestamp
     @ColumnInfo val interval: TimeInterval = TimeInterval.MONTH,
     @ColumnInfo val intervalMultiplier: Int = 1,
@@ -55,11 +55,12 @@ data class DataPlan(
     @ColumnInfo val budgetWarning: Boolean = false,
     @ColumnInfo val safetyWarning: Boolean = false,
 
-    @ColumnInfo val lastSafetyState: Int = 0,
+    @ColumnInfo val lastSafetyState: Int = -1,
     @ColumnInfo val budgetOvershotNotified: Boolean = false,
 
+    @ColumnInfo var mainUsage: DataPlanMain = DataPlanMain(0, 0, startDate, Long.MAX_VALUE),
     @ColumnInfo val extras: List<DataPlanExtra> = listOf(),
-    @ColumnInfo val lastUpdateStamp: Long = System.currentTimeMillis(),
+    @ColumnInfo var lastUpdateStamp: Long = 0,
     /**
      * Customization
      */
@@ -115,34 +116,120 @@ data class DataPlan(
         }
     }
 
-    fun getEffectiveDataMax(at: LocalDateTime = LocalDateTime.now()): Long {
-        val cycleStart = getStartDate().toTimestamp()
-        val now = at.toTimestamp()
-        val activeExtras = extras.filter { extra ->
-            if (extra.expiryDate != null) {
-                now < extra.expiryDate
-            } else {
-                extra.addedDate >= cycleStart
+    suspend fun updateUsage(networkUsageManager: NetworkUsageManager) {
+        val now = System.currentTimeMillis()
+
+        val currentStart = getStartDate(false).toTimestamp()
+        val currentEnd = getStartDate(true).toTimestamp()
+
+        if (lastUpdateStamp == 0L) {
+            lastUpdateStamp = currentStart
+        }
+
+        if (mainUsage.startStamp != currentStart) {
+            mainUsage = DataPlanMain(
+                dataAmount = mainUsage.dataAmount,
+                dataUsed = 0,
+                startStamp = currentStart,
+                expiryStamp = currentEnd,
+            )
+            lastUpdateStamp = maxOf(lastUpdateStamp, currentStart)
+        }
+
+        val activeExtras = extras.filter { !it.expired }.sortedBy { it.expiryStamp }
+        val usageBuckets = networkUsageManager.queryDetails(DataType.Mobile.queryIndex!!, decryptedID, lastUpdateStamp, now)
+
+        var bestEnd = lastUpdateStamp
+        while (usageBuckets.hasNextBucket()) {
+            val bucket = NetworkStats.Bucket()
+            usageBuckets.getNextBucket(bucket)
+            if (bucket.endTimeStamp >= now) {
+                bestEnd = bucket.startTimeStamp
+                break
+            }
+            bestEnd = bucket.endTimeStamp
+        }
+
+        if (bestEnd > lastUpdateStamp) {
+            val usageData = networkUsageManager.getNetworkDataForType(lastUpdateStamp, bestEnd, decryptedID, DataType.Mobile)
+            var usageToDistribute = usageData.filter { !excludedApps.contains(it.uid) }.sumOf { it.total }
+
+            for (extra in activeExtras) {
+                val used = min(extra.dataRemaining, usageToDistribute)
+                usageToDistribute -= used
+                extra.dataUsed += used
+            }
+
+            mainUsage.dataUsed += usageToDistribute // Push remaining usage to mainUsage
+
+            lastUpdateStamp = bestEnd
+        }
+        
+        for (extra in extras) {
+            if (!extra.expired && extra.expiryStamp <= now) {
+                extra.expired = true
             }
         }
-        return dataMax + activeExtras.sumOf { it.dataAmount }
     }
 
-    val effectiveDataMax: Long
-        get() = getEffectiveDataMax()
+    fun getTotalMax(): Long {
+        return mainUsage.dataAmount + extras.filter { !it.expired }.sumOf { it.dataAmount }
+    }
 
-    companion object {
+    suspend fun getUsage(networkUsageManager: NetworkUsageManager): Long {
+        updateUsage(networkUsageManager)
+
+        val activeExtras = extras.filter { !it.expired }
+        val committedUsage = mainUsage.dataUsed + activeExtras.sumOf { it.dataUsed }
+
+        val now = System.currentTimeMillis()
+        var volatileUsage = 0L
+        if (now > lastUpdateStamp) {
+            val data = networkUsageManager.getNetworkDataForType(lastUpdateStamp, now, decryptedID, DataType.Mobile)
+            volatileUsage = data.filter { !excludedApps.contains(it.uid) }.sumOf { it.total }
+        }
+
+        return committedUsage + volatileUsage
+    }
+  companion object {
         const val NULL_SUBSCRIBER = "__shizuku_disabled_sim_fallback__"
     }
 }
 
+interface IDataBucket {
+    val dataAmount: Long
+    var dataUsed: Long
+    val startStamp: Long
+    val expiryStamp: Long
+    val id: String
+    var expired: Boolean
+
+    val dataRemaining: Long
+        get() = if (dataAmount <= 0) Long.MAX_VALUE else dataAmount - dataUsed
+
+    val timeRange: LongRange
+        get() = startStamp..expiryStamp
+}
+
 @Serializable
 data class DataPlanExtra(
-    val id: String = UUID.randomUUID().toString(),
-    val dataAmount: Long,
-    val expiryDate: Long? = null,
-    val addedDate: Long = System.currentTimeMillis()
-)
+    override val dataAmount: Long,
+    override var dataUsed: Long = 0,
+    override val startStamp: Long,
+    override val expiryStamp: Long,
+    override val id: String = UUID.randomUUID().toString(),
+    override var expired: Boolean = false
+) : IDataBucket
+
+@Serializable
+data class DataPlanMain(
+    override val dataAmount: Long,
+    override var dataUsed: Long = 0,
+    override val startStamp: Long,
+    override val expiryStamp: Long,
+    override val id: String = "MAIN",
+    override var expired: Boolean = false
+) : IDataBucket
 
 @Dao
 interface DataPlanDao {
@@ -184,6 +271,20 @@ class Converters {
     fun toListInt(data: String): List<Int> {
         if (data == "") return listOf()
         return data.split(",").mapNotNull { it.trim().toIntOrNull() }
+    }
+
+    @TypeConverter
+    fun fromMainUsage(bucket: DataPlanMain): String {
+        return Json.encodeToString(bucket)
+    }
+
+    @TypeConverter
+    fun toMainUsage(data: String): DataPlanMain {
+        return try {
+            Json.decodeFromString(data)
+        } catch (_: Exception) {
+            DataPlanMain(0, 0, 0, 0)
+        }
     }
 
     @TypeConverter

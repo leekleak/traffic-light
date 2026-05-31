@@ -9,7 +9,6 @@ import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DataDirection.Bidirectional
 import com.leekleak.trafficlight.database.DataDirection.Download
 import com.leekleak.trafficlight.database.DataDirection.Upload
-import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HourUsage
@@ -21,6 +20,7 @@ import com.leekleak.trafficlight.model.AppManager.Companion.unknownApp
 import com.leekleak.trafficlight.ui.history.DateParams
 import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.getName
+import com.leekleak.trafficlight.util.overlapRatio
 import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -71,19 +71,6 @@ class NetworkUsageManager(
                     return@sumOf 0
                 }
             }
-    }
-
-    suspend fun planUsage(dataPlan: DataPlan): Long {
-        val now = LocalDateTime.now()
-        val startDate = dataPlan.getStartDate()
-        val startStamp = startDate.toTimestamp()
-        val endStamp = now.toTimestamp()
-        val subscriberId = dataPlan.decryptedID
-
-        val networkData = getNetworkDataForType(startStamp, endStamp, subscriberId, DataType.Mobile)
-        val stats = networkData.filter { !dataPlan.excludedApps.contains(it.uid) }.sumOf { it.total }
-
-        return stats
     }
 
     suspend fun getNetworkDataForType(
@@ -243,18 +230,6 @@ class NetworkUsageManager(
         return result
     }
 
-    fun overlapRatio(range1: ClosedRange<Long>, range2: ClosedRange<Long>): Double {
-        val overlapStart = maxOf(range1.start, range2.start)
-        val overlapEnd = minOf(range1.endInclusive, range2.endInclusive)
-
-        val overlapLength = maxOf(0L, overlapEnd - overlapStart).toDouble()
-        val range1Length = range1.endInclusive - range1.start
-
-        if (range1Length == 0L) return if (range2.contains(range1.start)) 1.0 else 0.0
-
-        return overlapLength / (range1Length.toDouble())
-    }
-
     fun daysUsage(
         startDate: LocalDate,
         endDate: LocalDate,
@@ -306,5 +281,9 @@ class NetworkUsageManager(
             }.awaitAll()
         }
         return data.toList()
+    }
+
+    fun queryDetails(queryIndex: Int, subscriberId: String?, startStamp: Long, endStamp: Long): NetworkStats {
+        return networkStatsManager.queryDetails(queryIndex, subscriberId, startStamp, endStamp)
     }
 }

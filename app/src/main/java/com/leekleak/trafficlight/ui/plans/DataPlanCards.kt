@@ -76,7 +76,7 @@ fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
     val fontFamilyGoogleSans = remember { longGoogleSans() }
     val fontFamilyDoHyeon = remember { doHyeonFont() }
 
-    val dataUsage by produceState(0L) { value = networkUsageManager.planUsage(dataPlan) }
+    val dataUsage by produceState(0L) { value = dataPlan.getUsage(networkUsageManager) }
     val usage = DataSize(dataUsage).getAsUnit(DataSizeUnit.GB)
     val formatter = remember { DecimalFormat("0.##") }
     BoxBackground(
@@ -163,7 +163,7 @@ private fun BoxScope.ConfiguredDataPlanContent(dataPlan: DataPlan) {
     val networkUsageManager: NetworkUsageManager = koinInject()
     val fontFamilyGoogleSans = remember { longGoogleSans() }
     val fontFamilyDoHyeon = remember { doHyeonFont() }
-    val dataUsage by produceState(0L) { value = networkUsageManager.planUsage(dataPlan) }
+    val dataUsage by produceState(0L) { value = dataPlan.getUsage(networkUsageManager) }
     val usage by remember(dataUsage) {
         derivedStateOf {
             DataSize(dataUsage).getAsUnit(DataSizeUnit.GB)
@@ -171,7 +171,7 @@ private fun BoxScope.ConfiguredDataPlanContent(dataPlan: DataPlan) {
     }
 
     val formatter = remember { DecimalFormat("0.##") }
-    val data = remember(dataPlan) { formatter.format(DataSize(dataPlan.dataMax).getAsUnit(DataSizeUnit.GB)) }
+    val data = remember(dataPlan) { formatter.format(DataSize(dataPlan.getTotalMax()).getAsUnit(DataSizeUnit.GB)) }
 
     Box (Modifier.align(Alignment.Center)) {
         Text(
@@ -204,9 +204,10 @@ private fun BoxScope.ConfiguredDataPlanContent(dataPlan: DataPlan) {
         LinearWavyProgressIndicator(
             modifier = Modifier.fillMaxWidth(),
             progress = {
-                if (dataPlan.dataMax == 0L) 0f
+                val totalMax = dataPlan.getTotalMax()
+                if (totalMax == 0L) 0f
                 else (lineUsage.byteValue
-                    .toDouble() / dataPlan.dataMax.toDouble()).toFloat()
+                    .toDouble() / totalMax.toDouble()).toFloat()
                     .coerceIn(0f, 1f)
             },
         )

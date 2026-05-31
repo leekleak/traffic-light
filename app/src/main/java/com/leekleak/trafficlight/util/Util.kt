@@ -372,3 +372,17 @@ inline val shelfShape: RoundedCornerShape
         bottomStart = CornerSize(0.dp)
     )
 
+/**
+ * Calculates what percentage of ratio 1 is covered by ratio 2
+ */
+fun overlapRatio(range1: ClosedRange<Long>, range2: ClosedRange<Long>): Double {
+    val overlapStart = maxOf(range1.start, range2.start)
+    val overlapEnd = minOf(range1.endInclusive, range2.endInclusive)
+
+    val overlapLength = maxOf(0L, overlapEnd - overlapStart).toDouble()
+    val range1Length = range1.endInclusive - range1.start
+
+    if (range1Length == 0L) return if (range2.contains(range1.start)) 1.0 else 0.0
+
+    return overlapLength / (range1Length.toDouble())
+}

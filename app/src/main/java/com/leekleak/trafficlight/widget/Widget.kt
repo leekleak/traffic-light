@@ -78,9 +78,9 @@ class Widget: GlanceAppWidget() {
             state[SUBSCRIBER_ID_HASH]?.let { dataPlanDao.getByHash(it) }
         }?: return
 
-        val usage = networkUsageManager.planUsage(dataPlan)
+        val usage = dataPlan.getUsage(networkUsageManager)
         val usageSize = DataSize(usage).getAsUnit(DataSizeUnit.GB)
-        val dataMax = DataSize(dataPlan.dataMax).getAsUnit(DataSizeUnit.GB)
+        val dataMax = DataSize(dataPlan.getTotalMax()).getAsUnit(DataSizeUnit.GB)
         val formatter = DecimalFormat("0.##")
 
         val usageString = formatter.format(usageSize)
@@ -116,7 +116,7 @@ class Widget: GlanceAppWidget() {
         provideContent {
             GlanceTheme {
                 BoxBackground(dataPlan, currentState(SIM_NUMBER) ?: 0, currentState(CARRIER_NAME) ?: "") {
-                    if (dataPlan.dataMax != 0L) {
+                    if (dataPlan.mainUsage.dataAmount != 0L) {
                         ConfiguredWidgetContent(
                             usageString = usageString,
                             quotaString = quotaString,
