@@ -166,21 +166,28 @@ class NetworkUsageManagerTest {
         val query1 = UsageQuery(DataType.Mobile)
         val query2 = UsageQuery(DataType.Wifi)
 
-        val mockSummaryMobile = mockk<NetworkStats>(relaxed = true)
-        val mockSummaryWifi = mockk<NetworkStats>(relaxed = true)
+        val startTime = start.atStartOfDay().toTimestamp()
 
-        every { networkStatsManager.queryDetails(any(), any(), any(), any()) } returnsMany listOf(mockSummaryMobile, mockSummaryWifi)
+        // Mobile (queryIndex 0)
+        every { networkStatsManager.querySummaryForDevice(0, any(), any(), any()) } answers {
+            val s = it.invocation.args[2] as Long
+            val e = it.invocation.args[3] as Long
+            val bucket = NetworkStats.Bucket()
+            if (s == startTime) {
+                setBucketFields(bucket, uid = -1, txBytes = 1000L, rxBytes = 1000L, startTime = s, endTime = e)
+            } else {
+                setBucketFields(bucket, uid = -1, txBytes = 0, rxBytes = 0, startTime = s, endTime = e)
+            }
+            bucket
+        }
 
-        val startTime = start.toTimestamp()
-
-        var mobileCount = 0
-        val mobileSlot = slot<NetworkStats.Bucket>()
-        every { mockSummaryMobile.hasNextBucket() } answers { mobileCount < 1 }
-        every { mockSummaryMobile.getNextBucket(capture(mobileSlot)) } answers {
-            setBucketFields(mobileSlot.captured, uid = 1001, txBytes = 1000L, rxBytes = 1000L,
-                startTime = startTime, endTime = startTime + 3600000)
-            mobileCount++
-            true
+        // Wifi (queryIndex 1)
+        every { networkStatsManager.querySummaryForDevice(1, any(), any(), any()) } answers {
+            val s = it.invocation.args[2] as Long
+            val e = it.invocation.args[3] as Long
+            val bucket = NetworkStats.Bucket()
+            setBucketFields(bucket, uid = -1, txBytes = 0, rxBytes = 0, startTime = s, endTime = e)
+            bucket
         }
 
         val result = networkUsageManager.getAllHourUsage(dateParams, query1, query2)
@@ -200,31 +207,32 @@ class NetworkUsageManagerTest {
         
         val query1 = UsageQuery(DataType.Mobile)
         val query2 = UsageQuery(DataType.Wifi)
-
-        val mockSummaryMobile = mockk<NetworkStats>(relaxed = true)
-        val mockSummaryWifi = mockk<NetworkStats>(relaxed = true)
-        
-        // Return Mobile summary first, then Wifi summary
-        every { networkStatsManager.queryDetails(any(), any(), any(), any()) } returnsMany listOf(mockSummaryMobile, mockSummaryWifi)
         
         val dayStartTime = start.toTimestamp()
+        val hours2 = 1000 * 60 * 60 * 2L
         
         // Bucket: 01:15 to 02:15 (Duration: 1 hour)
-        // This bucket spans across the 02:00 boundary between Slot 0 (00:00-02:00) and Slot 1 (02:00-04:00).
         val bucketStart = dayStartTime + (1 * 3600 + 15 * 60) * 1000L
         val bucketEnd = dayStartTime + (2 * 3600 + 15 * 60) * 1000L
         
-        var mobileCount = 0
-        val mobileSlot = slot<NetworkStats.Bucket>()
-        every { mockSummaryMobile.hasNextBucket() } answers { mobileCount < 1 }
-        every { mockSummaryMobile.getNextBucket(capture(mobileSlot)) } answers {
-            setBucketFields(mobileSlot.captured, uid = 1001, txBytes = 500L, rxBytes = 500L, 
-                startTime = bucketStart, endTime = bucketEnd)
-            mobileCount++
-            true
+        every { networkStatsManager.querySummaryForDevice(0, any(), any(), any()) } answers {
+            val s = it.invocation.args[2] as Long
+            val bucket = NetworkStats.Bucket()
+            if (s == dayStartTime) {
+                setBucketFields(bucket, uid = -1, txBytes = 500L, rxBytes = 500L, 
+                    startTime = bucketStart, endTime = bucketEnd)
+            } else {
+                setBucketFields(bucket, uid = -1, txBytes = 0, rxBytes = 0, startTime = s, endTime = s + hours2)
+            }
+            bucket
         }
 
-        every { mockSummaryWifi.hasNextBucket() } returns false
+        every { networkStatsManager.querySummaryForDevice(1, any(), any(), any()) } answers {
+            val s = it.invocation.args[2] as Long
+            val bucket = NetworkStats.Bucket()
+            setBucketFields(bucket, uid = -1, txBytes = 0, rxBytes = 0, startTime = s, endTime = s + hours2)
+            bucket
+        }
 
         val result = networkUsageManager.getAllHourUsage(dateParams, query1, query2)
         
