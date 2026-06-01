@@ -86,7 +86,7 @@
     <plurals name="resets_in_days">
         <item quantity="one">Reinicia amanhã</item>
         <item quantity="many">Reinicia em %d dias</item>
-        <item quantity="other">Reinicia em (n == 0 || n == 1) ? 0 : ((n != 0 &amp;&amp; n % 1000000 == 0) ? 1 : 2) dias</item>
+        <item quantity="other">Reinicia em %d dias</item>
     </plurals>
     <string name="trend">Tendência</string>
     <string name="notification_channels">Configurações dos Canais de Notificação</string>
