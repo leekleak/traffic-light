@@ -1,0 +1,3 @@
+Bug fixes:
+- Fix crash due to an incorrect Portuguese translation
+
