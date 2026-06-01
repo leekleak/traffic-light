@@ -121,24 +121,46 @@ class NetworkUsageManager(
         type: DataType,
         uid: Int?
     ): List<UsageData> = withContext(Dispatchers.IO) {
-        if (uid == null) {
-            networkStatsManager.queryDetails(type.queryIndex ?: return@withContext listOf(), subscriberId, startStamp, endStamp)
-        } else {
-            networkStatsManager.queryDetailsForUid(type.queryIndex ?: return@withContext listOf(), subscriberId, startStamp, endStamp, uid)
-        }.use { summary ->
-            val map = mutableMapOf<LocalDateTime, UsageData>()
+        val typeQuery = type.queryIndex ?: return@withContext listOf()
+        val map = mutableMapOf<LocalDateTime, UsageData>()
+        if (uid != null) {
+            val summary = networkStatsManager.queryDetailsForUid(typeQuery, subscriberId, startStamp, endStamp, uid)
             while (summary.hasNextBucket()) {
                 val bucket = NetworkStats.Bucket()
                 summary.getNextBucket(bucket)
                 val end = fromTimestamp(bucket.endTimeStamp)
                 val start = fromTimestamp(bucket.startTimeStamp)
 
-                map.merge(start, UsageData(bucket.txBytes, bucket.rxBytes, start = start, end = end)) { old, new ->
-                    old.copy(upload = old.upload + new.upload, download = old.download + new.download)
+                map.merge(start, UsageData(bucket.txBytes, bucket.rxBytes, start = start, end = end))
+                { old, new ->
+                    old.copy(
+                        upload = old.upload + new.upload,
+                        download = old.download + new.download
+                    )
                 }
             }
-            return@withContext map.values.toList()
+            summary.close()
+        } else {
+            val hours2 = 1000 * 60 * 60 * 2L
+            coroutineScope {
+                (startStamp..<endStamp step hours2).map { i ->
+                    async(Dispatchers.IO) {
+                        val bucket = networkStatsManager.querySummaryForDevice(typeQuery, subscriberId, i, i + hours2)
+                        val end = fromTimestamp(bucket.endTimeStamp)
+                        val start = fromTimestamp(bucket.startTimeStamp)
+                        UsageData(bucket.txBytes, bucket.rxBytes, start = start, end = end)
+                    }
+                }.awaitAll()
+            }.forEach { usage ->
+                map.merge(usage.start, usage) { old, new ->
+                    old.copy(
+                        upload = old.upload + new.upload,
+                        download = old.download + new.download
+                    )
+                }
+            }
         }
+        return@withContext map.values.toList()
     }
 
     suspend fun getAllAppUsage(
