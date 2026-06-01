@@ -56,6 +56,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -72,6 +73,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDialog
+import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
@@ -114,6 +116,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -539,7 +542,6 @@ private fun LazyListScope.typeConfig(newPlan: DataPlan, onPlanChange: (plan: Dat
 private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: LocalTime, multiplier: Int) -> Unit) {
     var selectedDate by remember { mutableStateOf(fromTimestamp(newPlan.startDate).toLocalDate()) }
     var selectedTime by remember { mutableStateOf(fromTimestamp(newPlan.startDate).toLocalTime()) }
-    val fontFamily = remember { googleSans(weight = 600f) }
 
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = newPlan.startDate,
@@ -552,14 +554,77 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
     )
 
     val textFieldState = rememberTextFieldState((newPlan.intervalMultiplier).toString())
-    var datePickerVisible by remember { mutableStateOf(false) }
-    var timePickerVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(selectedDate, selectedTime, textFieldState.text) {
         val multiplier = max(textFieldState.text.toString().toIntOrNull() ?: 1, 1)
         onChange(selectedDate, selectedTime, multiplier)
     }
 
+    DateAndTimePicker(
+        selectedDate,
+        selectedTime,
+        datePickerState,
+        timePickerState,
+        onDateSelect = {selectedDate = it},
+        onTimeSelect = {selectedTime = it}
+    ) { fontFamily ->
+        item {
+            Column(
+                modifier = Modifier.width(IntrinsicSize.Max)
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(painterResource(R.drawable.length), null)
+                    Text(
+                        text = stringResource(R.string.length),
+                        fontFamily = fontFamily,
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp)
+                        .clip(MaterialTheme.shapes.medium)
+                        .background(MaterialTheme.colorScheme.primary)
+                        .padding(horizontal = 6.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)
+                ) {
+                    BasicTextField(
+                        modifier = Modifier.width(IntrinsicSize.Min),
+                        state = textFieldState,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        inputTransformation = InputTransformation.maxLength(3),
+                        textStyle = MaterialTheme.typography.titleMediumEmphasized.copy(color = MaterialTheme.colorScheme.onPrimary),
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onPrimary),
+                    )
+                    Text(
+                        text = stringResource(R.string.days),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.titleMediumEmphasized
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DateAndTimePicker(
+    selectedDate: LocalDate?,
+    selectedTime: LocalTime?,
+    datePickerState: DatePickerState,
+    timePickerState: TimePickerState,
+    onDateSelect: (date: LocalDate) -> Unit,
+    onTimeSelect: (time: LocalTime) -> Unit,
+    extraItems: LazyListScope.(font: FontFamily) -> Unit = {}
+) {
+    val fontFamily = remember { googleSans(weight = 600f) }
+    var datePickerVisible by remember { mutableStateOf(false) }
+    var timePickerVisible by remember { mutableStateOf(false) }
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(8.dp),
@@ -611,47 +676,7 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                 }
             }
         }
-        item {
-            Column(
-                modifier = Modifier.width(IntrinsicSize.Max)
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(painterResource(R.drawable.length), null)
-                    Text(
-                        text = stringResource(R.string.length),
-                        fontFamily = fontFamily,
-                    )
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 2.dp)
-                        .clip(MaterialTheme.shapes.medium)
-                        .background(MaterialTheme.colorScheme.primary)
-                        .padding(horizontal = 6.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)
-                ) {
-                    BasicTextField(
-                        modifier = Modifier.width(IntrinsicSize.Min),
-                        state = textFieldState,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        inputTransformation = InputTransformation.maxLength(3),
-                        textStyle = MaterialTheme.typography.titleMediumEmphasized.copy(color = MaterialTheme.colorScheme.onPrimary),
-                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onPrimary),
-                    )
-                    Text(
-                        text = stringResource(R.string.days),
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        style = MaterialTheme.typography.titleMediumEmphasized
-                    )
-                }
-            }
-        }
+        extraItems(fontFamily)
     }
     if (datePickerVisible) {
         DatePickerDialog(
@@ -662,7 +687,7 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                         ?: false,
                     onClick = {
                         datePickerVisible = false
-                        selectedDate = datePickerState.getSelectedDate()
+                        datePickerState.getSelectedDate()?.let { onDateSelect(it) }
                     }
                 ) {
                     Text(stringResource(R.string.save))
@@ -682,7 +707,7 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                 Button(
                     onClick = {
                         timePickerVisible = false
-                        selectedTime = LocalTime.of(timePickerState.hour, timePickerState.minute)
+                        onTimeSelect(LocalTime.of(timePickerState.hour, timePickerState.minute))
                     }
                 ) {
                     Text(stringResource(R.string.save))
@@ -976,46 +1001,20 @@ private fun AddExtraDialog(
 ) {
     val amountState = rememberTextFieldState("1")
     var unit by remember { mutableStateOf(DataSizeUnit.GB) }
-    var startDate by remember { mutableLongStateOf(System.currentTimeMillis()) }
-    var expiryDate by remember { mutableStateOf<Long?>(null) }
-    var showStartDatePicker by remember { mutableStateOf(false) }
-    var showExpiryDatePicker by remember { mutableStateOf(false) }
+    var startDate by remember { mutableLongStateOf(LocalDate.now().toTimestamp()) }
+    var expiryDate by remember { mutableLongStateOf(startDate + 30L * 24 * 60 * 60 * 1000) }
 
-    if (showStartDatePicker) {
-        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = startDate)
-        DatePickerDialog(
-            onDismissRequest = { showStartDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    startDate = datePickerState.selectedDateMillis ?: System.currentTimeMillis()
-                    showStartDatePicker = false
-                }) { Text(stringResource(R.string.save)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showStartDatePicker = false }) { Text(stringResource(R.string.close)) }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
+    val startDatePickerState = rememberDatePickerState(initialSelectedDateMillis = startDate)
+    val startTimePickerState = rememberTimePickerState(
+        initialHour = fromTimestamp(startDate).hour,
+        initialMinute = fromTimestamp(startDate).minute
+    )
 
-    if (showExpiryDatePicker) {
-        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = expiryDate)
-        DatePickerDialog(
-            onDismissRequest = { showExpiryDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    expiryDate = datePickerState.selectedDateMillis
-                    showExpiryDatePicker = false
-                }) { Text(stringResource(R.string.save)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showExpiryDatePicker = false }) { Text(stringResource(R.string.close)) }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
+    val expiryDatePickerState = rememberDatePickerState(initialSelectedDateMillis = expiryDate)
+    val expiryTimePickerState = rememberTimePickerState(
+        initialHour = fromTimestamp(expiryDate).hour,
+        initialMinute = fromTimestamp(expiryDate).minute
+    )
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -1028,7 +1027,7 @@ private fun AddExtraDialog(
                         dataAmount = amountBytes,
                         dataUsed = 0L,
                         startStamp = startDate,
-                        expiryStamp = expiryDate ?: Long.MAX_VALUE,
+                        expiryStamp = expiryDate,
                         expired = false
                     )
                 )
@@ -1044,80 +1043,68 @@ private fun AddExtraDialog(
         },
         title = { Text("Add Extra") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Column {
-                    Text("Amount", style = MaterialTheme.typography.labelMedium)
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Amount", style = MaterialTheme.typography.titleMedium)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    BasicTextField(
+                        state = amountState,
+                        modifier = Modifier
+                            .weight(1f)
+                            .card()
+                            .padding(8.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+                        lineLimits = TextFieldLineLimits.SingleLine
+                    )
+                    Button(
+                        onClick = {
+                            unit = if (unit == DataSizeUnit.GB) DataSizeUnit.MB else DataSizeUnit.GB
+                        },
+                        shape = MaterialTheme.shapes.medium,
+                        contentPadding = PaddingValues(horizontal = 12.dp)
                     ) {
-                        BasicTextField(
-                            state = amountState,
-                            modifier = Modifier
-                                .weight(1f)
-                                .card()
-                                .padding(8.dp),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
-                            cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface)
-                        )
-                        Button(
-                            onClick = {
-                                unit = if (unit == DataSizeUnit.GB) DataSizeUnit.MB else DataSizeUnit.GB
-                            },
-                            shape = MaterialTheme.shapes.medium,
-                            contentPadding = PaddingValues(horizontal = 12.dp)
-                        ) {
-                            Text(unit.name)
-                        }
+                        Text(unit.name)
                     }
                 }
 
-                Column {
-                    Text("Start Date", style = MaterialTheme.typography.labelMedium)
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .card()
-                            .clickable { showStartDatePicker = true }
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(painterResource(R.drawable.calendar_month), null)
-                        Text(
-                            text = fromTimestamp(startDate).toLocalDate().toString(),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
+                Text("Start", style = MaterialTheme.typography.titleMedium)
+                Box(Modifier.clip(MaterialTheme.shapes.medium).background(MaterialTheme.colorScheme.surface)) {
+                    DateAndTimePicker(
+                        selectedDate = fromTimestamp(startDate).toLocalDate(),
+                        selectedTime = fromTimestamp(startDate).toLocalTime(),
+                        datePickerState = startDatePickerState,
+                        timePickerState = startTimePickerState,
+                        onDateSelect = { date ->
+                            val time = fromTimestamp(startDate).toLocalTime()
+                            startDate = date.atStartOfDay().toTimestamp() + time.toSecondOfDay() * 1000
+                        },
+                        onTimeSelect = { time ->
+                            val date = fromTimestamp(startDate).toLocalDate()
+                            startDate = date.atStartOfDay().toTimestamp() + time.toSecondOfDay() * 1000
+                        }
+                    )
                 }
 
-                Column {
-                    Text("Expiry Date (Optional)", style = MaterialTheme.typography.labelMedium)
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .card()
-                            .clickable { showExpiryDatePicker = true }
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(painterResource(R.drawable.calendar_month), null)
-                        Text(
-                            text = expiryDate?.let { fromTimestamp(it).toLocalDate().toString() } ?: "No expiry",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        if (expiryDate != null) {
-                            Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
-                                Icon(
-                                    painterResource(R.drawable.close),
-                                    null,
-                                    Modifier.clickable { expiryDate = null }
-                                )
-                            }
+                Text("Expiry", style = MaterialTheme.typography.titleMedium)
+                Box(Modifier.clip(MaterialTheme.shapes.medium).background(MaterialTheme.colorScheme.surface)) {
+                    DateAndTimePicker(
+                        selectedDate = fromTimestamp(expiryDate).toLocalDate(),
+                        selectedTime = fromTimestamp(expiryDate).toLocalTime(),
+                        datePickerState = expiryDatePickerState,
+                        timePickerState = expiryTimePickerState,
+                        onDateSelect = { date ->
+                            val time = fromTimestamp(expiryDate).toLocalTime()
+                            expiryDate = date.atStartOfDay().toTimestamp() + time.toSecondOfDay() * 1000
+                        },
+                        onTimeSelect = { time ->
+                            val date = fromTimestamp(expiryDate).toLocalDate()
+                            expiryDate = date.atStartOfDay().toTimestamp() + time.toSecondOfDay() * 1000
                         }
-                    }
+                    )
                 }
             }
         }
