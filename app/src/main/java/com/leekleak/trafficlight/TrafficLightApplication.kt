@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.NotificationManager.IMPORTANCE_DEFAULT
 import android.app.NotificationManager.IMPORTANCE_HIGH
+import android.app.NotificationManager.IMPORTANCE_MIN
 import com.leekleak.trafficlight.database.databaseModule
 import com.leekleak.trafficlight.integrations.integrationsModule
 import com.leekleak.trafficlight.model.managerModule
@@ -61,6 +62,15 @@ class TrafficLightApplication : Application() {
             setShowBadge(false)
         }
 
+        val speedChannelLowSpeed = NotificationChannel(
+            SpeedNotification.NOTIFICATION_CHANNEL_ID_LOW_SPEED,
+            getString(R.string.persistent_notification_low_speed),
+            IMPORTANCE_MIN
+        ).apply {
+            setShowBadge(false)
+        }
+
+        
         val planChannel = NotificationChannel(
             PlanNotification.NOTIFICATION_CHANNEL_ID,
             getString(R.string.plan_notification),
@@ -84,6 +94,7 @@ class TrafficLightApplication : Application() {
             listOf(
                 speedChannel,
                 speedChannelSilent,
+                speedChannelLowSpeed,
                 planChannel,
                 planWarningChannel
             )

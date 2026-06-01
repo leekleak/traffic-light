@@ -24,6 +24,8 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.services.notifications.SpeedNotification.Companion.NOTIFICATION_CHANNEL_ID_SILENT
+import com.leekleak.trafficlight.services.notifications.SpeedNotification.Companion.NOTIFICATION_CHANNEL_ID_LOW_SPEED
+import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.util.openLink
@@ -32,6 +34,7 @@ import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
+import kotlin.math.roundToLong
 
 @Composable
 fun NotificationSettings(paddingValues: PaddingValues) {
@@ -123,13 +126,46 @@ fun NotificationSettings(paddingValues: PaddingValues) {
             SwitchPreference(
                 title = stringResource(R.string.force_fallback),
                 summary = if (doesFallbackWork) stringResource(R.string.force_fallback_description)
-                          else stringResource(R.string.fallback_unsupported),
+                else stringResource(R.string.fallback_unsupported),
                 icon = painterResource(R.drawable.fallback),
                 value = forceFallback,
                 enabled = doesFallbackWork,
                 onValueChanged = { scope.launch { appPreferenceRepo.setForceFallback(it) } }
             )
         }
+
+        categoryTitleSmall { stringResource(R.string.speed_threshold) }
+        item {
+            val speedThresholdEnabled by appPreferenceRepo.speedThresholdEnabled.collectAsState(false)
+            SwitchPreference(
+                title = stringResource(R.string.speed_threshold_switch),
+                summary = stringResource(R.string.speed_threshold_switch_description),
+                icon = painterResource(R.drawable.speed_notification),
+                value = speedThresholdEnabled,
+                onValueChanged = { scope.launch { appPreferenceRepo.setSpeedThresholdEnabled(it) } }
+            )
+        }
+        item {
+            val speedThresholdEnabled by appPreferenceRepo.speedThresholdEnabled.collectAsState(false)
+            val speedThresholdBytes by appPreferenceRepo.speedThresholdBytes.collectAsState(128L * 1024L)
+            val speedBits by appPreferenceRepo.speedBits.collectAsState(false)
+            val speedLabel = DataSize(speedThresholdBytes).toString(speed = true, inBits = speedBits)
+
+            SliderPreference(
+                title = stringResource(R.string.speed_threshold_threshold),
+                summary = null,
+                icon = painterResource(R.drawable.speed),
+                value = speedThresholdBytes / 1024,
+                valueLabel = speedLabel,
+                valueRange = 0L..1024L,
+                stepSize = 16,
+                enabled = speedThresholdEnabled,
+                onValueChanged = { newValue ->
+                    scope.launch { appPreferenceRepo.setSpeedThresholdBytes(((newValue / 8f).roundToLong()) * 8 * 1024L) }
+                }
+            )
+        }
+
 
         categoryTitleSmall { stringResource(R.string.notification_channels) }
         item {
@@ -151,5 +187,5 @@ fun NotificationSettings(paddingValues: PaddingValues) {
             }
         }
     }
-    PageTitle (true, hazeState, stringResource(R.string.notifications))
+    PageTitle(true, hazeState, stringResource(R.string.notifications))
 }

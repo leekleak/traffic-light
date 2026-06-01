@@ -22,6 +22,8 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.toPath
@@ -47,6 +49,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.GraphTheme
@@ -55,29 +58,19 @@ import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.CategoryTitleSmallText
 import com.leekleak.trafficlight.util.px
 import kotlinx.coroutines.launch
+import kotlin.math.roundToLong
 
 @Composable
-fun Preference(
+fun PreferenceHeader(
     modifier: Modifier = Modifier,
     title: String,
     summary: String? = null,
     icon: Painter? = null,
-    onClick: () -> Unit = {},
     controls: @Composable (() -> Unit)? = null,
-    enabled: Boolean = true,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .card()
-            .clickable(enabled = enabled, onClick = onClick)
-            .padding(
-                start = if (icon != null) 8.dp else 16.dp,
-                end = 16.dp,
-            )
-            .alpha(if (enabled) 1f else 0.38f),
+        modifier = modifier,
     ) {
         if (icon != null) {
             Box(
@@ -120,6 +113,34 @@ fun Preference(
             }
         }
     }
+}
+
+@Composable
+fun Preference(
+    modifier: Modifier = Modifier,
+    title: String,
+    summary: String? = null,
+    icon: Painter? = null,
+    onClick: () -> Unit = {},
+    controls: @Composable (() -> Unit)? = null,
+    enabled: Boolean = true,
+) {
+    PreferenceHeader(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .card()
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(
+                start = if (icon != null) 8.dp else 16.dp,
+                end = 16.dp,
+            )
+            .alpha(if (enabled) 1f else 0.38f),
+        title = title,
+        summary = summary,
+        icon = icon,
+        controls = controls,
+    )
 }
 
 @Composable
@@ -187,6 +208,68 @@ fun SwitchPreference(
             )
         },
     )
+}
+
+@Composable
+fun SliderPreference(
+    modifier: Modifier = Modifier,
+    title: String,
+    icon: Painter? = null,
+    summary: String? = null,
+    value: Long,
+    valueLabel: String,
+    valueRange: LongRange,
+    stepSize: Long = 1,
+    enabled: Boolean = true,
+    onValueChanged: (Long) -> Unit
+) {
+    val haptic = LocalHapticFeedback.current
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .card()
+            .alpha(if (enabled) 1f else 0.38f)
+            .padding(
+                start = if (icon != null) 8.dp else 16.dp,
+                end = 16.dp,
+            )
+    ) {
+        PreferenceHeader(title = title, summary = summary, icon = icon)
+        Row(
+            modifier = Modifier.padding(
+                start = if (icon != null) 64.dp else 0.dp,
+                bottom = 12.dp,
+            ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Slider(
+                modifier = Modifier.weight(1f),
+                value = value.coerceIn(valueRange).toFloat(),
+                valueRange = valueRange.first.toFloat()..valueRange.last.toFloat(),
+                steps = (((valueRange.last - valueRange.first) / stepSize.coerceAtLeast(1)) - 1)
+                    .coerceIn(0, Int.MAX_VALUE.toLong()).toInt(),
+                enabled = enabled,
+                onValueChange = { newValue ->
+                    val snapped = if (stepSize <= 1L) {
+                        newValue.roundToLong()
+                    } else {
+                        val steps = ((newValue - valueRange.first) / stepSize.toFloat()).roundToLong()
+                        valueRange.first + steps * stepSize
+                    }.coerceIn(valueRange)
+                    if (snapped != value) {
+                        haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
+                        onValueChanged(snapped)
+                    }
+                },
+            )
+            ProvideTextStyle(MaterialTheme.typography.titleMedium) {
+                Text(valueLabel, maxLines = 1)
+            }
+        }
+    }
 }
 
 @Composable

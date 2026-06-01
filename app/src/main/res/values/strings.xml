@@ -127,6 +127,7 @@
     <string name="no_browser_found">No browser found</string>
     <string name="persistent_notification">Persistent Notification</string>
     <string name="persistent_notification_disconnected">Persistent Notification (Disconnected)</string>
+    <string name="persistent_notification_low_speed">Persistent Notification (Low Speed)</string>
     <string name="plan_notification">Plan Notification</string>
     <string name="plan_warning_notification">Plan Warning Notification</string>
     <string name="notification_permission">Notification Permission</string>
@@ -134,6 +135,10 @@
     <string name="hint">Hint</string>
     <string name="press_the_card_to_configure_plan_data">Press the card to configure plan data.</string>
     <string name="extras">Extras</string>
+    <string name="speed_threshold">Speed threshold</string>
+    <string name="speed_threshold_switch">Speed-based channel switching</string>
+    <string name="speed_threshold_switch_description">Use the low-speed notification channel when below a threshold.</string>
+    <string name="speed_threshold_threshold">Low-speed threshold</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>
