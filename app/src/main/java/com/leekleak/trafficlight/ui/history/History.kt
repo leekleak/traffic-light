@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroup
@@ -44,11 +45,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -80,7 +82,6 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.LineGraph
@@ -99,7 +100,6 @@ import com.leekleak.trafficlight.model.DataUID
 import com.leekleak.trafficlight.model.DataUIDApp
 import com.leekleak.trafficlight.model.search
 import com.leekleak.trafficlight.ui.plans.AppSelector
-import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.historyItemFont
 import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.SearchField
@@ -357,7 +357,7 @@ private fun HistoryLegendItem(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryFilter(onDismiss: () -> Unit) {
     val haptic = LocalHapticFeedback.current
@@ -368,69 +368,9 @@ fun HistoryFilter(onDismiss: () -> Unit) {
     val listParam by viewModel.listParamFlow.collectAsState()
     val filtersChanged by viewModel.filtersChanged.collectAsState()
 
-    Dialog(onDismissRequest = onDismiss) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .card()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.filter),
-                style = MaterialTheme.typography.headlineSmallEmphasized
-            )
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                HistoryItemSettings(
-                    stringResource(R.string.primary),
-                    1,
-                    usageQueries.first
-                )
-                HistoryItemSettings(
-                    stringResource(R.string.secondary),
-                    2,
-                    usageQueries.second
-                )
-            }
-            HorizontalDivider(Modifier.padding(vertical = 8.dp))
-            Text(
-                text = stringResource(R.string.list),
-                style = MaterialTheme.typography.headlineSmallEmphasized
-            )
-            val forceHourList by viewModel.forceHourList.collectAsState()
-            ButtonGroup(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(
-                    4.dp,
-                    Alignment.CenterHorizontally
-                ),
-                expandedRatio = 0.05f,
-                overflowIndicator = {}
-            ) {
-                toggleableItem(
-                    onCheckedChange = {
-                        viewModel.updateListQuery(ListParam.AppList)
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    },
-                    label = ListParam.AppList.getString(context),
-                    icon = { Icon(painterResource(R.drawable.apps), null) },
-                    enabled = !forceHourList,
-                    checked = listParam == ListParam.AppList,
-                    weight = 1f
-                )
-                toggleableItem(
-                    onCheckedChange = {
-                        viewModel.updateListQuery(ListParam.HourList)
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    },
-                    label = ListParam.HourList.getString(context),
-                    icon = { Icon(painterResource(R.drawable.clock_analog), null) },
-                    checked = listParam == ListParam.HourList,
-                    weight = 1f
-                )
-            }
-            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
@@ -463,8 +403,65 @@ fun HistoryFilter(onDismiss: () -> Unit) {
                     Text(stringResource(R.string.close))
                 }
             }
+        },
+        title = { Text(stringResource(R.string.filter)) },
+        text = {
+            Column {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    HistoryItemSettings(
+                        stringResource(R.string.primary),
+                        1,
+                        usageQueries.first
+                    )
+                    HistoryItemSettings(
+                        stringResource(R.string.secondary),
+                        2,
+                        usageQueries.second
+                    )
+                }
+                HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                Text(
+                    text = stringResource(R.string.list),
+                    style = MaterialTheme.typography.headlineSmallEmphasized
+                )
+                val forceHourList by viewModel.forceHourList.collectAsState()
+                ButtonGroup(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        4.dp,
+                        Alignment.CenterHorizontally
+                    ),
+                    expandedRatio = 0.05f,
+                    overflowIndicator = {}
+                ) {
+                    toggleableItem(
+                        onCheckedChange = {
+                            viewModel.updateListQuery(ListParam.AppList)
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        },
+                        label = ListParam.AppList.getString(context),
+                        icon = { Icon(painterResource(R.drawable.apps), null) },
+                        enabled = !forceHourList,
+                        checked = listParam == ListParam.AppList,
+                        weight = 1f
+                    )
+                    toggleableItem(
+                        onCheckedChange = {
+                            viewModel.updateListQuery(ListParam.HourList)
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        },
+                        label = ListParam.HourList.getString(context),
+                        icon = { Icon(painterResource(R.drawable.clock_analog), null) },
+                        checked = listParam == ListParam.HourList,
+                        weight = 1f
+                    )
+                }
+                HorizontalDivider(Modifier.padding(top = 8.dp))
+            }
         }
-    }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -542,7 +539,7 @@ fun RowScope.HistoryItemSettings(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 private fun AppSearchDialog(onSelect: (uid: Int) -> Unit, onDismiss: () -> Unit) {
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberBottomSheetState(SheetValue.Hidden)
     ModalBottomSheet (
         onDismissRequest = onDismiss,
         sheetState = sheetState,
