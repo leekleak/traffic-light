@@ -43,7 +43,10 @@ class AppPreferenceRepo (
 
     val liveNotification: Flow<Boolean> = data.map { it[LIVE_NOTIFICATION] ?: false }.distinctUntilChanged()
     suspend fun setLiveNotification(value: Boolean) = dataStore.edit { it[LIVE_NOTIFICATION] = value }
-    
+
+    val speedThreshold: Flow<Boolean> = data.map { it[SPEED_THRESHOLD] ?: false }.distinctUntilChanged()
+    suspend fun setSpeedThreshold(value: Boolean) = dataStore.edit { it[SPEED_THRESHOLD] = value }
+
     val speedThresholdBytes: Flow<Long> = data.map { it[SPEED_THRESHOLD_BYTES] ?: (-1024L) }.distinctUntilChanged()
     suspend fun setSpeedThresholdBytes(value: Long) = dataStore.edit { it[SPEED_THRESHOLD_BYTES] = value }
     
@@ -67,6 +70,7 @@ class AppPreferenceRepo (
         private val SEPARATE_UP_DOWN = booleanPreferencesKey("separate_up_down")
         private val FORCE_FALLBACK = booleanPreferencesKey("force_fallback")
         private val ALT_VPN_WORKAROUND = booleanPreferencesKey("alt_vpn")
+        private val SPEED_THRESHOLD = booleanPreferencesKey("speed_threshold")
         private val SPEED_THRESHOLD_BYTES = longPreferencesKey("speed_threshold_bytes")
         private val THEME = stringPreferencesKey("theme")
         private val SHIZUKU_TRACKING = booleanPreferencesKey("shizuku_tracking")

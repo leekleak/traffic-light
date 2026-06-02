@@ -135,8 +135,9 @@
     <string name="hint">Hint</string>
     <string name="press_the_card_to_configure_plan_data">Press the card to configure plan data.</string>
     <string name="extras">Extras</string>
-    <string name="speed_threshold">Low-speed threshold</string>
-    <string name="speed_threshold_description">Use the silent notification channel when below this threshold.</string>
+    <string name="speed_threshold">Silence notification</string>
+    <string name="speed_threshold_description">Silence notification when below a threshold.</string>
+    <string name="threshold">Threshold</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

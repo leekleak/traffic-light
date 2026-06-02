@@ -1,6 +1,12 @@
 package com.leekleak.trafficlight.ui.settings
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -15,7 +21,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
@@ -62,72 +67,8 @@ import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.googleSans
 import com.leekleak.trafficlight.util.CategoryTitleSmallText
 import com.leekleak.trafficlight.util.px
-import kotlin.math.log2
-import kotlin.math.pow
-import kotlin.math.round
-import kotlin.math.roundToInt
-import kotlin.math.roundToLong
 import kotlinx.coroutines.launch
-
-@Composable
-fun PreferenceHeader(
-    modifier: Modifier = Modifier,
-    title: String,
-    summary: String? = null,
-    icon: Painter? = null,
-    controls: @Composable (() -> Unit)? = null,
-    content: (@Composable () -> Unit)? = null,
-) {
-    Column(modifier = modifier) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            if (icon != null) {
-                Box(
-                    modifier = Modifier
-                        .width(56.dp)
-                        .padding(end = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        modifier = Modifier.size(24.dp),
-                        painter = icon,
-                        contentDescription = null,
-                    )
-                }
-            } else {
-                Box(modifier = Modifier.size(0.dp))
-            }
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(top = 16.dp, bottom = if (content != null) 0.dp else 16.dp),
-            ) {
-                ProvideTextStyle(value = MaterialTheme.typography.titleMedium) {
-                    Text(text = title)
-                }
-                if (summary != null) {
-                    CompositionLocalProvider(
-                        LocalTextStyle provides MaterialTheme.typography.bodyMedium,
-                        LocalContentColor provides colorScheme.onSurface,
-                    ) {
-                        Text(text = summary)
-                    }
-                }
-            }
-            if (controls != null) {
-                Box(
-                    modifier = Modifier.padding(start = 24.dp)
-                ) {
-                    controls()
-                }
-            }
-        }
-        if (content != null) {
-            Box(modifier = Modifier.padding(vertical = 8.dp)) {
-                content()
-            }
-        }
-    }
-}
+import kotlin.math.roundToInt
 
 @Composable
 fun Preference(
@@ -137,10 +78,10 @@ fun Preference(
     icon: Painter? = null,
     onClick: () -> Unit = {},
     controls: @Composable (() -> Unit)? = null,
-    content: (@Composable () -> Unit)? = null,
     enabled: Boolean = true,
 ) {
-    PreferenceHeader(
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
@@ -151,12 +92,48 @@ fun Preference(
                 end = 16.dp,
             )
             .alpha(if (enabled) 1f else 0.38f),
-        title = title,
-        summary = summary,
-        icon = icon,
-        controls = controls,
-        content = content,
-    )
+    ) {
+        if (icon != null) {
+            Box(
+                modifier = Modifier
+                    .width(56.dp)
+                    .padding(end = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    painter = icon,
+                    contentDescription = null,
+                )
+            }
+        } else {
+            Box(modifier = Modifier.size(0.dp))
+        }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(vertical = 16.dp),
+        ) {
+            ProvideTextStyle(value = MaterialTheme.typography.titleMedium) {
+                Text(text = title)
+            }
+            if (summary != null) {
+                CompositionLocalProvider(
+                    LocalTextStyle provides MaterialTheme.typography.bodyMedium,
+                    LocalContentColor provides colorScheme.onSurface,
+                ) {
+                    Text(text = summary)
+                }
+            }
+        }
+        if (controls != null) {
+            Box(
+                modifier = Modifier.padding(start = 24.dp)
+            ) {
+                controls()
+            }
+        }
+    }
 }
 
 @Composable
@@ -227,39 +204,77 @@ fun SwitchPreference(
 }
 
 @Composable
-fun ExponentialSliderPreference(
+fun SliderPreference(
     modifier: Modifier = Modifier,
+    modifierLabelText: Modifier = Modifier,
     title: String,
     icon: Painter? = null,
-    summary: String? = null,
     value: Long,
-    valueLabel: String,
-    maxValue: Long,
+    values: List<Pair<Long, String?>>,
+    enabled: Boolean = true,
+    onValueChanged: (Long) -> Unit
+) {
+   SliderComponent(
+       modifier = modifier.fillMaxWidth()
+           .padding(vertical = 4.dp)
+           .card()
+           .padding(start = 8.dp, end = 16.dp, bottom = 4.dp)
+           .alpha(if (enabled) 1f else 0.38f),
+       modifierLabelText = modifierLabelText,
+       title = title,
+       icon = icon,
+       value = value,
+       values = values,
+       enabled = enabled,
+       onValueChanged = onValueChanged
+   )
+}
+
+@Composable
+fun SliderComponent(
+    modifier: Modifier,
+    modifierLabelText: Modifier = Modifier,
+    title: String,
+    icon: Painter? = null,
+    value: Long,
+    values: List<Pair<Long, String?>>,
     enabled: Boolean = true,
     onValueChanged: (Long) -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
     val fontFamilyBold = remember { googleSans(weight = 800f) }
-    val maxSteps = remember(maxValue) { log2(maxValue.toDouble()).roundToInt() }
+    val currentIndex = remember(value, values) {
+        values.indexOfFirst { it.first == value }.coerceAtLeast(0)
+    }
 
-    Preference(
-        modifier = modifier,
-        title = title,
-        summary = summary,
-        icon = icon,
-        content = {
+    Column(modifier = modifier) {
+        Row(
+            modifier = Modifier.padding(top = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            icon?.let { Icon(
+                modifier = Modifier.width(48.dp),
+                painter = it,
+                contentDescription = null,
+            ) }
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 val interactionSource = remember { MutableInteractionSource() }
                 Slider(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(start = if (icon != null) 8.dp else 0.dp),
-                    value = if (value == -1L) -1f else round(log2(value.coerceAtLeast(1).toDouble())).toFloat(),
+                        .padding(start = 8.dp),
+                    value = currentIndex.toFloat(),
                     onValueChange = {
-                        val newValue = if (it.roundToLong() == -1L) -1L else 2.0.pow(round(it).toDouble()).roundToLong()
-                        if (newValue != value) {
+                        val newIndex = it.roundToInt()
+                        if (newIndex != currentIndex && newIndex in values.indices) {
                             haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
-                            onValueChanged(newValue)
+                            onValueChanged(values[newIndex].first)
                         }
                     },
                     thumb = {
@@ -270,20 +285,32 @@ fun ExponentialSliderPreference(
                     },
                     interactionSource = interactionSource,
                     enabled = enabled,
-                    valueRange = -1f..maxSteps.toFloat(),
-                    steps = maxSteps + 1
+                    valueRange = 0f..((values.size - 1).coerceAtLeast(0).toFloat()),
+                    steps = (values.size - 2).coerceAtLeast(0)
                 )
-                Text(
-                    modifier = Modifier.widthIn(min = 96.dp).padding(start = 16.dp),
-                    text = valueLabel,
-                    fontFamily = fontFamilyBold,
-                    textAlign = TextAlign.Center,
-                    overflow = TextOverflow.Visible,
-                    softWrap = false,
-                )
+                val valueLabel = remember(currentIndex, values) {
+                    val pair = values.getOrNull(currentIndex)
+                    pair?.second ?: pair?.first?.toString() ?: ""
+                }
+                AnimatedContent(
+                    targetState = valueLabel,
+                    transitionSpec = {
+                        (slideInVertically{ -it / 2 } + fadeIn()).togetherWith(
+                            (slideOutVertically { it / 2 }) + fadeOut()
+                        )
+                    }
+                ) {
+                    Text(
+                        modifier = modifierLabelText.padding(start = 16.dp),
+                        text = it,
+                        fontFamily = fontFamilyBold,
+                        textAlign = TextAlign.Center,
+                        overflow = TextOverflow.Visible,
+                        softWrap = false,
+                    )
+                }
             }
         }
-    )
 }
 
 @Composable

@@ -24,7 +24,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -66,8 +65,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -117,7 +114,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.R
@@ -134,6 +130,7 @@ import com.leekleak.trafficlight.model.search
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.settings.IconPreference
 import com.leekleak.trafficlight.ui.settings.PermissionCard
+import com.leekleak.trafficlight.ui.settings.SliderComponent
 import com.leekleak.trafficlight.ui.settings.SwitchPreference
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.ui.theme.card
@@ -163,7 +160,6 @@ import java.time.LocalTime
 import kotlin.math.E
 import kotlin.math.max
 import kotlin.math.pow
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -420,8 +416,6 @@ fun PlanConfig(currentPlan: DataPlan) {
 private fun LazyListScope.typeConfig(newPlan: DataPlan, onPlanChange: (plan: DataPlan) -> Unit) {
     item {
         val haptic = LocalHapticFeedback.current
-        val fontFamily = remember { googleSans(weight = 600f) }
-        val fontFamilyBold = remember { googleSans(weight = 800f) }
         Column(
             modifier = Modifier
                 .card()
@@ -472,50 +466,21 @@ private fun LazyListScope.typeConfig(newPlan: DataPlan, onPlanChange: (plan: Dat
             }
             AnimatedContent(interval) { currentInterval ->
                 if (currentInterval == TimeInterval.MONTH) {
-                    Column(Modifier.padding(horizontal = 4.dp)) {
-                        Row(
-                            modifier = Modifier.padding(top = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Icon(painterResource(R.drawable.history_2), null)
-                            Text(
-                                text = stringResource(R.string.reset_day),
-                                fontFamily = fontFamily,
-                            )
+                    SliderComponent(
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                        modifierLabelText = Modifier.width(46.dp),
+                        title = stringResource(R.string.reset_day),
+                        icon = painterResource(R.drawable.history_2),
+                        value = selectedMonthDay.toLong(),
+                        values = remember { (1L..28L).map { it to null } },
+                        onValueChanged = {
+                            val newDate =
+                                LocalDate.now().withDayOfMonth(it.toInt()).toTimestamp()
+                            if (newDate != newPlan.startDate) {
+                                onPlanChange(newPlan.copy(startDate = newDate))
+                            }
                         }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            val interactionSource = remember { MutableInteractionSource() }
-                            Slider(
-                                modifier = Modifier.weight(1f),
-                                value = selectedMonthDay.toFloat(),
-                                onValueChange = {
-                                    val newDate =
-                                        LocalDate.now().withDayOfMonth(it.roundToInt()).toTimestamp()
-                                    if (newDate != newPlan.startDate) {
-                                        onPlanChange(newPlan.copy(startDate = newDate))
-                                        haptic.performHapticFeedback(HapticFeedbackType.SegmentFrequentTick)
-                                    }
-                                },
-                                thumb = {
-                                    SliderDefaults.Thumb(
-                                        interactionSource = interactionSource,
-                                        thumbSize = DpSize(4.dp, 28.dp)
-                                    )
-                                },
-                                interactionSource = interactionSource,
-                                enabled = true,
-                                valueRange = 1f..28f,
-                                steps = 26
-                            )
-                            Text(
-                                modifier = Modifier.width(36.dp),
-                                text = selectedMonthDay.toString(),
-                                fontFamily = fontFamilyBold,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
+                    )
                 } else {
                     CustomPlanSetup(
                         newPlan = newPlan,
