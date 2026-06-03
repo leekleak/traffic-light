@@ -24,18 +24,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.toPath
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -114,16 +110,16 @@ fun Preference(
                 .weight(1f)
                 .padding(vertical = 16.dp),
         ) {
-            ProvideTextStyle(value = MaterialTheme.typography.titleMedium) {
-                Text(text = title)
-            }
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium
+            )
             if (summary != null) {
-                CompositionLocalProvider(
-                    LocalTextStyle provides MaterialTheme.typography.bodyMedium,
-                    LocalContentColor provides colorScheme.onSurface,
-                ) {
-                    Text(text = summary)
-                }
+                Text(
+                    text = summary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colorScheme.onSurface,
+                )
             }
         }
         if (controls != null) {
