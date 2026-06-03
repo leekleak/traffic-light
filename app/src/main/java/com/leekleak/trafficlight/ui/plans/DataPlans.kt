@@ -50,8 +50,10 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.AppGraph
 import com.leekleak.trafficlight.charts.BarGraph
+import com.leekleak.trafficlight.charts.ExtraGraph
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.AppUsage
+import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.integrations.Ad
 import com.leekleak.trafficlight.integrations.AdType
@@ -228,10 +230,38 @@ private fun DataPlanInsights(contentPadding: PaddingValues) {
         }
         dataPlan?.let { plan ->
             if (plan.mainDataAmount > 0) usageInsights()
+            extras(plan)
             thisWeek()
             if (adsEnabled) item { Ad(AdType.NativeBanner, colorScheme.surface) }
             if (plan.mainDataAmount > 0) budgetInsights()
             if (topAppsList.isNotEmpty()) topApps(topAppsList)
+        }
+    }
+}
+
+private fun LazyListScope.extras(plan: DataPlan) {
+    val activeExtras = plan.extras.filter { !it.expired }
+    if (activeExtras.isEmpty()) return
+
+    item(key = "extras") {
+        CategoryTitleText(stringResource(R.string.extras))
+        Column(
+            modifier = Modifier.animateItem(),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            activeExtras.chunked(2).forEach { chunk ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ExtraGraph(Modifier.weight(1f), chunk[0])
+                    if (chunk.size > 1) {
+                        ExtraGraph(Modifier.weight(1f), chunk[1])
+                    } else {
+                        Box(Modifier.weight(1f))
+                    }
+                }
+            }
         }
     }
 }
