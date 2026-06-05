@@ -219,7 +219,11 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                     scope.launch(Dispatchers.IO) {
                         newPlan.resetUsage()
                         newPlan.updateUsage(networkUsageManager)
-                        newPlan = newPlan.copy(lastSafetyState = -1, budgetOvershotNotified = false)
+                        newPlan = newPlan.copy(
+                            lastSafetyState = -1,
+                            budgetOvershotNotified = false,
+                            configured = true
+                        )
                         dataPlanDao.add(newPlan)
                         haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                         navigator.goBack()

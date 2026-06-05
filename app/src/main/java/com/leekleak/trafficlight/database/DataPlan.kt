@@ -31,6 +31,7 @@ data class DataPlan(
 
     @ColumnInfo val simIndex: Int = -1,
     @ColumnInfo val carrierName: String = "",
+    @ColumnInfo val configured: Boolean = false,
 
     @ColumnInfo val startDate: Long = LocalDate.now().withDayOfMonth(1).atStartOfDay().toTimestamp(),
     @ColumnInfo val interval: TimeInterval = TimeInterval.MONTH,

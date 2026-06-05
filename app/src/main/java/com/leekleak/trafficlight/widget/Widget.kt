@@ -116,7 +116,7 @@ class Widget: GlanceAppWidget() {
         provideContent {
             GlanceTheme {
                 BoxBackground(dataPlan, currentState(SIM_NUMBER) ?: 0, currentState(CARRIER_NAME) ?: "") {
-                    if (dataPlan.mainDataSize.byteValue != 0L) {
+                    if (dataPlan.configured) {
                         ConfiguredWidgetContent(
                             usageString = usageString,
                             quotaString = quotaString,
