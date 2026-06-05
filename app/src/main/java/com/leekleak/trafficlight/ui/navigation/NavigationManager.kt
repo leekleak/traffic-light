@@ -51,7 +51,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.ui.history.History
 import com.leekleak.trafficlight.ui.overview.Overview
 import com.leekleak.trafficlight.ui.plans.DataPlans
-import com.leekleak.trafficlight.ui.plans.PlanConfig
+import com.leekleak.trafficlight.ui.plans.DataPlanConfig
 import com.leekleak.trafficlight.ui.settings.NotificationSettings
 import com.leekleak.trafficlight.ui.settings.Settings
 import com.leekleak.trafficlight.ui.settings.UsagePermissionRequest
@@ -126,7 +126,7 @@ fun NavigationManager() {
                 entry<SettingsKey> { Settings(paddingValues) }
 
                 entry<UsagePermissionRequestKey> { UsagePermissionRequest(paddingValues) }
-                entry<PlanConfigKey> { PlanConfig(it.dataPlan) }
+                entry<PlanConfigKey> { DataPlanConfig(it.dataPlan) }
                 entry<NotificationSettingsKey> { NotificationSettings(paddingValues) }
             },
             transitionSpec = {

@@ -168,7 +168,7 @@ import kotlin.math.pow
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun PlanConfig(currentPlan: DataPlan) {
+fun DataPlanConfig(currentPlan: DataPlan) {
     val appManager: AppManager = koinInject()
     val dataPlanDao: DataPlanDao = koinInject()
     val networkUsageManager: NetworkUsageManager = koinInject()
