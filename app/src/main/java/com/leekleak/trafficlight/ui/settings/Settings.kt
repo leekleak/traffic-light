@@ -143,13 +143,12 @@ fun Settings(paddingValues: PaddingValues) {
             }
         }
 
-        categoryTitleSmall { stringResource(R.string.data_plans) }
-        item {
-            val shizukuTracking by appPreferenceRepo.shizukuTracking.collectAsState(false)
-            val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
-            val shizukuRunning by permissionManager.shizukuRunningFlow.collectAsState(false)
-
-            if (BuildConfig.SHIZUKU) {
+        if (BuildConfig.SHIZUKU) {
+            categoryTitleSmall { stringResource(R.string.data_plans) }
+            item {
+                val shizukuTracking by appPreferenceRepo.shizukuTracking.collectAsState(false)
+                val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
+                val shizukuRunning by permissionManager.shizukuRunningFlow.collectAsState(false)
                 SwitchPreference(
                     title = stringResource(R.string.multi_sim_tracking),
                     summary = if (shizukuRunning) stringResource(R.string.shizuku_required) else stringResource(R.string.shizuku_not_running),
@@ -165,15 +164,6 @@ fun Settings(paddingValues: PaddingValues) {
                             shizukuServicesProvider.shizukuRequestPermission()
                         }
                     },
-                )
-            } else {
-                SwitchPreference(
-                    title = stringResource(R.string.multi_sim_tracking),
-                    summary = stringResource(R.string.unsupported_by_play_store_version),
-                    icon = painterResource(R.drawable.version),
-                    value = false,
-                    enabled = false,
-                    onValueChanged = {},
                 )
             }
         }
