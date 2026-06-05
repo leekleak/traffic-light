@@ -144,6 +144,10 @@
     <string name="speed_threshold">Silence notification</string>
     <string name="speed_threshold_description">Silence notification when below a threshold.</string>
     <string name="threshold">Threshold</string>
+    <string name="add_extra">Add Extra</string>
+    <string name="amount">Amount</string>
+    <string name="expiry">Expiry</string>
+    <string name="start">Start</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

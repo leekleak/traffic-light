@@ -658,6 +658,7 @@ private fun DateAndTimePicker(
     onTimeSelect: (time: LocalTime) -> Unit,
     extraItems: LazyListScope.(font: FontFamily) -> Unit = {}
 ) {
+    val haptic = LocalHapticFeedback.current
     val fontFamily = remember { googleSans(weight = 600f) }
     var datePickerVisible by remember { mutableStateOf(false) }
     var timePickerVisible by remember { mutableStateOf(false) }
@@ -724,6 +725,7 @@ private fun DateAndTimePicker(
                     onClick = {
                         datePickerVisible = false
                         datePickerState.getSelectedDate()?.let { onDateSelect(it) }
+                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                     }
                 ) {
                     Text(stringResource(R.string.save))
@@ -744,6 +746,7 @@ private fun DateAndTimePicker(
                     onClick = {
                         timePickerVisible = false
                         onTimeSelect(LocalTime.of(timePickerState.hour, timePickerState.minute))
+                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                     }
                 ) {
                     Text(stringResource(R.string.save))
@@ -920,7 +923,6 @@ fun PlanSizeConfig(
             contentAlignment = Alignment.Center
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally)
             ) {
                 var intrinsics by remember { mutableIntStateOf(0) }
@@ -955,24 +957,22 @@ fun PlanSizeConfig(
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.surface),
                     lineLimits = TextFieldLineLimits.SingleLine,
                 )
-                Box (
-                    Modifier
+                Text(
+                    modifier = Modifier
+                        .alignBy { it.measuredHeight }
                         .clip(MaterialTheme.shapes.medium)
+                        .background(MaterialTheme.colorScheme.onPrimaryContainer)
                         .clickable {
                             onUnitUpdate(if (unit == DataSizeUnit.GB) DataSizeUnit.MB else DataSizeUnit.GB)
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         }
-                        .border(2f.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium)
-                        .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 6.dp)
-                ) {
-                    Text(
-                        fontFamily = fontFamilyDoHyeon,
-                        fontSize = 18.sp * (1 + scale.value/2),
-                        maxLines = 1,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        text = unit.name
-                    )
-                }
+                        .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 6.dp),
+                    fontFamily = fontFamilyDoHyeon,
+                    fontSize = 24.sp,
+                    maxLines = 1,
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    text = unit.name
+                )
             }
         }
     }
@@ -993,7 +993,9 @@ private fun LazyListScope.extrasConfig(newPlan: DataPlan, onPlanChange: (plan: D
         }
 
         Column(
-            modifier = Modifier.card().padding(8.dp),
+            modifier = Modifier
+                .card()
+                .padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             newPlan.extras.forEach { extra ->
@@ -1051,6 +1053,7 @@ private fun AddExtraDialog(
     onDismiss: () -> Unit,
     onConfirm: (DataPlanExtra) -> Unit
 ) {
+    val haptic = LocalHapticFeedback.current
     val amountState = rememberTextFieldState("1")
     var unit by remember { mutableStateOf(DataSizeUnit.GB) }
     var startDate by remember { mutableLongStateOf(LocalDate.now().toTimestamp()) }
@@ -1094,10 +1097,10 @@ private fun AddExtraDialog(
                 Text(stringResource(R.string.close))
             }
         },
-        title = { Text("Add Extra") },
+        title = { Text(stringResource(R.string.add_extra)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("Amount", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.amount), style = MaterialTheme.typography.titleMedium)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -1117,6 +1120,7 @@ private fun AddExtraDialog(
                     Button(
                         onClick = {
                             unit = if (unit == DataSizeUnit.GB) DataSizeUnit.MB else DataSizeUnit.GB
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         },
                         shape = MaterialTheme.shapes.medium,
                         contentPadding = PaddingValues(horizontal = 12.dp)
@@ -1125,8 +1129,10 @@ private fun AddExtraDialog(
                     }
                 }
 
-                Text("Start", style = MaterialTheme.typography.titleMedium)
-                Box(Modifier.clip(MaterialTheme.shapes.medium).background(MaterialTheme.colorScheme.surface)) {
+                Text(stringResource(R.string.start), style = MaterialTheme.typography.titleMedium)
+                Box(Modifier
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.surface)) {
                     DateAndTimePicker(
                         selectedDate = fromTimestamp(startDate).toLocalDate(),
                         selectedTime = fromTimestamp(startDate).toLocalTime(),
@@ -1143,8 +1149,10 @@ private fun AddExtraDialog(
                     )
                 }
 
-                Text("Expiry", style = MaterialTheme.typography.titleMedium)
-                Box(Modifier.clip(MaterialTheme.shapes.medium).background(MaterialTheme.colorScheme.surface)) {
+                Text(stringResource(R.string.expiry), style = MaterialTheme.typography.titleMedium)
+                Box(Modifier
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.surface)) {
                     DateAndTimePicker(
                         selectedDate = fromTimestamp(expiryDate).toLocalDate(),
                         selectedTime = fromTimestamp(expiryDate).toLocalTime(),
