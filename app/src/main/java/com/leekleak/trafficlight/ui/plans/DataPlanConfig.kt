@@ -570,7 +570,7 @@ private fun LazyListScope.typeConfig(newPlan: DataPlan, onPlanChange: (plan: Dat
             SwitchPreference(
                 title = stringResource(R.string.recursion),
                 summary = stringResource(R.string.recursion_description),
-                icon = painterResource(R.drawable.history),
+                icon = painterResource(R.drawable.repeat),
                 value = newPlan.recurring,
                 onValueChanged = { onPlanChange(newPlan.copy(recurring = it)) }
             )
