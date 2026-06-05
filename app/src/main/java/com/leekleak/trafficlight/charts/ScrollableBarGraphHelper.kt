@@ -31,6 +31,7 @@ import java.time.LocalDate
 import java.time.format.TextStyle
 import java.time.temporal.WeekFields
 import java.util.Locale
+import kotlin.math.max
 
 internal data class ScrollableBarGraphMetrics(
     val gridHeight: Float,
@@ -89,7 +90,7 @@ internal class ScrollableBarGraphHelper(
 
         val monthList = mutableListOf<MonthObject>()
 
-        for (i in 0 until data.size) {
+        for (i in data.indices) {
             val x1 = xItemSpacing * i + xOffset
             val x2 = x1 + xItemSpacing
             val error = 64.dp.toPx()
@@ -133,7 +134,7 @@ internal class ScrollableBarGraphHelper(
             rectList.add(
                 DoubleBar(
                     Rect(
-                        top = gridHeight - yOffset * barStretch,
+                        top = max(gridHeight - yOffset * barStretch, 0f),
                         left = x + padding,
                         right = x + xItemSpacing - padding,
                         bottom = gridHeight - padding
