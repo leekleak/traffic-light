@@ -4,6 +4,7 @@ import android.app.usage.NetworkStats
 import android.os.SystemClock
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.model.UsageData
+import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.toTimestamp
 import io.mockk.coEvery
 import io.mockk.every
@@ -79,12 +80,12 @@ class DataPlanTest {
         setCurrentTime(now)
 
         val startStamp = LocalDate.of(2023, 10, 1).atStartOfDay().toTimestamp()
-        val extra1 = DataPlanExtra(dataAmount = 1000L, dataUsed = 0L, startStamp = startStamp, expiryStamp = now.plusDays(1).toTimestamp())
+        val extra1 = DataPlanExtra(dataAmount = DataSize(1000L), dataUsed = 0L, startStamp = startStamp, expiryStamp = now.plusDays(1).toTimestamp())
         val plan = DataPlan(
             hashedSubscriberID = "hash",
             encryptedSubscriberID = "enc",
             startDate = startStamp,
-            mainDataAmount = 5000L,
+            mainDataSize = DataSize(5000L),
             mainDataUsed = 0L,
             mainStartStamp = startStamp,
             mainExpiryStamp = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp(),
@@ -120,7 +121,7 @@ class DataPlanTest {
         setCurrentTime(now)
 
         val startStamp = LocalDate.of(2023, 10, 1).atStartOfDay().toTimestamp()
-        val extra1 = DataPlanExtra(dataAmount = 1000L, dataUsed = 0L, startStamp = startStamp, expiryStamp = now.minusHours(1).toTimestamp())
+        val extra1 = DataPlanExtra(dataAmount = DataSize(1000L), dataUsed = 0L, startStamp = startStamp, expiryStamp = now.minusHours(1).toTimestamp())
         
         val plan = DataPlan(
             hashedSubscriberID = "hash",
@@ -149,7 +150,7 @@ class DataPlanTest {
             hashedSubscriberID = "hash",
             encryptedSubscriberID = "enc",
             startDate = octStart,
-            mainDataAmount = 5000L,
+            mainDataSize = DataSize(5000L),
             mainDataUsed = 2000L,
             mainStartStamp = octStart,
             mainExpiryStamp = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp(),
@@ -179,7 +180,7 @@ class DataPlanTest {
             hashedSubscriberID = "hash",
             encryptedSubscriberID = "enc",
             startDate = startStamp,
-            mainDataAmount = 5000L,
+            mainDataSize = DataSize(5000L),
             mainDataUsed = 1000L,
             mainStartStamp = startStamp,
             mainExpiryStamp = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp(),
@@ -206,13 +207,13 @@ class DataPlanTest {
         setCurrentTime(now)
 
         val startStamp = LocalDate.of(2023, 10, 1).atStartOfDay().toTimestamp()
-        val extra1 = DataPlanExtra(dataAmount = 1000L, dataUsed = 1000L, startStamp = startStamp, expiryStamp = now.minusDays(1).toTimestamp(), expired = true)
+        val extra1 = DataPlanExtra(dataAmount = DataSize(1000L), dataUsed = 1000L, startStamp = startStamp, expiryStamp = now.minusDays(1).toTimestamp(), expired = true)
         
         val plan = DataPlan(
             hashedSubscriberID = "hash",
             encryptedSubscriberID = "enc",
             startDate = startStamp,
-            mainDataAmount = 5000L,
+            mainDataSize = DataSize(5000L),
             mainDataUsed = 500L,
             mainStartStamp = startStamp,
             mainExpiryStamp = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp(),
@@ -238,8 +239,8 @@ class DataPlanTest {
         setCurrentTime(now)
 
         val startStamp = LocalDate.of(2023, 10, 1).atStartOfDay().toTimestamp()
-        val extra1 = DataPlanExtra(id = "later", dataAmount = 1000L, dataUsed = 0L, startStamp = startStamp, expiryStamp = now.plusDays(2).toTimestamp())
-        val extra2 = DataPlanExtra(id = "sooner", dataAmount = 1000L, dataUsed = 0L, startStamp = startStamp, expiryStamp = now.plusDays(1).toTimestamp())
+        val extra1 = DataPlanExtra(id = "later", dataAmount = DataSize(1000L), dataUsed = 0L, startStamp = startStamp, expiryStamp = now.plusDays(2).toTimestamp())
+        val extra2 = DataPlanExtra(id = "sooner", dataAmount = DataSize(1000L), dataUsed = 0L, startStamp = startStamp, expiryStamp = now.plusDays(1).toTimestamp())
         
         val plan = DataPlan(
             hashedSubscriberID = "hash",
@@ -278,13 +279,13 @@ class DataPlanTest {
         val plan = DataPlan(
             hashedSubscriberID = "hash",
             encryptedSubscriberID = "enc",
-            mainDataAmount = 5000L,
+            mainDataSize = DataSize(5000L),
             mainDataUsed = 0L,
             mainStartStamp = 0L,
             mainExpiryStamp = 0L,
             extras = listOf(
-                DataPlanExtra(dataAmount = 1000L, dataUsed = 0L, startStamp = 0L, expiryStamp = 0L, expired = false),
-                DataPlanExtra(dataAmount = 2000L, dataUsed = 0L, startStamp = 0L, expiryStamp = 0L, expired = true)
+                DataPlanExtra(dataAmount = DataSize(1000L), dataUsed = 0L, startStamp = 0L, expiryStamp = 0L, expired = false),
+                DataPlanExtra(dataAmount = DataSize(2000L), dataUsed = 0L, startStamp = 0L, expiryStamp = 0L, expired = true)
             )
         )
 
@@ -300,14 +301,14 @@ class DataPlanTest {
         val tOct15 = LocalDateTime.of(2023, 10, 15, 12, 0)
         setCurrentTime(tOct15)
 
-        val extraA = DataPlanExtra(id = "extraA", dataAmount = 1000L, dataUsed = 0L, startStamp = startOct.toTimestamp(), expiryStamp = LocalDateTime.of(2023, 10, 20, 12, 0).toTimestamp())
-        val extraB = DataPlanExtra(id = "extraB", dataAmount = 2000L, dataUsed = 0L, startStamp = startOct.toTimestamp(), expiryStamp = LocalDateTime.of(2023, 11, 5, 12, 0).toTimestamp())
+        val extraA = DataPlanExtra(id = "extraA", dataAmount = DataSize(1000L), dataUsed = 0L, startStamp = startOct.toTimestamp(), expiryStamp = LocalDateTime.of(2023, 10, 20, 12, 0).toTimestamp())
+        val extraB = DataPlanExtra(id = "extraB", dataAmount = DataSize(2000L), dataUsed = 0L, startStamp = startOct.toTimestamp(), expiryStamp = LocalDateTime.of(2023, 11, 5, 12, 0).toTimestamp())
 
         val plan = DataPlan(
             hashedSubscriberID = "hash",
             encryptedSubscriberID = "enc",
             startDate = startOct.toTimestamp(),
-            mainDataAmount = 5000L,
+            mainDataSize = DataSize(5000L),
             mainDataUsed = 500L,
             mainStartStamp = startOct.toTimestamp(),
             mainExpiryStamp = startNov.toTimestamp(),

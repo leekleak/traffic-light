@@ -234,7 +234,7 @@ fun PlanConfig(currentPlan: DataPlan) {
                     },
                     onUnitUpdate = {
                         newPlan = newPlan.copy(
-                            mainDataSize = DataSize((newPlan.mainDataSize.value * it.toBits()).toLong()),
+                            mainDataSize = DataSize((size * it.toBits()).toLong()),
                             mainDataSizeUnit = it
                         )
                     }
@@ -971,7 +971,7 @@ private fun LazyListScope.extrasConfig(newPlan: DataPlan, onPlanChange: (plan: D
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        val dataSizeStr = DataSize(extra.dataAmount).toString()
+                        val dataSizeStr = extra.dataAmount.toString()
                         val startStr = fromTimestamp(extra.startStamp).toLocalDate().toString()
                         val expiryStr = if (extra.expiryStamp != Long.MAX_VALUE) " • Exp: ${fromTimestamp(extra.expiryStamp).toLocalDate()}" else ""
                         Text(
@@ -1041,7 +1041,8 @@ private fun AddExtraDialog(
                 val amountBytes = (amountValue * unit.toBits()).toLong()
                 onConfirm(
                     DataPlanExtra(
-                        dataAmount = amountBytes,
+                        dataAmount = DataSize(amountBytes),
+                        unit = unit,
                         dataUsed = 0L,
                         startStamp = startDate,
                         expiryStamp = expiryDate,

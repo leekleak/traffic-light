@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.database.DataPlanExtra
 import com.leekleak.trafficlight.ui.theme.googleSans
 import com.leekleak.trafficlight.util.DataSize
-import com.leekleak.trafficlight.util.DataSizeUnit
 import com.leekleak.trafficlight.util.fromTimestamp
 import java.text.DecimalFormat
 import kotlin.math.max
@@ -40,7 +39,7 @@ fun ExtraGraph(
     val onPrimaryColor = GraphTheme.onPrimaryColor
     val onBackgroundColor = GraphTheme.onBackgroundColor
 
-    val maximum: Long = extra.dataAmount
+    val maximum: Long = extra.dataAmount.byteValue
     val used: Long = extra.dataUsed // TODO: Include volatile data
     val expirationDate = fromTimestamp(extra.expiryStamp)
 
@@ -50,16 +49,16 @@ fun ExtraGraph(
 
     val safeMax = remember(maximum) { max(maximum, 1).toFloat() }
 
-    val string = remember(used) { DataSize(used).toStringParts(extraPrecision = true) }
-    val formatter = remember { DecimalFormat("0.##") }
-    val data = remember(extra) { formatter.format(DataSize(maximum).getAsUnit(DataSizeUnit.GB)) }
+    val formatter = remember { DecimalFormat("0.#") }
+    val string = remember(used) { formatter.format(DataSize(used).getAsUnit(extra.unit)) }
+    val data = remember(extra) { formatter.format(extra.dataAmount.getAsUnit(extra.unit)) }
     val stringAnnotated by remember { derivedStateOf {
         buildAnnotatedString {
             withStyle(style = SpanStyle(fontFamily = font1, fontSize = 46.sp)) {
-                append("${string.first}${string.second}")
+                append("$string")
             }
             withStyle(style = SpanStyle(fontFamily = font1, fontSize = 36.sp)) {
-                appendLine("/${data}GB")
+                appendLine("/${data}${extra.unit}")
             }
             withStyle(style = SpanStyle(fontFamily = font2, fontSize = 14.sp)) {
                 append("Expires on:\n${expirationDate.toLocalDate()}")

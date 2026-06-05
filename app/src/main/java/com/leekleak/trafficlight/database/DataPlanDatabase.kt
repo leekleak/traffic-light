@@ -244,7 +244,7 @@ data class DataPlan(
     }
 
     fun getTotalMax(): Long {
-        return mainDataSize.byteValue + extras.filter { !it.expired }.sumOf { it.dataAmount }
+        return mainDataSize.byteValue + extras.filter { !it.expired }.sumOf { it.dataAmount.byteValue }
     }
 
     suspend fun getUsage(networkUsageManager: NetworkUsageManager): Long {
@@ -270,7 +270,8 @@ data class DataPlan(
 
 @Serializable
 data class DataPlanExtra(
-    val dataAmount: Long,
+    val dataAmount: DataSize,
+    val unit: DataSizeUnit = DataSizeUnit.GB,
     val dataUsed: Long = 0,
     val startStamp: Long,
     val expiryStamp: Long,
@@ -278,7 +279,7 @@ data class DataPlanExtra(
     val expired: Boolean = false
 ) {
     val dataRemaining: Long
-        get() = if (dataAmount <= 0) Long.MAX_VALUE else dataAmount - dataUsed
+        get() = if (dataAmount.byteValue <= 0) Long.MAX_VALUE else dataAmount.byteValue - dataUsed
 }
 
 @Dao

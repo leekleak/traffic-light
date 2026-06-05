@@ -26,12 +26,12 @@ data class DataSize (
     init {
         var i = 0
         var newValue = byteValue.toDouble()
-        while (newValue >= 1000 && i < DataSizeUnit.entries.size) {
-            newValue = if (newValue < 1024) 1.0 else newValue / 1024
+        while (newValue >= 1024 && i < DataSizeUnit.entries.size - 1) {
+            newValue /= 1024
             i++
         }
         value = newValue
-        unit = DataSizeUnit.entries.getOrNull(i) ?: DataSizeUnit.YB
+        unit = DataSizeUnit.entries[i]
         precision = if (value >= 10 || unit == DataSizeUnit.KB) 0 else 1
     }
 
@@ -42,8 +42,7 @@ data class DataSize (
     }
 
     fun getAsUnit(unit: DataSizeUnit): Double {
-        return if (unit == this.unit) value
-        else value * 1024.0.pow((this.unit.ordinal - unit.ordinal).toDouble())
+        return byteValue.toDouble() / unit.toBits().toDouble()
     }
 
     override fun toString(): String = toString(extraPrecision = false, speed = false, inBits = false)
@@ -54,22 +53,33 @@ data class DataSize (
     }
 
     fun toStringParts(extraPrecision: Boolean = false, speed: Boolean = false, inBits: Boolean = false): Triple<String, String, String> {
-        val newDataSize = DataSize(byteValue * if (inBits) 8 else 1)
-        return if (newDataSize.byteValue < 1000) {
-            Triple((if (newDataSize.byteValue != 0L) "<1" else "0"), "", DataSizeUnit.KB.getName(inBits, speed))
-        } else {
-            val withPrecision = applyPrecision(newDataSize, extraPrecision)
-            Triple(withPrecision.first, withPrecision.second, newDataSize.unit.getName(inBits, speed))
+        val bitsMultiplier = if (inBits) 8 else 1
+        var displayValue = byteValue.toDouble() * bitsMultiplier
+        var i = 0
+        val units = DataSizeUnit.entries
+        do {
+            displayValue /= 1024
+            i++
+        } while (displayValue >= 1024 && i < units.size - 1)
+
+        if (displayValue >= 1000 && i < units.size - 1) {
+            displayValue = 1.0
+            i++
         }
+
+        val displayUnit = units[i]
+        val precision = if (extraPrecision || (displayValue < 10 && displayUnit != DataSizeUnit.KB)) 1 else 0
+        
+        val parts = BigDecimal(displayValue.toString()).toPlainString().split(".")
+        val fraction = parts.getOrNull(1)?.substring(0, precision) ?: ""
+        
+        val first = if (byteValue != 0L && displayValue < 1 && i == 1) "<1" else parts[0]
+        val second = if (fraction != "") ".$fraction" else ""
+        val third = displayUnit.getName(inBits, speed)
+
+        return Triple(first, second, third)
     }
 
     companion object {
-        fun applyPrecision(dataSize: DataSize, extraPrecision: Boolean): Pair<String, String> {
-            val newPrecision = if (dataSize.precision > 0 || extraPrecision) 1 else 0
-            val parts = BigDecimal(dataSize.value.toString()).toPlainString().split(".")
-            val fraction = parts.getOrNull(1)?.substring(0, newPrecision) ?: ""
-
-            return Pair(parts[0], if (fraction != "")".$fraction" else fraction)
-        }
     }
 }
