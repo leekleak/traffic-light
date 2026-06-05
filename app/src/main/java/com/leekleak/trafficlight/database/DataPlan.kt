@@ -32,11 +32,12 @@ data class DataPlan(
     @ColumnInfo val simIndex: Int = -1,
     @ColumnInfo val carrierName: String = "",
 
-    @ColumnInfo val startDate: Long = LocalDate.now().withDayOfMonth(1).atStartOfDay().toTimestamp(), // LocalDate as timestamp
+    @ColumnInfo val startDate: Long = LocalDate.now().withDayOfMonth(1).atStartOfDay().toTimestamp(),
     @ColumnInfo val interval: TimeInterval = TimeInterval.MONTH,
     @ColumnInfo val intervalMultiplier: Int = 1,
+    @ColumnInfo val recurring: Boolean = false,
 
-    @ColumnInfo val excludedApps: List<Int> = listOf(), // List of excluded app UIDs
+    @ColumnInfo val excludedApps: List<Int> = listOf(),
 
     @ColumnInfo val notification: Boolean = false,
     @ColumnInfo val liveNotification: Boolean = false,
@@ -184,9 +185,23 @@ data class DataPlan(
                 val end = sortedStamps[i + 1]
 
                 if (start >= mainExpiryStamp) {
+                    val nextExpiry = calculateNextReset(mainExpiryStamp)
+                    if (recurring) {
+                        val remaining = mainDataSize.byteValue - mainDataUsed
+                        if (remaining > 0) {
+                            updatedExtras.add(
+                                DataPlanExtra(
+                                    dataAmount = DataSize(remaining),
+                                    unit = mainDataSizeUnit,
+                                    startStamp = mainExpiryStamp,
+                                    expiryStamp = nextExpiry
+                                )
+                            )
+                        }
+                    }
                     mainDataUsed = 0
                     mainStartStamp = mainExpiryStamp
-                    mainExpiryStamp = calculateNextReset(mainStartStamp)
+                    mainExpiryStamp = nextExpiry
                 }
 
                 val usageData = networkUsageManager.getNetworkDataForType(start, end, decryptedID, DataType.Mobile)

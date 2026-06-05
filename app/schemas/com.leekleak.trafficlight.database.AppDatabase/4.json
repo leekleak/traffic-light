@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "7ad4b1f5e30fa4300e0b10f314a77dd3",
+    "identityHash": "bfa97a5ac63ded69cedcdb9d7fae5ca4",
     "entities": [
       {
         "tableName": "DataPlan",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`hashedSubscriberID` TEXT NOT NULL, `encryptedSubscriberID` TEXT NOT NULL, `simIndex` INTEGER NOT NULL, `carrierName` TEXT NOT NULL, `startDate` INTEGER NOT NULL, `interval` TEXT NOT NULL, `intervalMultiplier` INTEGER NOT NULL, `excludedApps` TEXT NOT NULL, `notification` INTEGER NOT NULL, `liveNotification` INTEGER NOT NULL, `budgetWarning` INTEGER NOT NULL, `safetyWarning` INTEGER NOT NULL, `lastSafetyState` INTEGER NOT NULL, `budgetOvershotNotified` INTEGER NOT NULL, `mainDataSize` INTEGER NOT NULL, `mainDataSizeUnit` TEXT NOT NULL, `mainDataUsed` INTEGER NOT NULL, `mainStartStamp` INTEGER NOT NULL, `mainExpiryStamp` INTEGER NOT NULL, `extras` TEXT NOT NULL, `lastUpdateStamp` INTEGER NOT NULL, `uiBackground` INTEGER NOT NULL, `uiColor` INTEGER NOT NULL, `note` TEXT NOT NULL, PRIMARY KEY(`hashedSubscriberID`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`hashedSubscriberID` TEXT NOT NULL, `encryptedSubscriberID` TEXT NOT NULL, `simIndex` INTEGER NOT NULL, `carrierName` TEXT NOT NULL, `startDate` INTEGER NOT NULL, `interval` TEXT NOT NULL, `intervalMultiplier` INTEGER NOT NULL, `recurring` INTEGER NOT NULL, `excludedApps` TEXT NOT NULL, `notification` INTEGER NOT NULL, `liveNotification` INTEGER NOT NULL, `budgetWarning` INTEGER NOT NULL, `safetyWarning` INTEGER NOT NULL, `lastSafetyState` INTEGER NOT NULL, `budgetOvershotNotified` INTEGER NOT NULL, `mainDataSize` INTEGER NOT NULL, `mainDataSizeUnit` TEXT NOT NULL, `mainDataUsed` INTEGER NOT NULL, `mainStartStamp` INTEGER NOT NULL, `mainExpiryStamp` INTEGER NOT NULL, `extras` TEXT NOT NULL, `lastUpdateStamp` INTEGER NOT NULL, `uiBackground` INTEGER NOT NULL, `uiColor` INTEGER NOT NULL, `note` TEXT NOT NULL, PRIMARY KEY(`hashedSubscriberID`))",
         "fields": [
           {
             "fieldPath": "hashedSubscriberID",
@@ -47,6 +47,12 @@
           {
             "fieldPath": "intervalMultiplier",
             "columnName": "intervalMultiplier",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recurring",
+            "columnName": "recurring",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -163,7 +169,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7ad4b1f5e30fa4300e0b10f314a77dd3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bfa97a5ac63ded69cedcdb9d7fae5ca4')"
     ]
   }
 }

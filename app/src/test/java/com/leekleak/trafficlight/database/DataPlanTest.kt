@@ -166,7 +166,57 @@ class DataPlanTest {
         val novStart = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp()
         assertEquals("Cycle start mismatch", novStart, plan.mainStartStamp)
         assertEquals("Cycle usage not cleared", 0L, plan.mainDataUsed)
+        assertEquals("Should not have added extras when recurring is false", 0, plan.extras.size)
         assertTrue("lastUpdateStamp not moved forward", plan.lastUpdateStamp >= novStart)
+    }
+
+    @Test
+    fun `recursion logic adds unused data to an extra on reset`() = runTest {
+        val now = LocalDateTime.of(2023, 11, 1, 12, 0)
+        setCurrentTime(now)
+
+        val octStart = LocalDate.of(2023, 10, 1).atStartOfDay().toTimestamp()
+        val novStart = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp()
+        val decStart = LocalDate.of(2023, 12, 1).atStartOfDay().toTimestamp()
+
+        val plan = DataPlan(
+            hashedSubscriberID = "hash",
+            encryptedSubscriberID = "enc",
+            startDate = octStart,
+            mainDataSize = DataSize(5000L),
+            mainDataUsed = 2000L, // 3000L remaining
+            mainStartStamp = octStart,
+            mainExpiryStamp = novStart,
+            lastUpdateStamp = octStart,
+            recurring = true
+        )
+
+        val mockStats = mockk<NetworkStats>(relaxed = true)
+        every { networkUsageManager.queryDetails(any(), any(), any(), any()) } returns mockStats
+        
+        // Single bucket to move lastUpdateStamp to now
+        var bucketCount = 0
+        val bucketSlot = slot<NetworkStats.Bucket>()
+        every { mockStats.hasNextBucket() } answers { bucketCount < 1 }
+        every { mockStats.getNextBucket(capture(bucketSlot)) } answers {
+            setBucketFields(bucketSlot.captured, startTime = octStart, endTime = now.toTimestamp())
+            bucketCount++
+            true
+        }
+        
+        coEvery { networkUsageManager.getNetworkDataForType(any(), any(), any(), any()) } returns emptyList()
+
+        plan.updateUsage(networkUsageManager)
+
+        assertEquals("Usage should be reset", 0L, plan.mainDataUsed)
+        assertEquals("Start stamp should be updated", novStart, plan.mainStartStamp)
+        assertEquals("Expiry stamp should be updated", decStart, plan.mainExpiryStamp)
+        
+        assertEquals("One extra should be added", 1, plan.extras.size)
+        val extra = plan.extras[0]
+        assertEquals("Rollover amount mismatch", 3000L, extra.dataAmount.byteValue)
+        assertEquals("Rollover start stamp mismatch", novStart, extra.startStamp)
+        assertEquals("Rollover expiry stamp mismatch", decStart, extra.expiryStamp)
     }
 
     @Test

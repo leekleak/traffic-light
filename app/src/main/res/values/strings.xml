@@ -145,6 +145,8 @@
     <string name="speed_threshold_description">Silence notification when below a threshold.</string>
     <string name="threshold">Threshold</string>
     <string name="add_extra">Add Extra</string>
+    <string name="recursion">Recursion</string>
+    <string name="recursion_description">Add unused data to an extra at the end of the period.</string>
     <string name="amount">Amount</string>
     <string name="expiry">Expiry</string>
     <string name="start">Start</string>

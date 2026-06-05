@@ -62,7 +62,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MediumExtendedFloatingActionButton
+import androidx.compose.material3.MediumFloatingActionButton
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
@@ -214,7 +214,7 @@ fun DataPlanConfig(currentPlan: DataPlan) {
 
     Scaffold(
         floatingActionButton = {
-            MediumExtendedFloatingActionButton(
+            MediumFloatingActionButton(
                 onClick = {
                     scope.launch(Dispatchers.IO) {
                         newPlan.resetUsage()
@@ -539,23 +539,26 @@ private fun LazyListScope.typeConfig(newPlan: DataPlan, onPlanChange: (plan: Dat
             var selectedMonthDay by remember(newPlan) {
                 mutableIntStateOf(fromTimestamp(newPlan.startDate).dayOfMonth)
             }
+
             AnimatedContent(interval) { currentInterval ->
                 if (currentInterval == TimeInterval.MONTH) {
-                    SliderComponent(
-                        modifier = Modifier.padding(horizontal = 4.dp),
-                        modifierLabelText = Modifier.width(46.dp),
-                        title = stringResource(R.string.reset_day),
-                        icon = painterResource(R.drawable.history_2),
-                        value = selectedMonthDay.toLong(),
-                        values = remember { (1L..28L).map { it to null } },
-                        onValueChanged = {
-                            val newDate =
-                                LocalDate.now().withDayOfMonth(it.toInt()).toTimestamp()
-                            if (newDate != newPlan.startDate) {
-                                onPlanChange(newPlan.copy(startDate = newDate))
+                    Column {
+                        SliderComponent(
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            modifierLabelText = Modifier.width(46.dp),
+                            title = stringResource(R.string.reset_day),
+                            icon = painterResource(R.drawable.history_2),
+                            value = selectedMonthDay.toLong(),
+                            values = remember { (1L..28L).map { it to null } },
+                            onValueChanged = {
+                                val newDate =
+                                    LocalDate.now().withDayOfMonth(it.toInt()).toTimestamp()
+                                if (newDate != newPlan.startDate) {
+                                    onPlanChange(newPlan.copy(startDate = newDate))
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 } else {
                     CustomPlanSetup(
                         newPlan = newPlan,
@@ -570,6 +573,14 @@ private fun LazyListScope.typeConfig(newPlan: DataPlan, onPlanChange: (plan: Dat
                     )
                 }
             }
+            HorizontalDivider()
+            SwitchPreference(
+                title = stringResource(R.string.recursion),
+                summary = stringResource(R.string.recursion_description),
+                icon = painterResource(R.drawable.history),
+                value = newPlan.recurring,
+                onValueChanged = { onPlanChange(newPlan.copy(recurring = it)) }
+            )
         }
     }
 }

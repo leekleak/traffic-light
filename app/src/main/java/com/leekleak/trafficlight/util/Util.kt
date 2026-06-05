@@ -75,7 +75,6 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.Month
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
@@ -103,8 +102,8 @@ inline val Int.toDp: Dp
 inline val Dp.toSp: TextUnit
     @Composable get() = with(LocalDensity.current) { this@toSp.toSp() }
 
-fun LocalDateTime.toTimestamp(): Long = toInstant(currentTimezone()).toEpochMilli()
-fun LocalDate.toTimestamp(): Long = atStartOfDay().toInstant(currentTimezone()).toEpochMilli()
+fun LocalDateTime.toTimestamp(): Long = atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+fun LocalDate.toTimestamp(): Long = atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 fun fromTimestamp(stamp: Long): LocalDateTime {
     return LocalDateTime.ofInstant(
         Instant.ofEpochMilli(stamp),
@@ -254,8 +253,6 @@ fun ButtonGroupScope.iconButton(
 inline fun <reified T : Enum<T>> valueOfOrNull(name: String): T? {
     return enumEntries<T>().find { it.name.equals(name, ignoreCase = true) }
 }
-
-fun currentTimezone(): ZoneOffset = ZoneId.systemDefault().rules.getOffset(Instant.now())
 
 fun openLink(activity: Activity?, link: String) {
     activity?.startActivity(
