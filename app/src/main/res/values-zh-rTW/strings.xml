@@ -25,7 +25,6 @@
     <string name="mobile">行動網路：%1$s</string>
     <string name="about">關於</string>
     <string name="speed_in_bits">速度單位改為位元(bit)</string>
-    <string name="version">版本%1$s</string>
     <string name="removed_apps">已移除程式</string>
     <string name="tethering">行動無線基地台</string>
     <string name="data_plan_widget_description">在主畫面上即時監控數據使用量</string>
@@ -49,7 +48,6 @@
     <string name="appearance">外觀</string>
     <string name="alt_vpn_workaround">VPN替代模式</string>
     <string name="alt_vpn_workaround_description">支援隧道分離模式(split tunneling)，但計算精確性較低。</string>
-    <string name="support_development">支持開發</string>
     <string name="total_usage">總計使用量</string>
     <string name="notification_description">於狀態列中顯示網路速度。</string>
     <string name="auto">自動</string>
