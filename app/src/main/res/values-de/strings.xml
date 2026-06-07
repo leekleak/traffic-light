@@ -21,7 +21,6 @@
     <string name="about">Über</string>
     <string name="speed_in_bits">Geschwindigkeit in Bits anzeigen</string>
     <string name="github_description">Entwicklungen verfolgen oder Probleme melden.</string>
-    <string name="version">Version: %1$s</string>
     <string name="force_fallback">Erzwungene Rückfallgeschwindigkeit verfolgen</string>
     <string name="force_fallback_description">Hilfreich bei Verwendung eines fehlerhaften ROMs oder Ethernet</string>
     <string name="fallback_unsupported">Fallback wird nicht unterstützt</string>
@@ -40,7 +39,6 @@
     <string name="behavior">Verhalten</string>
     <string name="alt_vpn_workaround">Alternative VPN-Lösung</string>
     <string name="alt_vpn_workaround_description">Verbessert die Genauigkeit, unterbricht jedoch das Split-Tunneling.</string>
-    <string name="support_development">Entwicklung unterstützen</string>
     <string name="shizuku_not_running">Shizuku läuft nicht</string>
     <string name="sim_card">SIM-Karte</string>
     <string name="data_plans">Datenpläne</string>
@@ -73,7 +71,6 @@
     <string name="go_back">Zurück</string>
     <string name="app_name_short">Traffic Light</string>
     <string name="notification_channels">Einstellungen für Benachrichtigungskanäle</string>
-    <string name="disconnected_from_network">Verbindung zum Netzwerk unterbrochen</string>
     <string name="overview">Überblick</string>
     <string name="multi_sim_tracking">Multi-SIM Tracking</string>
     <string name="shizuku_required">Shizuku benötigte</string>
