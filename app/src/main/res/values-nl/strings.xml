@@ -10,7 +10,7 @@
     <string name="speed">Snelheid: %1$s</string>
     <string name="settings">Instellingen</string>
     <string name="battery_optimization">Batterijoptimalisatie</string>
-    <string name="battery_optimization_description">Moet uitgeschakeld zijn om te voorkomen dat de telefoon de achtergrondservice stopt na een tijdje.</string>
+    <string name="battery_optimization_description">Zorgt ervoor dat het systeem niet de service stopt</string>
     <string name="usage_statistics">Gebruiksmachtiging</string>
     <string name="usage_statistics_description">Nodig voor het langdurig volgen van het datagebruik.</string>
     <string name="notifications">Melding</string>
@@ -21,7 +21,6 @@
     <string name="about">Over</string>
     <string name="speed_in_bits">Snelheid in bits weergeven</string>
     <string name="github_description">Volg de ontwikkeling of meld problemen.</string>
-    <string name="version">Versie %1$s</string>
     <string name="force_fallback">Forceer terugval bij snelheid volgen</string>
     <string name="force_fallback_description">Handig wanneer je een foutieve ROM of Ethernet gebruikt</string>
     <string name="fallback_unsupported">Terugval wordt niet ondersteund</string>
@@ -40,7 +39,6 @@
     <string name="behavior">Gedrag</string>
     <string name="alt_vpn_workaround">Alternatieve VPN-omzeiling</string>
     <string name="alt_vpn_workaround_description">Verbetert nauwkeurigheid, maar breekt split tunnels.</string>
-    <string name="support_development">Ontwikkeling steunen</string>
     <string name="shizuku_not_running">Shizuku loopt niet</string>
     <string name="sim_card">Simkaart</string>
     <string name="data_plans">Databundels</string>
@@ -72,7 +70,6 @@
     <string name="mobile_data">Mobiele gegevens</string>
     <string name="notification_channels">Instellingen van meldingskanaal</string>
     <string name="go_back">Terug</string>
-    <string name="disconnected_from_network">Verbinding met het netwerk verbroken</string>
     <string name="overview">Overzicht</string>
     <string name="app_name_short">Traffic Light</string>
     <string name="multi_sim_tracking">Meerdere SIM\'s volgen</string>
@@ -116,4 +113,28 @@
         <item quantity="one">Reset in %d uur</item>
         <item quantity="other">Reset in %d uren</item>
     </plurals>
+    <string name="donate">Doneren</string>
+    <string name="other_users">Andere gebruikers</string>
+    <string name="budget_overshoot_warning">Budgetwaarschuwing</string>
+    <string name="budget_overshoot_warning_description">Krijg een melding wanneer het dagelijkse budget is overschreden.</string>
+    <string name="safety_status_warning">Statuswaarschuwing van veiligheid</string>
+    <string name="safety_status_warning_description">Krijg een melding wanneer de veiligheidsstatus van de bundel veranderd.</string>
+    <string name="budget_overshoot_notif_title">Overschot van dagelijks budget</string>
+    <string name="budget_overshoot_notif_text">Je hebt meer dan je dagelijkse budget gebruikt voor %1$s.</string>
+    <string name="safety_status_notif_title">Veiligheidsstatus verandert</string>
+    <string name="safety_status_notif_text">Je veiligheidsstatus voor %1$s is nu %2$s.</string>
+    <string name="separate_upload_and_download">Aparte upload en download</string>
+    <string name="supporter_ads">Supporteradvertenties</string>
+    <string name="supporter_ads_description">Schakel advertenties in om de ontwikkeling te steunen</string>
+    <string name="supporter_ads_disabled">Alleen ondersteunt in de Google Play-versie.</string>
+    <string name="ad">Advertentie</string>
+    <string name="no_browser_found">Geen browser gevonden</string>
+    <string name="persistent_notification">Blijvende melding</string>
+    <string name="plan_notification">Bundelmelding</string>
+    <string name="plan_warning_notification">Waarschuwingsmelding van bundel</string>
+    <string name="notification_permission">Meldingsmachtigingen</string>
+    <string name="allow_app_to_send_notifications">Sta de app toe om meldingen te sturen</string>
+    <string name="hint">Hint</string>
+    <string name="press_the_card_to_configure_plan_data">Druk op de kaart om de bundeldata in te stellen.</string>
+    <string name="extras">Extra\'s</string>
 </resources>
