@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -101,6 +102,7 @@ import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.copy
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
@@ -148,7 +150,6 @@ import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.openLink
 import com.leekleak.trafficlight.util.px
-import com.leekleak.trafficlight.util.toDp
 import com.leekleak.trafficlight.util.toTimestamp
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
@@ -210,28 +211,33 @@ fun DataPlanConfig(currentPlan: DataPlan) {
     }
 
     Scaffold(
-        floatingActionButton = {
-            MediumFloatingActionButton(
-                onClick = {
-                    scope.launch(Dispatchers.IO) {
-                        newPlan.resetUsage()
-                        newPlan.updateUsage(networkUsageManager)
-                        newPlan = newPlan.copy(
-                            lastSafetyState = -1,
-                            budgetOvershotNotified = false,
-                            configured = true
-                        )
-                        dataPlanDao.add(newPlan)
-                        haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
-                        navigator.goBack()
-                    }
-                }
+        bottomBar = {
+            Row(
+                modifier = Modifier.navigationBarsPadding().fillMaxWidth().padding(16.dp),
+                horizontalArrangement = Arrangement.End
             ) {
-                Icon(
-                    modifier = Modifier.size(32.dp),
-                    painter = painterResource(R.drawable.save),
-                    contentDescription = stringResource(R.string.save)
-                )
+                MediumFloatingActionButton(
+                    onClick = {
+                        scope.launch(Dispatchers.IO) {
+                            newPlan.resetUsage()
+                            newPlan.updateUsage(networkUsageManager)
+                            newPlan = newPlan.copy(
+                                lastSafetyState = -1,
+                                budgetOvershotNotified = false,
+                                configured = true
+                            )
+                            dataPlanDao.add(newPlan)
+                            haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                            navigator.goBack()
+                        }
+                    }
+                ) {
+                    Icon(
+                        modifier = Modifier.size(32.dp),
+                        painter = painterResource(R.drawable.save),
+                        contentDescription = stringResource(R.string.save)
+                    )
+                }
             }
         }
     ) { paddingValues ->
@@ -551,6 +557,14 @@ private fun LazyListScope.typeConfig(newPlan: DataPlan, onPlanChange: (plan: Dat
                                 }
                             }
                         )
+                        HorizontalDivider()
+                        SwitchPreference(
+                            title = stringResource(R.string.recursion),
+                            summary = stringResource(R.string.recursion_description),
+                            icon = painterResource(R.drawable.repeat),
+                            value = newPlan.recurring,
+                            onValueChanged = { onPlanChange(newPlan.copy(recurring = it)) }
+                        )
                     }
                 } else {
                     CustomPlanSetup(
@@ -566,14 +580,6 @@ private fun LazyListScope.typeConfig(newPlan: DataPlan, onPlanChange: (plan: Dat
                     )
                 }
             }
-            HorizontalDivider()
-            SwitchPreference(
-                title = stringResource(R.string.recursion),
-                summary = stringResource(R.string.recursion_description),
-                icon = painterResource(R.drawable.repeat),
-                value = newPlan.recurring,
-                onValueChanged = { onPlanChange(newPlan.copy(recurring = it)) }
-            )
         }
     }
 }
@@ -874,12 +880,12 @@ fun PlanSizeConfig(
     Box(
         modifier = Modifier
             .padding(top = TOP_BAR_HEIGHT)
-            .height(128.dp * 2.5f)
+            .height(172.dp * 1.5f)
             .fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
         val shape = wifiShape().toPath()
-        val shapeSizeBase = 128.dp.px
+        val shapeSizeBase = 172.dp.px
         val shapeColor = MaterialTheme.colorScheme.primaryContainer
         val scale = remember { Animatable(0f) }
         val haptic = LocalHapticFeedback.current
@@ -888,6 +894,7 @@ fun PlanSizeConfig(
             val sizePx = shapeSizeBase * (1 + scale.value)
             val matrix = Matrix().apply {
                 scale(sizePx, sizePx)
+                translate(-0.5f, -0.5f)
             }
             shape.copy().apply { transform(matrix) }
         }
@@ -903,9 +910,9 @@ fun PlanSizeConfig(
             if (number != null) {
                 onSizeUpdate(number.toFloat())
                 scale.animateTo(
-                    targetValue = (1.5 * (1 - E.pow(-number.toFloat() * 0.1))).toFloat(),
+                    targetValue = (1 * (1 - E.pow(-number.toFloat() * 0.1))).toFloat(),
                     animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioLowBouncy,
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
                         stiffness = Spring.StiffnessMedium
                     )
                 )
@@ -914,14 +921,16 @@ fun PlanSizeConfig(
 
         Box(
             modifier = Modifier
-                .size(128.dp * (1 + scale.value))
+                .size(172.dp * (1 + scale.value))
                 .drawWithCache {
                     onDrawBehind {
-                        rotate(scale.value * 60f) {
-                            drawPath(
-                                path = shapeTransformed,
-                                color = shapeColor,
-                            )
+                        rotate(scale.value * 60f, pivot = this.center) {
+                            translate(this.size.width / 2, this.size.height / 2) {
+                                drawPath(
+                                    path = shapeTransformed,
+                                    color = shapeColor,
+                                )
+                            }
                         }
                     }
                 },
@@ -930,12 +939,11 @@ fun PlanSizeConfig(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally)
             ) {
-                var intrinsics by remember { mutableIntStateOf(0) }
                 val fontFamilyDoHyeon = remember { doHyeonFont() }
                 BasicTextField(
                     state = fieldState,
                     modifier = Modifier
-                        .width(intrinsics.toDp)
+                        .width(IntrinsicSize.Min)
                         .alignByBaseline(),
                     inputTransformation =  InputTransformation {
                         val newText = asCharSequence().toString()
@@ -950,15 +958,10 @@ fun PlanSizeConfig(
                     ),
                     textStyle = TextStyle(
                         fontFamily = fontFamilyDoHyeon,
-                        fontSize = 40.sp * (1 + scale.value/2),
+                        fontSize = 64.sp,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                         textAlign = TextAlign.End,
                     ),
-                    onTextLayout = { out ->
-                        val right = out()?.getLineRight(0)?.toInt()
-                        val left = out()?.getLineLeft(0)?.toInt()
-                        intrinsics = if (right != null && left != null) { right - left } else 0
-                    },
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.surface),
                     lineLimits = TextFieldLineLimits.SingleLine,
                 )
