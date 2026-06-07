@@ -21,7 +21,6 @@
     <string name="about">Acerca de</string>
     <string name="speed_in_bits">Mostrar la velocidad en bits</string>
     <string name="github_description">Da seguimiento al desarrollo o reporta problemas.</string>
-    <string name="version">Versión %1$s</string>
     <string name="force_fallback">Forzar método alternativo de seguimiento</string>
     <string name="force_fallback_description">Útil cuando se usa una ROM con errores o conexión por ethernet</string>
     <string name="fallback_unsupported">Método alternativo no disponible</string>
@@ -40,7 +39,6 @@
     <string name="behavior">Comportamiento</string>
     <string name="alt_vpn_workaround">Solución alternativa de VPN</string>
     <string name="alt_vpn_workaround_description">Reduce la precisión de la medición pero permite la tunelización dividida (Split Tunneling).</string>
-    <string name="support_development">Apoya el desarrollo</string>
     <string name="shizuku_not_running">Shizuku no está en ejecución.</string>
     <string name="sim_card">Tarjeta SIM</string>
     <string name="data_plans">Planes de datos</string>
