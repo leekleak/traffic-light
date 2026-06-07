@@ -11,9 +11,11 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
                 `encryptedSubscriberID` TEXT NOT NULL, 
                 `simIndex` INTEGER NOT NULL, 
                 `carrierName` TEXT NOT NULL, 
+                `configured` INTEGER NOT NULL, 
                 `startDate` INTEGER NOT NULL, 
                 `interval` TEXT NOT NULL, 
                 `intervalMultiplier` INTEGER NOT NULL, 
+                `recurring` INTEGER NOT NULL, 
                 `excludedApps` TEXT NOT NULL, 
                 `notification` INTEGER NOT NULL, 
                 `liveNotification` INTEGER NOT NULL, 
@@ -21,7 +23,8 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
                 `safetyWarning` INTEGER NOT NULL, 
                 `lastSafetyState` INTEGER NOT NULL, 
                 `budgetOvershotNotified` INTEGER NOT NULL, 
-                `mainDataAmount` INTEGER NOT NULL, 
+                `mainDataSize` INTEGER NOT NULL, 
+                `mainDataSizeUnit` TEXT NOT NULL, 
                 `mainDataUsed` INTEGER NOT NULL, 
                 `mainStartStamp` INTEGER NOT NULL, 
                 `mainExpiryStamp` INTEGER NOT NULL, 
@@ -36,19 +39,19 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
 
         db.execSQL("""
             INSERT INTO `DataPlan_new` (
-                `hashedSubscriberID`, `encryptedSubscriberID`, `simIndex`, `carrierName`, 
-                `startDate`, `interval`, `intervalMultiplier`, `excludedApps`, 
+                `hashedSubscriberID`, `encryptedSubscriberID`, `simIndex`, `carrierName`, `configured`,
+                `startDate`, `interval`, `intervalMultiplier`, `recurring`, `excludedApps`, 
                 `notification`, `liveNotification`, `budgetWarning`, `safetyWarning`, 
                 `lastSafetyState`, `budgetOvershotNotified`, 
-                `mainDataAmount`, `mainDataUsed`, `mainStartStamp`, `mainExpiryStamp`,
+                `mainDataSize`, `mainDataSizeUnit`, `mainDataUsed`, `mainStartStamp`, `mainExpiryStamp`,
                 `extras`, `lastUpdateStamp`, `uiBackground`, `uiColor`, `note`
             )
             SELECT 
-                `hashedSubscriberID`, `encryptedSubscriberID`, `simIndex`, `carrierName`, 
-                `startDate`, `interval`, `intervalMultiplier`, `excludedApps`, 
+                `hashedSubscriberID`, `encryptedSubscriberID`, `simIndex`, `carrierName`, CASE WHEN `dataMax` > 0 THEN 1 ELSE 0 END, 
+                `startDate`, `interval`, `intervalMultiplier`, 0, `excludedApps`, 
                 `notification`, `liveNotification`, 0, 0, 
                 -1, 0,
-                `dataMax`, 0, `startDate`, 9223372036854775807,
+                `dataMax`, 'GB', 0, `startDate`, 9223372036854775807,
                 '[]', 0, `uiBackground`, 0, ''
             FROM `DataPlan`
         """.trimIndent())
