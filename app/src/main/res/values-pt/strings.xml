@@ -21,7 +21,6 @@
     <string name="about">Sobre</string>
     <string name="speed_in_bits">Mostrar a velocidade em bits</string>
     <string name="github_description">Acompanhe o desenvolvimento ou reporte problemas.</string>
-    <string name="version">Versão %1$s</string>
     <string name="force_fallback">Forçar a monitorização de velocidade alternativa</string>
     <string name="force_fallback_description">Útil ao utilizar uma ROM instável ou ligação via ethernet</string>
     <string name="fallback_unsupported">Método não suportado</string>
@@ -40,7 +39,6 @@
     <string name="behavior">Comportamento</string>
     <string name="alt_vpn_workaround">Solução alternativa da VPN</string>
     <string name="app_name_short">Traffic Light</string>
-    <string name="support_development">Ajudar desenvolvimento</string>
     <string name="shizuku_not_running">Shizuku não foi iniciado</string>
     <string name="sim_card">Cartão SIM</string>
     <string name="data_plans">Planos de Dados</string>
@@ -65,7 +63,6 @@
     <string name="prediction">Previsão</string>
     <string name="mobile_data">Dados móveis</string>
     <string name="go_back">Ir para trás</string>
-    <string name="disconnected_from_network">Desconectado da rede</string>
     <string name="list">Lista</string>
     <string name="reset">Reiniciar</string>
     <string name="shizuku_required">Shizuku necessário</string>
