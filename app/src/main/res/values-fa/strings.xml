@@ -19,7 +19,6 @@
     <string name="mobile">موبایل: %1$s</string>
     <string name="about">درباره</string>
     <string name="speed_in_bits">نمایش سرعت به صورت بیت</string>
-    <string name="version">نسخه %1$s</string>
     <string name="light">روشن</string>
     <string name="dark">تیره</string>
     <string name="help">کمک</string>
@@ -40,5 +39,4 @@
     <string name="behavior">رفتار</string>
     <string name="alt_vpn_workaround">راهکار جایگزین فیلترشکن</string>
     <string name="alt_vpn_workaround_description">دقت اندازه‌گیری را کاهش می‌دهد، اما با تونل‌بندی تفکیکی سازگار است.</string>
-    <string name="support_development">حمایت از توسعه</string>
 </resources>
