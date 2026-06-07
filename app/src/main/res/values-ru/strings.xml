@@ -17,7 +17,6 @@
     <string name="about">О приложении</string>
     <string name="speed_in_bits">Показывать скорость в битах</string>
     <string name="github_description">Отслеживать разработку приложения или сообщить о проблемах.</string>
-    <string name="version">Версия %1$s</string>
     <string name="light">Светлая</string>
     <string name="dark">Тёмная</string>
     <string name="cellular">Сотовая связь</string>
@@ -41,7 +40,6 @@
     <string name="behavior">Поведение</string>
     <string name="alt_vpn_workaround">Чередовать обход VPN</string>
     <string name="alt_vpn_workaround_description">Улучшает точность но ломает split tunneling (раздельное туннелирование).</string>
-    <string name="support_development">Поддержать разработку</string>
     <string name="shizuku_not_running">Shizuku не запущен</string>
     <string name="sim_card">SIM карта</string>
     <string name="data_plans">Тарифные планы</string>
@@ -67,7 +65,6 @@
     <string name="mobile_data">Мобильные данные</string>
     <string name="notification_channels">Настройки канала уведомлений</string>
     <string name="go_back">Вернуться</string>
-    <string name="disconnected_from_network">Отключено от сети</string>
     <string name="overview">Обзор</string>
     <string name="multi_sim_tracking">Отслеживание нескольких SIM</string>
     <string name="shizuku_required">Необходим Shizuku</string>
