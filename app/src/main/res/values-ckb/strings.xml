@@ -22,7 +22,6 @@
     <string name="about">دەربارە</string>
     <string name="speed_in_bits">خێرایی بە بیت پیشان بدە</string>
     <string name="github_description">پەرەپێدان بەدوادا بچۆ یان کێشەکان ڕاپۆرت بکە.</string>
-    <string name="version">وەشانی %1$s</string>
     <string name="force_fallback">بەدواداچوونی خێراییی جێگرەوە بسەپێنە.</string>
     <string name="force_fallback_description">بەسوودە لە کاتی بەکارهێنانی ڕۆمێکی پڕکێشە یان ئیسەرنێت</string>
     <string name="fallback_unsupported">جێگرەوە پشتگیری ناکرێت</string>
@@ -41,7 +40,6 @@
     <string name="behavior">ڕەفتار</string>
     <string name="alt_vpn_workaround">ڕێگەچارەی جێگرەوەی VPN</string>
     <string name="alt_vpn_workaround_description">وردیی پێوانەکردن کەمدەکاتەوە بەڵام ڕێگە بە تونێلکردنی جیاکەرەوە دەدات.</string>
-    <string name="support_development">پاڵپشتی گەشەپێدان بکە</string>
     <string name="shizuku_not_running">شیزوکو کار ناکات</string>
     <string name="sim_card">سیم کارد</string>
     <string name="data_plans">پلانەکانی داتا</string>
@@ -69,7 +67,6 @@
     <string name="mobile_data">داتای مۆبایل</string>
     <string name="notification_channels">ڕێکخستنەکانی کەناڵی ئاگانامە</string>
     <string name="go_back">گەڕانەوە</string>
-    <string name="disconnected_from_network">دابڕاوە لە تۆڕەوە</string>
     <string name="overview">کورتەی گشتی</string>
     <string name="multi_sim_tracking">چاودێریکردنی فڕەسیمکارت</string>
     <string name="shizuku_required">شیزوکۆ پێویستە</string>

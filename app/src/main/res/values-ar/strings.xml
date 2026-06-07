@@ -10,7 +10,7 @@
     <string name="speed">السرعة: %1$s</string>
     <string name="settings">الإعدادات</string>
     <string name="battery_optimization">تحسين البطارية</string>
-    <string name="battery_optimization_description">يجب تعطيله لمنع الهاتف من إنهاء الخدمة الخلفية بعد فترة.</string>
+    <string name="battery_optimization_description">تأكد مِن أن النظام لا يوقف الخدمة</string>
     <string name="usage_statistics">إذن الاستخدام</string>
     <string name="usage_statistics_description">مطلوب لتتبع استخدام البيانات على المدى الطويل.</string>
     <string name="notifications">إشعار</string>
@@ -21,7 +21,6 @@
     <string name="about">حول</string>
     <string name="speed_in_bits">أظهر السرعة بالبت</string>
     <string name="github_description">متابعة التطوير أو الإبلاغ عن المشكلات.</string>
-    <string name="version">الإصدار: %1$s</string>
     <string name="force_fallback">فرض استخدام تتبع السرعة الاحتياطي</string>
     <string name="force_fallback_description">مفيد عند استخدام نظام تشغيل غير مستقر أو شبكة إيثرنت</string>
     <string name="fallback_unsupported">الوضع الاحتياطي غير مدعوم</string>
@@ -40,7 +39,6 @@
     <string name="behavior">السلوك</string>
     <string name="alt_vpn_workaround">حل بديل لـ VPN</string>
     <string name="alt_vpn_workaround_description">يحسن الدقة ولكنه يعطّل التقسيم النفقي.</string>
-    <string name="support_development">ادعم التطوير</string>
     <string name="shizuku_not_running">Shizuku لا يعمل</string>
     <string name="sim_card">بطاقة SIM</string>
     <string name="data_plans">خطط البيانات</string>
@@ -76,7 +74,6 @@
     <string name="mobile_data">بيانات الجوّال</string>
     <string name="notification_channels">إعدادات قنوات الإشعارات</string>
     <string name="go_back">ارجع</string>
-    <string name="disconnected_from_network">غير متصل بالشبكة</string>
     <string name="overview">نظرة عامة</string>
     <string name="app_name_short">إشارة مرور</string>
     <string name="multi_sim_tracking">تتبع شرائح الاتصال المتعددة</string>
@@ -127,7 +124,33 @@
     <string name="separate_upload_and_download">تنزيل و رفع منفصل</string>
     <string name="supporter_ads">إعلانات الداعمين</string>
     <string name="supporter_ads_description">فعّل الإعلانات لدعم التطوير</string>
-    <string name="supporter_ads_disabled">إعلانات الداعمين مدعومة فقط في إصدار متجر Play</string>
+    <string name="supporter_ads_disabled">مدعومة فقط في إصدار متجر Play.</string>
     <string name="ad">إعلان</string>
     <string name="no_browser_found">لم يُعثر على متصفح</string>
+    <string name="donate">تبرّع</string>
+    <string name="budget_overshoot_warning">تحذير الميزانية</string>
+    <string name="budget_overshoot_warning_description">أرسل إشعارًا عند تجاوز الميزانية اليومية.</string>
+    <string name="safety_status_warning">تحذير حالة السلامة</string>
+    <string name="safety_status_warning_description">أرسل إشعارًا عند تغير حالة سلامة الخطة.</string>
+    <string name="budget_overshoot_notif_title">تجاوز الميزانية اليومية</string>
+    <string name="budget_overshoot_notif_text">لقد تجاوزت ميزانيتك اليومية لـ %1$s.</string>
+    <string name="safety_status_notif_title">غُيِّر حالة الأمان</string>
+    <string name="safety_status_notif_text">حالة الأمان الخاصة بك لـ %1$s أصبحت الآن %2$s.</string>
+    <string name="persistent_notification">إشعار دائم</string>
+    <string name="plan_notification">إشعار الخطة</string>
+    <string name="plan_warning_notification">إشعار تحذير الخطة</string>
+    <string name="notification_permission">إذن الإشعارات</string>
+    <string name="allow_app_to_send_notifications">اسمح للتطبيق بإرسال إشعارات</string>
+    <string name="hint">تلميح</string>
+    <string name="press_the_card_to_configure_plan_data">اضغط على البطاقة لتضبيط بيانات الخطة.</string>
+    <string name="other_users">مستخدمون آخرون</string>
+    <string name="extras">إضافات</string>
+    <string name="disconnected_from_network_or_low_speed">مفصول من الشبكة أو سرعة منخفضة</string>
+    <string name="disconnected">مفصول</string>
+    <string name="note">ملاحظة</string>
+    <string name="write_your_note_here">اكتب ملاحظتك هنا…</string>
+    <string name="persistent_notification_silent">إشعار دائم (صامت)</string>
+    <string name="speed_threshold">إسكات الإشعارات</string>
+    <string name="speed_threshold_description">إسكات الإشعارات عند الانخفاض عن حد معين.</string>
+    <string name="threshold">الحد</string>
 </resources>

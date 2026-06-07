@@ -10,7 +10,7 @@
     <string name="speed">Viteză: %1$s</string>
     <string name="settings">Configurări</string>
     <string name="battery_optimization">Optimizare baterie</string>
-    <string name="battery_optimization_description">Trebuie dezactivat pentru a opri telefonul să închidă serviciul de fundal.</string>
+    <string name="battery_optimization_description">Asigură-te că sistemul nu oprește serviciul</string>
     <string name="usage_statistics">Permisiune de utilizare</string>
     <string name="usage_statistics_description">Necesar pentru urmărirea utilizării datelor pe termen lung.</string>
     <string name="notifications">Notificare</string>
@@ -21,7 +21,6 @@
     <string name="about">Despre</string>
     <string name="speed_in_bits">Arată viteza în biți</string>
     <string name="github_description">Urmărește dezvoltarea sau raportează erori.</string>
-    <string name="version">Versiunea %1$s</string>
     <string name="ui">Interfață</string>
     <string name="auto">Automat</string>
     <string name="light">Luminos</string>
@@ -40,7 +39,6 @@
     <string name="behavior">Comportament</string>
     <string name="alt_vpn_workaround">Soluții alternative pentru VPN</string>
     <string name="alt_vpn_workaround_description">Îmbunătățește precizia, dar întrerupe tunelul divizat.</string>
-    <string name="support_development">Sprijinină dezvoltarea aplicației</string>
     <string name="shizuku_not_running">Shizuku nu rulează</string>
     <string name="sim_card">Card SIM</string>
     <string name="data_plans">Planuri de date</string>
@@ -73,7 +71,6 @@
     <string name="mobile_data">Date mobile</string>
     <string name="notification_channels">Setări canal de notificare</string>
     <string name="go_back">Înapoi</string>
-    <string name="disconnected_from_network">Deconectat de la rețea</string>
     <string name="overview">Prezentare generală</string>
     <string name="multi_sim_tracking">Urmărire multi-SIM</string>
     <string name="shizuku_required">Shizuku este necesar</string>
@@ -98,4 +95,13 @@
     <string name="persist">Persist</string>
     <string name="live_notification">Notificare live</string>
     <string name="very_big">Foarte mare</string>
+    <string name="donate">Donează</string>
+    <string name="selected_item">Selectat</string>
+    <string name="other_users">Alți utilizatori</string>
+    <string name="top_apps">Aplicații populare</string>
+    <string name="plan_notification_description">Urmărește utilizarea planului în bara de stare.</string>
+    <string name="budget_overshoot_warning">Avertisment de buget</string>
+    <string name="budget_overshoot_warning_description">Notifică când bugetul zilnic este depășit.</string>
+    <string name="safety_status_warning">Avertizare privind starea de siguranță</string>
+    <string name="safety_status_warning_description">Notifică când se schimbă starea de siguranță a planului.</string>
 </resources>

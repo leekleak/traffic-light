@@ -20,7 +20,6 @@
     <string name="about">概要</string>
     <string name="speed_in_bits">速度をビットで表示</string>
     <string name="github_description">開発を追跡したり、問題を報告したりします。</string>
-    <string name="version">バージョン: %1$s</string>
     <string name="force_fallback">強制フォールバック速度追跡</string>
     <string name="force_fallback_description">バグのあるROMやイーサネットを使用する際に役立ちます</string>
     <string name="fallback_unsupported">フォールバックはサポートされていません</string>
@@ -40,7 +39,6 @@
     <string name="alt_vpn_workaround">代替VPNの回避策</string>
     <string name="behavior">行動</string>
     <string name="appearance">外観</string>
-    <string name="support_development">開発をサポートする</string>
     <string name="shizuku_not_running">Shizukuが起動していません</string>
     <string name="sim_card">SIMカード</string>
     <string name="data_plans">データプラン</string>
@@ -72,7 +70,6 @@
     <string name="app_name_short">Traffic Light</string>
     <string name="notification_channels">通知チャンネル設定</string>
     <string name="go_back">戻る</string>
-    <string name="disconnected_from_network">ネットワークから切断されました</string>
     <string name="overview">概要</string>
     <string name="multi_sim_tracking">複数SIMトラッキング</string>
     <string name="shizuku_required">Shizukuが必要</string>

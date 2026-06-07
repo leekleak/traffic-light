@@ -22,7 +22,6 @@
     <string name="about">A riguardo</string>
     <string name="speed_in_bits">Mostra velocità in bit</string>
     <string name="github_description">Monitora lo sviluppo o segnala problematiche.</string>
-    <string name="version">Versione %1$s</string>
     <string name="force_fallback">Forza il monitoraggio di riserva</string>
     <string name="force_fallback_description">Utile quando si usa una ROM buggata o con Ethernet</string>
     <string name="fallback_unsupported">Riserva non supportata</string>
@@ -41,7 +40,6 @@
     <string name="behavior">Comportamento</string>
     <string name="alt_vpn_workaround">Soluzione alternativa per VPN</string>
     <string name="alt_vpn_workaround_description">Migliora la precisione ma interrompe la tecnica del tunneling diviso.</string>
-    <string name="support_development">Supporta lo sviluppo</string>
     <string name="shizuku_not_running">Shizuku non è in esecuzione</string>
     <string name="sim_card">Scheda SIM</string>
     <string name="data_plans">Piani Dati</string>
@@ -70,7 +68,6 @@
     <string name="mobile_data">Dati mobili</string>
     <string name="notification_channels">Impostazioni canale di notifica</string>
     <string name="go_back">Torna indietro</string>
-    <string name="disconnected_from_network">Disconnesso dalla rete</string>
     <string name="overview">Panoramica</string>
     <string name="multi_sim_tracking">Monitoraggio multi-SIM</string>
     <string name="shizuku_required">Shizuku richiesto</string>
