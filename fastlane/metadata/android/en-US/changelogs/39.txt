@@ -1,0 +1,16 @@
+Warning: This is an alpha release. Bugs are expected and reports appreciated
+
+Data Plans:
+- Added extras
+- Added notifications to warn about data safety changes
+- Monthly data plan can now be recurring
+- Added plan notes
+- Added ability to change plan unit (MB/GB))
+
+Enhancements:
+- Improved data accuracy
+- Speed notification can now be hidden for low speeds
+- Various UI improvements
+
+Bug Fixes:
+- A lot
