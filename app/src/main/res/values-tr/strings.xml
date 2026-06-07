@@ -21,7 +21,6 @@
     <string name="about">Hakkında</string>
     <string name="speed_in_bits">Hızı bit olarak göster</string>
     <string name="github_description">Gelişmeleri takip edin veya sorun bildirin.</string>
-    <string name="version">Sürüm %1$s</string>
     <string name="force_fallback">Yedek hız takip yöntemini zorla</string>
     <string name="force_fallback_description">Hatalı ROM veya ethernet kullanırken yardımcı olur</string>
     <string name="fallback_unsupported">Yedek yöntem desteklenmiyor</string>
@@ -40,7 +39,6 @@
     <string name="behavior">Davranış</string>
     <string name="alt_vpn_workaround">Alternatif VPN geçici çözümü</string>
     <string name="alt_vpn_workaround_description">Doğruluğu arttırır fakat bölünmüş tünellemeyi bozar.</string>
-    <string name="support_development">Gelişmesine destek ol</string>
     <string name="shizuku_not_running">Shizuku aktif değil</string>
     <string name="sim_card">SIM kart</string>
     <string name="data_plans">Veri Planları</string>
@@ -74,7 +72,6 @@
     <string name="all_apps">Tüm uygulamalar</string>
     <string name="notification_channels">Bildirim Kanalı Ayarları</string>
     <string name="go_back">Geri git</string>
-    <string name="disconnected_from_network">Ağ bağlantısı kesildi</string>
     <string name="overview">Genel bakış</string>
     <string name="multi_sim_tracking">Çoklu SIM takibi</string>
     <string name="shizuku_required">Shizuku gerekli</string>
@@ -116,4 +113,10 @@
         <item quantity="other">%d saat içinde sıfırlanacak</item>
     </plurals>
     <string name="selected_item">Seçildi</string>
+    <string name="separate_upload_and_download">Yükleme ve indirmeyi ayır</string>
+    <string name="supporter_ads">Destekçi reklamlar</string>
+    <string name="supporter_ads_description">Geliştirmeyi desteklemek için reklamları açın</string>
+    <string name="supporter_ads_disabled">Destekçi reklamlar sadece Google Play versiyonunda mevcuttur</string>
+    <string name="ad">Reklam</string>
+    <string name="no_browser_found">Bir tarayıcı bulunamadı</string>
 </resources>
