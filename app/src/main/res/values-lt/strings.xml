@@ -21,7 +21,6 @@
     <string name="about">Apie</string>
     <string name="speed_in_bits">Greitį matuoti bitais</string>
     <string name="github_description">Praneškite sutiktas programėlės problemas.</string>
-    <string name="version">Versija %1$s</string>
     <string name="force_fallback">Priverstinai naudoti atsarginį skaičiavimo metodą</string>
     <string name="force_fallback_description">Naudinga jei jūsų sitema turi klaidų arba esate prisijungę prie laidinio interneto</string>
     <string name="fallback_unsupported">Atsarginis skaičiavimo metodas neveikia</string>
@@ -40,7 +39,6 @@
     <string name="behavior">Elgsena</string>
     <string name="alt_vpn_workaround">Alternatyvus VPN duomenų skaičiavimas</string>
     <string name="alt_vpn_workaround_description">Tikslesni matavimai, tačiau neveikia naudojant kelių tunelių konfigūracijos VPN.</string>
-    <string name="support_development">Paremti kūrimą</string>
     <string name="shizuku_not_running">Shizuku nepaleistas</string>
     <string name="sim_card">SIM kortelė</string>
     <string name="data_plans">Duomenų Planai</string>
@@ -74,7 +72,6 @@
     <string name="mobile_data">Mobilieji duomenis</string>
     <string name="notification_channels">Pranešimo kanalų nustatymai</string>
     <string name="go_back">Grįžti</string>
-    <string name="disconnected_from_network">Atsijungta nuo tinklo</string>
     <string name="overview">Apžvalga</string>
     <string name="app_name_short">Šviesoforas</string>
     <string name="multi_sim_tracking">Multi-SIM stebėjimas</string>
