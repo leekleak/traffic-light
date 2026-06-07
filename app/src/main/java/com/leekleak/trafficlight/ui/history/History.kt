@@ -93,6 +93,7 @@ import com.leekleak.trafficlight.database.DropdownItem
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
+import com.leekleak.trafficlight.model.AppManager.Companion.otherUsersApp
 import com.leekleak.trafficlight.model.AppManager.Companion.removedApp
 import com.leekleak.trafficlight.model.AppManager.Companion.tetheringApp
 import com.leekleak.trafficlight.model.AppManager.Companion.unknownApp
@@ -714,7 +715,7 @@ fun AppItem(
                         maximum = maximum,
                         data = Pair(graphUsage1, graphUsage2)
                     )
-                    val noOptionApps = listOf(allApp, unknownApp)
+                    val noOptionApps = listOf(allApp, unknownApp, otherUsersApp)
                     AnimatedVisibility(
                         visible = selected && app != null && !noOptionApps.contains(app),
                         enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
