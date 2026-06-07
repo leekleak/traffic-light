@@ -20,7 +20,6 @@
     <string name="about">关于</string>
     <string name="speed_in_bits">网速使用 bit 单位</string>
     <string name="github_description">反馈问题 | 查看动态。</string>
-    <string name="version">版本 %1$s</string>
     <string name="force_fallback">开启备用网速监测</string>
     <string name="force_fallback_description">适用于有问题的系统或有线连接</string>
     <string name="fallback_unsupported">不支持</string>
@@ -40,7 +39,6 @@
     <string name="behavior">行为</string>
     <string name="alt_vpn_workaround">替代性VPN计算方法</string>
     <string name="alt_vpn_workaround_description">降低了测量精度，但兼容隧道分离。</string>
-    <string name="support_development">支持开发</string>
     <string name="shizuku_not_running">Shizuku未运行</string>
     <string name="sim_card">SIM卡</string>
     <string name="data_plans">数据计划</string>
@@ -75,7 +73,6 @@
     <string name="mobile_data">移动数据</string>
     <string name="notification_channels">通知渠道设置</string>
     <string name="go_back">返回</string>
-    <string name="disconnected_from_network">网络已断开</string>
     <string name="overview">概览</string>
     <string name="multi_sim_tracking">多SIM卡跟踪</string>
     <string name="shizuku_required">需要Shizuku服务</string>
