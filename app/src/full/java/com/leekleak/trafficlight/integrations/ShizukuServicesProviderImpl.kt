@@ -4,14 +4,17 @@ import android.content.pm.PackageManager
 import android.telephony.SubscriptionInfo
 import com.leekleak.shizukuintegration.ShizukuHelper
 import com.leekleak.trafficlight.BuildConfig
+import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.DataPlanRepository
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class ShizukuServicesProviderImpl(
     private val dataPlanDao: DataPlanDao,
     private val dataPlanRepository: DataPlanRepository,
+    private val appPreferenceRepo: AppPreferenceRepo,
     private val scope: CoroutineScope,
 ): ShizukuServicesProvider {
 
@@ -28,7 +31,9 @@ class ShizukuServicesProviderImpl(
     private fun getSubscriberID(subscriptionId: Int): String? = shizukuHelper.getSubscriberID(subscriptionId)
 
     override suspend fun updateSimData() {
-        if (shizukuRunning() && shizukuPermission() == PackageManager.PERMISSION_GRANTED) {
+        val shizukuPreferenceEnabled = appPreferenceRepo.shizukuTracking.first()
+        val shizukuPermissionGranted = shizukuPermission() == PackageManager.PERMISSION_GRANTED
+        if (shizukuRunning() && shizukuPreferenceEnabled && shizukuPermissionGranted) {
             val infos = getSubscriptionInfos().sortedBy { it.simSlotIndex }
             val activeSubscriberIDs = infos.map { getSubscriberID(it.subscriptionId) }
             val plans = dataPlanDao.getAll().map { plan ->

@@ -15,7 +15,7 @@ suspend fun updateSimDataBasic(dataPlanRepository: DataPlanRepository) {
     val dataPlanDao = dataPlanRepository.dao
     val plans = dataPlanDao.getAll()
     val newPlans = plans.map { it.copy(simIndex = if (it.decryptedID == null) 0 else -1) }
-    if (plans.isEmpty()) {
+    if (plans.count { it.simIndex >= 0 } == 0) {
         dataPlanRepository.savePlan(
             null,
             0,

@@ -10,6 +10,6 @@ val integrationsModule = module {
         }
     }
     single<ShizukuServicesProvider> {
-        ShizukuServicesProviderImpl(get(), get(), get())
+        ShizukuServicesProviderImpl(get(), get(), get(), get())
     }
 }
