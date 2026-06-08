@@ -186,6 +186,7 @@ class SpeedNotification(
             .setSmallIcon(R.drawable.notification)
             .setContentTitle(context.getString(R.string.app_name_short))
             .setOngoing(true)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setRequestPromotedOngoing(liveNotification)
             .setSilent(true)
             .setLocalOnly(true)

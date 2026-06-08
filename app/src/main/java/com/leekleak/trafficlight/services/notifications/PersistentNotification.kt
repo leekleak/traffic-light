@@ -34,13 +34,13 @@ abstract class PersistentNotification(
         }
     }
     fun startForeground(service: LifecycleService) {
-        notifySafely(notificationId, notification)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             service.startForeground(
                 notificationId,
                 notification,
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
             )
+            Timber.e("STARTED FOREGROUND")
         } else {
             service.startForeground(
                 notificationId,
