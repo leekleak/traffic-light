@@ -9,6 +9,7 @@ import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.util.MiniCardState
+import timber.log.Timber
 
 object WarningNotificationHelper {
     private const val BUDGET_NOTIFICATION_ID_OFFSET = 1000
@@ -32,7 +33,11 @@ object WarningNotificationHelper {
             .setAutoCancel(true)
             .build()
 
-        notificationManager.notify(BUDGET_NOTIFICATION_ID_OFFSET + plan.simIndex, notification)
+        try {
+            notificationManager.notify(BUDGET_NOTIFICATION_ID_OFFSET + plan.simIndex, notification)
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to show budget warning")
+        }
     }
 
     fun showSafetyWarning(context: Context, plan: DataPlan, state: MiniCardState) {
@@ -59,7 +64,11 @@ object WarningNotificationHelper {
             .setAutoCancel(true)
             .build()
 
-        notificationManager.notify(SAFETY_NOTIFICATION_ID_OFFSET + plan.simIndex, notification)
+        try {
+            notificationManager.notify(SAFETY_NOTIFICATION_ID_OFFSET + plan.simIndex, notification)
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to show safety warning")
+        }
     }
 
     const val NOTIFICATION_CHANNEL_ID = "PlanWarningNotification"

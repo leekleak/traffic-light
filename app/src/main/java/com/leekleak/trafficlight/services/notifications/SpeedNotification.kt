@@ -161,7 +161,7 @@ class SpeedNotification(
             .setContentTitle(title)
             .setContentText(messageShort)
             .build()
-        notificationManager.notify(notificationId, notification)
+        notifySafely(notificationId, notification)
     }
 
     private suspend fun updateTodayUsage() {

@@ -68,7 +68,7 @@ class PlanNotification(
             .setContentText(dataPlan.resetString(context))
             .setProgress(100, (progress*100).toInt(), false)
             .build()
-        notificationManager.notify(notificationId, notification)
+        notifySafely(notificationId, notification)
     }
 
     private fun updateBaseNotification() {
