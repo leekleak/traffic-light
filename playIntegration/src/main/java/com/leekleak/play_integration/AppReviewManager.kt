@@ -7,6 +7,7 @@ import com.google.android.play.core.ktx.requestReview
 import com.google.android.play.core.review.ReviewManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlin.time.Duration.Companion.seconds
 
 class AppReviewManager(
     val reviewManager: ReviewManager,
@@ -24,7 +25,7 @@ class AppReviewManager(
         }
         if (now < stamp) return
 
-        delay(1000 * 10) // Give 10 seconds to user to use the app
+        delay(10.seconds) // Give 10 seconds to user to use the app
 
         try {
             val reviewInfo = reviewManager.requestReview()

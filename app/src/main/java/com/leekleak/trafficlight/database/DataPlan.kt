@@ -117,12 +117,6 @@ data class DataPlan(
         }
     }
 
-    fun resetUsage() {
-        mainDataUsed = 0
-        extras = extras.map { it.copy(dataUsed = 0) }
-        lastUpdateStamp = 0
-    }
-
     private fun calculateNextReset(from: Long): Long {
         val date = fromTimestamp(from)
         return when (interval) {

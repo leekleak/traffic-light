@@ -28,6 +28,7 @@ import com.leekleak.trafficlight.util.px
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 
 @Composable
@@ -88,10 +89,10 @@ private fun BarGraphImpl(
     val barAnimationSqueeze = remember(yAxisData.size) { List(yAxisData.size * 2) { Animatable(0f) } }
     val barAnimation = remember(yAxisData.size) { List(yAxisData.size) { Animatable(0f) } }
     LaunchedEffect(yAxisData) {
-        for (i in 0 until barAnimation.size) {
+        for (i in barAnimation.indices) {
             launch {
                 if (yAxisData[i].second + yAxisData[i].first != 0L) {
-                    delay(100)
+                    delay(100.milliseconds)
                     barAnimation[i].animateTo(1f)
                 }
             }
@@ -150,7 +151,7 @@ private fun BarGraphImpl(
                     scope.launch {
                         legendAnimator(offset, wifiOffset, wifiAnimation, wifiLegendStrength)
                         legendAnimator(offset, cellularOffset, cellularAnimation, cellularLegendStrength)
-                        for (i in 0 until barOffset.size) {
+                        for (i in barOffset.indices) {
                             barAnimator(offset, barOffset[i], i, barAnimationSqueeze[i])
                         }
                     }

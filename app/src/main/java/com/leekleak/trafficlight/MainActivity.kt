@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.compose.koinInject
+import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : ComponentActivity() {
 
@@ -37,7 +38,7 @@ class MainActivity : ComponentActivity() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             lifecycleScope.launch {
-                delay(1000) // Apparently if you refresh previews too soon on app launch they'll be ignored
+                delay(1.seconds) // Apparently if you refresh previews too soon on app launch they'll be ignored
                 GlanceAppWidgetManager(this@MainActivity).setWidgetPreviews<WidgetReceiver>()
             }
         }

@@ -224,7 +224,7 @@ fun ScrollableBarGraph(
             .pointerInput(Unit) {
                 detectTapGestures { offset ->
                     scope.launch {
-                        for (i in 0 until data.size) { barAnimator(offset.x, i) }
+                        for (i in data.indices) { barAnimator(offset.x, i) }
                     }
                 }
             }

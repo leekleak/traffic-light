@@ -14,6 +14,7 @@ import com.leekleak.trafficlight.util.simIconRes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
 
 class PlanNotification(
     serviceScope: CoroutineScope,
@@ -33,7 +34,7 @@ class PlanNotification(
         job = scope.launch {
             while (true) {
                 updateNotification()
-                delay(5000)
+                delay(5.seconds)
             }
         }
 

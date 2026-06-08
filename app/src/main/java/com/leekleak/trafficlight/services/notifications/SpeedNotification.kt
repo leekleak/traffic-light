@@ -24,6 +24,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDate
+import kotlin.time.Duration.Companion.milliseconds
 
 class SpeedNotification(
     serviceScope: CoroutineScope,
@@ -96,7 +97,7 @@ class SpeedNotification(
                  * simply sleep for 1 second
                  */
                 if (trafficSnapshot.isCurrentSameAsLast()) {
-                    delay(100)
+                    delay(100.milliseconds)
                     trafficSnapshot.updateSnapshot()
                 }
 
@@ -109,7 +110,7 @@ class SpeedNotification(
 
                 updateNotification(trafficSnapshot)
                 trafficSnapshot.setCurrentAsLast()
-                delay(900)
+                delay(900.milliseconds)
             }
         }
 

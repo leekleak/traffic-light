@@ -67,7 +67,7 @@ internal class BarGraphHelper(
         val xItemSpacing = gridWidth / yAxisData.size
 
         rectList.clear()
-        for (i in 0 until yAxisData.size) {
+        for (i in yAxisData.indices) {
             val padding = 0.5.dp.toPx()
             val x = xItemSpacing * i
             val yOffset1 = yAxisData[i].first.toFloat() / verticalStep
@@ -198,7 +198,7 @@ internal class BarGraphHelper(
                 textAlign = Paint.Align.CENTER
                 textSize = 12.sp.toPx()
             }
-            for (i in 0 until yAxisData.size) {
+            for (i in yAxisData.indices) {
                 val xPos = metrics.xItemSpacing * (i + if (centerLabels) 0.5f else 0f)
                 drawContext.canvas.nativeCanvas.drawText(
                     xAxisData[i],

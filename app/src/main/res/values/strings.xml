@@ -22,7 +22,6 @@
     <string name="about">About</string>
     <string name="speed_in_bits">Show speed in bits</string>
     <string name="github" translatable="false">GitHub</string>
-    <string name="github_description">Track development or report issues.</string>
     <string name="version_short" translatable="false">v%1$s</string>
     <string name="force_fallback">Force fallback speed tracking</string>
     <string name="force_fallback_description">Helpful when using a buggy ROM or ethernet</string>
@@ -112,7 +111,6 @@
     <string name="budget_overshoot_notif_text">You have used more than your daily budget for %1$s.</string>
     <string name="safety_status_notif_title">Safety status changed</string>
     <string name="safety_status_notif_text">Your safety status for %1$s is now %2$s.</string>
-    <string name="unsupported_by_play_store_version">Unsupported by Play Store version</string>
     <string name="reset_day">Reset day</string>
     <string name="usage">Usage</string>
     <string name="safety">Safety</string>

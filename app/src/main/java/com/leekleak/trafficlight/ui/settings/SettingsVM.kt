@@ -1,8 +1,5 @@
 package com.leekleak.trafficlight.ui.settings
 
-import android.app.Activity
-import android.content.Intent
-import android.provider.Settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leekleak.trafficlight.database.AppPreferenceRepo
@@ -15,13 +12,4 @@ class SettingsVM(appPreferenceRepo: AppPreferenceRepo) : ViewModel() {
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
     val liveNotification: StateFlow<Boolean> = appPreferenceRepo.liveNotification
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
-
-    fun openNotificationChannelSettings(activity: Activity?, channel: String) {
-        activity?.startActivity(
-            Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
-                putExtra(Settings.EXTRA_APP_PACKAGE, activity.packageName)
-                putExtra(Settings.EXTRA_CHANNEL_ID, channel)
-            }
-        )
-    }
 }
