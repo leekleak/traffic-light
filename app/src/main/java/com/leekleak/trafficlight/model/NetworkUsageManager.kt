@@ -265,7 +265,6 @@ class NetworkUsageManager(
             val now = LocalDate.ofEpochDay(i)
             data.add(ScrollableBarData(now))
         }
-        emit(data.toList())
         coroutineScope {
             data.indices.map { i ->
                 async {

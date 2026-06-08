@@ -79,7 +79,7 @@ fun ScrollableBarGraph(
     val maximum = remember { Animatable(data.maxOf { it.y1 + it.y2 }.toFloat()) }
     LaunchedEffect(data) {
         val newMax = data.maxOfOrNull { it.y1 + it.y2 }?.toFloat() ?: Float.MAX_VALUE
-        maximum.animateTo(newMax, tween(10))
+        maximum.animateTo(newMax, tween())
     }
     var selectorIndex by remember { mutableIntStateOf(data.size-1) }
 
@@ -87,14 +87,12 @@ fun ScrollableBarGraph(
     val animatedY2 = remember(data.size) { data.map { Animatable(it.y2.toFloat()) } }
 
     LaunchedEffect(data) {
-        val max = data.maxOfOrNull { it.y1 + it.y2 }?.toFloat() ?: 0f
-        if (max == 0f) return@LaunchedEffect
         data.forEachIndexed { index, item ->
             launch {
-                animatedY1[index].animateTo(item.y1.toFloat(), tween(100))
+                animatedY1[index].animateTo(item.y1.toFloat(), tween())
             }
             launch {
-                animatedY2[index].animateTo(item.y2.toFloat(), tween(100))
+                animatedY2[index].animateTo(item.y2.toFloat(), tween())
             }
         }
     }

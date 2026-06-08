@@ -37,6 +37,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDate
+import kotlin.time.Duration.Companion.milliseconds
 
 class HistoryVM(
     private val networkUsageManager: NetworkUsageManager,
@@ -89,7 +90,7 @@ class HistoryVM(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val usageFlow = combine(refreshTrigger.debounce(300), queryFlow) { _, queries ->
+    val usageFlow = combine(refreshTrigger.debounce(300.milliseconds), queryFlow) { _, queries ->
         queries
     }.flatMapLatest { queries ->
         val dates = getDatesForTimespan()
