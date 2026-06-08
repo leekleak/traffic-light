@@ -413,7 +413,7 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                 SwitchPreference (
                     title = stringResource(R.string.notifications),
                     summary = stringResource(R.string.plan_notification_description),
-                    icon = painterResource(R.drawable.notification),
+                    icon = painterResource(R.drawable.usage_notification),
                     value = newPlan.notification,
                     enabled = notificationPermission,
                     onValueChanged = {
@@ -520,6 +520,7 @@ fun DataPlanConfig(currentPlan: DataPlan) {
             customElement = {
                 IconButton(
                     modifier = Modifier.align(Alignment.CenterEnd),
+                    enabled = newPlan.configured,
                     onClick = { showDeleteDialog = true }
                 ) {
                     Icon(
