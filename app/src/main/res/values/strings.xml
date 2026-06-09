@@ -135,6 +135,8 @@
     <string name="persistent_notification_silent">Persistent Notification (Silent)</string>
     <string name="plan_notification">Plan Notification</string>
     <string name="plan_warning_notification">Plan Warning Notification</string>
+    <string name="notification_aggregation_warning_title">Multiple notifications</string>
+    <string name="notification_aggregation_warning_text">On Android 16 and up, multiple foreground notifications are merged together, meaning their icons are no longer visible separately.</string>
     <string name="notification_permission">Notification Permission</string>
     <string name="allow_app_to_send_notifications">Allow app to send notifications</string>
     <string name="hint">Hint</string>

@@ -52,6 +52,9 @@ interface DataPlanDao {
     @Query("SELECT * FROM dataplan WHERE (simIndex != -1 AND notification == 1) ORDER BY simIndex ASC")
     fun getActivePlansWithNotificationsFlow(): Flow<List<DataPlan>>
 
+    @Query("SELECT COUNT(*) FROM dataplan WHERE (simIndex != -1 AND notification == 1)")
+    fun getActivePlansWithNotificationsCountFlow(): Flow<Int>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun add(dataPlan: DataPlan)
 
