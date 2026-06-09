@@ -29,9 +29,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialShapes.Companion.Cookie12Sided
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
@@ -66,6 +68,8 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.AppGraph
 import com.leekleak.trafficlight.charts.BarGraph
+import com.leekleak.trafficlight.database.DataType
+import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.integrations.Ad
 import com.leekleak.trafficlight.integrations.AdType
 import com.leekleak.trafficlight.ui.navigation.Navigator
@@ -79,6 +83,7 @@ import com.leekleak.trafficlight.util.MiniCard
 import com.leekleak.trafficlight.util.MiniCardState
 import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.TrendCard
+import com.leekleak.trafficlight.util.iconToggleButton
 import com.leekleak.trafficlight.util.px
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
@@ -281,6 +286,40 @@ private fun OverviewHero(scrollState: ScrollState) {
                     }
                 }
             )
+        }
+
+        val wifiToggledColors = IconButtonDefaults.iconButtonColors(
+            containerColor = colorScheme.tertiaryContainer,
+            contentColor = colorScheme.onTertiaryContainer
+        )
+        val queryFlow by viewModel.query.collectAsState()
+
+        ButtonGroup(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            overflowIndicator = {},
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            iconToggleButton(
+                text = null,
+                selected = queryFlow.dataType == DataType.Mobile,
+                onSelect = {viewModel.query.value = UsageQuery(DataType.Mobile) }
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.cellular),
+                    contentDescription = stringResource(R.string.cellular)
+                )
+            }
+            iconToggleButton(
+                text = null,
+                selected = queryFlow.dataType == DataType.Wifi,
+                toggledColors = wifiToggledColors,
+                onSelect = {viewModel.query.value = UsageQuery(DataType.Wifi) }
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.wifi),
+                    contentDescription = stringResource(R.string.wifi)
+                )
+            }
         }
     }
 }

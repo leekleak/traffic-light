@@ -42,6 +42,7 @@ import androidx.compose.material3.ButtonGroupScope
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -245,7 +246,7 @@ fun ButtonGroupScope.iconButton(
         buttonGroupContent = {
             val source = remember { MutableInteractionSource() }
             val press by source.collectIsPressedAsState()
-            val cornerRadius by animateDpAsState(if (press) 24.dp else 6.dp)
+            val cornerRadius by animateDpAsState(if (!press) 24.dp else 8.dp)
             IconButton(
                 modifier = Modifier.animateWidth(source),
                 colors = IconButtonDefaults.iconButtonColors(
@@ -264,6 +265,45 @@ fun ButtonGroupScope.iconButton(
                 text?.let {
                     Text(it)
                 }
+            }
+        },
+        menuContent = {}
+    )
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+fun ButtonGroupScope.iconToggleButton(
+    text: String? = null,
+    selected: Boolean,
+    onSelect: () -> Unit,
+    toggledColors: IconButtonColors? = null,
+    icon: @Composable (() -> Unit)
+) {
+    customItem(
+        buttonGroupContent = {
+            val source = remember { MutableInteractionSource() }
+            val press by source.collectIsPressedAsState()
+            val cornerRadius by animateDpAsState(if (press || selected) 12.dp else 24.dp)
+            val containerColor by animateColorAsState(targetValue =
+                if (selected) toggledColors?.containerColor ?: colorScheme.primaryContainer
+                else colorScheme.surfaceContainer
+            )
+            val contentColor by animateColorAsState(targetValue =
+                if (selected) toggledColors?.contentColor ?: colorScheme.onPrimaryContainer
+                else colorScheme.onSurfaceVariant
+            )
+            IconButton(
+                modifier = Modifier.animateWidth(source),
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = containerColor,
+                    contentColor = contentColor
+                ),
+                shape = RoundedCornerShape(cornerRadius),
+                interactionSource = source,
+                onClick = onSelect
+            ) {
+                icon()
+                text?.let { Text(it) }
             }
         },
         menuContent = {}
