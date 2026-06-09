@@ -13,6 +13,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -29,6 +30,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingToolbarDefaults
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,12 +52,11 @@ import androidx.navigation3.ui.NavDisplay
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.ui.history.History
 import com.leekleak.trafficlight.ui.overview.Overview
-import com.leekleak.trafficlight.ui.plans.DataPlans
 import com.leekleak.trafficlight.ui.plans.DataPlanConfig
+import com.leekleak.trafficlight.ui.plans.DataPlans
 import com.leekleak.trafficlight.ui.settings.NotificationSettings
 import com.leekleak.trafficlight.ui.settings.Settings
 import com.leekleak.trafficlight.ui.settings.UsagePermissionRequest
-import com.leekleak.trafficlight.ui.theme.navBarShadow
 import com.leekleak.trafficlight.util.TOP_BAR_HEIGHT
 import org.koin.compose.koinInject
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -104,8 +105,15 @@ fun NavigationManager() {
                     exit = slideOutVertically {it} + fadeOut(tween())
                 ) {
                     HorizontalFloatingToolbar(
-                        modifier = Modifier.navBarShadow(),
+                        modifier = Modifier.border(
+                            width = 1.5.dp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                            MaterialTheme.shapes.extraLargeIncreased
+                        ),
                         expanded = true,
+                        colors = FloatingToolbarDefaults.standardFloatingToolbarColors().copy(
+                            toolbarContainerColor = MaterialTheme.colorScheme.background,
+                        ),
                         content = {
                             NavigationButton(navigator, OverviewKey, stringResource(R.string.overview), R.drawable.overview)
                             NavigationButton(navigator, DataPlansKey, stringResource(R.string.plans), R.drawable.sim_card)
