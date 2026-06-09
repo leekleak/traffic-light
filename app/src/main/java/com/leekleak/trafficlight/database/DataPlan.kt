@@ -12,13 +12,16 @@ import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.DataSizeUnit
 import com.leekleak.trafficlight.util.fromTimestamp
 import com.leekleak.trafficlight.util.toTimestamp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import kotlin.math.min
 
 @Serializable
@@ -68,6 +71,14 @@ data class DataPlan(
     @Transient
     private val mutex = Mutex()
 
+    @Ignore
+    @Transient
+    private var _decryptedID: String? = null
+
+    @Ignore
+    @Transient
+    private var _decryptedIDInitialized = false
+
     init {
         require(intervalMultiplier > 0) {
             "intervalMultiplier must be positive, got $intervalMultiplier"
@@ -76,8 +87,12 @@ data class DataPlan(
 
     val decryptedID: String?
         get() {
-            val decrypted = CryptoManager.decrypt(encryptedSubscriberID)
-            return if (decrypted == NULL_SUBSCRIBER) null else decrypted
+            if (!_decryptedIDInitialized) {
+                val decrypted = CryptoManager.decrypt(encryptedSubscriberID)
+                _decryptedID = if (decrypted == NULL_SUBSCRIBER) null else decrypted
+                _decryptedIDInitialized = true
+            }
+            return _decryptedID
         }
 
     fun getRemainingDuration(): Duration {
@@ -100,19 +115,24 @@ data class DataPlan(
 
     fun getStartDate(next: Boolean = false): LocalDateTime {
         val now = LocalDateTime.now()
-        var startDate = fromTimestamp(startDate)
+        val startDateTime = fromTimestamp(startDate)
         return when (interval) {
             TimeInterval.MONTH -> {
-                while (startDate <= now) {
-                    startDate = startDate.plusMonths(1)
+                val monthsBetween = ChronoUnit.MONTHS.between(startDateTime, now)
+                var currentPeriodStart = startDateTime.plusMonths(monthsBetween)
+                if (currentPeriodStart > now) {
+                    currentPeriodStart = currentPeriodStart.minusMonths(1)
                 }
-                if (!next) startDate.minusMonths(1) else startDate
+                if (next) currentPeriodStart.plusMonths(1) else currentPeriodStart
             }
             TimeInterval.DAY -> {
-                while (startDate <= now) {
-                    startDate = startDate.plusDays(intervalMultiplier.toLong())
+                val daysBetween = ChronoUnit.DAYS.between(startDateTime, now)
+                val periodsBetween = daysBetween / intervalMultiplier
+                var currentPeriodStart = startDateTime.plusDays(periodsBetween * intervalMultiplier)
+                if (currentPeriodStart > now) {
+                    currentPeriodStart = currentPeriodStart.minusDays(intervalMultiplier.toLong())
                 }
-                if (!next) startDate.minusDays(intervalMultiplier.toLong()) else startDate
+                if (next) currentPeriodStart.plusDays(intervalMultiplier.toLong()) else currentPeriodStart
             }
         }
     }
@@ -125,7 +145,7 @@ data class DataPlan(
         }
     }
 
-    suspend fun updateUsage(networkUsageManager: NetworkUsageManager) = mutex.withLock {
+    suspend fun updateUsage(networkUsageManager: NetworkUsageManager) = withContext(Dispatchers.Default) { mutex.withLock {
         val now = LocalDateTime.now().toTimestamp()
 
         val currentStart = getStartDate(false).toTimestamp()
@@ -234,7 +254,7 @@ data class DataPlan(
                 extra
             }
         }
-    }
+    } }
 
     fun getTotalMax(): Long {
         return mainDataSize.byteValue + extras.filter { !it.expired }.sumOf { it.dataAmount.byteValue }

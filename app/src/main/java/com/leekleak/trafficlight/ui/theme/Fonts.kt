@@ -38,5 +38,5 @@ fun googleSans(
 }
 
 fun carrierFont(): FontFamily = googleSans(slant = -10f, weight = 600f, width = 70f)
-fun googleSansEmphasized(): FontFamily = googleSans(weight = 800f, width = 100f, roundness = 100f)
+fun googleSansEmphasized(): FontFamily = googleSans(weight = 800f, width = 110f, roundness = 50f)
 fun historyItemFont() = googleSans(weight = 800f)
