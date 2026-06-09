@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -38,10 +39,8 @@ import com.leekleak.trafficlight.util.toSp
 @Composable
 fun AppGraph(
     data: List<AppUsage>,
+    alternateColor: Boolean = false,
 ) {
-    val onPrimaryColor = GraphTheme.onPrimaryColor
-    val onBackgroundColor = GraphTheme.onBackgroundColor
-
     BoxWithConstraints(
         Modifier.fillMaxWidth().padding(8.dp)
     ) {
@@ -53,7 +52,7 @@ fun AppGraph(
                     .padding(16.dp),
                 text = stringResource(R.string.no_usage_detected),
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = colorScheme.onSurfaceVariant,
                 fontFamily = font
             )
             return@BoxWithConstraints
@@ -94,18 +93,19 @@ fun AppGraph(
                     Box(
                         Modifier
                             .clip(MaterialTheme.shapes.medium)
-                            .background(GraphTheme.primaryColor)
+                            .background(if (alternateColor) colorScheme.tertiary else colorScheme.primary)
                             .width(barWidth)
                             .height(40.dp)
                     ) {
                         if (fittedFontWidth != 25f) {
-                            Text(font, onPrimaryColor, text)
+                            val color = if (alternateColor) colorScheme.onTertiary else colorScheme.onPrimary
+                            Text(font, color, text)
                         }
                     }
                     usage.app.GetIcon(Modifier.size(40.dp))
                     if (fittedFontWidth == 25f) {
                         Box(Modifier.height(40.dp)) {
-                            Text(font, onBackgroundColor, text)
+                            Text(font, colorScheme.onBackground, text)
                         }
                     }
                 }

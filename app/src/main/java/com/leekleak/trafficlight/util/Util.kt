@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.text.format.DateFormat
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.animateColorAsState
@@ -61,10 +62,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.createFontFamilyResolver
@@ -281,6 +286,7 @@ fun ButtonGroupScope.iconToggleButton(
 ) {
     customItem(
         buttonGroupContent = {
+            val haptic = LocalHapticFeedback.current
             val source = remember { MutableInteractionSource() }
             val press by source.collectIsPressedAsState()
             val cornerRadius by animateDpAsState(if (press || selected) 12.dp else 24.dp)
@@ -300,7 +306,10 @@ fun ButtonGroupScope.iconToggleButton(
                 ),
                 shape = RoundedCornerShape(cornerRadius),
                 interactionSource = source,
-                onClick = onSelect
+                onClick = {
+                    onSelect()
+                    haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                }
             ) {
                 icon()
                 text?.let { Text(it) }
@@ -392,7 +401,7 @@ fun RowScope.MiniCard(
     icon: Painter,
     title: String,
     tooltipText: String? = null,
-    description: @Composable (font: FontFamily) -> Unit
+    description: AnnotatedString
 ) {
     val fontFamily = remember { googleSans(weight = 600f) }
     val color by animateColorAsState(
@@ -419,7 +428,13 @@ fun RowScope.MiniCard(
                 Icon(icon, null)
                 Text(title)
             }
-            description(fontFamily)
+            AnimatedContent(description) {
+                Text(
+                    text = it,
+                    fontFamily = fontFamily,
+                    fontSize = 24.sp
+                )
+            }
         }
     }
 
@@ -459,15 +474,11 @@ fun RowScope.TrendCard(
             else -> painterResource(R.drawable.trending_flat)
         },
         title = stringResource(R.string.trend),
-        tooltipText = stringResource(R.string.trend_tooltip)
-    ) { fontFamily ->
-        Text(
-            modifier = Modifier.alignByBaseline(),
-            text = if (trend < 1000) "%+d%%".format(trend.toInt()) else stringResource(R.string.very_big),
-            fontFamily = fontFamily,
-            fontSize = 24.sp
-        )
-    }
+        tooltipText = stringResource(R.string.trend_tooltip),
+        description = buildAnnotatedString {
+            append(if (trend < 1000) "%+d%%".format(trend.toInt()) else stringResource(R.string.very_big))
+        }
+    )
 }
 
 inline val shelfShape: RoundedCornerShape

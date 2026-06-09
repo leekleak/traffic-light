@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -304,18 +305,15 @@ private fun LazyListScope.usageInsights() {
                     baseColor = colorScheme.surface,
                     icon = painterResource(R.drawable.shield),
                     title = stringResource(R.string.safety),
-                    tooltipText = stringResource(R.string.safety_tooltip)
-                ) { fontFamily ->
-                    Text(
-                        text = when (dataSafety) {
+                    tooltipText = stringResource(R.string.safety_tooltip),
+                    description = AnnotatedString(
+                        when (dataSafety) {
                             MiniCardState.POSITIVE -> stringResource(R.string.safe)
                             MiniCardState.NEUTRAL -> stringResource(R.string.neutral)
                             MiniCardState.NEGATIVE -> stringResource(R.string.unsafe)
-                        },
-                        fontFamily = fontFamily,
-                        fontSize = 24.sp
+                        }
                     )
-                }
+                )
 
                 val trend by viewModel.trend.collectAsState()
                 TrendCard(
@@ -334,48 +332,38 @@ private fun LazyListScope.budgetInsights() {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 val viewModel: DataPlansVM = koinViewModel()
                 val todayBudget by viewModel.todayBudget.collectAsState()
+                val todayString by remember(todayBudget) { derivedStateOf { DataSize(todayBudget).toStringParts() } }
                 MiniCard(
                     state = MiniCardState.NEUTRAL,
                     baseColor = colorScheme.surface,
                     icon = painterResource(R.drawable.today),
-                    title = stringResource(R.string.today)
-                ) { fontFamily ->
-                    val string by remember { derivedStateOf { DataSize(todayBudget).toStringParts() } }
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        fontFamily = fontFamily,
-                        text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontSize = 24.sp)) {
-                                append("${string.first}${string.second}")
-                            }
-                            withStyle(style = SpanStyle(fontSize = 20.sp)) {
-                                append(string.third)
-                            }
+                    title = stringResource(R.string.today),
+                    description = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontSize = 24.sp)) {
+                            append("${todayString.first}${todayString.second}")
                         }
-                    )
-                }
+                        withStyle(style = SpanStyle(fontSize = 20.sp)) {
+                            append(todayString.third)
+                        }
+                    }
+                )
 
                 val remainingDailyBudget by viewModel.remainingDailyBudget.collectAsState()
+                val remainingString by remember(remainingDailyBudget) { derivedStateOf { DataSize(remainingDailyBudget).toStringParts() } }
                 MiniCard(
                     state = MiniCardState.NEUTRAL,
                     baseColor = colorScheme.surface,
                     icon = painterResource(R.drawable.calendar_month),
-                    title = stringResource(R.string.daily)
-                ) { fontFamily ->
-                    val string by remember { derivedStateOf { DataSize(remainingDailyBudget).toStringParts() } }
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        fontFamily = fontFamily,
-                        text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontSize = 24.sp)) {
-                                append("${string.first}${string.second}")
-                            }
-                            withStyle(style = SpanStyle(fontSize = 20.sp)) {
-                                append(string.third)
-                            }
+                    title = stringResource(R.string.daily),
+                    description = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontSize = 24.sp)) {
+                            append("${remainingString.first}${remainingString.second}")
                         }
-                    )
-                }
+                        withStyle(style = SpanStyle(fontSize = 20.sp)) {
+                            append(remainingString.third)
+                        }
+                    }
+                )
             }
         }
     }

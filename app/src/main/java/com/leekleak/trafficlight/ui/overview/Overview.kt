@@ -1,5 +1,7 @@
 package com.leekleak.trafficlight.ui.overview
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
@@ -181,6 +183,7 @@ private fun OverviewHero(scrollState: ScrollState) {
 
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
+    val query by viewModel.query.collectAsState()
 
     val offset by animateFloatAsState(if (pressed) 132.dp.px else 116.dp.px)
 
@@ -227,6 +230,10 @@ private fun OverviewHero(scrollState: ScrollState) {
         }
         shape1.copy().apply { transform(matrix) }
     }
+    val glowColor by animateColorAsState(targetValue =
+        if (query.dataType == DataType.Mobile) colorScheme.primaryContainer
+        else colorScheme.tertiaryContainer
+    )
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -250,7 +257,7 @@ private fun OverviewHero(scrollState: ScrollState) {
                     drawCircle(
                         Brush.radialGradient(
                             listOf(
-                                scheme.primaryContainer,
+                                glowColor,
                                 Color.Transparent
                             )
                         )
@@ -271,28 +278,33 @@ private fun OverviewHero(scrollState: ScrollState) {
             val fontFamily1 = remember(weight, width) { googleSans(weight = weight, width = width, roundness = 100f) }
             val fontFamily2 = remember(weight, width) { googleSans(weight = weight + 200f, width = width + 70f, roundness = 50f) }
 
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(fontFamily = fontFamily1, fontSize = 100.sp)) {
-                        append("${string.first}${string.second}")
+            AnimatedContent(string to (query.dataType == DataType.Wifi)) { (text, isWifi) ->
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontFamily = fontFamily1, fontSize = 100.sp)) {
+                            append("${text.first}${text.second}")
+                        }
+                        withStyle(style = SpanStyle(fontFamily = fontFamily1, fontSize = 42.sp)) {
+                            appendLine(text.third)
+                        }
+                        withStyle(style = SpanStyle(fontFamily = fontFamily2, fontSize = 20.sp)) {
+                            if (isWifi) {
+                                append(stringResource(R.string.wifi))
+                            } else {
+                                append(stringResource(R.string.mobile_data))
+                            }
+                        }
                     }
-                    withStyle(style = SpanStyle(fontFamily = fontFamily1, fontSize = 42.sp)) {
-                        appendLine(string.third)
-                    }
-                    withStyle(style = SpanStyle(fontFamily = fontFamily2, fontSize = 20.sp)) {
-                        append(stringResource(R.string.mobile_data))
-                    }
-                }
-            )
+                )
+            }
         }
 
         val wifiToggledColors = IconButtonDefaults.iconButtonColors(
             containerColor = colorScheme.tertiaryContainer,
             contentColor = colorScheme.onTertiaryContainer
         )
-        val queryFlow by viewModel.query.collectAsState()
 
         ButtonGroup(
             modifier = Modifier.align(Alignment.BottomCenter),
@@ -301,7 +313,7 @@ private fun OverviewHero(scrollState: ScrollState) {
         ) {
             iconToggleButton(
                 text = null,
-                selected = queryFlow.dataType == DataType.Mobile,
+                selected = query.dataType == DataType.Mobile,
                 onSelect = {viewModel.query.value = UsageQuery(DataType.Mobile) }
             ) {
                 Icon(
@@ -311,7 +323,7 @@ private fun OverviewHero(scrollState: ScrollState) {
             }
             iconToggleButton(
                 text = null,
-                selected = queryFlow.dataType == DataType.Wifi,
+                selected = query.dataType == DataType.Wifi,
                 toggledColors = wifiToggledColors,
                 onSelect = {viewModel.query.value = UsageQuery(DataType.Wifi) }
             ) {
@@ -334,20 +346,16 @@ private fun RowScope.PredictionCard() {
         state = MiniCardState.NEUTRAL,
         icon = painterResource(R.drawable.query_stats),
         title = stringResource(R.string.prediction),
-        tooltipText = stringResource(R.string.prediction_tooltip)
-    ) { fontFamily ->
-        Text(
-            fontFamily = fontFamily,
-            text = buildAnnotatedString {
-                withStyle(style = SpanStyle(fontSize = 24.sp)) {
-                    append("${string.first}${string.second}")
-                }
-                withStyle(style = SpanStyle(fontSize = 20.sp)) {
-                    append(string.third)
-                }
+        tooltipText = stringResource(R.string.prediction_tooltip),
+        description = buildAnnotatedString {
+            withStyle(style = SpanStyle(fontSize = 24.sp)) {
+                append("${string.first}${string.second}")
             }
-        )
-    }
+            withStyle(style = SpanStyle(fontSize = 20.sp)) {
+                append(string.third)
+            }
+        }
+    )
 }
 
 @Composable
@@ -355,13 +363,18 @@ fun OverviewItems() {
     val viewModel: OverviewVM = koinViewModel()
     val data by viewModel.weekUsage.collectAsState()
     val topAppsList by viewModel.topApps.collectAsState()
+    val query by viewModel.query.collectAsState()
     CategoryTitleText(stringResource(R.string.top_apps))
     Box(
         modifier = Modifier
             .card()
             .padding(6.dp)
     ) {
-        AppGraph(topAppsList)
+        AnimatedContent(
+            targetState = topAppsList to (query.dataType == DataType.Wifi)
+        ) { (list, isWifi) ->
+            AppGraph(list, isWifi)
+        }
     }
     Ad(AdType.NativeBanner)
     if (data.isNotEmpty()) {
