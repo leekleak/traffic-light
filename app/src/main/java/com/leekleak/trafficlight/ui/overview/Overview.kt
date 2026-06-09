@@ -77,6 +77,7 @@ import com.leekleak.trafficlight.util.EqualHeightRow
 import com.leekleak.trafficlight.util.MiniCard
 import com.leekleak.trafficlight.util.MiniCardState
 import com.leekleak.trafficlight.util.PageTitle
+import com.leekleak.trafficlight.util.TrendCard
 import com.leekleak.trafficlight.util.px
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
@@ -120,7 +121,9 @@ fun Overview(
                 modifier = Modifier
                     .padding(horizontal = 16.dp),
                 first = {
-                    Column (Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.SpaceBetween) {
+                    Column (Modifier
+                        .weight(1f)
+                        .fillMaxHeight(), verticalArrangement = Arrangement.SpaceBetween) {
                         HeroItems(scrollState)
                     }
                 },
@@ -158,7 +161,9 @@ private fun HeroItems(scrollState: ScrollState) {
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         PredictionCard()
-        TrendCard()
+        val viewModel: OverviewVM = koinViewModel()
+        val trend by viewModel.trend.collectAsState()
+        TrendCard(trend)
     }
 }
 
@@ -215,18 +220,25 @@ private fun OverviewHero(scrollState: ScrollState) {
     ) {
         Box(
             modifier = Modifier
-            .fillMaxSize()
-            .graphicsLayer {
-                translationY = scrollState.value * 0.4f
-            }
-            .drawWithContent {
-                val a = size.width / 2 - offset
-                val b = size.width / 2 + offset
+                .fillMaxSize()
+                .graphicsLayer {
+                    translationY = scrollState.value * 0.4f
+                }
+                .drawWithContent {
+                    val a = size.width / 2 - offset
+                    val b = size.width / 2 + offset
 
-                drawCircle(Brush.radialGradient(listOf(scheme.primaryContainer, Color.Transparent)))
-                translate(a, b) { drawPath(shape1Transformed, scheme.surface) }
-                translate(b, a) { drawPath(shape2Transformed, scheme.surface) }
-            }
+                    drawCircle(
+                        Brush.radialGradient(
+                            listOf(
+                                scheme.primaryContainer,
+                                Color.Transparent
+                            )
+                        )
+                    )
+                    translate(a, b) { drawPath(shape1Transformed, scheme.surface) }
+                    translate(b, a) { drawPath(shape2Transformed, scheme.surface) }
+                }
         )
         Column(modifier = Modifier.align(Alignment.Center)) {
             val todayUsage by viewModel.todayUsage.collectAsState()
@@ -275,10 +287,10 @@ private fun RowScope.PredictionCard() {
     MiniCard(
         state = MiniCardState.NEUTRAL,
         icon = painterResource(R.drawable.query_stats),
-        title = stringResource(R.string.prediction)
+        title = stringResource(R.string.prediction),
+        tooltipText = stringResource(R.string.prediction_tooltip)
     ) { fontFamily ->
         Text(
-            modifier = Modifier.fillMaxWidth(),
             fontFamily = fontFamily,
             text = buildAnnotatedString {
                 withStyle(style = SpanStyle(fontSize = 24.sp)) {
@@ -288,33 +300,6 @@ private fun RowScope.PredictionCard() {
                     append(string.third)
                 }
             }
-        )
-    }
-}
-
-@Composable
-private fun RowScope.TrendCard() {
-    val viewModel: OverviewVM = koinViewModel()
-    val trend by viewModel.trend.collectAsState()
-    val state = when {
-        trend > 50 -> MiniCardState.NEGATIVE
-        trend < -25 -> MiniCardState.POSITIVE
-        else -> MiniCardState.NEUTRAL
-    }
-    MiniCard(
-        state = state,
-        icon = when(state) {
-            MiniCardState.NEGATIVE -> painterResource(R.drawable.trending_up)
-            MiniCardState.POSITIVE -> painterResource(R.drawable.trending_down)
-            MiniCardState.NEUTRAL -> painterResource(R.drawable.trending_flat)
-        },
-        title = stringResource(R.string.trend)
-    ) { fontFamily ->
-        Text(
-            modifier = Modifier.alignByBaseline(),
-            text = if (trend < 1000)"%+d%%".format(trend.toInt()) else stringResource(R.string.very_big),
-            fontFamily = fontFamily,
-            fontSize = 24.sp
         )
     }
 }

@@ -152,6 +152,9 @@
     <string name="expiry">Expiry</string>
     <string name="start">Start</string>
     <string name="doesn_t_work">Doesn\'t work?</string>
+    <string name="trend_tooltip">Usage of the last 24 hours compared against the last 7 days.</string>
+    <string name="prediction_tooltip">Prediction based on your historical usage at this time of the week.</string>
+    <string name="safety_tooltip">Plan usage ratio compared with time passed.</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

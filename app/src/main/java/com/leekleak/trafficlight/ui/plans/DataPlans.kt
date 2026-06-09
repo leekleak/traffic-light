@@ -66,6 +66,7 @@ import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.MiniCard
 import com.leekleak.trafficlight.util.MiniCardState
 import com.leekleak.trafficlight.util.PageTitle
+import com.leekleak.trafficlight.util.TrendCard
 import com.leekleak.trafficlight.util.openLink
 import com.leekleak.trafficlight.util.shelfShape
 import kotlinx.coroutines.launch
@@ -274,7 +275,8 @@ private fun LazyListScope.extras(plan: DataPlan) {
                     )
                     if (chunk.size > 1) {
                         ExtraGraph(
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier
+                                .weight(1f)
                                 .background(colorScheme.surface, MaterialTheme.shapes.medium),
                             extra = chunk[1]
                         )
@@ -301,7 +303,8 @@ private fun LazyListScope.usageInsights() {
                     state = dataSafety,
                     baseColor = colorScheme.surface,
                     icon = painterResource(R.drawable.shield),
-                    title = stringResource(R.string.safety)
+                    title = stringResource(R.string.safety),
+                    tooltipText = stringResource(R.string.safety_tooltip)
                 ) { fontFamily ->
                     Text(
                         text = when (dataSafety) {
@@ -315,28 +318,10 @@ private fun LazyListScope.usageInsights() {
                 }
 
                 val trend by viewModel.trend.collectAsState()
-                val state = when {
-                    trend > 50 -> MiniCardState.NEGATIVE
-                    trend < -25 -> MiniCardState.POSITIVE
-                    else -> MiniCardState.NEUTRAL
-                }
-                MiniCard(
-                    state = state,
-                    baseColor = colorScheme.surface,
-                    icon = when (state) {
-                        MiniCardState.NEGATIVE -> painterResource(R.drawable.trending_up)
-                        MiniCardState.POSITIVE -> painterResource(R.drawable.trending_down)
-                        MiniCardState.NEUTRAL -> painterResource(R.drawable.trending_flat)
-                    },
-                    title = stringResource(R.string.trend)
-                ) { fontFamily ->
-                    Text(
-                        text = if (trend < 1000) "%+d%%".format(trend.toInt())
-                               else stringResource(R.string.very_big),
-                        fontFamily = fontFamily,
-                        fontSize = 24.sp
-                    )
-                }
+                TrendCard(
+                    trend = trend,
+                    baseColor = colorScheme.surface
+                )
             }
         }
     }

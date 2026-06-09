@@ -26,7 +26,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -46,7 +46,12 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -148,12 +153,17 @@ fun PageTitle(
             .then(
                 hazeState?.let {
                     Modifier.hazeEffect(state = it, style = HazeMaterials.ultraThin()) {
-                        progressive = HazeProgressive.verticalGradient(startIntensity = 1f, endIntensity = 0f)
+                        progressive =
+                            HazeProgressive.verticalGradient(startIntensity = 1f, endIntensity = 0f)
                     }
                 } ?: Modifier
             )
     ) {
-        Box(Modifier.statusBarsPadding().padding(horizontal = 16.dp).padding(bottom = 6.dp).fillMaxWidth()) {
+        Box(Modifier
+            .statusBarsPadding()
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 6.dp)
+            .fillMaxWidth()) {
             CategoryTitleText(text, backButton)
             customElement?.let { it() }
         }
@@ -341,6 +351,7 @@ fun RowScope.MiniCard(
     baseColor: Color = colorScheme.surfaceContainer,
     icon: Painter,
     title: String,
+    tooltipText: String? = null,
     description: @Composable (font: FontFamily) -> Unit
 ) {
     val fontFamily = remember { googleSans(weight = 600f) }
@@ -351,23 +362,71 @@ fun RowScope.MiniCard(
             MiniCardState.NEUTRAL -> baseColor
         }
     )
-    Column(
-        modifier = Modifier
-            .card()
-            .background(color)
-            .padding(16.dp)
-            .weight(1f)
-            .fillMaxHeight(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+
+    val content = @Composable {
+        Column(
+            modifier = Modifier
+                .card()
+                .fillMaxSize()
+                .background(color)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Icon(icon, null)
-            Text(title)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(icon, null)
+                Text(title)
+            }
+            description(fontFamily)
         }
-        description(fontFamily)
+    }
+
+    Box(Modifier.weight(1f)) {
+        if (tooltipText != null) {
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                    positioning = TooltipAnchorPosition.Above
+                ),
+                tooltip = { PlainTooltip { Text(tooltipText) } },
+                state = rememberTooltipState()
+            ) {
+                content()
+            }
+        } else {
+            content()
+        }
+    }
+}
+
+@Composable
+fun RowScope.TrendCard(
+    trend: Double,
+    baseColor: Color = colorScheme.surfaceContainer,
+) {
+    val state = when {
+        trend > 50 -> MiniCardState.NEGATIVE
+        trend < -25 -> MiniCardState.POSITIVE
+        else -> MiniCardState.NEUTRAL
+    }
+    MiniCard(
+        state = state,
+        baseColor = baseColor,
+        icon = when (state) {
+            MiniCardState.NEGATIVE -> painterResource(R.drawable.trending_up)
+            MiniCardState.POSITIVE -> painterResource(R.drawable.trending_down)
+            else -> painterResource(R.drawable.trending_flat)
+        },
+        title = stringResource(R.string.trend),
+        tooltipText = stringResource(R.string.trend_tooltip)
+    ) { fontFamily ->
+        Text(
+            modifier = Modifier.alignByBaseline(),
+            text = if (trend < 1000) "%+d%%".format(trend.toInt()) else stringResource(R.string.very_big),
+            fontFamily = fontFamily,
+            fontSize = 24.sp
+        )
     }
 }
 
