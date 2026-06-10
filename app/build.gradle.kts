@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
+    alias(libs.plugins.aboutLibraries)
 }
 
 room {
@@ -145,6 +146,9 @@ dependencies {
     "playImplementation"(project(":playIntegration"))
     "playImplementation"(libs.ads.mobile.sdk)
     "fullImplementation"(project(":shizukuIntegration"))
+
+    implementation(libs.aboutlibraries.core)
+    implementation(libs.aboutlibraries.compose.core)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)

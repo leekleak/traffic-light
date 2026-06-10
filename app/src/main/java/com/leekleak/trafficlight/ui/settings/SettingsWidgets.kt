@@ -182,6 +182,30 @@ fun NavigatePreference(
 }
 
 @Composable
+fun NavigatePreferenceIcon(
+    modifier: Modifier = Modifier,
+    icon: Painter,
+    contentDescription: String,
+    onClick: () -> Unit = {},
+    enabled: Boolean = true,
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .padding(vertical = 4.dp)
+            .card()
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(16.dp)
+            .alpha(if (enabled) 1f else 0.38f),
+    ) {
+        Icon(
+            painter = icon,
+            contentDescription = contentDescription,
+        )
+    }
+}
+
+@Composable
 fun SwitchPreference(
     modifier: Modifier = Modifier,
     title: String,

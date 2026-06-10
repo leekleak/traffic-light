@@ -25,9 +25,6 @@ data object UsagePermissionRequestKey : NavKey
 
 val mainScreens = listOf(OverviewKey, DataPlansKey, HistoryKey)
 
-/**
- * Settings
- */
 @Serializable
 data class PlanConfigKey(val dataPlan: DataPlan) : NavKey
 
@@ -36,3 +33,5 @@ data class PlanConfigKey(val dataPlan: DataPlan) : NavKey
  */
 @Serializable
 data object NotificationSettingsKey : NavKey
+@Serializable
+data object LibraryLicenseScreen : NavKey

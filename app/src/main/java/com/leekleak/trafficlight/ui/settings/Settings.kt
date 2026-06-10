@@ -36,6 +36,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.integrations.ShizukuServicesProvider
 import com.leekleak.trafficlight.model.PermissionManager
+import com.leekleak.trafficlight.ui.navigation.LibraryLicenseScreen
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.NotificationSettingsKey
 import com.leekleak.trafficlight.ui.theme.Theme
@@ -209,17 +210,20 @@ fun Settings(paddingValues: PaddingValues) {
             Row (horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 NavigatePreference(
                     modifier = Modifier.weight(1f),
-                    title = stringResource(R.string.github),
-                    icon = painterResource(R.drawable.github),
-                    onClick = { openLink(activity, "https://github.com/leekleak/traffic-light") },
-                    showControl = false
-                )
-                NavigatePreference(
-                    modifier = Modifier.weight(1f),
                     title = stringResource(R.string.donate),
                     icon = painterResource(R.drawable.donate),
                     onClick = { openLink(activity, "https://github.com/sponsors/leekleak") },
                     showControl = false
+                )
+                NavigatePreferenceIcon(
+                    icon = painterResource(R.drawable.github),
+                    contentDescription = stringResource(R.string.github),
+                    onClick = { openLink(activity, "https://github.com/leekleak/traffic-light") },
+                )
+                NavigatePreferenceIcon(
+                    icon = painterResource(R.drawable.gavel),
+                    contentDescription = stringResource(R.string.licenses),
+                    onClick = { navigator.goTo(LibraryLicenseScreen) },
                 )
             }
         }

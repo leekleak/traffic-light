@@ -20,6 +20,7 @@
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Mobile: %1$s</string>
     <string name="about">About</string>
+    <string name="licenses" translatable="false">Licenses</string>
     <string name="speed_in_bits">Show speed in bits</string>
     <string name="github" translatable="false">GitHub</string>
     <string name="version_short" translatable="false">v%1$s</string>
