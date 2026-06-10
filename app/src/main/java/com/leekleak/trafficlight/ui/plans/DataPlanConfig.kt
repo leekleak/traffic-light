@@ -124,6 +124,7 @@ import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.ExtraGraph
 import com.leekleak.trafficlight.charts.GraphTheme.wifiShape
+import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.DataPlanExtra
@@ -136,6 +137,7 @@ import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.model.search
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.settings.IconPreference
+import com.leekleak.trafficlight.ui.settings.NotificationWarningDialog
 import com.leekleak.trafficlight.ui.settings.PermissionCard
 import com.leekleak.trafficlight.ui.settings.SliderComponent
 import com.leekleak.trafficlight.ui.settings.SwitchPreference
@@ -143,7 +145,7 @@ import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.doHyeonFont
 import com.leekleak.trafficlight.ui.theme.googleSans
-import com.leekleak.trafficlight.ui.theme.longGoogleSans
+import com.leekleak.trafficlight.ui.theme.googleSansEmphasized
 import com.leekleak.trafficlight.util.CategoryTitleSmallText
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.DataSizeUnit
@@ -159,6 +161,7 @@ import com.leekleak.trafficlight.util.toTimestamp
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
@@ -175,6 +178,7 @@ import kotlin.math.pow
 fun DataPlanConfig(currentPlan: DataPlan) {
     val appManager: AppManager = koinInject()
     val dataPlanDao: DataPlanDao = koinInject()
+    val appPreferenceRepo: AppPreferenceRepo = koinInject()
     val networkUsageManager: NetworkUsageManager = koinInject()
     val shizukuServicesProvider: ShizukuServicesProvider = koinInject()
 
@@ -188,6 +192,11 @@ fun DataPlanConfig(currentPlan: DataPlan) {
 
     var newPlan by remember(currentPlan) { mutableStateOf(currentPlan.copy()) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+
+    var showForegroundNotificationWarning by remember { mutableStateOf(false) }
+    if (showForegroundNotificationWarning) {
+        NotificationWarningDialog(onDismiss = { showForegroundNotificationWarning = false })
+    }
 
     val calculatedPlan by produceState(initialValue = newPlan, newPlan) {
         val planToCalculate = newPlan.copy()
@@ -417,6 +426,16 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                     value = newPlan.notification,
                     enabled = notificationPermission,
                     onValueChanged = {
+                        if (it && Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+                            scope.launch {
+                                val speedNotif = appPreferenceRepo.notification.first()
+                                val activePlanNotifs = dataPlanDao.getActivePlansWithNotificationsCountFlow().first()
+                                val anotherPlanHasIt = if (currentPlan.notification) activePlanNotifs > 1 else activePlanNotifs > 0
+                                if (speedNotif || anotherPlanHasIt) {
+                                    showForegroundNotificationWarning = true
+                                }
+                            }
+                        }
                         scope.launch {
                             newPlan = newPlan.copy(notification = it)
                         }
@@ -876,9 +895,10 @@ fun AppSelector(
                 Text(
                     modifier = Modifier.padding(start = 8.dp),
                     text = stringResource(R.string.no_apps),
-                    fontFamily = longGoogleSans(),
+                    fontFamily = googleSansEmphasized(),
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

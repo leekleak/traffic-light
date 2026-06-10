@@ -14,7 +14,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialShapes.Companion.Sunny
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,8 +33,6 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.OverviewKey
-import com.leekleak.trafficlight.ui.navigation.SettingsKey
-import com.leekleak.trafficlight.util.PageTitle
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -50,17 +47,6 @@ fun UsagePermissionRequest(paddingValues: PaddingValues) {
         if (usagePermission) navigator.setTo(OverviewKey)
     }
 
-    PageTitle(false, null, "") {
-        IconButton(
-            modifier = Modifier.align(Alignment.TopEnd),
-            onClick = { navigator.goTo(SettingsKey) }
-        ) {
-            Icon(
-                painterResource(R.drawable.settings),
-                contentDescription = stringResource(R.string.settings)
-            )
-        }
-    }
     Box(Modifier.fillMaxSize().padding(paddingValues)) {
         Column(
             modifier = Modifier.fillMaxSize(),

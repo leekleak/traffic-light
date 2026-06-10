@@ -72,6 +72,7 @@ class NotificationService : LifecycleService() {
                     val id = notificationIDCounter.getAndIncrement()
                     val notif = get<PlanNotification> { parametersOf(lifecycleScope, id, plan) }
                     activeNotifications.add(notif)
+                    notif.start()
                     updateForegroundNotification()
                 }
                 activePlanNotifications.forEach { notification ->

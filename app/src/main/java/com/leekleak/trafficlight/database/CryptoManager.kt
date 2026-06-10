@@ -17,9 +17,12 @@ object CryptoManager {
     private const val HMAC_ALIAS = "hmac_key"
     private val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
 
+    private val keyCache = mutableMapOf<String, SecretKey>()
+
     private fun getSecretKey(alias: String): SecretKey {
-        val existingKey = keyStore.getEntry(alias, null) as? KeyStore.SecretKeyEntry
-        return existingKey?.secretKey ?: createKey(alias)
+        return keyCache[alias] ?: (keyStore.getEntry(alias, null) as? KeyStore.SecretKeyEntry)?.secretKey?.also {
+            keyCache[alias] = it
+        } ?: createKey(alias)
     }
 
     private fun createKey(alias: String): SecretKey {
@@ -36,7 +39,9 @@ object CryptoManager {
         }
 
         keyGenerator.init( builder.build() )
-        return keyGenerator.generateKey()
+        val key = keyGenerator.generateKey()
+        keyCache[alias] = key
+        return key
     }
 
     fun encrypt(data: String): String {

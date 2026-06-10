@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -66,6 +67,7 @@ import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.MiniCard
 import com.leekleak.trafficlight.util.MiniCardState
 import com.leekleak.trafficlight.util.PageTitle
+import com.leekleak.trafficlight.util.TrendCard
 import com.leekleak.trafficlight.util.openLink
 import com.leekleak.trafficlight.util.shelfShape
 import kotlinx.coroutines.launch
@@ -139,7 +141,7 @@ private fun DataPlanPager(
     ) { page ->
         if (page < activePlans.size) {
             val plan = activePlans[page]
-            if (plan.configured) {
+            if (plan.mainDataSize.byteValue != 0L) {
                 ConfiguredDataPlan(plan) {
                     navigator.goTo(PlanConfigKey(plan))
                 }
@@ -218,7 +220,7 @@ private fun DataPlanInsights(contentPadding: PaddingValues) {
         state = listState
     ) {
         item{}
-        if (dataPlan != null && !dataPlan!!.configured ) {
+        if (dataPlan != null && (dataPlan?.mainDataSize?.byteValue ?: 0) == 0L ) {
             item {
                 InfoCard(
                     title = stringResource(R.string.hint),
@@ -241,12 +243,12 @@ private fun DataPlanInsights(contentPadding: PaddingValues) {
                     }
                 }
             }
-            if (plan.configured) usageInsights()
+            if (plan.mainDataSize.byteValue > 0) usageInsights()
             extras(plan)
             thisWeek()
             if (adsEnabled) item { Ad(AdType.NativeBanner, colorScheme.surface) }
-            if (plan.configured) budgetInsights()
-            if (topAppsList.isNotEmpty()) topApps(topAppsList)
+            if (plan.mainDataSize.byteValue > 0) budgetInsights()
+            topApps(topAppsList)
         }
     }
 }
@@ -274,7 +276,8 @@ private fun LazyListScope.extras(plan: DataPlan) {
                     )
                     if (chunk.size > 1) {
                         ExtraGraph(
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier
+                                .weight(1f)
                                 .background(colorScheme.surface, MaterialTheme.shapes.medium),
                             extra = chunk[1]
                         )
@@ -301,42 +304,22 @@ private fun LazyListScope.usageInsights() {
                     state = dataSafety,
                     baseColor = colorScheme.surface,
                     icon = painterResource(R.drawable.shield),
-                    title = stringResource(R.string.safety)
-                ) { fontFamily ->
-                    Text(
-                        text = when (dataSafety) {
+                    title = stringResource(R.string.safety),
+                    tooltipText = stringResource(R.string.safety_tooltip),
+                    description = AnnotatedString(
+                        when (dataSafety) {
                             MiniCardState.POSITIVE -> stringResource(R.string.safe)
                             MiniCardState.NEUTRAL -> stringResource(R.string.neutral)
                             MiniCardState.NEGATIVE -> stringResource(R.string.unsafe)
-                        },
-                        fontFamily = fontFamily,
-                        fontSize = 24.sp
+                        }
                     )
-                }
+                )
 
                 val trend by viewModel.trend.collectAsState()
-                val state = when {
-                    trend > 50 -> MiniCardState.NEGATIVE
-                    trend < -25 -> MiniCardState.POSITIVE
-                    else -> MiniCardState.NEUTRAL
-                }
-                MiniCard(
-                    state = state,
-                    baseColor = colorScheme.surface,
-                    icon = when (state) {
-                        MiniCardState.NEGATIVE -> painterResource(R.drawable.trending_up)
-                        MiniCardState.POSITIVE -> painterResource(R.drawable.trending_down)
-                        MiniCardState.NEUTRAL -> painterResource(R.drawable.trending_flat)
-                    },
-                    title = stringResource(R.string.trend)
-                ) { fontFamily ->
-                    Text(
-                        text = if (trend < 1000) "%+d%%".format(trend.toInt())
-                               else stringResource(R.string.very_big),
-                        fontFamily = fontFamily,
-                        fontSize = 24.sp
-                    )
-                }
+                TrendCard(
+                    trend = trend,
+                    baseColor = colorScheme.surface
+                )
             }
         }
     }
@@ -349,48 +332,38 @@ private fun LazyListScope.budgetInsights() {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 val viewModel: DataPlansVM = koinViewModel()
                 val todayBudget by viewModel.todayBudget.collectAsState()
+                val todayString by remember(todayBudget) { derivedStateOf { DataSize(todayBudget).toStringParts() } }
                 MiniCard(
                     state = MiniCardState.NEUTRAL,
                     baseColor = colorScheme.surface,
                     icon = painterResource(R.drawable.today),
-                    title = stringResource(R.string.today)
-                ) { fontFamily ->
-                    val string by remember { derivedStateOf { DataSize(todayBudget).toStringParts() } }
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        fontFamily = fontFamily,
-                        text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontSize = 24.sp)) {
-                                append("${string.first}${string.second}")
-                            }
-                            withStyle(style = SpanStyle(fontSize = 20.sp)) {
-                                append(string.third)
-                            }
+                    title = stringResource(R.string.today),
+                    description = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontSize = 24.sp)) {
+                            append("${todayString.first}${todayString.second}")
                         }
-                    )
-                }
+                        withStyle(style = SpanStyle(fontSize = 20.sp)) {
+                            append(todayString.third)
+                        }
+                    }
+                )
 
                 val remainingDailyBudget by viewModel.remainingDailyBudget.collectAsState()
+                val remainingString by remember(remainingDailyBudget) { derivedStateOf { DataSize(remainingDailyBudget).toStringParts() } }
                 MiniCard(
                     state = MiniCardState.NEUTRAL,
                     baseColor = colorScheme.surface,
                     icon = painterResource(R.drawable.calendar_month),
-                    title = stringResource(R.string.daily)
-                ) { fontFamily ->
-                    val string by remember { derivedStateOf { DataSize(remainingDailyBudget).toStringParts() } }
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        fontFamily = fontFamily,
-                        text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontSize = 24.sp)) {
-                                append("${string.first}${string.second}")
-                            }
-                            withStyle(style = SpanStyle(fontSize = 20.sp)) {
-                                append(string.third)
-                            }
+                    title = stringResource(R.string.daily),
+                    description = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontSize = 24.sp)) {
+                            append("${remainingString.first}${remainingString.second}")
                         }
-                    )
-                }
+                        withStyle(style = SpanStyle(fontSize = 20.sp)) {
+                            append(remainingString.third)
+                        }
+                    }
+                )
             }
         }
     }

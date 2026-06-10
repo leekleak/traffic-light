@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.text.format.DateFormat
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.animateColorAsState
@@ -26,7 +27,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -42,11 +43,17 @@ import androidx.compose.material3.ButtonGroupScope
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -55,10 +62,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.createFontFamilyResolver
@@ -148,12 +159,17 @@ fun PageTitle(
             .then(
                 hazeState?.let {
                     Modifier.hazeEffect(state = it, style = HazeMaterials.ultraThin()) {
-                        progressive = HazeProgressive.verticalGradient(startIntensity = 1f, endIntensity = 0f)
+                        progressive =
+                            HazeProgressive.verticalGradient(startIntensity = 1f, endIntensity = 0f)
                     }
                 } ?: Modifier
             )
     ) {
-        Box(Modifier.statusBarsPadding().padding(horizontal = 16.dp).padding(bottom = 6.dp).fillMaxWidth()) {
+        Box(Modifier
+            .statusBarsPadding()
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 6.dp)
+            .fillMaxWidth()) {
             CategoryTitleText(text, backButton)
             customElement?.let { it() }
         }
@@ -235,7 +251,7 @@ fun ButtonGroupScope.iconButton(
         buttonGroupContent = {
             val source = remember { MutableInteractionSource() }
             val press by source.collectIsPressedAsState()
-            val cornerRadius by animateDpAsState(if (press) 24.dp else 6.dp)
+            val cornerRadius by animateDpAsState(if (!press) 24.dp else 8.dp)
             IconButton(
                 modifier = Modifier.animateWidth(source),
                 colors = IconButtonDefaults.iconButtonColors(
@@ -254,6 +270,49 @@ fun ButtonGroupScope.iconButton(
                 text?.let {
                     Text(it)
                 }
+            }
+        },
+        menuContent = {}
+    )
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+fun ButtonGroupScope.iconToggleButton(
+    text: String? = null,
+    selected: Boolean,
+    onSelect: () -> Unit,
+    toggledColors: IconButtonColors? = null,
+    icon: @Composable (() -> Unit)
+) {
+    customItem(
+        buttonGroupContent = {
+            val haptic = LocalHapticFeedback.current
+            val source = remember { MutableInteractionSource() }
+            val press by source.collectIsPressedAsState()
+            val cornerRadius by animateDpAsState(if (press || selected) 12.dp else 24.dp)
+            val containerColor by animateColorAsState(targetValue =
+                if (selected) toggledColors?.containerColor ?: colorScheme.primaryContainer
+                else colorScheme.surfaceContainer
+            )
+            val contentColor by animateColorAsState(targetValue =
+                if (selected) toggledColors?.contentColor ?: colorScheme.onPrimaryContainer
+                else colorScheme.onSurfaceVariant
+            )
+            IconButton(
+                modifier = Modifier.animateWidth(source),
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = containerColor,
+                    contentColor = contentColor
+                ),
+                shape = RoundedCornerShape(cornerRadius),
+                interactionSource = source,
+                onClick = {
+                    onSelect()
+                    haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                }
+            ) {
+                icon()
+                text?.let { Text(it) }
             }
         },
         menuContent = {}
@@ -341,7 +400,8 @@ fun RowScope.MiniCard(
     baseColor: Color = colorScheme.surfaceContainer,
     icon: Painter,
     title: String,
-    description: @Composable (font: FontFamily) -> Unit
+    tooltipText: String? = null,
+    description: AnnotatedString
 ) {
     val fontFamily = remember { googleSans(weight = 600f) }
     val color by animateColorAsState(
@@ -351,24 +411,74 @@ fun RowScope.MiniCard(
             MiniCardState.NEUTRAL -> baseColor
         }
     )
-    Column(
-        modifier = Modifier
-            .card()
-            .background(color)
-            .padding(16.dp)
-            .weight(1f)
-            .fillMaxHeight(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+
+    val content = @Composable {
+        Column(
+            modifier = Modifier
+                .card()
+                .fillMaxSize()
+                .background(color)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Icon(icon, null)
-            Text(title)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(icon, null)
+                Text(title)
+            }
+            AnimatedContent(description) {
+                Text(
+                    text = it,
+                    fontFamily = fontFamily,
+                    fontSize = 24.sp
+                )
+            }
         }
-        description(fontFamily)
     }
+
+    Box(Modifier.weight(1f)) {
+        if (tooltipText != null) {
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                    positioning = TooltipAnchorPosition.Above
+                ),
+                tooltip = { PlainTooltip { Text(tooltipText) } },
+                state = rememberTooltipState()
+            ) {
+                content()
+            }
+        } else {
+            content()
+        }
+    }
+}
+
+@Composable
+fun RowScope.TrendCard(
+    trend: Double,
+    baseColor: Color = colorScheme.surfaceContainer,
+) {
+    val state = when {
+        trend > 50 -> MiniCardState.NEGATIVE
+        trend < -25 -> MiniCardState.POSITIVE
+        else -> MiniCardState.NEUTRAL
+    }
+    MiniCard(
+        state = state,
+        baseColor = baseColor,
+        icon = when (state) {
+            MiniCardState.NEGATIVE -> painterResource(R.drawable.trending_up)
+            MiniCardState.POSITIVE -> painterResource(R.drawable.trending_down)
+            else -> painterResource(R.drawable.trending_flat)
+        },
+        title = stringResource(R.string.trend),
+        tooltipText = stringResource(R.string.trend_tooltip),
+        description = buildAnnotatedString {
+            append(if (trend < 1000) "%+d%%".format(trend.toInt()) else stringResource(R.string.very_big))
+        }
+    )
 }
 
 inline val shelfShape: RoundedCornerShape

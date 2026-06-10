@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -22,25 +23,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.ui.theme.googleSans
+import com.leekleak.trafficlight.ui.theme.googleSansEmphasized
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.toSp
 
 @Composable
 fun AppGraph(
     data: List<AppUsage>,
+    alternateColor: Boolean = false,
 ) {
-    val onPrimaryColor = GraphTheme.onPrimaryColor
-    val onBackgroundColor = GraphTheme.onBackgroundColor
-
     BoxWithConstraints(
         Modifier.fillMaxWidth().padding(8.dp)
     ) {
+        if (data.isEmpty()) {
+            val font = remember { googleSansEmphasized() }
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                text = stringResource(R.string.no_usage_detected),
+                textAlign = TextAlign.Center,
+                color = colorScheme.onSurfaceVariant,
+                fontFamily = font
+            )
+            return@BoxWithConstraints
+        }
         val maxBarWidth = maxWidth - 52.dp
         val maxUsage = data.firstOrNull()?.usage?.totalUsage?.toFloat() ?: return@BoxWithConstraints
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -77,18 +93,19 @@ fun AppGraph(
                     Box(
                         Modifier
                             .clip(MaterialTheme.shapes.medium)
-                            .background(GraphTheme.primaryColor)
+                            .background(if (alternateColor) colorScheme.tertiary else colorScheme.primary)
                             .width(barWidth)
                             .height(40.dp)
                     ) {
                         if (fittedFontWidth != 25f) {
-                            Text(font, onPrimaryColor, text)
+                            val color = if (alternateColor) colorScheme.onTertiary else colorScheme.onPrimary
+                            Text(font, color, text)
                         }
                     }
                     usage.app.GetIcon(Modifier.size(40.dp))
                     if (fittedFontWidth == 25f) {
                         Box(Modifier.height(40.dp)) {
-                            Text(font, onBackgroundColor, text)
+                            Text(font, colorScheme.onBackground, text)
                         }
                     }
                 }

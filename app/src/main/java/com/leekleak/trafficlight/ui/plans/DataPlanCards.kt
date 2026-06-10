@@ -47,7 +47,7 @@ import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.ui.theme.carrierFont
 import com.leekleak.trafficlight.ui.theme.doHyeonFont
-import com.leekleak.trafficlight.ui.theme.longGoogleSans
+import com.leekleak.trafficlight.ui.theme.googleSansEmphasized
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.simIconRes
 import org.koin.compose.koinInject
@@ -72,7 +72,7 @@ fun ConfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
 fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
     val haptic = LocalHapticFeedback.current
     val networkUsageManager: NetworkUsageManager = koinInject()
-    val fontFamilyGoogleSans = remember { longGoogleSans() }
+    val fontFamilyGoogleSans = remember { googleSansEmphasized() }
     val fontFamilyDoHyeon = remember { doHyeonFont() }
 
     val dataUsage by produceState(0L) { value = dataPlan.getUsage(networkUsageManager) }
@@ -160,7 +160,7 @@ private fun BoxBackground(
 private fun BoxScope.ConfiguredDataPlanContent(dataPlan: DataPlan) {
     val context = LocalContext.current
     val networkUsageManager: NetworkUsageManager = koinInject()
-    val fontFamilyGoogleSans = remember { longGoogleSans() }
+    val fontFamilyGoogleSans = remember { googleSansEmphasized() }
     val fontFamilyDoHyeon = remember { doHyeonFont() }
     val usageDataSize by produceState(DataSize(0)) { value = DataSize(dataPlan.getUsage(networkUsageManager)) }
     val usageValue by remember(usageDataSize) {

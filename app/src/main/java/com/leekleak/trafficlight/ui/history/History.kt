@@ -721,15 +721,14 @@ fun AppItem(
                         enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
                         exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
                     ) {
-                        Column {
-                            HorizontalDivider(Modifier.padding(vertical = 4.dp))
+                        Column(modifier.padding(top = 6.dp)) {
                             Row (
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.End,
                             ) {
                                 Button(
                                     modifier = Modifier.padding(end = 4.dp),
-                                    shape = MaterialTheme.shapes.small,
+                                    shape = MaterialTheme.shapes.large,
                                     onClick = {
                                         scope.launch {
                                             app?.uid?.let {
@@ -740,7 +739,10 @@ fun AppItem(
                                         }
                                     }
                                 ) {
-                                    Text(stringResource(R.string.quick_filter))
+                                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                        Icon(painterResource(R.drawable.custom), null)
+                                        Text(stringResource(R.string.quick_filter))
+                                    }
                                 }
                                 if (app is DataUIDApp) {
                                     val app by produceState<DataUID>(allApp) { value = appManager.getAppForUID(app.uid) }

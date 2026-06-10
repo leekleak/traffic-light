@@ -21,8 +21,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
@@ -62,6 +64,11 @@ fun Settings(paddingValues: PaddingValues) {
     val scope = rememberCoroutineScope()
     val hazeState = rememberHazeState()
 
+    var showWarning by remember { mutableStateOf(false) }
+    if (showWarning) {
+        NotificationWarningDialog(onDismiss = { showWarning = false })
+    }
+
     LazyColumn(
         Modifier
             .background(MaterialTheme.colorScheme.surface)
@@ -85,6 +92,7 @@ fun Settings(paddingValues: PaddingValues) {
         categoryTitleSmall { stringResource(R.string.notifications) }
         item {
             val notification by viewModel.notification.collectAsState()
+            val activePlanNotificationsCount by viewModel.activePlanNotificationsCount.collectAsState()
             val notificationPermission by permissionManager.notificationPermissionFlow.collectAsState()
             val notificationPermissionCallback = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
 
@@ -110,6 +118,9 @@ fun Settings(paddingValues: PaddingValues) {
                 value = notification,
                 enabled = notificationPermission,
                 onValueChanged = {
+                    if (it && Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA && activePlanNotificationsCount > 0) {
+                        showWarning = true
+                    }
                     scope.launch {
                         appPreferenceRepo.setNotification(it)
                     }
@@ -132,6 +143,12 @@ fun Settings(paddingValues: PaddingValues) {
                 val shizukuTracking by appPreferenceRepo.shizukuTracking.collectAsState(false)
                 val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
                 val shizukuRunning by permissionManager.shizukuRunningFlow.collectAsState(false)
+                var expectingPermissionChange by remember { mutableStateOf(false) }
+                LaunchedEffect(shizukuPermission) {
+                    if (shizukuPermission && expectingPermissionChange) {
+                        scope.launch { appPreferenceRepo.setShizukuTracking(true) }
+                    }
+                }
                 SwitchPreference(
                     title = stringResource(R.string.multi_sim_tracking),
                     summary = if (shizukuRunning) stringResource(R.string.shizuku_required) else stringResource(R.string.shizuku_not_running),
@@ -140,11 +157,10 @@ fun Settings(paddingValues: PaddingValues) {
                     enabled = shizukuRunning,
                     onValueChanged = {
                         if (shizukuPermission) {
-                            scope.launch {
-                                appPreferenceRepo.setShizukuTracking(it)
-                            }
+                            scope.launch { appPreferenceRepo.setShizukuTracking(it) }
                         } else {
                             shizukuServicesProvider.shizukuRequestPermission()
+                            expectingPermissionChange = true
                         }
                     },
                 )

@@ -1,6 +1,7 @@
 package com.leekleak.trafficlight.ui.overview
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
@@ -9,11 +10,11 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,9 +31,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialShapes.Companion.Cookie12Sided
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
@@ -67,6 +70,8 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.AppGraph
 import com.leekleak.trafficlight.charts.BarGraph
+import com.leekleak.trafficlight.database.DataType
+import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.integrations.Ad
 import com.leekleak.trafficlight.integrations.AdType
 import com.leekleak.trafficlight.ui.navigation.Navigator
@@ -79,6 +84,8 @@ import com.leekleak.trafficlight.util.EqualHeightRow
 import com.leekleak.trafficlight.util.MiniCard
 import com.leekleak.trafficlight.util.MiniCardState
 import com.leekleak.trafficlight.util.PageTitle
+import com.leekleak.trafficlight.util.TrendCard
+import com.leekleak.trafficlight.util.iconToggleButton
 import com.leekleak.trafficlight.util.px
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
@@ -122,7 +129,9 @@ fun Overview(
                 modifier = Modifier
                     .padding(horizontal = 16.dp),
                 first = {
-                    Column (Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.SpaceBetween) {
+                    Column (Modifier
+                        .weight(1f)
+                        .fillMaxHeight(), verticalArrangement = Arrangement.SpaceBetween) {
                         HeroItems(scrollState)
                     }
                 },
@@ -160,7 +169,9 @@ private fun HeroItems(scrollState: ScrollState) {
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         PredictionCard()
-        TrendCard()
+        val viewModel: OverviewVM = koinViewModel()
+        val trend by viewModel.trend.collectAsState()
+        TrendCard(trend)
     }
 }
 
@@ -172,8 +183,22 @@ private fun OverviewHero(scrollState: ScrollState) {
 
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
+    val query by viewModel.query.collectAsState()
 
     val offset by animateFloatAsState(if (pressed) 132.dp.px else 116.dp.px)
+
+    LaunchedEffect(interactionSource) {
+        interactionSource.interactions.collect { interaction ->
+            when (interaction) {
+                is PressInteraction.Press -> {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                }
+                is PressInteraction.Release, is PressInteraction.Cancel -> {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                }
+            }
+        }
+    }
 
     val scheme = colorScheme
     val shape1 = Cookie12Sided.toPath()
@@ -205,6 +230,10 @@ private fun OverviewHero(scrollState: ScrollState) {
         }
         shape1.copy().apply { transform(matrix) }
     }
+    val glowColor by animateColorAsState(targetValue =
+        if (query.dataType == DataType.Mobile) colorScheme.primaryContainer
+        else colorScheme.tertiaryContainer
+    )
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -217,18 +246,25 @@ private fun OverviewHero(scrollState: ScrollState) {
     ) {
         Box(
             modifier = Modifier
-            .fillMaxSize()
-            .graphicsLayer {
-                translationY = scrollState.value * 0.4f
-            }
-            .drawWithContent {
-                val a = size.width / 2 - offset
-                val b = size.width / 2 + offset
+                .fillMaxSize()
+                .graphicsLayer {
+                    translationY = scrollState.value * 0.4f
+                }
+                .drawWithContent {
+                    val a = size.width / 2 - offset
+                    val b = size.width / 2 + offset
 
-                drawCircle(Brush.radialGradient(listOf(scheme.primaryContainer, Color.Transparent)))
-                translate(a, b) { drawPath(shape1Transformed, scheme.surface) }
-                translate(b, a) { drawPath(shape2Transformed, scheme.surface) }
-            }
+                    drawCircle(
+                        Brush.radialGradient(
+                            listOf(
+                                glowColor,
+                                Color.Transparent
+                            )
+                        )
+                    )
+                    translate(a, b) { drawPath(shape1Transformed, scheme.surface) }
+                    translate(b, a) { drawPath(shape2Transformed, scheme.surface) }
+                }
         )
         Column(modifier = Modifier.align(Alignment.Center)) {
             val todayUsage by viewModel.todayUsage.collectAsState()
@@ -242,28 +278,60 @@ private fun OverviewHero(scrollState: ScrollState) {
             val fontFamily1 = remember(weight, width) { googleSans(weight = weight, width = width, roundness = 100f) }
             val fontFamily2 = remember(weight, width) { googleSans(weight = weight + 200f, width = width + 70f, roundness = 50f) }
 
-            LaunchedEffect(pressed) {
-                if (pressed) {
-                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                } else {
-                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                }
+            AnimatedContent(string to (query.dataType == DataType.Wifi)) { (text, isWifi) ->
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontFamily = fontFamily1, fontSize = 100.sp)) {
+                            append("${text.first}${text.second}")
+                        }
+                        withStyle(style = SpanStyle(fontFamily = fontFamily1, fontSize = 42.sp)) {
+                            appendLine(text.third)
+                        }
+                        withStyle(style = SpanStyle(fontFamily = fontFamily2, fontSize = 20.sp)) {
+                            if (isWifi) {
+                                append(stringResource(R.string.wifi))
+                            } else {
+                                append(stringResource(R.string.mobile_data))
+                            }
+                        }
+                    }
+                )
             }
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(fontFamily = fontFamily1, fontSize = 100.sp)) {
-                        append("${string.first}${string.second}")
-                    }
-                    withStyle(style = SpanStyle(fontFamily = fontFamily1, fontSize = 42.sp)) {
-                        appendLine(string.third)
-                    }
-                    withStyle(style = SpanStyle(fontFamily = fontFamily2, fontSize = 20.sp)) {
-                        append(stringResource(R.string.mobile_data))
-                    }
-                }
-            )
+        }
+
+        val wifiToggledColors = IconButtonDefaults.iconButtonColors(
+            containerColor = colorScheme.tertiaryContainer,
+            contentColor = colorScheme.onTertiaryContainer
+        )
+
+        ButtonGroup(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            overflowIndicator = {},
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            iconToggleButton(
+                text = null,
+                selected = query.dataType == DataType.Mobile,
+                onSelect = {viewModel.query.value = UsageQuery(DataType.Mobile) }
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.cellular),
+                    contentDescription = stringResource(R.string.cellular)
+                )
+            }
+            iconToggleButton(
+                text = null,
+                selected = query.dataType == DataType.Wifi,
+                toggledColors = wifiToggledColors,
+                onSelect = {viewModel.query.value = UsageQuery(DataType.Wifi) }
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.wifi),
+                    contentDescription = stringResource(R.string.wifi)
+                )
+            }
         }
     }
 }
@@ -277,48 +345,17 @@ private fun RowScope.PredictionCard() {
     MiniCard(
         state = MiniCardState.NEUTRAL,
         icon = painterResource(R.drawable.query_stats),
-        title = stringResource(R.string.prediction)
-    ) { fontFamily ->
-        Text(
-            modifier = Modifier.fillMaxWidth(),
-            fontFamily = fontFamily,
-            text = buildAnnotatedString {
-                withStyle(style = SpanStyle(fontSize = 24.sp)) {
-                    append("${string.first}${string.second}")
-                }
-                withStyle(style = SpanStyle(fontSize = 20.sp)) {
-                    append(string.third)
-                }
+        title = stringResource(R.string.prediction),
+        tooltipText = stringResource(R.string.prediction_tooltip),
+        description = buildAnnotatedString {
+            withStyle(style = SpanStyle(fontSize = 24.sp)) {
+                append("${string.first}${string.second}")
             }
-        )
-    }
-}
-
-@Composable
-private fun RowScope.TrendCard() {
-    val viewModel: OverviewVM = koinViewModel()
-    val trend by viewModel.trend.collectAsState()
-    val state = when {
-        trend > 50 -> MiniCardState.NEGATIVE
-        trend < -25 -> MiniCardState.POSITIVE
-        else -> MiniCardState.NEUTRAL
-    }
-    MiniCard(
-        state = state,
-        icon = when(state) {
-            MiniCardState.NEGATIVE -> painterResource(R.drawable.trending_up)
-            MiniCardState.POSITIVE -> painterResource(R.drawable.trending_down)
-            MiniCardState.NEUTRAL -> painterResource(R.drawable.trending_flat)
-        },
-        title = stringResource(R.string.trend)
-    ) { fontFamily ->
-        Text(
-            modifier = Modifier.alignByBaseline(),
-            text = if (trend < 1000)"%+d%%".format(trend.toInt()) else stringResource(R.string.very_big),
-            fontFamily = fontFamily,
-            fontSize = 24.sp
-        )
-    }
+            withStyle(style = SpanStyle(fontSize = 20.sp)) {
+                append(string.third)
+            }
+        }
+    )
 }
 
 @Composable
@@ -326,19 +363,17 @@ fun OverviewItems() {
     val viewModel: OverviewVM = koinViewModel()
     val data by viewModel.weekUsage.collectAsState()
     val topAppsList by viewModel.topApps.collectAsState()
-    AnimatedVisibility(
-        visible = topAppsList.isNotEmpty(),
-        enter = expandVertically()
+    val query by viewModel.query.collectAsState()
+    CategoryTitleText(stringResource(R.string.top_apps))
+    Box(
+        modifier = Modifier
+            .card()
+            .padding(6.dp)
     ) {
-        Column {
-            CategoryTitleText(stringResource(R.string.top_apps))
-            Box(
-                modifier = Modifier
-                    .card()
-                    .padding(6.dp)
-            ) {
-                AppGraph(topAppsList)
-            }
+        AnimatedContent(
+            targetState = topAppsList to (query.dataType == DataType.Wifi)
+        ) { (list, isWifi) ->
+            AppGraph(list, isWifi)
         }
     }
     Ad(AdType.NativeBanner)

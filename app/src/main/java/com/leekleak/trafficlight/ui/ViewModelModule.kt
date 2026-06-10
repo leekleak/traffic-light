@@ -11,5 +11,5 @@ val viewModelModule = module {
     viewModel { OverviewVM(get()) }
     viewModel { DataPlansVM(get()) }
     viewModel { HistoryVM(get(), get(), get()) }
-    viewModel { SettingsVM(get()) }
+    viewModel { SettingsVM(get(), get()) }
 }

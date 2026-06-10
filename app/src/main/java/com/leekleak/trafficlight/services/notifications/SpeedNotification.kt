@@ -11,7 +11,6 @@ import androidx.core.app.NotificationCompat
 import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
-import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.TrafficSnapshot
@@ -36,18 +35,10 @@ class SpeedNotification(
     private val appPreferenceRepo: AppPreferenceRepo,
     private val trafficSnapshot: TrafficSnapshot,
 ) : PersistentNotification(serviceScope, context, notificationManager, notificationId) {
-    private var updateCounter = DATA_UPDATE_FREQ
+    private var updateCounter = Int.MAX_VALUE
 
-    private val queryMobile =
-        UsageQuery(
-            dataType = DataType.Mobile,
-            dataDirection = DataDirection.Bidirectional,
-        )
-    private val queryWifi =
-        UsageQuery(
-            dataType = DataType.Wifi,
-            dataDirection = DataDirection.Bidirectional,
-        )
+    private val queryMobile = UsageQuery(dataType = DataType.Mobile)
+    private val queryWifi = UsageQuery(dataType = DataType.Wifi)
 
     private var aodMode = false
     private var inBits = false
@@ -101,7 +92,7 @@ class SpeedNotification(
                     trafficSnapshot.updateSnapshot()
                 }
 
-                if (updateCounter == DATA_UPDATE_FREQ) {
+                if (updateCounter >= DATA_UPDATE_FREQ) {
                     updateTodayUsage()
                     updateCounter = 0
                 } else {
@@ -122,17 +113,19 @@ class SpeedNotification(
     }
 
     private var lastTitle: String = ""
+    private var lastContent: String = ""
     private suspend fun updateNotification(trafficSnapshot: TrafficSnapshot, force: Boolean = false) {
         val data = DataSize(trafficSnapshot.totalSpeed).toString(speed = true, inBits = inBits)
         val title = context.getString(R.string.speed, data)
-
-        if (lastTitle == data && !force) return // If the title is the same, so is the icon.
-        else lastTitle = data
 
         val spacing = 18
         val messageShort =
             context.getString(R.string.wi_fi, DataSize(todayUsage.usage2).toString()).clipAndPad(spacing) +
             context.getString(R.string.mobile, DataSize(todayUsage.usage1).toString())
+
+        if (lastTitle == data && lastContent == messageShort && !force) return
+        lastTitle = data
+        lastContent = messageShort
 
         val speed = data.substringBefore(" ")
         val unit = data.substringAfter(" ")
