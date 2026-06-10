@@ -14,11 +14,31 @@ Traffic Light is an open-source tool for tracking your network usage while ensur
 
 ## Downloads
 
-| Method | [<img alt='Get it on GitHub' height="80" src='branding/badge_github.png'>](https://github.com/leekleak/traffic-light/releases) | [<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/en/packages/com.leekleak.trafficlight/) | [<img alt='Get it on Play Store' height="80" src='branding/badge_playstore.png'>](https://play.google.com/store/apps/details?id=com.leekleak.trafficlight) |
-|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| Delay | No delay | Delay depends on F-Droid maintainers | 1-3 days after last stable GitHub release |
-| Features | Multi-SIM support | Multi-SIM support | - |
-
+<table align="center" width="100%">
+  <tr>
+    <th align="center" width="50%">
+      Full Flavor
+    </th>
+    <th align="center" width="50%">
+      Play Flavor
+    </th>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/leekleak/traffic-light/releases"><img alt="GitHub" height="80" src="branding/badge_github.png"></a>
+      <a href="https://f-droid.org/en/packages/com.leekleak.trafficlight/"><img alt="F-Droid" height="80" src="branding/badge_fdroid.png"></a>
+      <a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium%3A%2F%2Fapp%2F%7B%22id%22%3A%22com.leekleak.trafficlight%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fleekleak%2Ftraffic-light%22%2C%22author%22%3A%22leekleak%22%2C%22name%22%3A%22Traffic%20Light%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22stable%5C%22%7D%22%7D"><img alt="Obtainium" height="80" src="branding/badge_obtainium.png"></a>
+    </td>
+    <td align="center">
+      <a href="https://play.google.com/store/apps/details?id=com.leekleak.trafficlight"><img alt="Get it on Play Store" height="80" src="branding/badge_playstore.png"></a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">All features</td>
+    <td align="center">No Shizuku (multi-SIM support)</td>
+  </tr>
+  </tr>
+</table>
 
 ## Screenshots
 
