@@ -16,7 +16,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -46,6 +45,7 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -61,6 +61,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MediumFloatingActionButton
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
@@ -139,6 +140,7 @@ import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.settings.IconPreference
 import com.leekleak.trafficlight.ui.settings.NotificationWarningDialog
 import com.leekleak.trafficlight.ui.settings.PermissionCard
+import com.leekleak.trafficlight.ui.settings.Preference
 import com.leekleak.trafficlight.ui.settings.SliderComponent
 import com.leekleak.trafficlight.ui.settings.SwitchPreference
 import com.leekleak.trafficlight.ui.theme.backgrounds
@@ -146,7 +148,6 @@ import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.doHyeonFont
 import com.leekleak.trafficlight.ui.theme.googleSans
 import com.leekleak.trafficlight.ui.theme.googleSansEmphasized
-import com.leekleak.trafficlight.util.CategoryTitleSmallText
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.DataSizeUnit
 import com.leekleak.trafficlight.util.LocalSizeMetric
@@ -164,7 +165,6 @@ import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 import java.text.DecimalFormat
 import java.text.NumberFormat
@@ -192,6 +192,8 @@ fun DataPlanConfig(currentPlan: DataPlan) {
     val activity = LocalActivity.current
 
     var newPlan by remember(currentPlan) { mutableStateOf(currentPlan.copy()) }
+    var isManualUsage by remember { mutableStateOf(false) }
+    val isConfigured = remember { currentPlan.configured }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     var showForegroundNotificationWarning by remember { mutableStateOf(false) }
@@ -200,8 +202,12 @@ fun DataPlanConfig(currentPlan: DataPlan) {
     }
 
     val calculatedPlan by produceState(initialValue = newPlan, newPlan) {
+        if (isManualUsage || isConfigured) {
+            value = newPlan
+            return@produceState
+        }
         val planToCalculate = newPlan.copy()
-        withContext(Dispatchers.IO) {
+        launch(Dispatchers.Default) {
             val tempPlan = planToCalculate.copy(
                 lastUpdateStamp = 0,
                 mainDataUsed = 0,
@@ -230,7 +236,7 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                         }
                     }
                 ) {
-                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.delete), color = colorScheme.error)
                 }
             },
             dismissButton = {
@@ -252,7 +258,6 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                 MediumFloatingActionButton(
                     onClick = {
                         scope.launch(Dispatchers.IO) {
-                            newPlan.updateUsage(networkUsageManager)
                             newPlan = newPlan.copy(
                                 lastSafetyState = -1,
                                 budgetOvershotNotified = false,
@@ -282,7 +287,6 @@ fun DataPlanConfig(currentPlan: DataPlan) {
             contentPadding = paddingValues
         ) {
             item {
-                val isConfigured = remember { currentPlan.configured }
                 val size by remember(newPlan, metric) { derivedStateOf {
                     newPlan.mainDataSize.getAsUnit(newPlan.mainDataSizeUnit, metric)
                 } }
@@ -301,34 +305,18 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                     }
                 )
             }
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    CategoryTitleSmallText(stringResource(R.string.type))
-                    val font = remember { googleSans(weight = 600f) }
-                    val metric = LocalSizeMetric.current
-                    Box(modifier = Modifier
-                        .background(MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium)
-                        .padding(horizontal = 8.dp, vertical = 2.dp))
-                    {
-                        AnimatedContent(
-                            targetState = DataSize(calculatedPlan.mainDataUsed).toString(metric = metric),
-                            transitionSpec = { fadeIn().togetherWith(fadeOut()) }
-                        ) {
-                            Text(
-                                text = it,
-                                fontFamily = font,
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-
-                    }
-                }
+            categoryTitleSmall { stringResource(R.string.type) }
+            typeConfig(
+                calculatedPlan = calculatedPlan,
+                isManualUsage = isManualUsage,
+                onManualUsageChange = {
+                    isManualUsage = true
+                    newPlan = newPlan.copy(mainDataUsed = it)
+                },
+                enabled = !currentPlan.configured
+            ) {
+                newPlan = it
             }
-            typeConfig(newPlan, enabled = !currentPlan.configured) { newPlan = it }
             categoryTitleSmall { stringResource(R.string.extras) }
             extrasConfig(calculatedPlan) { newPlan = newPlan.copy(extras = it.extras) }
             categoryTitleSmall { stringResource(R.string.zero_rated_apps) }
@@ -557,7 +545,13 @@ fun DataPlanConfig(currentPlan: DataPlan) {
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-private fun LazyListScope.typeConfig(newPlan: DataPlan, enabled: Boolean = true, onPlanChange: (plan: DataPlan) -> Unit) {
+private fun LazyListScope.typeConfig(
+    calculatedPlan: DataPlan,
+    isManualUsage: Boolean,
+    onManualUsageChange: (Long) -> Unit,
+    enabled: Boolean = true,
+    onPlanChange: (plan: DataPlan) -> Unit
+) {
     item {
         val haptic = LocalHapticFeedback.current
         Column(
@@ -565,7 +559,7 @@ private fun LazyListScope.typeConfig(newPlan: DataPlan, enabled: Boolean = true,
                 .card()
                 .padding(horizontal = 8.dp, vertical = 4.dp)
         ) {
-            val interval by remember(newPlan) { derivedStateOf { newPlan.interval } }
+            val interval by remember(calculatedPlan) { derivedStateOf { calculatedPlan.interval } }
             val monthlyString = stringResource(R.string.monthly)
             val customString = stringResource(R.string.custom)
             ButtonGroup(
@@ -584,7 +578,7 @@ private fun LazyListScope.typeConfig(newPlan: DataPlan, enabled: Boolean = true,
                         )
                     },
                     onCheckedChange = {
-                        onPlanChange(newPlan.copy(interval = TimeInterval.MONTH))
+                        onPlanChange(calculatedPlan.copy(interval = TimeInterval.MONTH))
                         haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                     },
                     weight = 1f,
@@ -600,15 +594,15 @@ private fun LazyListScope.typeConfig(newPlan: DataPlan, enabled: Boolean = true,
                         )
                     },
                     onCheckedChange = {
-                        onPlanChange(newPlan.copy(interval = TimeInterval.DAY))
+                        onPlanChange(calculatedPlan.copy(interval = TimeInterval.DAY))
                         haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                     },
                     weight = 1f,
                 )
             }
 
-            var selectedMonthDay by remember(newPlan) {
-                mutableIntStateOf(fromTimestamp(newPlan.startDate).dayOfMonth)
+            var selectedMonthDay by remember(calculatedPlan) {
+                mutableIntStateOf(fromTimestamp(calculatedPlan.startDate).dayOfMonth)
             }
 
             AnimatedContent(interval) { currentInterval ->
@@ -625,8 +619,8 @@ private fun LazyListScope.typeConfig(newPlan: DataPlan, enabled: Boolean = true,
                             onValueChanged = {
                                 val newDate =
                                     LocalDate.now().withDayOfMonth(it.toInt()).toTimestamp()
-                                if (newDate != newPlan.startDate) {
-                                    onPlanChange(newPlan.copy(startDate = newDate))
+                                if (newDate != calculatedPlan.startDate) {
+                                    onPlanChange(calculatedPlan.copy(startDate = newDate))
                                 }
                             }
                         )
@@ -635,18 +629,18 @@ private fun LazyListScope.typeConfig(newPlan: DataPlan, enabled: Boolean = true,
                             title = stringResource(R.string.recursion),
                             summary = stringResource(R.string.recursion_description),
                             icon = painterResource(R.drawable.repeat),
-                            value = newPlan.recurring,
+                            value = calculatedPlan.recurring,
                             enabled = enabled,
-                            onValueChanged = { onPlanChange(newPlan.copy(recurring = it)) }
+                            onValueChanged = { onPlanChange(calculatedPlan.copy(recurring = it)) }
                         )
                     }
                 } else {
                     CustomPlanSetup(
-                        newPlan = newPlan,
+                        newPlan = calculatedPlan,
                         enabled = enabled,
                         onChange = { date, time, multiplier ->
                             onPlanChange(
-                                newPlan.copy(
+                                calculatedPlan.copy(
                                     startDate = date.atStartOfDay().toTimestamp() + time.toSecondOfDay() * 1000,
                                     intervalMultiplier = multiplier
                                 )
@@ -655,6 +649,96 @@ private fun LazyListScope.typeConfig(newPlan: DataPlan, enabled: Boolean = true,
                     )
                 }
             }
+
+            val font = remember { googleSans(weight = 600f) }
+            val metric = LocalSizeMetric.current
+            val formatter = remember { DecimalFormat("0.#") }
+            val numberFormat = remember { NumberFormat.getInstance() }
+            val textFieldState = rememberTextFieldState()
+            var ignoreNextTextUpdate by remember { mutableStateOf(true) }
+            var displayUnit by remember {
+                val unit = DataSize(calculatedPlan.mainDataUsed).unit(metric)
+                mutableStateOf(if (unit == DataSizeUnit.GB) DataSizeUnit.GB else DataSizeUnit.MB)
+            }
+
+            LaunchedEffect(calculatedPlan.mainDataUsed, displayUnit) {
+                if (!isManualUsage) {
+                    val value = DataSize(calculatedPlan.mainDataUsed).getAsUnit(displayUnit, metric)
+                    val newText = formatter.format(value)
+                    ignoreNextTextUpdate = true
+                    textFieldState.setTextAndPlaceCursorAtEnd(newText)
+                }
+            }
+
+            LaunchedEffect(textFieldState.text) {
+                val text = textFieldState.text.toString()
+                if (ignoreNextTextUpdate) {
+                    ignoreNextTextUpdate = false
+                    return@LaunchedEffect
+                }
+                if (text.isNotEmpty()) {
+                    val parsed = try { numberFormat.parse(text)?.toDouble() } catch (_: Exception) { null }
+                    if (parsed != null) {
+                        val base = if (metric) 1000.0 else 1024.0
+                        val newUsed = (parsed * displayUnit.toBits(base)).toLong()
+
+                        val currentValue = DataSize(calculatedPlan.mainDataUsed).getAsUnit(displayUnit, metric)
+                        if (text != formatter.format(currentValue)) {
+                            onManualUsageChange(newUsed)
+                        }
+                    }
+                }
+            }
+
+            Preference(
+                title = stringResource(R.string.plan_usage),
+                icon = painterResource(R.drawable.data_usage),
+                controls = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        BasicTextField(
+                            modifier = Modifier.width(IntrinsicSize.Min),
+                            state = textFieldState,
+                            readOnly = !enabled,
+                            textStyle = TextStyle(
+                                fontFamily = font,
+                                color = if (isManualUsage) colorScheme.primary else colorScheme.onSurface,
+                                fontSize = 22.sp,
+                                textAlign = TextAlign.End,
+                                textDecoration = if (enabled) TextDecoration.Underline else TextDecoration.None
+                            )
+                        )
+                        Button(
+                            onClick = {
+                                val oldUnit = displayUnit
+                                displayUnit = if (displayUnit == DataSizeUnit.GB) DataSizeUnit.MB else DataSizeUnit.GB
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+
+                                val text = textFieldState.text.toString()
+                                val parsed = try { numberFormat.parse(text)?.toDouble() } catch (_: Exception) { null }
+                                if (parsed != null) {
+                                    val base = if (metric) 1000.0 else 1024.0
+                                    val bits = parsed * oldUnit.toBits(base)
+                                    val newValue = bits / displayUnit.toBits(base)
+                                    ignoreNextTextUpdate = true
+                                    textFieldState.setTextAndPlaceCursorAtEnd(formatter.format(newValue))
+                                }
+                            },
+                            enabled = enabled,
+                            shape = MaterialTheme.shapes.medium,
+                            contentPadding = PaddingValues(horizontal = 12.dp)
+                        ) {
+                            Text(
+                                text = displayUnit.name,
+                                fontFamily = font,
+                                fontSize = 16.sp,
+                            )
+                        }
+                    }
+                }
+            )
         }
     }
 }
@@ -1057,7 +1141,11 @@ fun PlanSizeConfig(
                     modifier = Modifier
                         .alignBy { it.measuredHeight }
                         .clip(MaterialTheme.shapes.medium)
-                        .background(if (enabled) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f))
+                        .background(
+                            if (enabled) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                                alpha = 0.38f
+                            )
+                        )
                         .clickable(enabled = enabled) {
                             onUnitUpdate(if (unit == DataSizeUnit.GB) DataSizeUnit.MB else DataSizeUnit.GB)
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -1091,7 +1179,10 @@ private fun LazyListScope.extrasConfig(newPlan: DataPlan, onPlanChange: (plan: D
                             ExtraGraph(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(MaterialTheme.colorScheme.surfaceContainer, MaterialTheme.shapes.medium),
+                                    .background(
+                                        MaterialTheme.colorScheme.surfaceContainer,
+                                        MaterialTheme.shapes.medium
+                                    ),
                                 extra = item,
                                 showOnlyMax = false
                             )
