@@ -241,44 +241,9 @@ fun SearchField(textFieldState: TextFieldState) {
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-fun ButtonGroupScope.iconButton(
-    text: String? = null,
-    showBadge: Boolean = false,
-    onClick: () -> Unit,
-    icon: @Composable (() -> Unit)?
-) {
-    customItem(
-        buttonGroupContent = {
-            val source = remember { MutableInteractionSource() }
-            val press by source.collectIsPressedAsState()
-            val cornerRadius by animateDpAsState(if (!press) 24.dp else 8.dp)
-            IconButton(
-                modifier = Modifier.animateWidth(source),
-                colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = colorScheme.surfaceContainer,
-                    contentColor = colorScheme.onSurfaceVariant
-                ),
-                shape = RoundedCornerShape(cornerRadius),
-                interactionSource = source,
-                onClick = onClick
-            ) {
-                icon?.let {
-                    BadgedBox({ if (showBadge) { Badge() } }) {
-                        it()
-                    }
-                }
-                text?.let {
-                    Text(it)
-                }
-            }
-        },
-        menuContent = {}
-    )
-}
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun ButtonGroupScope.iconToggleButton(
     text: String? = null,
+    showBadge: Boolean = false,
     selected: Boolean,
     onSelect: () -> Unit,
     toggledColors: IconButtonColors? = null,
@@ -311,8 +276,14 @@ fun ButtonGroupScope.iconToggleButton(
                     haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                 }
             ) {
-                icon()
-                text?.let { Text(it) }
+                Row {
+                    if (showBadge) {
+                        BadgedBox({ Badge() }) {
+                            icon()
+                        }
+                    } else icon()
+                    text?.let { Text(it) }
+                }
             }
         },
         menuContent = {}
