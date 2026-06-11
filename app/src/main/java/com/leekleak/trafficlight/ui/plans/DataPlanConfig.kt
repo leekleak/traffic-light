@@ -62,6 +62,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.MediumFloatingActionButton
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
@@ -122,6 +123,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.ExtraGraph
 import com.leekleak.trafficlight.charts.GraphTheme.wifiShape
@@ -495,14 +497,14 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                         .fillMaxWidth()
                         .card()
                         .padding(12.dp),
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+                    textStyle = typography.bodyLarge.copy(color = colorScheme.onSurface),
+                    cursorBrush = SolidColor(colorScheme.onSurface),
                     decorator = { innerTextField ->
                         if (noteState.text.isEmpty()) {
                             Text(
                                 text = stringResource(R.string.write_your_note_here),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                                style = typography.bodyLarge,
+                                color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                             )
                         }
                         innerTextField()
@@ -690,9 +692,12 @@ private fun LazyListScope.typeConfig(
                 }
             }
 
+            HorizontalDivider()
+
             Preference(
                 title = stringResource(R.string.plan_usage),
                 icon = painterResource(R.drawable.data_usage),
+                enabled = enabled,
                 controls = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -771,6 +776,7 @@ private fun CustomPlanSetup(newPlan: DataPlan, enabled: Boolean = true, onChange
         selectedTime,
         datePickerState,
         timePickerState,
+        contentPadding = PaddingValues(8.dp),
         enabled = enabled,
         onDateSelect = {selectedDate = it},
         onTimeSelect = {selectedTime = it}
@@ -795,7 +801,7 @@ private fun CustomPlanSetup(newPlan: DataPlan, enabled: Boolean = true, onChange
                         .fillMaxWidth()
                         .padding(vertical = 2.dp)
                         .clip(MaterialTheme.shapes.medium)
-                        .background(if (enabled) MaterialTheme.colorScheme.primary else ButtonDefaults.buttonColors().disabledContainerColor)
+                        .background(if (enabled) colorScheme.primary else ButtonDefaults.buttonColors().disabledContainerColor)
                         .padding(horizontal = 6.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)
@@ -806,14 +812,14 @@ private fun CustomPlanSetup(newPlan: DataPlan, enabled: Boolean = true, onChange
                         readOnly = !enabled,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         inputTransformation = InputTransformation.maxLength(3),
-                        textStyle = MaterialTheme.typography.titleMediumEmphasized.copy(color = if (enabled) MaterialTheme.colorScheme.onPrimary else ButtonDefaults.buttonColors().disabledContentColor),
-                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onPrimary),
+                        textStyle = typography.titleMediumEmphasized.copy(color = if (enabled) colorScheme.onPrimary else ButtonDefaults.buttonColors().disabledContentColor),
+                        cursorBrush = SolidColor(colorScheme.onPrimary),
                     )
                     Text(
                         text = stringResource(R.string.days),
                         textAlign = TextAlign.Center,
-                        color = if (enabled) MaterialTheme.colorScheme.onPrimary else ButtonDefaults.buttonColors().disabledContentColor,
-                        style = MaterialTheme.typography.titleMediumEmphasized
+                        color = if (enabled) colorScheme.onPrimary else ButtonDefaults.buttonColors().disabledContentColor,
+                        style = typography.titleMediumEmphasized
                     )
                 }
             }
@@ -827,6 +833,7 @@ private fun DateAndTimePicker(
     selectedTime: LocalTime?,
     datePickerState: DatePickerState,
     timePickerState: TimePickerState,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     enabled: Boolean = true,
     onDateSelect: (date: LocalDate) -> Unit,
     onTimeSelect: (time: LocalTime) -> Unit,
@@ -838,7 +845,7 @@ private fun DateAndTimePicker(
     var timePickerVisible by remember { mutableStateOf(false) }
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(8.dp),
+        contentPadding = contentPadding,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item {
@@ -861,7 +868,7 @@ private fun DateAndTimePicker(
                 ) {
                     Text(
                         text = selectedDate.toString(),
-                        style = MaterialTheme.typography.titleMediumEmphasized
+                        style = typography.titleMediumEmphasized
                     )
                 }
             }
@@ -886,7 +893,7 @@ private fun DateAndTimePicker(
                 ) {
                     Text(
                         text = selectedTime.toString(),
-                        style = MaterialTheme.typography.titleMediumEmphasized
+                        style = typography.titleMediumEmphasized
                     )
                 }
             }
@@ -986,7 +993,7 @@ fun AppSelector(
                     fontFamily = googleSansEmphasized(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -1001,8 +1008,8 @@ fun BackgroundSelector(i: Int, newPlan: DataPlan, onClick: () -> Unit) {
             .width(192.dp)
             .height(128.dp)
             .clip(MaterialTheme.shapes.medium)
-            .background(MaterialTheme.colorScheme.background)
-            .border(1.dp, MaterialTheme.colorScheme.primaryContainer, MaterialTheme.shapes.medium)
+            .background(colorScheme.background)
+            .border(1.dp, colorScheme.primaryContainer, MaterialTheme.shapes.medium)
             .clickable {
                 onClick()
                 haptic.performHapticFeedback(HapticFeedbackType.Confirm)
@@ -1016,7 +1023,7 @@ fun BackgroundSelector(i: Int, newPlan: DataPlan, onClick: () -> Unit) {
                 painter = painterResource(it),
                 contentDescription = null,
                 contentScale = ContentScale.FillWidth,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primaryContainer)
+                colorFilter = ColorFilter.tint(colorScheme.primaryContainer)
             )
         }
         AnimatedVisibility(
@@ -1053,7 +1060,7 @@ fun PlanSizeConfig(
     ) {
         val shape = wifiShape().toPath()
         val shapeSizeBase = 172.dp.px
-        val shapeColor = if (enabled) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
+        val shapeColor = if (enabled) colorScheme.primaryContainer else colorScheme.surfaceContainer
         val scale = remember { Animatable(0f) }
         val haptic = LocalHapticFeedback.current
         val metric = LocalSizeMetric.current
@@ -1130,11 +1137,11 @@ fun PlanSizeConfig(
                     textStyle = TextStyle(
                         fontFamily = fontFamilyDoHyeon,
                         fontSize = 64.sp,
-                        color = if (enabled) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                        color = if (enabled) colorScheme.onPrimaryContainer else colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
                         textAlign = TextAlign.End,
                         textDecoration = if (enabled) TextDecoration.Underline else TextDecoration.None
                     ),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    cursorBrush = SolidColor(colorScheme.primary),
                     lineLimits = TextFieldLineLimits.SingleLine,
                 )
                 Text(
@@ -1142,7 +1149,7 @@ fun PlanSizeConfig(
                         .alignBy { it.measuredHeight }
                         .clip(MaterialTheme.shapes.medium)
                         .background(
-                            if (enabled) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                            if (enabled) colorScheme.onPrimaryContainer else colorScheme.onSurfaceVariant.copy(
                                 alpha = 0.38f
                             )
                         )
@@ -1154,7 +1161,7 @@ fun PlanSizeConfig(
                     fontFamily = fontFamilyDoHyeon,
                     fontSize = 24.sp,
                     maxLines = 1,
-                    color = if (enabled) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer,
+                    color = if (enabled) colorScheme.primaryContainer else colorScheme.surfaceContainer,
                     text = unit.name
                 )
             }
@@ -1180,7 +1187,7 @@ private fun LazyListScope.extrasConfig(newPlan: DataPlan, onPlanChange: (plan: D
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .background(
-                                        MaterialTheme.colorScheme.surfaceContainer,
+                                        colorScheme.surfaceContainer,
                                         MaterialTheme.shapes.medium
                                     ),
                                 extra = item,
@@ -1197,8 +1204,8 @@ private fun LazyListScope.extrasConfig(newPlan: DataPlan, onPlanChange: (plan: D
                                     .size(32.dp),
                                 shape = MaterialTheme.shapes.small,
                                 colors = androidx.compose.material3.IconButtonDefaults.filledIconButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.8f),
-                                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                                    containerColor = colorScheme.errorContainer.copy(alpha = 0.8f),
+                                    contentColor = colorScheme.onErrorContainer
                                 )
                             ) {
                                 Icon(
@@ -1223,7 +1230,7 @@ private fun LazyListScope.extrasConfig(newPlan: DataPlan, onPlanChange: (plan: D
                                 .weight(1f)
                                 .height(128.dp)
                                 .clip(MaterialTheme.shapes.medium)
-                                .background(MaterialTheme.colorScheme.surfaceContainer)
+                                .background(colorScheme.surfaceContainer)
                                 .clickable {
                                     haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                                     showAddExtraDialog = true
@@ -1237,12 +1244,12 @@ private fun LazyListScope.extrasConfig(newPlan: DataPlan, onPlanChange: (plan: D
                                 Icon(
                                     painter = painterResource(R.drawable.add),
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    tint = colorScheme.onSurfaceVariant
                                 )
                                 Text(
                                     text = stringResource(R.string.add_extra),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    style = typography.labelLarge,
+                                    color = colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -1281,36 +1288,27 @@ private fun AddExtraDialog(
         initialMinute = fromTimestamp(expiryDate).minute
     )
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            Button(onClick = {
-                val amountValue = amountState.text.toString().toDoubleOrNull() ?: 1.0
-                val amountBytes = (amountValue * unit.toBits(if (metric) 1000.0 else 1024.0)).toLong()
-                onConfirm(
-                    DataPlanExtra(
-                        dataAmount = DataSize(amountBytes),
-                        unit = unit,
-                        dataUsed = 0L,
-                        startStamp = startDate,
-                        expiryStamp = expiryDate,
-                        expired = false
-                    )
-                )
-                onDismiss()
-            }) {
-                Text(stringResource(R.string.save))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.close))
-            }
-        },
-        title = { Text(stringResource(R.string.add_extra)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(stringResource(R.string.amount), style = MaterialTheme.typography.titleMedium)
+    val font = remember { googleSans(weight = 600f) }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .card()
+                .background(colorScheme.surface)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.add_extra),
+                style = typography.headlineSmallEmphasized,
+                fontFamily = font
+            )
+
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text(stringResource(R.string.amount), style = typography.titleMedium, color = colorScheme.tertiary)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -1320,11 +1318,11 @@ private fun AddExtraDialog(
                         modifier = Modifier
                             .weight(1f)
                             .card()
-                            .background(MaterialTheme.colorScheme.surface)
+                            .background(colorScheme.surfaceContainer)
                             .padding(8.dp),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
-                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+                        textStyle = typography.bodyLarge.copy(color = colorScheme.onSurface),
+                        cursorBrush = SolidColor(colorScheme.onSurface),
                         lineLimits = TextFieldLineLimits.SingleLine
                     )
                     Button(
@@ -1339,10 +1337,12 @@ private fun AddExtraDialog(
                     }
                 }
 
-                Text(stringResource(R.string.start), style = MaterialTheme.typography.titleMedium)
-                Box(Modifier
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.surface)) {
+                Text(stringResource(R.string.start), style = typography.titleMedium, color = colorScheme.tertiary)
+                Box(
+                    Modifier
+                        .clip(MaterialTheme.shapes.medium)
+                        .background(colorScheme.surface)
+                ) {
                     DateAndTimePicker(
                         selectedDate = fromTimestamp(startDate).toLocalDate(),
                         selectedTime = fromTimestamp(startDate).toLocalTime(),
@@ -1350,19 +1350,23 @@ private fun AddExtraDialog(
                         timePickerState = startTimePickerState,
                         onDateSelect = { date ->
                             val time = fromTimestamp(startDate).toLocalTime()
-                            startDate = date.atStartOfDay().toTimestamp() + time.toSecondOfDay() * 1000
+                            startDate =
+                                date.atStartOfDay().toTimestamp() + time.toSecondOfDay() * 1000
                         },
                         onTimeSelect = { time ->
                             val date = fromTimestamp(startDate).toLocalDate()
-                            startDate = date.atStartOfDay().toTimestamp() + time.toSecondOfDay() * 1000
+                            startDate =
+                                date.atStartOfDay().toTimestamp() + time.toSecondOfDay() * 1000
                         }
                     )
                 }
 
-                Text(stringResource(R.string.expiry), style = MaterialTheme.typography.titleMedium)
-                Box(Modifier
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.surface)) {
+                Text(stringResource(R.string.expiry), style = typography.titleMedium, color = colorScheme.tertiary)
+                Box(
+                    Modifier
+                        .clip(MaterialTheme.shapes.medium)
+                        .background(colorScheme.surface)
+                ) {
                     DateAndTimePicker(
                         selectedDate = fromTimestamp(expiryDate).toLocalDate(),
                         selectedTime = fromTimestamp(expiryDate).toLocalTime(),
@@ -1370,17 +1374,47 @@ private fun AddExtraDialog(
                         timePickerState = expiryTimePickerState,
                         onDateSelect = { date ->
                             val time = fromTimestamp(expiryDate).toLocalTime()
-                            expiryDate = date.atStartOfDay().toTimestamp() + time.toSecondOfDay() * 1000
+                            expiryDate =
+                                date.atStartOfDay().toTimestamp() + time.toSecondOfDay() * 1000
                         },
                         onTimeSelect = { time ->
                             val date = fromTimestamp(expiryDate).toLocalDate()
-                            expiryDate = date.atStartOfDay().toTimestamp() + time.toSecondOfDay() * 1000
+                            expiryDate =
+                                date.atStartOfDay().toTimestamp() + time.toSecondOfDay() * 1000
                         }
                     )
                 }
             }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.close))
+                }
+                Button(onClick = {
+                    val amountValue = amountState.text.toString().toDoubleOrNull() ?: 1.0
+                    val amountBytes =
+                        (amountValue * unit.toBits(if (metric) 1000.0 else 1024.0)).toLong()
+                    onConfirm(
+                        DataPlanExtra(
+                            dataAmount = DataSize(amountBytes),
+                            unit = unit,
+                            dataUsed = 0L,
+                            startStamp = startDate,
+                            expiryStamp = expiryDate,
+                            expired = false
+                        )
+                    )
+                    onDismiss()
+                }) {
+                    Text(stringResource(R.string.save))
+                }
+            }
         }
-    )
+    }
 }
 
 object PastOrPresentSelectableDates: SelectableDates {
