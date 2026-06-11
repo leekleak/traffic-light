@@ -49,6 +49,7 @@ import com.leekleak.trafficlight.ui.theme.carrierFont
 import com.leekleak.trafficlight.ui.theme.doHyeonFont
 import com.leekleak.trafficlight.ui.theme.googleSansEmphasized
 import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.trafficlight.util.LocalSizeMetric
 import com.leekleak.trafficlight.util.simIconRes
 import org.koin.compose.koinInject
 import java.text.DecimalFormat
@@ -75,8 +76,9 @@ fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
     val fontFamilyGoogleSans = remember { googleSansEmphasized() }
     val fontFamilyDoHyeon = remember { doHyeonFont() }
 
+    val metric = LocalSizeMetric.current
     val dataUsage by produceState(0L) { value = dataPlan.getUsage(networkUsageManager) }
-    val usage = DataSize(dataUsage).getAsUnit(dataPlan.mainDataSizeUnit)
+    val usage = DataSize(dataUsage).getAsUnit(dataPlan.mainDataSizeUnit, metric)
     val formatter = remember { DecimalFormat("0.##") }
     BoxBackground(
         dataPlan = dataPlan,
@@ -162,15 +164,16 @@ private fun BoxScope.ConfiguredDataPlanContent(dataPlan: DataPlan) {
     val networkUsageManager: NetworkUsageManager = koinInject()
     val fontFamilyGoogleSans = remember { googleSansEmphasized() }
     val fontFamilyDoHyeon = remember { doHyeonFont() }
+    val metric = LocalSizeMetric.current
     val usageDataSize by produceState(DataSize(0)) { value = DataSize(dataPlan.getUsage(networkUsageManager)) }
-    val usageValue by remember(usageDataSize) {
+    val usageValue by remember(usageDataSize, metric) {
         derivedStateOf {
-            usageDataSize.getAsUnit(dataPlan.mainDataSizeUnit)
+            usageDataSize.getAsUnit(dataPlan.mainDataSizeUnit, metric)
         }
     }
 
     val formatter = remember { DecimalFormat("0.##") }
-    val data = remember(dataPlan) { formatter.format(dataPlan.mainDataSize.getAsUnit(dataPlan.mainDataSizeUnit)) }
+    val data = remember(dataPlan, metric) { formatter.format(dataPlan.mainDataSize.getAsUnit(dataPlan.mainDataSizeUnit, metric)) }
 
     Box (Modifier.align(Alignment.Center)) {
         Text(

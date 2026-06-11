@@ -24,6 +24,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import com.leekleak.trafficlight.charts.model.BarData
+import com.leekleak.trafficlight.util.LocalSizeMetric
 import com.leekleak.trafficlight.util.px
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -103,6 +104,8 @@ private fun BarGraphImpl(
     var cellularOffset: Offset = Offset.Zero
     val barOffset = remember { mutableListOf<Bar>() }
 
+    val metric = LocalSizeMetric.current
+
     suspend fun legendAnimator(clickOffset: Offset, legendOffset: Offset, animation: Animatable<Float, *>, legendStrength: MutableIntState) {
         if (
             (clickOffset - legendOffset).x in (0f..legendSize) &&
@@ -163,7 +166,8 @@ private fun BarGraphImpl(
             yAxisData = yAxisData,
             xAxisData = xAxisData,
             showLegend = showLegend,
-            stretch = barAnimation
+            stretch = barAnimation,
+            metric = metric
         )
 
         barOffset.clear()

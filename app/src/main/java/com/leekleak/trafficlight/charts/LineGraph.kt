@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.ui.theme.historyItemFont
 import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.trafficlight.util.formatted
 import com.leekleak.trafficlight.util.px
 import kotlin.math.max
 import kotlin.math.min
@@ -40,6 +41,9 @@ fun LineGraph(
     val font = remember { historyItemFont() }
 
     val safeMax = max(maximum, 1).toFloat()
+
+    val text1 = data.first?.let { DataSize(it).formatted(extraPrecision = true) }
+    val text2 = data.second?.let { DataSize(it).formatted(extraPrecision = true) }
 
     Canvas(modifier = Modifier
         .fillMaxWidth()
@@ -75,9 +79,9 @@ fun LineGraph(
         /**
          * Wifi text
          */
-        data.first?.let { data1 ->
+        text1?.let { t1 ->
             val textMeasure1 = textMeasurer.measure(
-                DataSize(data1).toString(extraPrecision = true),
+                t1,
                 TextStyle(
                     fontFamily = font,
                     fontSize = fontSize,
@@ -102,9 +106,9 @@ fun LineGraph(
         /**
          * Mobile text
          */
-        data.second?.let { data2 ->
+        text2?.let { t2 ->
             val textMeasure2 = textMeasurer.measure(
-                DataSize(data2).toString(extraPrecision = true),
+                t2,
                 TextStyle(
                     fontFamily = font,
                     fontSize = fontSize,

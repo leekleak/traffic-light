@@ -34,6 +34,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.trafficlight.util.LocalSpeedMetric
 import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.categoryTitleSmall
 import com.leekleak.trafficlight.util.openLink
@@ -156,12 +157,13 @@ fun NotificationSettings(paddingValues: PaddingValues) {
                 }
             )
 
-            val speedThresholdBytes by appPreferenceRepo.speedThresholdBytes.collectAsState(-1024)
+            val speedThresholdKb by appPreferenceRepo.speedThresholdKb.collectAsState(-1)
             val speedBits by appPreferenceRepo.speedBits.collectAsState(false)
+            val speedMetric = LocalSpeedMetric.current
             val disconnectedString = stringResource(R.string.disconnected)
-            val values = remember(speedBits, disconnectedString) {
+            val values = remember(speedBits, disconnectedString, speedMetric) {
                 (listOf(-1L) + (0..10).map { 2.0.pow(it).toLong() }).map {
-                    it to if (it < 0) disconnectedString else DataSize(it * 1024).toString(speed = true, inBits = speedBits)
+                    it to if (it < 0) disconnectedString else DataSize.kb(it).toString(speed = true, inBits = speedBits, metric = speedMetric)
                 }
             }
 
@@ -175,10 +177,10 @@ fun NotificationSettings(paddingValues: PaddingValues) {
                         modifierLabelText = Modifier.widthIn(min = 128.dp),
                         title = stringResource(R.string.threshold),
                         icon = painterResource(R.drawable.horizontal_align_right),
-                        value = speedThresholdBytes / 1024,
+                        value = speedThresholdKb,
                         values = values,
                         onValueChanged = {
-                            scope.launch { appPreferenceRepo.setSpeedThresholdBytes(it * 1024L) }
+                            scope.launch { appPreferenceRepo.setSpeedThresholdKb(it) }
                         }
                     )
                     NavigatePreference(

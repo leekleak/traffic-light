@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -32,11 +34,15 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.toPath
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -58,6 +64,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.GraphTheme
 import com.leekleak.trafficlight.ui.theme.Theme
@@ -274,6 +281,88 @@ fun SliderPreference(
        enabled = enabled,
        onValueChanged = onValueChanged
    )
+}
+
+@Composable
+fun <T> DialogPreference(
+    modifier: Modifier = Modifier,
+    title: String,
+    summary: String? = null,
+    icon: Painter? = null,
+    value: T,
+    values: List<Pair<T, String>>,
+    enabled: Boolean = true,
+    onValueChanged: (T) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val haptic = LocalHapticFeedback.current
+    val font = remember { googleSans(weight = 600f) }
+
+    val currentValueLabel = values.find { it.first == value }?.second ?: value.toString()
+
+    Preference(
+        modifier = modifier,
+        title = title,
+        summary = summary ?: currentValueLabel,
+        icon = icon,
+        enabled = enabled,
+        onClick = {
+            expanded = true
+            haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+        },
+    )
+    if (expanded) {
+        Dialog(onDismissRequest = { expanded = false }) {
+            Column(modifier = Modifier.card().background(colorScheme.surface).padding(16.dp)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.headlineSmallEmphasized,
+                    fontFamily = font
+                )
+                Column(
+                    modifier = Modifier
+                        .padding(vertical = 12.dp)
+                        .fillMaxWidth()
+                        .weight(1f, fill = false)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    values.forEach { (itemValue, label) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(MaterialTheme.shapes.medium)
+                                .clickable {
+                                    onValueChanged(itemValue)
+                                    expanded = false
+                                    haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                                }
+                                .background(if (itemValue == value) colorScheme.primary else colorScheme.surfaceContainer)
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.bodyLargeEmphasized,
+                                color = if (itemValue == value) colorScheme.onPrimary else colorScheme.onSurface,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = { expanded = false }) {
+                        Text(stringResource(R.string.cancel))
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable

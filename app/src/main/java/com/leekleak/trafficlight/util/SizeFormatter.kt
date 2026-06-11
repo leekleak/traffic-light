@@ -1,5 +1,7 @@
 package com.leekleak.trafficlight.util
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import kotlinx.serialization.Serializable
 import java.math.BigDecimal
 import kotlin.math.ceil
@@ -13,6 +15,24 @@ enum class DataSizeUnit {
     fun getName(inBits: Boolean, speed: Boolean): String {
         return (if (inBits) name.replace("B", "b") else name) + (if (speed) "/s" else "")
     }
+}
+
+val Long.kb get() = this * 1024L
+val Long.toKb get() = this / 1024L
+
+val LocalSizeMetric = compositionLocalOf { false }
+val LocalSpeedMetric = compositionLocalOf { false }
+
+@Composable
+fun DataSize.formatted(extraPrecision: Boolean = false, speed: Boolean = false, inBits: Boolean = false): String {
+    val metric = if (speed) LocalSpeedMetric.current else LocalSizeMetric.current
+    return this.toString(extraPrecision, speed, inBits, metric)
+}
+
+@Composable
+fun DataSize.formattedParts(extraPrecision: Boolean = false, speed: Boolean = false, inBits: Boolean = false): Triple<String, String, String> {
+    val metric = if (speed) LocalSpeedMetric.current else LocalSizeMetric.current
+    return this.toStringParts(extraPrecision, speed, inBits, metric)
 }
 
 @Serializable
@@ -35,34 +55,68 @@ data class DataSize (
         precision = if (value >= 10 || unit == DataSizeUnit.KB) 0 else 1
     }
 
-    fun getComparisonValue(): Long {
-        if (value < 10) return (ceil(value) * unit.toBits()).toLong()
-        if (value < 100) return ((ceil(value / 10f) * 10f) * unit.toBits()).toLong()
-        return ((ceil(value / 100f) * 100f) * unit.toBits()).toLong()
+    fun value(metric: Boolean = false): Double {
+        if (!metric) return value
+        val base = 1000.0
+        var i = 0
+        var newValue = byteValue.toDouble()
+        while (newValue >= base && i < DataSizeUnit.entries.size - 1) {
+            newValue /= base
+            i++
+        }
+        return newValue
     }
 
-    fun getAsUnit(unit: DataSizeUnit): Double {
-        return byteValue.toDouble() / unit.toBits().toDouble()
+    fun unit(metric: Boolean = false): DataSizeUnit {
+        if (!metric) return unit
+        val base = 1000.0
+        var i = 0
+        var newValue = byteValue.toDouble()
+        while (newValue >= base && i < DataSizeUnit.entries.size - 1) {
+            newValue /= base
+            i++
+        }
+        return DataSizeUnit.entries[i]
+    }
+
+    fun getComparisonValue(metric: Boolean = false): Long {
+        val base = if (metric) 1000.0 else 1024.0
+        val v = value(metric)
+        val u = unit(metric)
+        if (v < 10) return (ceil(v) * u.toBits(base)).toLong()
+        if (v < 100) return ((ceil(v / 10f) * 10f) * u.toBits(base)).toLong()
+        return ((ceil(v / 100f) * 100f) * u.toBits(base)).toLong()
+    }
+
+    fun getAsUnit(unit: DataSizeUnit, metric: Boolean = false): Double {
+        val base = if (metric) 1000.0 else 1024.0
+        return byteValue.toDouble() / unit.toBits(base).toDouble()
+    }
+
+    companion object {
+        fun kb(value: Long) = DataSize(value * 1024L)
     }
 
     override fun toString(): String = toString(extraPrecision = false, speed = false, inBits = false)
 
-    fun toString(extraPrecision: Boolean = false, speed: Boolean = false, inBits: Boolean = false): String {
-        val parts = toStringParts(extraPrecision = extraPrecision, speed = speed, inBits = inBits)
+    fun toString(extraPrecision: Boolean = false, speed: Boolean = false, inBits: Boolean = false, metric: Boolean = false): String {
+        val parts = toStringParts(extraPrecision = extraPrecision, speed = speed, inBits = inBits, metric = metric)
         return "${parts.first}${parts.second} ${parts.third}"
     }
 
-    fun toStringParts(extraPrecision: Boolean = false, speed: Boolean = false, inBits: Boolean = false): Triple<String, String, String> {
+    fun toStringParts(extraPrecision: Boolean = false, speed: Boolean = false, inBits: Boolean = false, metric: Boolean = false): Triple<String, String, String> {
+        val base = if (metric) 1000.0 else 1024.0
         val bitsMultiplier = if (inBits) 8 else 1
         var displayValue = byteValue.toDouble() * bitsMultiplier
         var i = 0
         val units = DataSizeUnit.entries
         do {
-            displayValue /= 1024
+            displayValue /= base
             i++
-        } while (displayValue >= 1024 && i < units.size - 1)
+        } while (displayValue >= base && i < units.size - 1)
 
-        if (displayValue >= 1000 && i < units.size - 1) {
+        val threshold = if (metric) base - 1 else 1000.0
+        if (displayValue >= threshold && i < units.size - 1) {
             displayValue = 1.0
             i++
         }

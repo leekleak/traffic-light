@@ -85,6 +85,7 @@ import com.leekleak.trafficlight.util.MiniCard
 import com.leekleak.trafficlight.util.MiniCardState
 import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.TrendCard
+import com.leekleak.trafficlight.util.formattedParts
 import com.leekleak.trafficlight.util.iconToggleButton
 import com.leekleak.trafficlight.util.px
 import dev.chrisbanes.haze.hazeSource
@@ -272,7 +273,7 @@ private fun OverviewHero(scrollState: ScrollState) {
         )
         Column(modifier = Modifier.align(Alignment.Center)) {
             val todayUsage by viewModel.todayUsage.collectAsState()
-            val string = DataSize(todayUsage).toStringParts(extraPrecision = true)
+            val string = DataSize(todayUsage).formattedParts(extraPrecision = true)
 
             val width by animateFloatAsState(
                 targetValue = if (pressed) 60f else 30f,
@@ -344,7 +345,7 @@ private fun OverviewHero(scrollState: ScrollState) {
 private fun RowScope.PredictionCard() {
     val viewModel: OverviewVM = koinViewModel()
     val prediction by viewModel.prediction.collectAsState()
-    val string = DataSize(prediction).toStringParts(extraPrecision = true)
+    val string = DataSize(prediction).formattedParts(extraPrecision = true)
 
     MiniCard(
         state = MiniCardState.NEUTRAL,

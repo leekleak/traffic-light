@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.NetworkType
+import com.leekleak.trafficlight.util.kb
 import kotlin.math.max
 
 internal data class BarGraphMetrics(
@@ -48,7 +49,8 @@ internal class BarGraphHelper(
     private val yAxisData: List<Pair<Long, Long>>,
     private val xAxisData: List<String>,
     private val showLegend: Boolean,
-    private val stretch: List<Animatable<Float, *>>
+    private val stretch: List<Animatable<Float, *>>,
+    private val metric: Boolean = false
 ) {
     internal val metrics = scope.buildMetrics()
 
@@ -61,7 +63,7 @@ internal class BarGraphHelper(
 
         val rectList = mutableListOf<Bar>()
 
-        val absMaxY = max(DataSize(getAbsoluteMax(yAxisData)).getComparisonValue(), 1024)
+        val absMaxY = max(DataSize(getAbsoluteMax(yAxisData)).getComparisonValue(metric), if (metric) 1000L else 1024L)
         val verticalStep = absMaxY / gridHeight
 
         val xItemSpacing = gridWidth / yAxisData.size
@@ -210,7 +212,7 @@ internal class BarGraphHelper(
 
             //Drawing text labels over the y- axis
             val dataSize = DataSize(getAbsoluteMax(yAxisData))
-            val parts = DataSize(dataSize.getComparisonValue()).toStringParts()
+            val parts = DataSize(dataSize.getComparisonValue(metric)).toStringParts(metric = metric)
 
             drawContext.canvas.nativeCanvas.drawText(
                 parts.first + " " +parts.third,

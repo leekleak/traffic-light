@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.database.DataPlanExtra
 import com.leekleak.trafficlight.ui.theme.googleSans
 import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.trafficlight.util.LocalSizeMetric
 import com.leekleak.trafficlight.util.fromTimestamp
 import java.text.DecimalFormat
 import kotlin.math.max
@@ -49,10 +50,11 @@ fun ExtraGraph(
 
     val safeMax = remember(maximum) { max(maximum, 1).toFloat() }
 
+    val metric = LocalSizeMetric.current
     val formatter = remember { DecimalFormat("0.#") }
-    val string = remember(used) { formatter.format(DataSize(used).getAsUnit(extra.unit)) }
-    val data = remember(extra) { formatter.format(extra.dataAmount.getAsUnit(extra.unit)) }
-    val stringAnnotated by remember { derivedStateOf {
+    val string = remember(used, metric) { formatter.format(DataSize(used).getAsUnit(extra.unit, metric)) }
+    val data = remember(extra, metric) { formatter.format(extra.dataAmount.getAsUnit(extra.unit, metric)) }
+    val stringAnnotated by remember(string, data, metric) { derivedStateOf {
         buildAnnotatedString {
             if (!showOnlyMax) {
                 withStyle(style = SpanStyle(fontFamily = font1, fontSize = 46.sp)) {

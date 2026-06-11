@@ -7,6 +7,7 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.DataSize
@@ -23,9 +24,15 @@ class PlanNotification(
     notificationId: Int,
     val dataPlan: DataPlan,
     private val networkUsageManager: NetworkUsageManager,
+    private val appPreferenceRepo: AppPreferenceRepo,
 ) : PersistentNotification(serviceScope, context, notificationManager, notificationId) {
 
+    private var sizeMetric = false
+
     init {
+        scope.launch {
+            appPreferenceRepo.sizeMetric.collect { sizeMetric = it; updateNotification() }
+        }
         updateBaseNotification()
     }
 
@@ -50,7 +57,7 @@ class PlanNotification(
         val dataSizeMax = DataSize(dataPlan.getTotalMax())
         val progress = dataSize.byteValue.toDouble() / dataSizeMax.byteValue.toDouble()
 
-        val data = dataSize.toString()
+        val data = dataSize.toString(metric = sizeMetric)
         val speed = data.substringBefore(" ")
         val unit = data.substringAfter(" ")
         notification = notificationBuilder
@@ -62,10 +69,10 @@ class PlanNotification(
                 }
                 else  {
                     setSmallIcon(simIconRes(dataPlan.simIndex))
-                    setShortCriticalText(dataSize.toString())
+                    setShortCriticalText(dataSize.toString(metric = sizeMetric))
                 }
             }
-            .setContentTitle("$dataSize/$dataSizeMax")
+            .setContentTitle("${dataSize.toString(metric = sizeMetric)}/${dataSizeMax.toString(metric = sizeMetric)}")
             .setContentText(dataPlan.resetString(context))
             .setProgress(100, (progress*100).toInt(), false)
             .build()

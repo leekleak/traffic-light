@@ -149,6 +149,7 @@ import com.leekleak.trafficlight.ui.theme.googleSansEmphasized
 import com.leekleak.trafficlight.util.CategoryTitleSmallText
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.DataSizeUnit
+import com.leekleak.trafficlight.util.LocalSizeMetric
 import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.SearchField
 import com.leekleak.trafficlight.util.SlideAnimatedVisibility
@@ -240,6 +241,8 @@ fun DataPlanConfig(currentPlan: DataPlan) {
         )
     }
 
+    val metric = LocalSizeMetric.current
+
     Scaffold(
         bottomBar = {
             Row(
@@ -280,8 +283,8 @@ fun DataPlanConfig(currentPlan: DataPlan) {
         ) {
             item {
                 val isConfigured = remember { currentPlan.configured }
-                val size by remember { derivedStateOf {
-                    newPlan.mainDataSize.getAsUnit(newPlan.mainDataSizeUnit)
+                val size by remember(newPlan, metric) { derivedStateOf {
+                    newPlan.mainDataSize.getAsUnit(newPlan.mainDataSizeUnit, metric)
                 } }
                 PlanSizeConfig (
                     size = size,
@@ -292,7 +295,7 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                     },
                     onUnitUpdate = {
                         newPlan = newPlan.copy(
-                            mainDataSize = DataSize((size * it.toBits()).toLong()),
+                            mainDataSize = DataSize((size * it.toBits(if (metric) 1000.0 else 1024.0)).toLong()),
                             mainDataSizeUnit = it
                         )
                     }
@@ -306,12 +309,13 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                 ) {
                     CategoryTitleSmallText(stringResource(R.string.type))
                     val font = remember { googleSans(weight = 600f) }
+                    val metric = LocalSizeMetric.current
                     Box(modifier = Modifier
                         .background(MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium)
                         .padding(horizontal = 8.dp, vertical = 2.dp))
                     {
                         AnimatedContent(
-                            targetState = DataSize(calculatedPlan.mainDataUsed).toString(),
+                            targetState = DataSize(calculatedPlan.mainDataUsed).toString(metric = metric),
                             transitionSpec = { fadeIn().togetherWith(fadeOut()) }
                         ) {
                             Text(
@@ -968,6 +972,7 @@ fun PlanSizeConfig(
         val shapeColor = if (enabled) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer
         val scale = remember { Animatable(0f) }
         val haptic = LocalHapticFeedback.current
+        val metric = LocalSizeMetric.current
 
         val shapeTransformed = remember(scale.value) {
             val sizePx = shapeSizeBase * (1 + scale.value)
@@ -988,7 +993,7 @@ fun PlanSizeConfig(
             val number = try { numberFormat.parse(fieldState.text.toString()) } catch (_: Exception) { null }
             if (number != null) {
                 if (enabled) {
-                    onSizeUpdate((number.toFloat() * unit.toBits()).toLong())
+                    onSizeUpdate((number.toFloat() * unit.toBits(if (metric) 1000.0 else 1024.0)).toLong())
                 }
                 scale.animateTo(
                     targetValue = (0.75 * (1 - E.pow(-number.toFloat() * 0.1))).toFloat(),
@@ -1167,6 +1172,7 @@ private fun AddExtraDialog(
     onConfirm: (DataPlanExtra) -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
+    val metric = LocalSizeMetric.current
     val amountState = rememberTextFieldState("1")
     var unit by remember { mutableStateOf(DataSizeUnit.GB) }
     var startDate by remember { mutableLongStateOf(LocalDate.now().toTimestamp()) }
@@ -1189,7 +1195,7 @@ private fun AddExtraDialog(
         confirmButton = {
             Button(onClick = {
                 val amountValue = amountState.text.toString().toDoubleOrNull() ?: 1.0
-                val amountBytes = (amountValue * unit.toBits()).toLong()
+                val amountBytes = (amountValue * unit.toBits(if (metric) 1000.0 else 1024.0)).toLong()
                 onConfirm(
                     DataPlanExtra(
                         dataAmount = DataSize(amountBytes),

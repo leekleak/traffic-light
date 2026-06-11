@@ -22,6 +22,10 @@
     <string name="about">About</string>
     <string name="licenses" translatable="false">Licenses</string>
     <string name="speed_in_bits">Show speed in bits</string>
+    <string name="speed_unit">Speed unit</string>
+    <string name="size_unit">Size unit</string>
+    <string name="base_1024">Base 1024</string>
+    <string name="base_1000">Base 1000</string>
     <string name="github" translatable="false">GitHub</string>
     <string name="version_short" translatable="false">v%1$s</string>
     <string name="force_fallback">Force fallback speed tracking</string>
@@ -156,6 +160,7 @@
     <string name="trend_tooltip">Usage of the last 24 hours compared against the last 7 days.</string>
     <string name="prediction_tooltip">Prediction based on your historical usage at this time of the week.</string>
     <string name="safety_tooltip">Plan usage ratio compared with time passed.</string>
+    <string name="sizes">Sizes</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

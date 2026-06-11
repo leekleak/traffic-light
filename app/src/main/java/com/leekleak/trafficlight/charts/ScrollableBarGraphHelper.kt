@@ -68,6 +68,7 @@ internal class ScrollableBarGraphHelper(
     private val padding: Float,
     private val onBarVisibilityChanged: (i: Int, visible: Boolean) -> Unit,
     private val onMaximumChange: (maximum: Long) -> Unit,
+    private val metric: Boolean = false
 ) {
     private val visibleIndices = mutableListOf<Int>()
     internal val metrics = scope.buildMetrics()
@@ -188,7 +189,7 @@ internal class ScrollableBarGraphHelper(
             drawTextLabelsOverXAndYAxis(gridColor, backgroundColor, textMeasurer)
 
             //Drawing text labels over the y- axis
-            val dataSize = DataSize(maximum.value.toLong()).toStringParts()
+            val dataSize = DataSize(maximum.value.toLong()).toStringParts(metric = metric)
             drawContext.canvas.nativeCanvas.drawText(
                 dataSize.first + " " + dataSize.third,
                 metrics.gridWidth + 4.sp.toPx(),

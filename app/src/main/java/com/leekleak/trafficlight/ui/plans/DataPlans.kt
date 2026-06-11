@@ -64,6 +64,7 @@ import com.leekleak.trafficlight.ui.settings.InfoCard
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.trafficlight.util.LocalSizeMetric
 import com.leekleak.trafficlight.util.MiniCard
 import com.leekleak.trafficlight.util.MiniCardState
 import com.leekleak.trafficlight.util.PageTitle
@@ -329,10 +330,11 @@ private fun LazyListScope.budgetInsights() {
     item(key = "budget") {
         Column(Modifier.animateItem()) {
             CategoryTitleText(stringResource(R.string.budget))
+            val metric = LocalSizeMetric.current
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 val viewModel: DataPlansVM = koinViewModel()
                 val todayBudget by viewModel.todayBudget.collectAsState()
-                val todayString by remember(todayBudget) { derivedStateOf { DataSize(todayBudget).toStringParts() } }
+                val todayString by remember(todayBudget, metric) { derivedStateOf { DataSize(todayBudget).toStringParts(metric = metric) } }
                 MiniCard(
                     state = MiniCardState.NEUTRAL,
                     baseColor = colorScheme.surface,
@@ -349,7 +351,7 @@ private fun LazyListScope.budgetInsights() {
                 )
 
                 val remainingDailyBudget by viewModel.remainingDailyBudget.collectAsState()
-                val remainingString by remember(remainingDailyBudget) { derivedStateOf { DataSize(remainingDailyBudget).toStringParts() } }
+                val remainingString by remember(remainingDailyBudget, metric) { derivedStateOf { DataSize(remainingDailyBudget).toStringParts(metric = metric) } }
                 MiniCard(
                     state = MiniCardState.NEUTRAL,
                     baseColor = colorScheme.surface,

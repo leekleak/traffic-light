@@ -35,6 +35,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import com.leekleak.trafficlight.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.trafficlight.util.LocalSizeMetric
 import com.leekleak.trafficlight.util.px
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -76,6 +77,7 @@ fun ScrollableBarGraph(
 
     val selectorGoal = (canvasWidth)/2 - ((canvasWidth)/2) % barWidth
 
+    val metric = LocalSizeMetric.current
     val maximum = remember { Animatable(data.maxOf { it.y1 + it.y2 }.toFloat()) }
     LaunchedEffect(data) {
         val newMax = data.maxOfOrNull { it.y1 + it.y2 }?.toFloat() ?: Float.MAX_VALUE
@@ -250,9 +252,10 @@ fun ScrollableBarGraph(
             },
             onMaximumChange = {
                 new -> scope.launch {
-                    maximum.animateTo(DataSize(new).getComparisonValue().toFloat())
+                    maximum.animateTo(DataSize(new).getComparisonValue(metric).toFloat())
                 }
-            }
+            },
+            metric = metric
         )
 
         barGraphHelper.drawBars(cornerRadius)

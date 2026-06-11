@@ -18,6 +18,7 @@ import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.clipAndPad
+import com.leekleak.trafficlight.util.toKb
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -45,7 +46,9 @@ class SpeedNotification(
     private var separateUpDown = false
     private var liveNotification = false
     private var speedThreshold = false
-    private var speedThresholdBytes = -1024L
+    private var speedThresholdKb = -1L
+    private var speedMetric = false
+    private var sizeMetric = false
     private var todayUsage = DayUsage()
 
     init {
@@ -65,7 +68,13 @@ class SpeedNotification(
             appPreferenceRepo.speedThreshold.collect { speedThreshold = it; updateNotification(trafficSnapshot, true) }
         }
         scope.launch {
-            appPreferenceRepo.speedThresholdBytes.collect { speedThresholdBytes = it; updateNotification(trafficSnapshot, true) }
+            appPreferenceRepo.speedThresholdKb.collect { speedThresholdKb = it; updateNotification(trafficSnapshot, true) }
+        }
+        scope.launch {
+            appPreferenceRepo.speedMetric.collect { speedMetric = it; updateNotification(trafficSnapshot, true) }
+        }
+        scope.launch {
+            appPreferenceRepo.sizeMetric.collect { sizeMetric = it; updateNotification(trafficSnapshot, true) }
         }
         updateBaseNotification()
     }
@@ -115,13 +124,13 @@ class SpeedNotification(
     private var lastTitle: String = ""
     private var lastContent: String = ""
     private suspend fun updateNotification(trafficSnapshot: TrafficSnapshot, force: Boolean = false) {
-        val data = DataSize(trafficSnapshot.totalSpeed).toString(speed = true, inBits = inBits)
+        val data = DataSize(trafficSnapshot.totalSpeed).toString(speed = true, inBits = inBits, metric = speedMetric)
         val title = context.getString(R.string.speed, data)
 
         val spacing = 18
         val messageShort =
-            context.getString(R.string.wi_fi, DataSize(todayUsage.usage2).toString()).clipAndPad(spacing) +
-            context.getString(R.string.mobile, DataSize(todayUsage.usage1).toString())
+            context.getString(R.string.wi_fi, DataSize(todayUsage.usage2).toString(metric = sizeMetric)).clipAndPad(spacing) +
+            context.getString(R.string.mobile, DataSize(todayUsage.usage1).toString(metric = sizeMetric))
 
         if (lastTitle == data && lastContent == messageShort && !force) return
         lastTitle = data
@@ -137,8 +146,8 @@ class SpeedNotification(
                         if (!separateUpDown) {
                             notificationIconHelper.createIcon(speed, unit)
                         } else {
-                            val speedUp = DataSize(trafficSnapshot.upSpeed).toStringParts(inBits = inBits)
-                            val speedDown = DataSize(trafficSnapshot.downSpeed).toStringParts(inBits = inBits)
+                            val speedUp = DataSize(trafficSnapshot.upSpeed).toStringParts(inBits = inBits, metric = speedMetric)
+                            val speedDown = DataSize(trafficSnapshot.downSpeed).toStringParts(inBits = inBits, metric = speedMetric)
                             notificationIconHelper.createIconSeparate(
                                 speed1 = "${speedUp.first} ${speedUp.third.substring(0,1)}",
                                 speed2 = "${speedDown.first} ${speedDown.third.substring(0,1)}"
@@ -169,8 +178,8 @@ class SpeedNotification(
         val channel = when {
             (speedThreshold &&
                 (
-                    (speedThresholdBytes == -1024L) && !isNetworkAvailable() ||
-                    (trafficSnapshot.totalSpeed < speedThresholdBytes)
+                    (speedThresholdKb == -1L) && !isNetworkAvailable() ||
+                    (trafficSnapshot.totalSpeed.toKb < speedThresholdKb)
                 )
             ) -> NOTIFICATION_CHANNEL_ID_SILENT
             else -> NOTIFICATION_CHANNEL_ID

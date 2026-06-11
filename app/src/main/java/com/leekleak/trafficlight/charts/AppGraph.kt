@@ -34,6 +34,7 @@ import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.ui.theme.googleSans
 import com.leekleak.trafficlight.ui.theme.googleSansEmphasized
 import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.trafficlight.util.formatted
 import com.leekleak.trafficlight.util.toSp
 
 @Composable
@@ -62,7 +63,7 @@ fun AppGraph(
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             data.forEachIndexed { index, usage ->
                 val barWidth = maxBarWidth * (usage.usage.totalUsage.toFloat() / maxUsage)
-                val text = DataSize(usage.usage.totalUsage).toString().replace(" ", "")
+                val text = DataSize(usage.usage.totalUsage).formatted().replace(" ", "")
                 val density = LocalDensity.current
                 val textMeasurer = rememberTextMeasurer()
                 val fittedFontWidth = remember(text, barWidth) {

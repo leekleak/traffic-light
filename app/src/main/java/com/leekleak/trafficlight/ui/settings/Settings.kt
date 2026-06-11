@@ -167,7 +167,29 @@ fun Settings(paddingValues: PaddingValues) {
                 )
             }
         }
-
+        categoryTitleSmall { stringResource(R.string.sizes) }
+        item {
+            val speedMetric by appPreferenceRepo.speedMetric.collectAsState(false)
+            val sizeMetric by appPreferenceRepo.sizeMetric.collectAsState(false)
+            val values = listOf(
+                true to stringResource(R.string.base_1000),
+                false to stringResource(R.string.base_1024)
+            )
+            DialogPreference(
+                title = stringResource(R.string.speed_unit),
+                icon = painterResource(R.drawable.network_check),
+                value = speedMetric,
+                values = values,
+                onValueChanged = { scope.launch { appPreferenceRepo.setSpeedMetric(it) } },
+            )
+            DialogPreference(
+                title = stringResource(R.string.size_unit),
+                icon = painterResource(R.drawable.database),
+                value = sizeMetric,
+                values = values,
+                onValueChanged = { scope.launch { appPreferenceRepo.setSizeMetric(it) } },
+            )
+        }
         categoryTitleSmall { stringResource(R.string.ui) }
         item {
             val theme by appPreferenceRepo.theme.collectAsState(Theme.AutoMaterial)
@@ -230,7 +252,10 @@ fun Settings(paddingValues: PaddingValues) {
         item {
             val fontFamily = remember { googleSans(weight = 600f, roundness = 100f) }
             Text(
-                modifier = Modifier.fillMaxWidth().alpha(0.6f).padding(vertical = 4.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .alpha(0.6f)
+                    .padding(vertical = 4.dp),
                 fontFamily = fontFamily,
                 text = stringResource(R.string.version_short, BuildConfig.VERSION_NAME),
                 textAlign = TextAlign.Center

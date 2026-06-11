@@ -27,6 +27,7 @@ val notificationModule = module {
             dataPlan = dataPlan,
             networkUsageManager = get(),
             notificationManager = get(),
+            appPreferenceRepo = get(),
         )
     }
 }
