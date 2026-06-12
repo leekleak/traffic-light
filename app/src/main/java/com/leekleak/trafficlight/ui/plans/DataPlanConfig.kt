@@ -63,7 +63,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
-import androidx.compose.material3.MediumFloatingActionButton
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
@@ -167,6 +166,7 @@ import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.compose.koinInject
 import java.text.DecimalFormat
 import java.text.NumberFormat
@@ -203,22 +203,22 @@ fun DataPlanConfig(currentPlan: DataPlan) {
         NotificationWarningDialog(onDismiss = { showForegroundNotificationWarning = false })
     }
 
-    val calculatedPlan by produceState(initialValue = newPlan, newPlan) {
-        if (isManualUsage || isConfigured) {
-            value = newPlan
-            return@produceState
-        }
-        val planToCalculate = newPlan.copy()
-        launch(Dispatchers.Default) {
-            val tempPlan = planToCalculate.copy(
-                lastUpdateStamp = 0,
-                mainDataUsed = 0,
-                mainStartStamp = 0,
-                mainExpiryStamp = 0,
-                extras = planToCalculate.extras.map { it.copy(dataUsed = 0) }
-            )
-            tempPlan.updateUsage(networkUsageManager)
-            value = tempPlan
+    val onCalculateUsage = {
+        scope.launch {
+            isManualUsage = false
+            val planToCalculate = newPlan.copy()
+            val tempPlan = withContext(Dispatchers.Default) {
+                planToCalculate.copy(
+                    lastUpdateStamp = 0,
+                    mainDataUsed = 0,
+                    mainStartStamp = 0,
+                    mainExpiryStamp = 0,
+                    extras = planToCalculate.extras.map { it.copy(dataUsed = 0) }
+                ).apply {
+                    updateUsage(networkUsageManager)
+                }
+            }
+            newPlan = tempPlan
         }
     }
 
@@ -254,11 +254,40 @@ fun DataPlanConfig(currentPlan: DataPlan) {
     Scaffold(
         bottomBar = {
             Row(
-                modifier = Modifier.navigationBarsPadding().fillMaxWidth().padding(16.dp),
-                horizontalArrangement = Arrangement.End
-            ) {
-                MediumFloatingActionButton(
-                    onClick = {
+                modifier = Modifier.fillMaxWidth().padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally))
+            {
+                Row(
+                    modifier = Modifier
+                        .navigationBarsPadding()
+                        .clip(MaterialTheme.shapes.extraLargeIncreased)
+                        .background(colorScheme.surface)
+                        .border(
+                            width = 1.5.dp,
+                            color = colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                            shape = MaterialTheme.shapes.extraLargeIncreased
+                        )
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    TextButton(
+                        onClick = {
+                            onCalculateUsage()
+                            haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                        },
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.magic),
+                            contentDescription = null
+                        )
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = stringResource(R.string.update_usage)
+                        )
+                    }
+
+                    Button(onClick = {
                         scope.launch(Dispatchers.IO) {
                             newPlan = newPlan.copy(
                                 lastSafetyState = -1,
@@ -269,13 +298,16 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                             haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                             navigator.goBack()
                         }
+                    }) {
+                        Icon(
+                            painter = painterResource(R.drawable.save),
+                            contentDescription = stringResource(R.string.save)
+                        )
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = stringResource(R.string.save)
+                        )
                     }
-                ) {
-                    Icon(
-                        modifier = Modifier.size(32.dp),
-                        painter = painterResource(R.drawable.save),
-                        contentDescription = stringResource(R.string.save)
-                    )
                 }
             }
         }
@@ -309,7 +341,7 @@ fun DataPlanConfig(currentPlan: DataPlan) {
             }
             categoryTitleSmall { stringResource(R.string.type) }
             typeConfig(
-                calculatedPlan = calculatedPlan,
+                plan = newPlan,
                 isManualUsage = isManualUsage,
                 onManualUsageChange = {
                     isManualUsage = true
@@ -320,7 +352,7 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                 newPlan = it
             }
             categoryTitleSmall { stringResource(R.string.extras) }
-            extrasConfig(calculatedPlan) { newPlan = newPlan.copy(extras = it.extras) }
+            extrasConfig(newPlan) { newPlan = newPlan.copy(extras = it.extras) }
             categoryTitleSmall { stringResource(R.string.zero_rated_apps) }
             item {
                 val suspiciousApps by produceState(emptyList()) { value = appManager.getAllApps() }
@@ -548,7 +580,7 @@ fun DataPlanConfig(currentPlan: DataPlan) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun LazyListScope.typeConfig(
-    calculatedPlan: DataPlan,
+    plan: DataPlan,
     isManualUsage: Boolean,
     onManualUsageChange: (Long) -> Unit,
     enabled: Boolean = true,
@@ -561,7 +593,7 @@ private fun LazyListScope.typeConfig(
                 .card()
                 .padding(horizontal = 8.dp, vertical = 4.dp)
         ) {
-            val interval by remember(calculatedPlan) { derivedStateOf { calculatedPlan.interval } }
+            val interval by remember(plan) { derivedStateOf { plan.interval } }
             val monthlyString = stringResource(R.string.monthly)
             val customString = stringResource(R.string.custom)
             ButtonGroup(
@@ -580,7 +612,7 @@ private fun LazyListScope.typeConfig(
                         )
                     },
                     onCheckedChange = {
-                        onPlanChange(calculatedPlan.copy(interval = TimeInterval.MONTH))
+                        onPlanChange(plan.copy(interval = TimeInterval.MONTH))
                         haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                     },
                     weight = 1f,
@@ -596,15 +628,15 @@ private fun LazyListScope.typeConfig(
                         )
                     },
                     onCheckedChange = {
-                        onPlanChange(calculatedPlan.copy(interval = TimeInterval.DAY))
+                        onPlanChange(plan.copy(interval = TimeInterval.DAY))
                         haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                     },
                     weight = 1f,
                 )
             }
 
-            var selectedMonthDay by remember(calculatedPlan) {
-                mutableIntStateOf(fromTimestamp(calculatedPlan.startDate).dayOfMonth)
+            var selectedMonthDay by remember(plan) {
+                mutableIntStateOf(fromTimestamp(plan.startDate).dayOfMonth)
             }
 
             AnimatedContent(interval) { currentInterval ->
@@ -621,8 +653,8 @@ private fun LazyListScope.typeConfig(
                             onValueChanged = {
                                 val newDate =
                                     LocalDate.now().withDayOfMonth(it.toInt()).toTimestamp()
-                                if (newDate != calculatedPlan.startDate) {
-                                    onPlanChange(calculatedPlan.copy(startDate = newDate))
+                                if (newDate != plan.startDate) {
+                                    onPlanChange(plan.copy(startDate = newDate))
                                 }
                             }
                         )
@@ -631,18 +663,18 @@ private fun LazyListScope.typeConfig(
                             title = stringResource(R.string.recursion),
                             summary = stringResource(R.string.recursion_description),
                             icon = painterResource(R.drawable.repeat),
-                            value = calculatedPlan.recurring,
+                            value = plan.recurring,
                             enabled = enabled,
-                            onValueChanged = { onPlanChange(calculatedPlan.copy(recurring = it)) }
+                            onValueChanged = { onPlanChange(plan.copy(recurring = it)) }
                         )
                     }
                 } else {
                     CustomPlanSetup(
-                        newPlan = calculatedPlan,
+                        newPlan = plan,
                         enabled = enabled,
                         onChange = { date, time, multiplier ->
                             onPlanChange(
-                                calculatedPlan.copy(
+                                plan.copy(
                                     startDate = date.atStartOfDay().toTimestamp() + time.toSecondOfDay() * 1000,
                                     intervalMultiplier = multiplier
                                 )
@@ -659,13 +691,13 @@ private fun LazyListScope.typeConfig(
             val textFieldState = rememberTextFieldState()
             var ignoreNextTextUpdate by remember { mutableStateOf(true) }
             var displayUnit by remember {
-                val unit = DataSize(calculatedPlan.mainDataUsed).unit(metric)
+                val unit = DataSize(plan.mainDataUsed).unit(metric)
                 mutableStateOf(if (unit == DataSizeUnit.GB) DataSizeUnit.GB else DataSizeUnit.MB)
             }
 
-            LaunchedEffect(calculatedPlan.mainDataUsed, displayUnit) {
+            LaunchedEffect(plan.mainDataUsed, displayUnit) {
                 if (!isManualUsage) {
-                    val value = DataSize(calculatedPlan.mainDataUsed).getAsUnit(displayUnit, metric)
+                    val value = DataSize(plan.mainDataUsed).getAsUnit(displayUnit, metric)
                     val newText = formatter.format(value)
                     ignoreNextTextUpdate = true
                     textFieldState.setTextAndPlaceCursorAtEnd(newText)
@@ -684,7 +716,7 @@ private fun LazyListScope.typeConfig(
                         val base = if (metric) 1000.0 else 1024.0
                         val newUsed = (parsed * displayUnit.toBits(base)).toLong()
 
-                        val currentValue = DataSize(calculatedPlan.mainDataUsed).getAsUnit(displayUnit, metric)
+                        val currentValue = DataSize(plan.mainDataUsed).getAsUnit(displayUnit, metric)
                         if (text != formatter.format(currentValue)) {
                             onManualUsageChange(newUsed)
                         }
