@@ -1,0 +1,21 @@
+Warning: This is an alpha release. Bugs are expected and reports appreciated
+
+Major enhancements:
+- Added switch in Overview to show Wifi usage
+- Added support for switching between 1000 and 1024 as bases for speed and usage
+- Added support for manually setting plan usage.
+
+Enhancements:
+- Added a screen to display library licenses
+- Added tooltips to cards such as "Trend", "Prediction" and "Safety", explaining what they mean
+- Added warnings about several foreground notifications on Android 16 and above
+- Added placeholder to top apps card
+- Added new plan notification icon
+- Updated in-built color palette
+- Multi-plan support is automatically enabled when Shizuku permission granted
+- Various UI improvements
+
+Bug Fixes:
+- Fix empty plan list after Shizuku toggle
+- Fix history graph not updating when both queries request no usage
+- Fix phantom vibration when entering Overview
