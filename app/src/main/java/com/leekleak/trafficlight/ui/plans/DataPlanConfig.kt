@@ -42,7 +42,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
@@ -84,7 +83,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -194,8 +192,6 @@ fun DataPlanConfig(currentPlan: DataPlan) {
     val activity = LocalActivity.current
 
     var newPlan by remember(currentPlan) { mutableStateOf(currentPlan.copy()) }
-    var isManualUsage by remember { mutableStateOf(false) }
-    val isConfigured = remember { currentPlan.configured }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     var showForegroundNotificationWarning by remember { mutableStateOf(false) }
@@ -205,7 +201,6 @@ fun DataPlanConfig(currentPlan: DataPlan) {
 
     val onCalculateUsage = {
         scope.launch {
-            isManualUsage = false
             val planToCalculate = newPlan.copy()
             val tempPlan = withContext(Dispatchers.Default) {
                 planToCalculate.copy(
@@ -272,6 +267,7 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     TextButton(
+                        enabled = !newPlan.configured,
                         onClick = {
                             onCalculateUsage()
                             haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
@@ -283,7 +279,7 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                         )
                         Text(
                             modifier = Modifier.padding(start = 8.dp),
-                            text = stringResource(R.string.update_usage)
+                            text = stringResource(R.string.calculate_usage)
                         )
                     }
 
@@ -327,7 +323,7 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                 PlanSizeConfig (
                     size = size,
                     unit = newPlan.mainDataSizeUnit,
-                    enabled = !isConfigured,
+                    enabled = !currentPlan.configured,
                     onSizeUpdate = {
                         newPlan = newPlan.copy(mainDataSize = DataSize(it))
                     },
@@ -342,10 +338,10 @@ fun DataPlanConfig(currentPlan: DataPlan) {
             categoryTitleSmall { stringResource(R.string.type) }
             typeConfig(
                 plan = newPlan,
-                isManualUsage = isManualUsage,
                 onManualUsageChange = {
-                    isManualUsage = true
-                    newPlan = newPlan.copy(mainDataUsed = it)
+                    newPlan = newPlan.copy(
+                        mainDataUsed = it,
+                    )
                 },
                 enabled = !currentPlan.configured
             ) {
@@ -581,7 +577,6 @@ fun DataPlanConfig(currentPlan: DataPlan) {
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun LazyListScope.typeConfig(
     plan: DataPlan,
-    isManualUsage: Boolean,
     onManualUsageChange: (Long) -> Unit,
     enabled: Boolean = true,
     onPlanChange: (plan: DataPlan) -> Unit
@@ -635,9 +630,7 @@ private fun LazyListScope.typeConfig(
                 )
             }
 
-            var selectedMonthDay by remember(plan) {
-                mutableIntStateOf(fromTimestamp(plan.startDate).dayOfMonth)
-            }
+            val selectedMonthDay = fromTimestamp(plan.startDate).dayOfMonth
 
             AnimatedContent(interval) { currentInterval ->
                 if (currentInterval == TimeInterval.MONTH) {
@@ -696,12 +689,10 @@ private fun LazyListScope.typeConfig(
             }
 
             LaunchedEffect(plan.mainDataUsed, displayUnit) {
-                if (!isManualUsage) {
-                    val value = DataSize(plan.mainDataUsed).getAsUnit(displayUnit, metric)
-                    val newText = formatter.format(value)
-                    ignoreNextTextUpdate = true
-                    textFieldState.setTextAndPlaceCursorAtEnd(newText)
-                }
+                val value = DataSize(plan.mainDataUsed).getAsUnit(displayUnit, metric)
+                val newText = formatter.format(value)
+                ignoreNextTextUpdate = true
+                textFieldState.setTextAndPlaceCursorAtEnd(newText)
             }
 
             LaunchedEffect(textFieldState.text) {
@@ -733,19 +724,19 @@ private fun LazyListScope.typeConfig(
                 controls = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         BasicTextField(
-                            modifier = Modifier.width(IntrinsicSize.Min),
+                            modifier = Modifier.width(IntrinsicSize.Min).height(IntrinsicSize.Min),
                             state = textFieldState,
                             readOnly = !enabled,
                             textStyle = TextStyle(
                                 fontFamily = font,
-                                color = if (isManualUsage) colorScheme.primary else colorScheme.onSurface,
+                                color = colorScheme.primary,
                                 fontSize = 22.sp,
                                 textAlign = TextAlign.End,
-                                textDecoration = if (enabled) TextDecoration.Underline else TextDecoration.None
-                            )
+                            ),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                         )
                         Button(
                             onClick = {
@@ -759,7 +750,6 @@ private fun LazyListScope.typeConfig(
                                     val base = if (metric) 1000.0 else 1024.0
                                     val bits = parsed * oldUnit.toBits(base)
                                     val newValue = bits / displayUnit.toBits(base)
-                                    ignoreNextTextUpdate = true
                                     textFieldState.setTextAndPlaceCursorAtEnd(formatter.format(newValue))
                                 }
                             },
@@ -1108,8 +1098,13 @@ fun PlanSizeConfig(
 
         val formatter = remember { DecimalFormat("0.###") }
         val numberFormat = remember { NumberFormat.getInstance() }
-        val fieldState = remember(size) {
-            TextFieldState(formatter.format(size))
+        val fieldState = rememberTextFieldState()
+
+        LaunchedEffect(size) {
+            val formatted = formatter.format(size)
+            if (fieldState.text.toString() != formatted) {
+                fieldState.setTextAndPlaceCursorAtEnd(formatted)
+            }
         }
 
         LaunchedEffect(fieldState.text, enabled) {
@@ -1304,7 +1299,9 @@ private fun AddExtraDialog(
     val haptic = LocalHapticFeedback.current
     val metric = LocalSizeMetric.current
     val amountState = rememberTextFieldState("1")
-    var unit by remember { mutableStateOf(DataSizeUnit.GB) }
+    val usageState = rememberTextFieldState("0")
+    var amountUnit by remember { mutableStateOf(DataSizeUnit.GB) }
+    var usageUnit by remember { mutableStateOf(DataSizeUnit.GB) }
     var startDate by remember { mutableLongStateOf(LocalDate.now().toTimestamp()) }
     var expiryDate by remember { mutableLongStateOf(startDate + 30L * 24 * 60 * 60 * 1000) }
 
@@ -1359,13 +1356,42 @@ private fun AddExtraDialog(
                     )
                     Button(
                         onClick = {
-                            unit = if (unit == DataSizeUnit.GB) DataSizeUnit.MB else DataSizeUnit.GB
+                            amountUnit = if (amountUnit == DataSizeUnit.GB) DataSizeUnit.MB else DataSizeUnit.GB
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         },
                         shape = MaterialTheme.shapes.medium,
                         contentPadding = PaddingValues(horizontal = 12.dp)
                     ) {
-                        Text(unit.name)
+                        Text(amountUnit.name)
+                    }
+                }
+
+                Text(stringResource(R.string.usage), style = typography.titleMedium, color = colorScheme.tertiary)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    BasicTextField(
+                        state = usageState,
+                        modifier = Modifier
+                            .weight(1f)
+                            .card()
+                            .background(colorScheme.surfaceContainer)
+                            .padding(8.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        textStyle = typography.bodyLarge.copy(color = colorScheme.onSurface),
+                        cursorBrush = SolidColor(colorScheme.onSurface),
+                        lineLimits = TextFieldLineLimits.SingleLine
+                    )
+                    Button(
+                        onClick = {
+                            usageUnit = if (usageUnit == DataSizeUnit.GB) DataSizeUnit.MB else DataSizeUnit.GB
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        },
+                        shape = MaterialTheme.shapes.medium,
+                        contentPadding = PaddingValues(horizontal = 12.dp)
+                    ) {
+                        Text(usageUnit.name)
                     }
                 }
 
@@ -1428,13 +1454,15 @@ private fun AddExtraDialog(
                 }
                 Button(onClick = {
                     val amountValue = amountState.text.toString().toDoubleOrNull() ?: 1.0
-                    val amountBytes =
-                        (amountValue * unit.toBits(if (metric) 1000.0 else 1024.0)).toLong()
+                    val usageValue = usageState.text.toString().toDoubleOrNull() ?: 0.0
+                    val base = if (metric) 1000.0 else 1024.0
+                    val amountBytes = (amountValue * amountUnit.toBits(base)).toLong()
+                    val usageBytes = (usageValue * usageUnit.toBits(base)).toLong()
                     onConfirm(
                         DataPlanExtra(
                             dataAmount = DataSize(amountBytes),
-                            unit = unit,
-                            dataUsed = 0L,
+                            unit = amountUnit,
+                            dataUsed = usageBytes,
                             startStamp = startDate,
                             expiryStamp = expiryDate,
                             expired = false
