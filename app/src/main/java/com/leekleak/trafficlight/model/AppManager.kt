@@ -52,7 +52,9 @@ class AppManager(context: Context, scope: CoroutineScope) {
     }
     suspend fun getAllApps(): List<DataUIDApp> = allAppsDeferred.await()
 
-    suspend fun getAppForUID(uid: Int): DataUID = getAllApps().plus(specialApps).find { it.uid == uid } ?: unknownApp
+    suspend fun getAppForUID(uid: Int): DataUID {
+        return getAllApps().plus(specialApps).find { it.uid == uid } ?: DataUIDSpecial(uid = uid, packageName = "", drawableResource = R.drawable.manufacturing, stringResource = R.string.system_service)
+    }
 
     companion object {
         val allApp = DataUIDSpecial(

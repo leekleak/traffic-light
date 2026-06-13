@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -20,11 +21,11 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -81,6 +82,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.leekleak.trafficlight.R
@@ -296,7 +298,9 @@ private fun HourList(paddingValues: PaddingValues) {
                     maximum = maximum,
                     onClick = {hourSelected = if (key != hourSelected) key else -1}
                 ) {
-                    Box (Modifier.width(measurement.size.width.toDp + 8.dp).height(32.dp)) {
+                    Box (Modifier
+                        .width(measurement.size.width.toDp + 8.dp)
+                        .height(32.dp)) {
                         Icon(
                             modifier = Modifier.align(Alignment.Center),
                             painter = painterResource(R.drawable.clock),
@@ -316,7 +320,9 @@ private fun HourList(paddingValues: PaddingValues) {
                     maximum = maximum,
                     onClick = {hourSelected = if (item.start.hour != hourSelected) item.start.hour else -1}
                 ) {
-                    Box (Modifier.width(measurement.size.width.toDp + 8.dp).height(32.dp)) {
+                    Box (Modifier
+                        .width(measurement.size.width.toDp + 8.dp)
+                        .height(32.dp)) {
                         Text(
                             modifier = Modifier.align(Alignment.Center),
                             text = item.start.toLocalTime().toLocaleHourString(context, true),
@@ -703,14 +709,30 @@ fun AppItem(
                         enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
                         exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
                     ) {
-                        Column {
-                            Text(
-                                modifier = Modifier
-                                    .height(32.dp)
-                                    .wrapContentHeight(Alignment.CenterVertically),
-                                text = name,
-                                fontWeight = FontWeight.Bold,
-                            )
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Row(
+                                modifier = Modifier.heightIn(min = 32.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Text(
+                                    modifier = Modifier.weight(1f),
+                                    text = name,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                                if (app != null && app.uid > -1) {
+                                    Text(
+                                        modifier = Modifier
+                                            .width(IntrinsicSize.Max)
+                                            .background(colorScheme.primary, MaterialTheme.shapes.small)
+                                            .padding(horizontal = 8.dp, vertical = 2.dp),
+                                        text = app.uid.toString(),
+                                        fontSize = 12.sp,
+                                        color = colorScheme.onPrimary,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                }
+                            }
                             LineGraphHeader()
                         }
                     }
@@ -729,7 +751,7 @@ fun AppItem(
                         Column(modifier.padding(top = 6.dp)) {
                             Row (
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End,
+                                horizontalArrangement = Arrangement.End
                             ) {
                                 Button(
                                     modifier = Modifier.padding(end = 4.dp),
