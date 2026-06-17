@@ -56,9 +56,11 @@ internal class ScrollableBarGraphHelper(
     private val scope: DrawScope,
     private val data: List<ScrollableBarData>,
     private val stretch: List<Animatable<Float, *>>,
+    private val y1Fractions: List<Float>,
+    private val y2Fractions: List<Float>,
     private val xOffset: Int = 0,
     private val xItemSpacing: Float = 30f,
-    private val maximum: Animatable<Float, *>,
+    private val maximum: Long,
     private val selectorOffset: Float = -1f,
     private val gridColor: Color,
     private val backgroundColor: Color,
@@ -113,10 +115,8 @@ internal class ScrollableBarGraphHelper(
             }
         }
 
-        val absMaxY = visibleIndices.maxOfOrNull { data[it].y1 + data[it].y2 } ?: Long.MAX_VALUE
-        if (maximum.targetValue.toLong() != absMaxY && absMaxY != 0L) { onMaximumChange(absMaxY) }
-
-        val verticalStep = maximum.value / gridHeight
+        val absMaxY = visibleIndices.maxOfOrNull { data[it].y1 + data[it].y2 } ?: 0L
+        if (maximum != DataSize(absMaxY).getComparisonValue(metric) && absMaxY != 0L) { onMaximumChange(absMaxY) }
 
         val roundedPolygon = RoundedPolygon(3, 12.dp.toPx())
         translate(selectorOffset + xItemSpacing / 2, size.height + 16.dp.toPx()) {
@@ -127,10 +127,15 @@ internal class ScrollableBarGraphHelper(
 
         for (i in visibleIndices) {
             val x = xItemSpacing * i + xOffset
-            val yOffset = data[i].y.toFloat() / verticalStep
 
             val barStretch = stretch[i].value
-            val ratio = data[i].y1.toFloat() / data[i].y.toFloat()
+            val y1f = y1Fractions[i]
+            val y2f = y2Fractions[i]
+
+            val yOffset = (y1f + y2f) * gridHeight
+            if (yOffset < 1f) continue
+
+            val ratio = if (y1f + y2f != 0f) y1f / (y1f + y2f) else 0f
 
             rectList.add(
                 DoubleBar(
@@ -189,7 +194,7 @@ internal class ScrollableBarGraphHelper(
             drawTextLabelsOverXAndYAxis(gridColor, backgroundColor, textMeasurer)
 
             //Drawing text labels over the y- axis
-            val dataSize = DataSize(maximum.value.toLong()).toStringParts(metric = metric)
+            val dataSize = DataSize(maximum).toStringParts(metric = metric)
             drawContext.canvas.nativeCanvas.drawText(
                 dataSize.first + " " + dataSize.third,
                 metrics.gridWidth + 4.sp.toPx(),
