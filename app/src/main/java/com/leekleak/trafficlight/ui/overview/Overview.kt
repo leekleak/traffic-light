@@ -319,7 +319,7 @@ private fun OverviewHero(scrollState: ScrollState) {
             iconToggleButton(
                 text = null,
                 selected = query.dataType == DataType.Mobile,
-                onSelect = {viewModel.query.value = UsageQuery(DataType.Mobile) }
+                onSelect = { viewModel.setDataType(DataType.Mobile) }
             ) {
                 Icon(
                     painter = painterResource(R.drawable.cellular),
@@ -330,7 +330,7 @@ private fun OverviewHero(scrollState: ScrollState) {
                 text = null,
                 selected = query.dataType == DataType.Wifi,
                 toggledColors = wifiToggledColors,
-                onSelect = {viewModel.query.value = UsageQuery(DataType.Wifi) }
+                onSelect = { viewModel.setDataType(DataType.Wifi) }
             ) {
                 Icon(
                     painter = painterResource(R.drawable.wifi),

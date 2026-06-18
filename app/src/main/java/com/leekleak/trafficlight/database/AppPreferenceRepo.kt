@@ -68,6 +68,9 @@ class AppPreferenceRepo (
     val ads: Flow<Boolean> = data.map { it[ADS] ?: false }.distinctUntilChanged()
     suspend fun setAds(value: Boolean) = dataStore.edit { it[ADS] = value }
 
+    val overviewDataType: Flow<DataType> = data.map { prefs -> prefs[OVERVIEW_DATA_TYPE]?.let { valueOfOrNull<DataType>(it) } ?: DataType.Mobile }.distinctUntilChanged()
+    suspend fun setOverviewDataType(value: DataType) = dataStore.edit { it[OVERVIEW_DATA_TYPE] = value.name }
+
     private companion object {
         private val NOTIFICATION = booleanPreferencesKey("notification")
         private val LIVE_NOTIFICATION = booleanPreferencesKey("live_notification")
@@ -84,5 +87,6 @@ class AppPreferenceRepo (
         private val SHIZUKU_TRACKING = booleanPreferencesKey("shizuku_tracking")
         private val SHIZUKU_HINT = booleanPreferencesKey("shizuku_hint")
         private val ADS = booleanPreferencesKey("supporter_ads")
+        private val OVERVIEW_DATA_TYPE = stringPreferencesKey("overview_data_type")
     }
 }

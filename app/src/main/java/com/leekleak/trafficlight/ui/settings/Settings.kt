@@ -175,20 +175,24 @@ fun Settings(paddingValues: PaddingValues) {
                 true to stringResource(R.string.base_1000),
                 false to stringResource(R.string.base_1024)
             )
-            DialogPreference(
-                title = stringResource(R.string.speed_unit),
-                icon = painterResource(R.drawable.network_check),
-                value = speedMetric,
-                values = values,
-                onValueChanged = { scope.launch { appPreferenceRepo.setSpeedMetric(it) } },
-            )
-            DialogPreference(
-                title = stringResource(R.string.size_unit),
-                icon = painterResource(R.drawable.database),
-                value = sizeMetric,
-                values = values,
-                onValueChanged = { scope.launch { appPreferenceRepo.setSizeMetric(it) } },
-            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                DialogPreference(
+                    modifier = Modifier.weight(1f),
+                    title = stringResource(R.string.speed_unit),
+                    icon = painterResource(R.drawable.network_check),
+                    value = speedMetric,
+                    values = values,
+                    onValueChanged = { scope.launch { appPreferenceRepo.setSpeedMetric(it) } },
+                )
+                DialogPreference(
+                    modifier = Modifier.weight(1f),
+                    title = stringResource(R.string.size_unit),
+                    icon = painterResource(R.drawable.database),
+                    value = sizeMetric,
+                    values = values,
+                    onValueChanged = { scope.launch { appPreferenceRepo.setSizeMetric(it) } },
+                )
+            }
         }
         categoryTitleSmall { stringResource(R.string.ui) }
         item {
