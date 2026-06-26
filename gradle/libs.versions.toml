@@ -30,7 +30,7 @@ mockk = "1.14.11"
 kotlinxCoroutinesTest = "1.11.0"
 turbine = "1.2.1"
 robolectric = "4.16.1"
-aboutLibraries = "15.0.0-rc01"
+aboutLibraries = "15.0.2"
 
 [libraries]
 

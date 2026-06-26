@@ -1,0 +1,15 @@
+Warning: This is an alpha release. Bugs are expected and reports appreciated
+
+Enhancements:
+- History now shows system service usage
+- Overview data type preference is now saved
+- Other user usage may now show up in top apps card
+- Polished UI for data plans with 0/infinite data usage
+- Widget text now resizes to better account for different widget sizes
+- Improved split notification visibility
+- Speed notification title now shows up/down speeds separately
+- Improved graph animations
+- Minor UI and performance improvements
+
+Bug Fixes:
+- Quite a few
