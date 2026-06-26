@@ -43,13 +43,14 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.util.DataSize
-import com.leekleak.trafficlight.util.DataSizeUnit
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import org.koin.mp.KoinPlatform
 import timber.log.Timber
@@ -71,6 +72,7 @@ class Widget: GlanceAppWidget() {
         val koinInstance = KoinPlatform.getKoin()
         val networkUsageManager: NetworkUsageManager = koinInstance.get()
         val dataPlanDao: DataPlanDao = koinInstance.get()
+        val appPreferenceRepo: AppPreferenceRepo = koinInstance.get()
 
         val state = getAppWidgetState(context, stateDefinition, id)
 
@@ -78,13 +80,15 @@ class Widget: GlanceAppWidget() {
             state[SUBSCRIBER_ID_HASH]?.let { dataPlanDao.getByHash(it) }
         }?: return
 
+        val sizeMetric = appPreferenceRepo.sizeMetric.first()
         val usage = dataPlan.getUsage(networkUsageManager)
-        val usageSize = DataSize(usage).getAsUnit(DataSizeUnit.GB)
-        val dataMax = DataSize(dataPlan.getTotalMax()).getAsUnit(DataSizeUnit.GB)
+        val usageSize = DataSize(usage).getAsUnit(dataPlan.mainDataSizeUnit, sizeMetric)
+        val dataMax = DataSize(dataPlan.getTotalMax()).getAsUnit(dataPlan.mainDataSizeUnit, sizeMetric)
         val formatter = DecimalFormat("0.##")
 
         val usageString = formatter.format(usageSize)
         val quotaString = formatter.format(dataMax)
+        val unitString = dataPlan.mainDataSizeUnit.name
 
         var stateChanged = false
 
@@ -95,6 +99,7 @@ class Widget: GlanceAppWidget() {
                 (mutable[LAST_USAGE] == usageString) &&
                 (mutable[LAST_MAX] == quotaString) &&
                 (mutable[BACKGROUND] == dataPlan.uiBackground) &&
+                (mutable[LAST_UNIT] == unitString) &&
                 (mutable[FORCE_REFRESH] != true)
             ) {
                 Timber.i("Skipping widget refresh")
@@ -105,6 +110,7 @@ class Widget: GlanceAppWidget() {
                     this[LAST_USAGE] = usageString
                     this[LAST_MAX] = quotaString
                     this[BACKGROUND] = dataPlan.uiBackground
+                    this[LAST_UNIT] = unitString
                     this[FORCE_REFRESH] = false
                 }
             }
@@ -120,6 +126,7 @@ class Widget: GlanceAppWidget() {
                         ConfiguredWidgetContent(
                             usageString = usageString,
                             quotaString = quotaString,
+                            unitString = unitString,
                             progress = usageSize / max(dataMax, 1.0),
                             dataMax = dataMax,
                             resetString = dataPlan.resetString(context)
@@ -127,6 +134,7 @@ class Widget: GlanceAppWidget() {
                     } else {
                         UnconfiguredWidgetContent(
                             usageString = usageString,
+                            unitString = unitString,
                         )
                     }
                 }
@@ -154,6 +162,7 @@ class Widget: GlanceAppWidget() {
             ConfiguredWidgetContent(
                 usageString = "8.5",
                 quotaString = "20",
+                unitString = "GB",
                 progress = 8.5 / 20.0,
                 resetString = "Resets in 8 days",
                 dataMax = 20.0
@@ -165,6 +174,7 @@ class Widget: GlanceAppWidget() {
     private fun ConfiguredWidgetContent(
         usageString: String,
         quotaString: String,
+        unitString: String,
         progress: Double,
         resetString: String,
         dataMax: Double
@@ -186,7 +196,7 @@ class Widget: GlanceAppWidget() {
                     ),
                 )
                 Text(
-                    text = "${if (dataMax != 0.0) "/$quotaString" else "" }GB",
+                    text = "${if (dataMax != 0.0) "/$quotaString" else "" }$unitString",
                     style = TextStyle(
                         color = GlanceTheme.colors.onSurface,
                         fontSize = 36.sp,
@@ -221,7 +231,7 @@ class Widget: GlanceAppWidget() {
     }
 
     @Composable
-    private fun UnconfiguredWidgetContent(usageString: String) {
+    private fun UnconfiguredWidgetContent(usageString: String, unitString: String) {
         Column(
             modifier = GlanceModifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
@@ -239,7 +249,7 @@ class Widget: GlanceAppWidget() {
                     ),
                 )
                 Text(
-                    text = "GB",
+                    text = unitString,
                     style = TextStyle(
                         color = GlanceTheme.colors.onSurface,
                         fontSize = 36.sp,
@@ -325,6 +335,7 @@ class Widget: GlanceAppWidget() {
         val SIM_NUMBER = intPreferencesKey("sim_number")
         val LAST_USAGE = stringPreferencesKey("last_usage")
         val LAST_MAX = stringPreferencesKey("last_max")
+        val LAST_UNIT = stringPreferencesKey("last_unit")
         val BACKGROUND = intPreferencesKey("ui_background")
         val FORCE_REFRESH = booleanPreferencesKey("force_refresh")
     }

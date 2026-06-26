@@ -17,7 +17,6 @@ enum class DataSizeUnit {
     }
 }
 
-val Long.kb get() = this * 1024L
 val Long.toKb get() = this / 1024L
 
 val LocalSizeMetric = compositionLocalOf { false }
@@ -88,7 +87,7 @@ data class DataSize (
         return ((ceil(v / 100f) * 100f) * u.toBits(base)).toLong()
     }
 
-    fun getAsUnit(unit: DataSizeUnit, metric: Boolean = false): Double {
+    fun getAsUnit(unit: DataSizeUnit, metric: Boolean): Double {
         val base = if (metric) 1000.0 else 1024.0
         return byteValue.toDouble() / unit.toBits(base).toDouble()
     }
