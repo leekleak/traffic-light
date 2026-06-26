@@ -21,7 +21,6 @@
     <string name="mobile">مۆبایل: %1$s</string>
     <string name="about">دەربارە</string>
     <string name="speed_in_bits">خێرایی بە بیت پیشان بدە</string>
-    <string name="github_description">پەرەپێدان بەدوادا بچۆ یان کێشەکان ڕاپۆرت بکە.</string>
     <string name="force_fallback">بەدواداچوونی خێراییی جێگرەوە بسەپێنە.</string>
     <string name="force_fallback_description">بەسوودە لە کاتی بەکارهێنانی ڕۆمێکی پڕکێشە یان ئیسەرنێت</string>
     <string name="fallback_unsupported">جێگرەوە پشتگیری ناکرێت</string>
