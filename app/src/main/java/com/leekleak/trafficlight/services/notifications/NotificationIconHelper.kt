@@ -41,9 +41,9 @@ class NotificationIconHelper(private val context: Context) {
     }
     private val paintSeparate by lazy {
         Paint().apply {
-            typeface = convertFontFamilyToTypeface(context, googleSans(weight = 600f, width = 35f))
+            typeface = convertFontFamilyToTypeface(context, googleSans(weight = 600f, width = 50f))
             textAlign = Paint.Align.RIGHT
-            textSize = 52f * multiplier
+            textSize = 56f * multiplier
             color = context.getColor(R.color.white)
             textAlign = Paint.Align.RIGHT
             letterSpacing = 0f
@@ -111,8 +111,10 @@ class NotificationIconHelper(private val context: Context) {
 
             val canvas = Canvas(bitmap!!)
 
-            canvas.drawText(speed1, 96f * multiplier, 48f * multiplier, paintSeparate)
-            canvas.drawText(speed2, 96f * multiplier, 96f * multiplier, paintSeparate)
+            val string1 = if (speed1.length >= 5) speed1.replace(" ", "") else speed1
+            val string2 = if (speed2.length >= 5) speed2.replace(" ", "") else speed2
+            canvas.drawText(string1, 96f * multiplier, 48f * multiplier, paintSeparate)
+            canvas.drawText(string2, 96f * multiplier, 96f * multiplier, paintSeparate)
             return IconCompat.createWithBitmap(bitmap!!)
         }
     }

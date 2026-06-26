@@ -164,6 +164,7 @@
     <string name="plan_usage">Plan usage</string>
     <string name="calculate_usage">Calculate usage</string>
     <string name="system_service">System service %1$d</string>
+    <string name="up_down" translatable="false">"↑: %2$s   ↓: %1$s"</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

@@ -125,7 +125,9 @@ class SpeedNotification(
     private var lastContent: String = ""
     private suspend fun updateNotification(trafficSnapshot: TrafficSnapshot, force: Boolean = false) {
         val data = DataSize(trafficSnapshot.totalSpeed).toString(speed = true, inBits = inBits, metric = speedMetric)
-        val title = context.getString(R.string.speed, data)
+        val download = DataSize(trafficSnapshot.downSpeed).toString(speed = true, inBits = inBits, metric = speedMetric)
+        val upload = DataSize(trafficSnapshot.upSpeed).toString(speed = true, inBits = inBits, metric = speedMetric)
+        val title = context.getString(R.string.up_down, upload, download)
 
         val spacing = 18
         val messageShort =
