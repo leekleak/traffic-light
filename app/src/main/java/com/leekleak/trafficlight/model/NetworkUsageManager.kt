@@ -65,12 +65,12 @@ class NetworkUsageManager(
         val startStamp = startDate.toTimestamp()
         val endStamp = endDate.toTimestamp()
         return getNetworkDataForType(startStamp, endStamp, subscriberId, query.dataType).sumOf {
-                if (it.uid == query.dataUID.uid || query.dataUID.uidQuery == null) {
-                    return@sumOf it.forDirection(query.dataDirection)
-                } else {
-                    return@sumOf 0
-                }
+            if (it.uid == query.dataUID.uid || query.dataUID.uidQuery == null) {
+                it.forDirection(query.dataDirection)
+            } else {
+                0L
             }
+        }
     }
 
     suspend fun getNetworkDataForType(
@@ -80,21 +80,31 @@ class NetworkUsageManager(
         type: DataType
     ): List<UsageData> = withContext(Dispatchers.IO) {
         val queryIndex = type.queryIndex ?: return@withContext listOf()
-        val buckets = mutableListOf<UsageData>()
-        networkStatsManager.querySummary(queryIndex, subscriberId, startStamp, endStamp).use { summary ->
-            val map = mutableMapOf<Int, UsageData>()
-            while (summary.hasNextBucket()) {
-                val bucket = NetworkStats.Bucket()
-                summary.getNextBucket(bucket)
-                map.merge(bucket.uid, UsageData(bucket.txBytes, bucket.rxBytes, bucket.uid)) { old, new ->
-                    old.copy(upload = old.upload + new.upload, download = old.download + new.download)
+
+        val bucketsDeferred = async {
+            val result = mutableListOf<UsageData>()
+            networkStatsManager.querySummary(queryIndex, subscriberId, startStamp, endStamp).use { summary ->
+                val map = mutableMapOf<Int, UsageData>()
+                while (summary.hasNextBucket()) {
+                    val bucket = NetworkStats.Bucket()
+                    summary.getNextBucket(bucket)
+                    map.merge(bucket.uid, UsageData(bucket.txBytes, bucket.rxBytes, bucket.uid)) { old, new ->
+                        old.copy(upload = old.upload + new.upload, download = old.download + new.download)
+                    }
                 }
+                result.addAll(map.values)
             }
-            buckets.addAll(map.values)
+            result
         }
 
+        val deviceTotalDeferred = async {
+            networkStatsManager.querySummaryForDevice(queryIndex, subscriberId, startStamp, endStamp)
+        }
+
+        val buckets = bucketsDeferred.await().toMutableList()
+        val deviceTotal = deviceTotalDeferred.await()
+
         // Reconcile with device total to include other users/Secure Folder
-        val deviceTotal = networkStatsManager.querySummaryForDevice(queryIndex, subscriberId, startStamp, endStamp)
         val diffUpload = maxOf(0L, deviceTotal.txBytes - buckets.sumOf { it.upload })
         val diffDownload = maxOf(0L, deviceTotal.rxBytes - buckets.sumOf { it.download })
 
@@ -111,7 +121,7 @@ class NetworkUsageManager(
             }
         }
 
-        return@withContext buckets
+        buckets
     }
 
     suspend fun getNetworkDataForTypeHourly(
@@ -267,7 +277,7 @@ class NetworkUsageManager(
         }
         coroutineScope {
             data.indices.map { i ->
-                async {
+                async(Dispatchers.IO) {
                     val now = LocalDate.ofEpochDay(i + startDate.toEpochDay())
                     val usage1 = usageQuery1?.let { totalDayUsage(it, now) }
                     val usage2 = usageQuery2?.let { totalDayUsage(it, now) }
@@ -304,7 +314,7 @@ class NetworkUsageManager(
         return data.toList()
     }
 
-    fun queryDetails(queryIndex: Int, subscriberId: String?, startStamp: Long, endStamp: Long): NetworkStats {
-        return networkStatsManager.queryDetails(queryIndex, subscriberId, startStamp, endStamp)
+    suspend fun queryDetails(queryIndex: Int, subscriberId: String?, startStamp: Long, endStamp: Long): NetworkStats = withContext(Dispatchers.IO) {
+        networkStatsManager.queryDetails(queryIndex, subscriberId, startStamp, endStamp)
     }
 }
