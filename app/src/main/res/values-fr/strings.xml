@@ -16,7 +16,6 @@
     <string name="screen_off_update_description">Autoriser le suivi d\'utilisation sur l\'AOD, mais impacte la batterie.</string>
     <string name="about">A propos</string>
     <string name="speed_in_bits">Afficher la vitesse en bits</string>
-    <string name="github_description">Suivre le développement ou signaler des problèmes.</string>
     <string name="fallback_unsupported">Repli non supporté</string>
     <string name="ui">Interface</string>
     <string name="auto">Auto</string>
@@ -96,7 +95,6 @@
     <string name="live_notification">Notification en direct</string>
     <string name="very_big">Très gros</string>
     <string name="plan_notification_description">Suivre l\'utilisation du forfait dans la barre d\'état.</string>
-    <string name="unsupported_by_play_store_version">Non supporté par la version du Play Store</string>
     <string name="reset_day">Jour de réinitialisation</string>
     <string name="top_apps">Top des applications</string>
     <string name="usage">Utilisation</string>
@@ -157,4 +155,19 @@
     <string name="amount">Montant</string>
     <string name="expiry">Expiration</string>
     <string name="start">Début</string>
+    <string name="no_usage_detected">Aucune utilisation détectée</string>
+    <string name="notification_aggregation_warning_title">Notifications multiples</string>
+    <string name="notification_aggregation_warning_text">Sur Android 16 et plus, les notifications d\'avant plan multiples sont fusionnées ensembles, ce qui signifie que leurs icônes ne sont plus visibles individuellement.</string>
+    <string name="doesn_t_work">Ça ne marche pas ?</string>
+    <string name="trend_tooltip">Utilisation des 24 dernières heures comparée aux 7 derniers jours.</string>
+    <string name="prediction_tooltip">Prédiction basée sur votre utilisation historisée à cette heure de la semaine.</string>
+    <string name="safety_tooltip">Ratio d\'utilisation du forfait comparé au temps passé.</string>
+    <string name="speed_unit">Unité de vitesse</string>
+    <string name="size_unit">Unité de taille</string>
+    <string name="base_1024">Multiples de 1024</string>
+    <string name="base_1000">Multiples de 1000</string>
+    <string name="sizes">Tailles</string>
+    <string name="plan_usage">Utilisation du forfait</string>
+    <string name="calculate_usage">Calculer l\'utilisation</string>
+    <string name="system_service">Service système %1$d</string>
 </resources>
