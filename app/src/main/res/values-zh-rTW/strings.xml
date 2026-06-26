@@ -52,7 +52,6 @@
     <string name="notification_description">於狀態列中顯示網路速度。</string>
     <string name="auto">自動</string>
     <string name="force_fallback">強制啟用後備性的網路速度監控方法</string>
-    <string name="github_description">參與開發或回報問題。</string>
     <string name="app_name">紅綠燈(Traffic Light)：一款網路流量監控工具</string>
     <string name="today">今日</string>
     <string name="this_week">本週</string>
