@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -723,21 +724,31 @@ private fun LazyListScope.typeConfig(
                 enabled = enabled,
                 controls = {
                     Row(
+                        modifier = Modifier.height(IntrinsicSize.Min),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        BasicTextField(
-                            modifier = Modifier.width(IntrinsicSize.Min).height(IntrinsicSize.Min),
-                            state = textFieldState,
-                            readOnly = !enabled,
-                            textStyle = TextStyle(
-                                fontFamily = font,
-                                color = colorScheme.primary,
-                                fontSize = 22.sp,
-                                textAlign = TextAlign.End,
-                            ),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .padding(vertical = 4.dp)
+                                .background(colorScheme.primaryContainer, MaterialTheme.shapes.medium)
+                                .padding(horizontal = 8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            BasicTextField(
+                                modifier = Modifier.width(IntrinsicSize.Min).height(IntrinsicSize.Min),
+                                state = textFieldState,
+                                readOnly = !enabled,
+                                textStyle = TextStyle(
+                                    fontFamily = font,
+                                    color = colorScheme.onPrimaryContainer,
+                                    fontSize = 22.sp,
+                                    textAlign = TextAlign.End,
+                                ),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                            )
+                        }
                         Button(
                             onClick = {
                                 val oldUnit = displayUnit
