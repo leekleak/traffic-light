@@ -19,7 +19,6 @@
     <string name="mobile">流量: %1$s</string>
     <string name="about">关于</string>
     <string name="speed_in_bits">网速使用 bit 单位</string>
-    <string name="github_description">反馈问题 | 查看动态。</string>
     <string name="force_fallback">开启备用网速监测</string>
     <string name="force_fallback_description">适用于有问题的系统或有线连接</string>
     <string name="fallback_unsupported">不支持</string>
@@ -94,7 +93,6 @@
     <string name="live_notification">实时通知</string>
     <string name="very_big">非常大</string>
     <string name="plan_notification_description">在状态栏中追踪套餐用量。</string>
-    <string name="unsupported_by_play_store_version">Play Store 版本不支持</string>
     <string name="selected_item">已选择</string>
     <string name="top_apps">流量消耗最多的应用</string>
     <string name="reset_day">重置日期</string>
