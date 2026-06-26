@@ -16,7 +16,6 @@
     <string name="mobile">Сотовая связь: %1$s</string>
     <string name="about">О приложении</string>
     <string name="speed_in_bits">Показывать скорость в битах</string>
-    <string name="github_description">Отслеживать разработку приложения или сообщить о проблемах.</string>
     <string name="light">Светлая</string>
     <string name="dark">Тёмная</string>
     <string name="cellular">Сотовая связь</string>
@@ -100,7 +99,6 @@
     <string name="top_apps">Популярные приложения</string>
     <string name="none">Ничто</string>
     <string name="bidirectional">Двусторонний</string>
-    <string name="unsupported_by_play_store_version">Не поддерживается версией с Play Store</string>
     <string name="safe">Безопасный</string>
     <string name="neutral">Нейтральный</string>
     <string name="unsafe">Небезопасный</string>
