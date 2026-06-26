@@ -20,7 +20,6 @@
     <string name="mobile">Datos Móbiles: %1$s</string>
     <string name="about">Sobre</string>
     <string name="speed_in_bits">Amosar a velocidade en bits</string>
-    <string name="github_description">Seguir o desenvolvemento ou informar de problemas.</string>
     <string name="force_fallback">Forzar o uso do seguimento alternativo da velocidade</string>
     <string name="force_fallback_description">Útil cando se emprega unha ROM con erros ou conexión por cable</string>
     <string name="fallback_unsupported">Modo alternativo non compatible</string>
@@ -95,6 +94,5 @@
     <string name="live_notification">Notificación en directo</string>
     <string name="very_big">Moi grande</string>
     <string name="plan_notification_description">Seguimento do uso do plan na barra de estado.</string>
-    <string name="unsupported_by_play_store_version">Non compatible coa versión da Play Store</string>
     <string name="reset_day">Día de reinicio</string>
 </resources>
