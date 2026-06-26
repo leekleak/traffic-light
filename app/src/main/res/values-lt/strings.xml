@@ -20,7 +20,6 @@
     <string name="mobile">Mobilieji: %1$s</string>
     <string name="about">Apie</string>
     <string name="speed_in_bits">Greitį matuoti bitais</string>
-    <string name="github_description">Praneškite sutiktas programėlės problemas.</string>
     <string name="force_fallback">Priverstinai naudoti atsarginį skaičiavimo metodą</string>
     <string name="force_fallback_description">Naudinga jei jūsų sitema turi klaidų arba esate prisijungę prie laidinio interneto</string>
     <string name="fallback_unsupported">Atsarginis skaičiavimo metodas neveikia</string>
@@ -97,7 +96,6 @@
     <string name="live_notification">Tiesioginis pranešimas</string>
     <string name="very_big">Labai daug</string>
     <string name="plan_notification_description">Rodo plano duomenis pranešimų juostoje.</string>
-    <string name="unsupported_by_play_store_version">Funkcija nepalaikoma Google Play programėlės versijoje</string>
     <string name="selected_item">Pasirinkta</string>
     <string name="top_apps">Aktyviausios programėlės</string>
     <string name="reset_day">Atsistatymo diena</string>
