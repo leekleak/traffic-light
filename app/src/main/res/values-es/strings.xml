@@ -20,7 +20,6 @@
     <string name="mobile">Datos Móviles: %1$s</string>
     <string name="about">Acerca de</string>
     <string name="speed_in_bits">Mostrar la velocidad en bits</string>
-    <string name="github_description">Da seguimiento al desarrollo o reporta problemas.</string>
     <string name="force_fallback">Forzar método alternativo de seguimiento</string>
     <string name="force_fallback_description">Útil cuando se usa una ROM con errores o conexión por ethernet</string>
     <string name="fallback_unsupported">Método alternativo no disponible</string>
