@@ -20,7 +20,6 @@
     <string name="mobile">Sieć: %1$s</string>
     <string name="about">O</string>
     <string name="speed_in_bits">Pokaż prędkość w bitach</string>
-    <string name="github_description">Śledź rozwój lub zgłaszaj problemy.</string>
     <string name="force_fallback">Wymuś awaryjne śledzenie prędkości</string>
     <string name="force_fallback_description">Pomocne podczas korzystania z wadliwego ROM-u lub sieci Ethernet</string>
     <string name="fallback_unsupported">Nieobsługiwane rozwiązanie awaryjne</string>
