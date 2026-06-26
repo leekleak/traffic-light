@@ -20,7 +20,6 @@
     <string name="mobile">Seluler: %1$s</string>
     <string name="about">Tentang</string>
     <string name="speed_in_bits">Tampilkan kecepatan dalam bits</string>
-    <string name="github_description">Pantau pengembangan atau laporkan masalah.</string>
     <string name="force_fallback">Paksa pelacakan kecepatan cadangan</string>
     <string name="force_fallback_description">Berguna saat menggunakan ROM yang bermasalah atau koneksi ethernet</string>
     <string name="fallback_unsupported">Cadangan tidak didukung</string>
@@ -106,7 +105,6 @@
     <string name="budget_overshoot_notif_text">Anda telah menggunakan lebih dari anggaran harian untuk %1$s.</string>
     <string name="safety_status_notif_title">Status keamanan berubah</string>
     <string name="safety_status_notif_text">Status keamanan Anda untuk %1$s sekarang adalah %2$s.</string>
-    <string name="unsupported_by_play_store_version">Tidak didukung oleh versi Play Store</string>
     <string name="reset_day">Hari reset</string>
     <string name="usage">Penggunaan</string>
     <string name="safety">Keamanan</string>
@@ -153,4 +151,19 @@
     <string name="start">Mulai</string>
     <string name="recursion">Pemosisian</string>
     <string name="recursion_description">Tambahkan data yang belum terpakai ke dalam ekstra di akhir periode.</string>
+    <string name="doesn_t_work">Tidak berfungsi?</string>
+    <string name="no_usage_detected">Tidak ditemukan penggunaan</string>
+    <string name="notification_aggregation_warning_title">Beberapa pemberitahuan</string>
+    <string name="notification_aggregation_warning_text">Pada Android 16 dan versi yang lebih baru, beberapa pemberitahuan latar depan digabungkan menjadi satu, sehingga ikon-ikonnya tidak lagi terlihat secara terpisah.</string>
+    <string name="trend_tooltip">Penggunaan dalam 24 jam terakhir dibandingkan dengan 7 hari terakhir.</string>
+    <string name="prediction_tooltip">Perkiraan ini didasarkan pada riwayat penggunaan Anda pada waktu yang sama di hari yang sama setiap minggunya.</string>
+    <string name="safety_tooltip">Perbandingan rasio penggunaan rencana dengan waktu yang telah berlalu.</string>
+    <string name="speed_unit">Satuan kecepatan</string>
+    <string name="base_1024">Basis 1024</string>
+    <string name="base_1000">Basis 1000</string>
+    <string name="sizes">Ukuran</string>
+    <string name="plan_usage">Penggunaan paket</string>
+    <string name="size_unit">Satuan ukuran</string>
+    <string name="calculate_usage">Hitung penggunaan</string>
+    <string name="system_service">Layanan sistem %1$d</string>
 </resources>
