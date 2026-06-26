@@ -20,7 +20,6 @@
     <string name="mobile">الجوّال: %1$s</string>
     <string name="about">حول</string>
     <string name="speed_in_bits">أظهر السرعة بالبت</string>
-    <string name="github_description">متابعة التطوير أو الإبلاغ عن المشكلات.</string>
     <string name="force_fallback">فرض استخدام تتبع السرعة الاحتياطي</string>
     <string name="force_fallback_description">مفيد عند استخدام نظام تشغيل غير مستقر أو شبكة إيثرنت</string>
     <string name="fallback_unsupported">الوضع الاحتياطي غير مدعوم</string>
@@ -99,7 +98,6 @@
     <string name="live_notification">إشعار حي</string>
     <string name="very_big">كبير جدًا</string>
     <string name="plan_notification_description">تتبع استخدام الخطة في شريط الحالة.</string>
-    <string name="unsupported_by_play_store_version">غير مدعوم من نسخة متجر Play</string>
     <string name="reset_day">يوم التصفير</string>
     <string name="usage">الاستخدام</string>
     <string name="safety">السلامة</string>
@@ -144,7 +142,7 @@
     <string name="hint">تلميح</string>
     <string name="press_the_card_to_configure_plan_data">اضغط على البطاقة لتضبيط بيانات الخطة.</string>
     <string name="other_users">مستخدمون آخرون</string>
-    <string name="extras">إضافات</string>
+    <string name="extras">زيادات</string>
     <string name="disconnected_from_network_or_low_speed">مفصول من الشبكة أو سرعة منخفضة</string>
     <string name="disconnected">مفصول</string>
     <string name="note">ملاحظة</string>
@@ -153,4 +151,29 @@
     <string name="speed_threshold">إسكات الإشعارات</string>
     <string name="speed_threshold_description">إسكات الإشعارات عند الانخفاض عن حد معين.</string>
     <string name="threshold">الحد</string>
+    <string name="delete">احذف</string>
+    <string name="delete_plan">احذف الخطة</string>
+    <string name="delete_plan_confirmation">أمتأكد من رغبتك في حذف هذه الخطة؟ لا يمكن التراجع عن هذا الإجراء.</string>
+    <string name="cancel">ألغِ</string>
+    <string name="add_extra">أضف زيادة</string>
+    <string name="recursion">التكرار</string>
+    <string name="recursion_description">أضف البيانات غير المستخدمة إلى الرصيد زيادة في نهاية الفترة.</string>
+    <string name="amount">الكمية</string>
+    <string name="expiry">الإنتهاء</string>
+    <string name="start">البدء</string>
+    <string name="doesn_t_work">لا يعمل؟</string>
+    <string name="no_usage_detected">لم يكتشف أي استخدام</string>
+    <string name="notification_aggregation_warning_title">إشعارات متعدّدة</string>
+    <string name="notification_aggregation_warning_text">في نظام أندرويد 16 والإصدارات الأحدث، يتم دمج الإشعارات المتعدّدة الموجودة في المقدمة معًا، مما يعني أن أيقوناتها لم تعد تظهر بشكل منفصل.</string>
+    <string name="trend_tooltip">مقارنة الاستخدام خلال الـ 24 ساعة الماضية بالاستخدام خلال الأيام السبعة الماضية.</string>
+    <string name="prediction_tooltip">توقعات تستند إلى سجل استخدامك في هذا الوقت من الأسبوع.</string>
+    <string name="safety_tooltip">نسبة استخدام الخطة مقارنة بالوقت المنقضي.</string>
+    <string name="speed_unit">سرعة الوِحدة</string>
+    <string name="size_unit">حجم الوِحدة</string>
+    <string name="base_1024">أساس 1024</string>
+    <string name="base_1000">أساس 1000</string>
+    <string name="sizes">الاحجام</string>
+    <string name="plan_usage">استخدام الخطة</string>
+    <string name="calculate_usage">احسب الاستخدام</string>
+    <string name="system_service">خدمة النظام %1$d</string>
 </resources>
