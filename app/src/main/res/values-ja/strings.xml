@@ -19,7 +19,6 @@
     <string name="mobile">モバイル: %1$s</string>
     <string name="about">概要</string>
     <string name="speed_in_bits">速度をビットで表示</string>
-    <string name="github_description">開発を追跡したり、問題を報告したりします。</string>
     <string name="force_fallback">強制フォールバック速度追跡</string>
     <string name="force_fallback_description">バグのあるROMやイーサネットを使用する際に役立ちます</string>
     <string name="fallback_unsupported">フォールバックはサポートされていません</string>
@@ -95,7 +94,6 @@
     <string name="live_notification">ライブ通知</string>
     <string name="very_big">とても大きい</string>
     <string name="plan_notification_description">ステータスバーでプランの使用状況を確認できます。</string>
-    <string name="unsupported_by_play_store_version">Playストア版ではサポートされていません</string>
     <string name="reset_day">リセット日</string>
     <string name="usage">使用法</string>
     <string name="safety">安全性</string>
