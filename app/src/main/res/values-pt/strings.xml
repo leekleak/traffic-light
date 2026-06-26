@@ -20,7 +20,6 @@
     <string name="mobile">Rede móvel: %1$s</string>
     <string name="about">Sobre</string>
     <string name="speed_in_bits">Mostrar a velocidade em bits</string>
-    <string name="github_description">Acompanhe o desenvolvimento ou reporte problemas.</string>
     <string name="force_fallback">Forçar a monitorização de velocidade alternativa</string>
     <string name="force_fallback_description">Útil ao utilizar uma ROM instável ou ligação via ethernet</string>
     <string name="fallback_unsupported">Método não suportado</string>
