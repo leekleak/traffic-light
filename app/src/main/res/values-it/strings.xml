@@ -21,7 +21,6 @@
     <string name="mobile">Dati Mobili: %1$s</string>
     <string name="about">A riguardo</string>
     <string name="speed_in_bits">Mostra velocità in bit</string>
-    <string name="github_description">Monitora lo sviluppo o segnala problematiche.</string>
     <string name="force_fallback">Forza il monitoraggio di riserva</string>
     <string name="force_fallback_description">Utile quando si usa una ROM buggata o con Ethernet</string>
     <string name="fallback_unsupported">Riserva non supportata</string>
