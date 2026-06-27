@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import androidx.collection.LruCache
 import androidx.compose.ui.unit.Density
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.IconCompat
@@ -51,51 +50,24 @@ class NotificationIconHelper(private val context: Context) {
             isAntiAlias = true
         }
     }
-    private var cachedIcons = LruCache<String, IconCompat>(50)
-    private var bitmap: Bitmap? = null
+    private val height = (96 * multiplier).toInt()
+    private var bitmap: Bitmap = createBitmap(height, height, Bitmap.Config.ARGB_8888)
     private val bitmapMutex = Mutex()
     suspend fun createIcon(speed: String, unit: String): IconCompat {
-        val height = (96 * multiplier).toInt()
-
-        val iconTag = "$speed$unit$height"
-
-        cachedIcons[iconTag]?.let { return it }
 
         bitmapMutex.withLock {
-            if (bitmap == null || bitmap!!.height != height) {
+            if (bitmap.height != height) {
                 bitmap = createBitmap(height, height, Bitmap.Config.ARGB_8888)
             } else {
-                bitmap?.eraseColor(Color.TRANSPARENT)
+                bitmap.eraseColor(Color.TRANSPARENT)
             }
 
-            val canvas = Canvas(bitmap!!)
+            val canvas = Canvas(bitmap)
 
             canvas.drawText(speed, 48f * multiplier, 54f * multiplier, paintValue)
             canvas.drawText(unit, 48f * multiplier, 94f * multiplier, paintUnit)
 
-            /**
-             * Don't cache numbers with many digits as they appear much more often and are unlikely
-             * to be worth the cost of creating a new bitmap
-             *
-             * Mostly there to avoid re-rendering common values like 0KB/s, <1KB/s or other small values
-             * caused by many background processes.
-             *
-             * Making caching more aggressive is probably a bad idea as duplicating bitmaps is quite
-             * expensive and not worth it if the value appears once a day.
-             *
-             * Generally one would worry about bitmap corruption, but as the icon never updates more than
-             * once every 900ms, that's incredibly unlikely and duplicating is not worth the performance/
-             * efficiency cost.
-             */
-            if (speed.count(Char::isDigit) == 1) {
-                cachedIcons.put(
-                    iconTag,
-                    IconCompat.createWithBitmap(bitmap!!.copy(Bitmap.Config.ARGB_8888, false)),
-                )
-                return cachedIcons[iconTag]!!
-            } else {
-                return IconCompat.createWithBitmap(bitmap!!)
-            }
+            return IconCompat.createWithBitmap(bitmap.copy(Bitmap.Config.ARGB_8888, false))
         }
     }
 
@@ -103,19 +75,19 @@ class NotificationIconHelper(private val context: Context) {
         val height = (96 * multiplier).toInt()
 
         bitmapMutex.withLock {
-            if (bitmap == null || bitmap!!.height != height) {
+            if (bitmap.height != height) {
                 bitmap = createBitmap(height, height, Bitmap.Config.ARGB_8888)
             } else {
-                bitmap?.eraseColor(Color.TRANSPARENT)
+                bitmap.eraseColor(Color.TRANSPARENT)
             }
 
-            val canvas = Canvas(bitmap!!)
+            val canvas = Canvas(bitmap)
 
             val string1 = if (speed1.length >= 5) speed1.replace(" ", "") else speed1
             val string2 = if (speed2.length >= 5) speed2.replace(" ", "") else speed2
             canvas.drawText(string1, 96f * multiplier, 48f * multiplier, paintSeparate)
             canvas.drawText(string2, 96f * multiplier, 96f * multiplier, paintSeparate)
-            return IconCompat.createWithBitmap(bitmap!!)
+            return IconCompat.createWithBitmap(bitmap.copy(Bitmap.Config.ARGB_8888, false))
         }
     }
 }
