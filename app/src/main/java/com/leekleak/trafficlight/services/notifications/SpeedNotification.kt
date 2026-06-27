@@ -134,7 +134,16 @@ class SpeedNotification(
             context.getString(R.string.wi_fi, DataSize(todayUsage.usage2).toString(metric = sizeMetric)).clipAndPad(spacing) +
             context.getString(R.string.mobile, DataSize(todayUsage.usage1).toString(metric = sizeMetric))
 
-        if (lastTitle == data && lastContent == messageShort && !force) return
+        // Advance the channel hysteresis every tick, before the content early-return below.
+        // Otherwise a steady speed that produces identical text would short-circuit and the
+        // streak would never accumulate, leaving the notification stuck on the old channel
+        // after a real threshold crossing. Re-post if the channel actually changed even when
+        // the text is unchanged.
+        val previousChannel = currentChannel
+        resolveChannel(immediate = force)
+        val channelChanged = currentChannel != previousChannel
+
+        if (lastTitle == data && lastContent == messageShort && !channelChanged && !force) return
         lastTitle = data
         lastContent = messageShort
 
@@ -176,16 +185,56 @@ class SpeedNotification(
         todayUsage = DayUsage(date, mobile, wifi)
     }
 
+    // Retained channel-selection state for hysteresis (see chooseChannel). `currentChannel`
+    // is the channel the notification is currently posted on (null before the first post);
+    // `pendingChannel`/`pendingStreak` track how long the instantaneous decision has wanted
+    // to switch away from `currentChannel`.
+    private var currentChannel: String? = null
+    private var pendingChannel: String? = null
+    private var pendingStreak = 0
+
+    /**
+     * Advances the hysteresis state for one update tick and returns the channel the notification
+     * should be posted on. This is the only place the streak state mutates, so it must be called
+     * exactly once per update tick (see [updateNotification]). It is intentionally cheap (no
+     * builder allocation) so it can run on every tick, including the ones whose textual content
+     * is unchanged and would otherwise short-circuit before the notification is rebuilt.
+     *
+     * Pass [immediate] for forced updates (e.g. the user toggling `speedThreshold` or changing
+     * `speedThresholdKb`): the new preference is adopted at once and the debounce is reset, so a
+     * settings change takes effect immediately rather than after the hysteresis window. Hysteresis
+     * is only meant to absorb tick-by-tick speed oscillation, not deliberate setting changes.
+     */
+    private fun resolveChannel(immediate: Boolean = false): String {
+        // Instantaneous channel preference from the current sample, preserving the original
+        // precedence: silent when the threshold feature is on AND either (the -1L "no network"
+        // setting and no network is available) OR the current speed is below the threshold.
+        val instantaneousSilent = speedThreshold &&
+            (
+                ((speedThresholdKb == -1L) && !isNetworkAvailable()) ||
+                (trafficSnapshot.totalSpeed.toKb < speedThresholdKb)
+            )
+
+        // Passing currentChannel = null reuses chooseChannel's "first post" path, which adopts the
+        // instantaneous preference directly and clears the streak.
+        val decision = chooseChannel(
+            speedThresholdEnabled = speedThreshold,
+            instantaneousSilent = instantaneousSilent,
+            currentChannel = if (immediate) null else currentChannel,
+            streakChannel = pendingChannel,
+            streak = pendingStreak,
+            hysteresisTicks = CHANNEL_HYSTERESIS_TICKS,
+        )
+        currentChannel = decision.channel
+        pendingChannel = decision.streakChannel
+        pendingStreak = decision.streak
+        return decision.channel
+    }
+
     private fun updateBaseNotification() {
-        val channel = when {
-            (speedThreshold &&
-                (
-                    (speedThresholdKb == -1L) && !isNetworkAvailable() ||
-                    (trafficSnapshot.totalSpeed.toKb < speedThresholdKb)
-                )
-            ) -> NOTIFICATION_CHANNEL_ID_SILENT
-            else -> NOTIFICATION_CHANNEL_ID
-        }
+        // Use the channel already resolved for this tick; only resolve here for the very first
+        // post (init), so the hysteresis streak is never advanced twice in a single tick.
+        val channel = currentChannel ?: resolveChannel()
         notificationBuilder = NotificationCompat.Builder(context, channel)
             .setSmallIcon(R.drawable.notification)
             .setContentTitle(context.getString(R.string.app_name_short))
@@ -227,7 +276,72 @@ class SpeedNotification(
 
     companion object {
         private const val DATA_UPDATE_FREQ = 4
+
+        /**
+         * Number of consecutive update ticks the instantaneous channel preference must disagree
+         * with the currently-posted channel before the notification is actually moved. At ~900ms
+         * per tick this debounces the loud/silent switch over a short window so that a speed
+         * oscillating right around the threshold no longer re-posts (and visibly "blinks") the
+         * notification every tick. See issue #181 (regression from #177).
+         */
+        const val CHANNEL_HYSTERESIS_TICKS = 3
+
         const val NOTIFICATION_CHANNEL_ID = "Persistent Notification"
         const val NOTIFICATION_CHANNEL_ID_SILENT = "Persistent Notification Silent"
+
+        /**
+         * Result of a hysteresis-aware channel decision: the channel to post on now, plus the
+         * retained streak state to feed back into the next [chooseChannel] call.
+         */
+        data class ChannelDecision(
+            val channel: String,
+            val streakChannel: String?,
+            val streak: Int,
+        )
+
+        /**
+         * Pure channel-selection helper with hysteresis. Given the instantaneous channel
+         * preference and the retained streak state, returns the channel to post on plus the
+         * updated streak state.
+         *
+         * Rules:
+         *  - threshold feature disabled -> always the loud channel, streak cleared.
+         *  - first post (currentChannel == null) -> adopt the instantaneous preference immediately.
+         *  - instantaneous preference matches the current channel -> hold it, streak cleared.
+         *  - instantaneous preference differs -> count consecutive ticks; only switch once the
+         *    preference has held for [hysteresisTicks] ticks, otherwise keep the current channel.
+         */
+        fun chooseChannel(
+            speedThresholdEnabled: Boolean,
+            instantaneousSilent: Boolean,
+            currentChannel: String?,
+            streakChannel: String?,
+            streak: Int,
+            hysteresisTicks: Int = CHANNEL_HYSTERESIS_TICKS,
+        ): ChannelDecision {
+            if (!speedThresholdEnabled) {
+                return ChannelDecision(NOTIFICATION_CHANNEL_ID, null, 0)
+            }
+
+            val desired = if (instantaneousSilent) NOTIFICATION_CHANNEL_ID_SILENT else NOTIFICATION_CHANNEL_ID
+
+            // First post: there is nothing to flap away from, so adopt the preference directly.
+            if (currentChannel == null) {
+                return ChannelDecision(desired, null, 0)
+            }
+
+            // Preference agrees with what is shown: nothing to switch, drop any pending streak.
+            if (desired == currentChannel) {
+                return ChannelDecision(currentChannel, null, 0)
+            }
+
+            // Preference wants to switch: require it to persist for `hysteresisTicks` ticks.
+            val newStreak = if (streakChannel == desired) streak + 1 else 1
+            return if (newStreak >= hysteresisTicks) {
+                ChannelDecision(desired, null, 0)
+            } else {
+                ChannelDecision(currentChannel, desired, newStreak)
+            }
+        }
     }
 }
