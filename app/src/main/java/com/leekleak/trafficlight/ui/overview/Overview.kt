@@ -84,6 +84,7 @@ import com.leekleak.trafficlight.util.MiniCard
 import com.leekleak.trafficlight.util.MiniCardState
 import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.TrendCard
+import com.leekleak.trafficlight.util.formatted
 import com.leekleak.trafficlight.util.formattedParts
 import com.leekleak.trafficlight.util.iconToggleButton
 import com.leekleak.trafficlight.util.px
@@ -368,6 +369,7 @@ fun OverviewItems() {
     val data by viewModel.weekUsage.collectAsState()
     val topAppsList by viewModel.topApps.collectAsState()
     val query by viewModel.query.collectAsState()
+    TodayBreakdownCard()
     CategoryTitleText(stringResource(R.string.top_apps))
     Box(
         modifier = Modifier
@@ -391,4 +393,101 @@ fun OverviewItems() {
             BarGraph(data)
         }
     }
+}
+
+@Composable
+private fun TodayBreakdownCard() {
+    val viewModel: OverviewVM = koinViewModel()
+    val breakdown by viewModel.todayBreakdown.collectAsState()
+
+    CategoryTitleText(stringResource(R.string.today_by_transport))
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .card()
+            .padding(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            TodayBreakdownHeader()
+            TodayBreakdownRow(stringResource(R.string.cellular), breakdown.cellular)
+            TodayBreakdownRow(stringResource(R.string.wifi), breakdown.wifi)
+        }
+    }
+}
+
+@Composable
+private fun TodayBreakdownHeader() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = "",
+            modifier = Modifier.weight(0.9f),
+        )
+        TodayBreakdownHeaderText(
+            text = stringResource(R.string.download),
+            modifier = Modifier.weight(1f),
+        )
+        TodayBreakdownHeaderText(
+            text = stringResource(R.string.upload),
+            modifier = Modifier.weight(1f),
+        )
+        TodayBreakdownHeaderText(
+            text = stringResource(R.string.total),
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Composable
+private fun TodayBreakdownHeaderText(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        modifier = modifier,
+        color = colorScheme.onSurfaceVariant,
+        fontSize = 12.sp,
+        textAlign = TextAlign.End,
+    )
+}
+
+@Composable
+private fun TodayBreakdownRow(label: String, usage: TransportUsage) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = label,
+            modifier = Modifier.weight(0.9f),
+            fontSize = 14.sp,
+        )
+        TodayBreakdownValue(
+            value = DataSize(usage.download).formatted(extraPrecision = true),
+            modifier = Modifier.weight(1f),
+        )
+        TodayBreakdownValue(
+            value = DataSize(usage.upload).formatted(extraPrecision = true),
+            modifier = Modifier.weight(1f),
+        )
+        TodayBreakdownValue(
+            value = DataSize(usage.total).formatted(extraPrecision = true),
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Composable
+private fun TodayBreakdownValue(value: String, modifier: Modifier = Modifier) {
+    Text(
+        text = value,
+        modifier = modifier,
+        fontSize = 14.sp,
+        textAlign = TextAlign.End,
+    )
 }

@@ -2,6 +2,7 @@ package com.leekleak.trafficlight.ui.overview
 
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.AppUsage
+import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
@@ -14,6 +15,19 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.math.max
 import kotlin.math.roundToInt
+
+data class TransportUsage(
+    val download: Long = 0,
+    val upload: Long = 0,
+) {
+    val total: Long
+        get() = download + upload
+}
+
+data class TodayBreakdown(
+    val cellular: TransportUsage = TransportUsage(),
+    val wifi: TransportUsage = TransportUsage(),
+)
 
 class OverviewLogic(val networkUsageManager: NetworkUsageManager) {
     suspend fun getPrediction(query: UsageQuery): Long {
@@ -62,6 +76,27 @@ class OverviewLogic(val networkUsageManager: NetworkUsageManager) {
 
     suspend fun getTodayUsage(query: UsageQuery): Long {
         return networkUsageManager.totalDayUsage(query, LocalDate.now())
+    }
+
+    suspend fun getTodayBreakdown(): TodayBreakdown {
+        val today = LocalDate.now()
+        return TodayBreakdown(
+            cellular = getTransportUsage(DataType.Mobile, today),
+            wifi = getTransportUsage(DataType.Wifi, today),
+        )
+    }
+
+    private suspend fun getTransportUsage(dataType: DataType, date: LocalDate): TransportUsage {
+        return TransportUsage(
+            download = networkUsageManager.totalDayUsage(
+                UsageQuery(dataType, DataDirection.Download),
+                date,
+            ),
+            upload = networkUsageManager.totalDayUsage(
+                UsageQuery(dataType, DataDirection.Upload),
+                date,
+            ),
+        )
     }
 
     suspend fun getTrend(query: UsageQuery): Int {

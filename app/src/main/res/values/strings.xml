@@ -98,6 +98,8 @@
     <string name="secondary">Secondary</string>
     <string name="upload">Upload</string>
     <string name="download">Download</string>
+    <string name="total">Total</string>
+    <string name="today_by_transport">Today by transport</string>
     <string name="bidirectional">Bidirectional</string>
     <string name="app_list">App list</string>
     <string name="hour_list">Hour list</string>

@@ -43,6 +43,9 @@ class OverviewVM(
     val todayUsage = refresh.map { overviewLogic.getTodayUsage(it) }.distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
+    val todayBreakdown = refresh.map { overviewLogic.getTodayBreakdown() }.distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), TodayBreakdown())
+
     val prediction = refresh.map { overviewLogic.getPrediction(it) }.distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
