@@ -55,9 +55,11 @@ class OverviewVM(
             old.indices.all { i ->
                 val o = old[i]
                 val n = new[i]
+                (
                     o.app.uid == n.app.uid &&
-                    DataSize(o.usage.usage1).toString() == DataSize(n.usage.usage1).toString()
+                    DataSize(o.usage.usage1).toString() == DataSize(n.usage.usage1).toString() &&
                     DataSize(o.usage.usage2).toString() == DataSize(n.usage.usage2).toString()
+                )
             }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())

@@ -282,7 +282,8 @@ private fun OverviewHero(scrollState: ScrollState) {
             val fontFamily1 = remember(weight, width) { googleSans(weight = weight, width = width, roundness = 100f) }
             val fontFamily2 = remember(weight, width) { googleSans(weight = weight + 200f, width = width + 70f, roundness = 50f) }
 
-            AnimatedContent(string to (query.dataType == DataType.Wifi)) { (text, isWifi) ->
+            val bundledUsage = remember(string) { string to (query.dataType == DataType.Wifi) }
+            AnimatedContent(bundledUsage) { (text, isWifi) ->
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
@@ -374,8 +375,9 @@ fun OverviewItems() {
             .card()
             .padding(6.dp)
     ) {
+        val listWithWifi = remember(topAppsList) { topAppsList to (query.dataType == DataType.Wifi) }
         AnimatedContent(
-            targetState = topAppsList to (query.dataType == DataType.Wifi)
+            targetState = listWithWifi
         ) { (list, isWifi) ->
             AppGraph(list, isWifi)
         }
