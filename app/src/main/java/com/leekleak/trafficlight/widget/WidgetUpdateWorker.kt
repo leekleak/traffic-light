@@ -84,6 +84,5 @@ class WidgetUpdateReceiver: BroadcastReceiver(), KoinComponent {
                 }
             }
         }
-        dataPlanDao.addAll(plans)
     }
 }
