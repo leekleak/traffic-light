@@ -201,6 +201,8 @@ class SpeedNotification(
 
         notificationBuilder = buildForChannel(NOTIFICATION_CHANNEL_ID)
         notificationBuilderSilent = buildForChannel(NOTIFICATION_CHANNEL_ID_SILENT)
+
+        notification = notificationBuilder.build()
     }
 
     private var silentChannelTicks: Long = 0
