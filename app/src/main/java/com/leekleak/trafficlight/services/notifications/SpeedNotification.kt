@@ -36,6 +36,8 @@ class SpeedNotification(
     private val appPreferenceRepo: AppPreferenceRepo,
     private val trafficSnapshot: TrafficSnapshot,
 ) : PersistentNotification(serviceScope, context, notificationManager, notificationId) {
+
+    private var notificationBuilderSilent = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID_SILENT)
     private var updateCounter = Int.MAX_VALUE
 
     private val queryMobile = UsageQuery(dataType = DataType.Mobile)
@@ -144,8 +146,8 @@ class SpeedNotification(
 
         val speed = data.substringBefore(" ")
         val unit = data.substringAfter(" ")
-        updateBaseNotification()
-        notification = notificationBuilder
+        notification = (if (shouldGoSilent()) notificationBuilderSilent else notificationBuilder)
+            .setRequestPromotedOngoing(liveNotification)
             .apply {
                 if (!liveNotification) {
                     setSmallIcon(
@@ -181,14 +183,11 @@ class SpeedNotification(
     }
 
     private fun updateBaseNotification() {
-        val channel = if (shouldGoSilent()) NOTIFICATION_CHANNEL_ID_SILENT
-                      else NOTIFICATION_CHANNEL_ID
-        notificationBuilder = NotificationCompat.Builder(context, channel)
+        fun buildForChannel(channel: String): NotificationCompat.Builder = NotificationCompat.Builder(context, channel)
             .setSmallIcon(R.drawable.notification)
             .setContentTitle(context.getString(R.string.app_name_short))
             .setOngoing(true)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .setRequestPromotedOngoing(liveNotification)
             .setSilent(true)
             .setLocalOnly(true)
             .setOnlyAlertOnce(true)
@@ -199,7 +198,9 @@ class SpeedNotification(
                     }, PendingIntent.FLAG_IMMUTABLE
                 )
             )
-        notification = notificationBuilder.build()
+
+        notificationBuilder = buildForChannel(NOTIFICATION_CHANNEL_ID)
+        notificationBuilderSilent = buildForChannel(NOTIFICATION_CHANNEL_ID_SILENT)
     }
 
     private var silentChannelTicks: Long = 0

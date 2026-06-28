@@ -21,8 +21,8 @@ abstract class PersistentNotification(
 ) {
     internal val scope = CoroutineScope(serviceScope.coroutineContext + SupervisorJob(serviceScope.coroutineContext[Job]))
     internal var job: Job? = null
-    internal lateinit var notificationBuilder: NotificationCompat.Builder
-    internal lateinit var notification: Notification
+    internal var notificationBuilder: NotificationCompat.Builder = NotificationCompat.Builder(context, "temporary id")
+    internal var notification: Notification = notificationBuilder.build()
     internal var notificationIconHelper = NotificationIconHelper(context)
     abstract fun start()
     fun cancel() {
