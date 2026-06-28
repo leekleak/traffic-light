@@ -126,6 +126,8 @@ class PermissionManager(
         _shizukuRunning.value = shizukuServicesProvider.shizukuRunning()
         if (_shizukuRunning.value) {
             _shizukuPermission.value = shizukuServicesProvider.shizukuPermission() == PackageManager.PERMISSION_GRANTED
+        } else {
+            _shizukuPermission.value = false
         }
     }
 }

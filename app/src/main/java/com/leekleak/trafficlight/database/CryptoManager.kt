@@ -5,6 +5,7 @@ import android.security.keystore.KeyProperties
 import android.util.Base64
 import timber.log.Timber
 import java.security.KeyStore
+import java.util.concurrent.ConcurrentHashMap
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.Mac
@@ -17,7 +18,7 @@ object CryptoManager {
     private const val HMAC_ALIAS = "hmac_key"
     private val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
 
-    private val keyCache = mutableMapOf<String, SecretKey>()
+    private val keyCache = ConcurrentHashMap<String, SecretKey>()
 
     private fun getSecretKey(alias: String): SecretKey {
         return keyCache[alias] ?: (keyStore.getEntry(alias, null) as? KeyStore.SecretKeyEntry)?.secretKey?.also {
@@ -59,7 +60,7 @@ object CryptoManager {
 
         val cipher = Cipher.getInstance(ALGORITHM)
         cipher.init(Cipher.DECRYPT_MODE, getSecretKey(KEY_ALIAS), GCMParameterSpec(128, iv))
-        return String(cipher.doFinal(ciphertext), Charsets.UTF_8)
+        String(cipher.doFinal(ciphertext), Charsets.UTF_8)
     }.onFailure { Timber.e(it, "Decryption failed") }.getOrNull()
 
     fun hashIdentifier(id: String): String {
