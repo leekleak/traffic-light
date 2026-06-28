@@ -1,0 +1,5 @@
+Changes compared to v3.0-beta1
+
+Bug Fixes:
+- Fixed top apps not updating when changing overview type
+- Fixed overview component flickering when changing overview type
