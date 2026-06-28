@@ -1,0 +1,7 @@
+Changes compared to v3.0-alpha3
+
+Enhancements:
+- Delay silencing notification for a few ticks to reduce flicker
+
+Bug Fixes:
+- Fixed inverted up/down speeds in the notification
