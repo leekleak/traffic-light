@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 
 class DataPlansVM(val dataPlansLogic: DataPlanLogic): ViewModel() {
@@ -19,7 +20,9 @@ class DataPlansVM(val dataPlansLogic: DataPlanLogic): ViewModel() {
     val selectedDataPlan = MutableSharedFlow<DataPlan?>(replay = 1).apply { tryEmit(null) }
     fun selectDataPlan(dataPlan: DataPlan?) = selectedDataPlan.tryEmit(dataPlan)
 
-    val planFlow = combine(selectedDataPlan, refreshTrigger) { plan, _ -> plan }.filterNotNull()
+    val planFlow = combine(selectedDataPlan, refreshTrigger) { plan, _ ->
+        plan?.let { dataPlansLogic.getSnapshot(it) }
+    }.filterNotNull().shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), replay = 1)
 
     val dataSafety = planFlow.map { dataPlansLogic.getDataSafety(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MiniCardState.NEUTRAL)

@@ -164,7 +164,7 @@ private fun BoxScope.ConfiguredDataPlanContent(planSnapshot: DataPlan) {
     val fontFamilyGoogleSans = remember { googleSansEmphasized() }
     val fontFamilyDoHyeon = remember { doHyeonFont() }
     val metric = LocalSizeMetric.current
-    val usageDataSize by produceState(DataSize(0)) { value = DataSize(planSnapshot.mainDataUsed) }
+    val usageDataSize = remember(planSnapshot) { DataSize(planSnapshot.mainDataUsed) }
     val usageValue by remember(usageDataSize, metric) {
         derivedStateOf {
             usageDataSize.getAsUnit(planSnapshot.mainDataSizeUnit, metric)

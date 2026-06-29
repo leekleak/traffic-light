@@ -6,7 +6,12 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Context.ALARM_SERVICE
 import android.content.Intent
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.VibratorManager
+import android.widget.Toast
 import androidx.glance.appwidget.updateAll
+import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.services.notifications.WarningNotificationHelper
@@ -63,26 +68,38 @@ class WidgetUpdateReceiver: BroadcastReceiver(), KoinComponent {
 
     private suspend fun checkWarnings(context: Context) {
         val plans = dataPlanDao.getActivePlans()
-        plans.forEach { plan ->
-            plan.updateUsage(networkUsageManager)
-            if (plan.budgetWarning) {
-                val remainingBudget = dataPlanLogic.getRemainingDailyBudgetToday(plan)
-                if (remainingBudget <= 0L && !plan.budgetOvershotNotified) {
-                    WarningNotificationHelper.showBudgetWarning(context, plan)
-                    dataPlanDao.add(plan.copy(budgetOvershotNotified = true))
-                } else if (remainingBudget > 0L && plan.budgetOvershotNotified) {
-                    dataPlanDao.add(plan.copy(budgetOvershotNotified = false))
+        if (BuildConfig.DEBUG) {
+            Toast.makeText(context, "Updating data plans", Toast.LENGTH_LONG).show()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val vibratorManager =
+                    context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
+                val vibrator = vibratorManager?.defaultVibrator
+                vibrator?.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+            }
+        }
+        val updatedPlans = plans.map { plan ->
+            var currentPlan = plan
+            currentPlan.updateUsage(networkUsageManager)
+            if (currentPlan.budgetWarning) {
+                val remainingBudget = dataPlanLogic.getRemainingDailyBudgetToday(currentPlan)
+                if (remainingBudget <= 0L && !currentPlan.budgetOvershotNotified) {
+                    WarningNotificationHelper.showBudgetWarning(context, currentPlan)
+                    currentPlan = currentPlan.copy(budgetOvershotNotified = true)
+                } else if (remainingBudget > 0L && currentPlan.budgetOvershotNotified) {
+                    currentPlan = currentPlan.copy(budgetOvershotNotified = false)
                 }
             }
 
-            if (plan.safetyWarning) {
-                val safetyState = dataPlanLogic.getDataSafety(plan)
+            if (currentPlan.safetyWarning) {
+                val safetyState = dataPlanLogic.getDataSafety(currentPlan)
                 val stateInt = safetyState.ordinal
-                if (plan.lastSafetyState != stateInt) {
-                    WarningNotificationHelper.showSafetyWarning(context, plan, safetyState)
-                    dataPlanDao.add(plan.copy(lastSafetyState = stateInt))
+                if (currentPlan.lastSafetyState != stateInt) {
+                    WarningNotificationHelper.showSafetyWarning(context, currentPlan, safetyState)
+                    currentPlan = currentPlan.copy(lastSafetyState = stateInt)
                 }
             }
+            currentPlan
         }
+        dataPlanDao.addAll(updatedPlans)
     }
 }

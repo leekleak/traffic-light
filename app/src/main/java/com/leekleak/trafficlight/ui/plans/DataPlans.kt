@@ -209,7 +209,7 @@ private fun DataPlanPager(
 private fun DataPlanInsights(contentPadding: PaddingValues) {
     val viewModel: DataPlansVM = koinViewModel()
     val appPreferenceRepo: AppPreferenceRepo = koinInject()
-    val dataPlan by viewModel.selectedDataPlan.collectAsState(null)
+    val dataPlan by viewModel.planFlow.collectAsState(null)
     val topAppsList by viewModel.topApps.collectAsState()
     val listState = rememberLazyListState()
     val adsEnabled by appPreferenceRepo.ads.collectAsState(false)

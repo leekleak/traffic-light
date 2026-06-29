@@ -16,7 +16,9 @@ import java.time.LocalDateTime
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-class DataPlanLogic(private val networkUsageManager: NetworkUsageManager) {
+class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
+    suspend fun getSnapshot(dataPlan: DataPlan): DataPlan = dataPlan.getUsageSnapshot(networkUsageManager)
+
     suspend fun getDataSafety(dataPlan: DataPlan): MiniCardState {
         val totalMax = dataPlan.getTotalMax()
         if (totalMax <= 0L) return MiniCardState.NEUTRAL

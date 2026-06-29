@@ -171,6 +171,7 @@ import org.koin.compose.koinInject
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import kotlin.math.E
 import kotlin.math.max
@@ -291,6 +292,7 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                         scope.launch(Dispatchers.IO) {
                             val volatile = newPlan.calculateVolatileUsage(networkUsageManager)
                             val planToSave = newPlan.copy(
+                                lastUpdateStamp = LocalDateTime.now().toTimestamp(),
                                 mainDataUsed = max(0L, newPlan.mainDataUsed - volatile),
                                 lastSafetyState = -1,
                                 budgetOvershotNotified = false,
