@@ -1,0 +1,5 @@
+Changes compared to v3.0-beta2
+
+Bug Fixes:
+- Fixed warning notifications repeating excessively
+- Fixed a lot of wrong data plan behavior especially concerning extras
