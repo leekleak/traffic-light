@@ -220,7 +220,7 @@ class DataPlanTest {
     }
 
     @Test
-    fun `getUsage includes volatile usage since lastUpdateStamp`() = runTest {
+    fun `getTotalUsage includes volatile usage since lastUpdateStamp`() = runTest {
         val now = LocalDateTime.of(2023, 10, 15, 12, 0)
         setCurrentTime(now)
 
@@ -246,13 +246,13 @@ class DataPlanTest {
             UsageData(upload = 200L, download = 300L)
         )
 
-        val totalUsage = plan.getUsage(networkUsageManager)
+        val totalUsage = plan.getTotalUsage(networkUsageManager)
 
         assertEquals("Volatile usage not included", 1500L, totalUsage)
     }
 
     @Test
-    fun `getUsage correctly handles expired extras by excluding them from both used and max`() = runTest {
+    fun `getTotalUsage correctly handles expired extras by excluding them from both used and max`() = runTest {
         val now = LocalDateTime.of(2023, 10, 15, 12, 0)
         setCurrentTime(now)
 
@@ -276,7 +276,7 @@ class DataPlanTest {
         every { mockStats.hasNextBucket() } returns false
         coEvery { networkUsageManager.getNetworkDataForType(any(), any(), any(), any()) } returns emptyList()
 
-        val totalUsage = plan.getUsage(networkUsageManager)
+        val totalUsage = plan.getTotalUsage(networkUsageManager)
         val totalMax = plan.getTotalMax()
 
         assertEquals("Usage should exclude expired extras", 500L, totalUsage)
@@ -449,6 +449,97 @@ class DataPlanTest {
         assertEquals("Update 3: mainStartStamp should be Nov 1", startNov.toTimestamp(), plan.mainStartStamp)
         assertEquals("Update 3: Extra B should have taken more usage", 950L, plan.extras.find { it.id == "extraB" }?.dataUsed)
         assertEquals("Update 3: lastUpdateStamp should be Nov 2", tNov2.toTimestamp(), plan.lastUpdateStamp)
+    }
+
+    @Test
+    fun `getUsageSnapshot correctly distributes volatile usage to extras`() = runTest {
+        val now = LocalDateTime.of(2023, 10, 15, 12, 0)
+        setCurrentTime(now)
+
+        val startStamp = LocalDate.of(2023, 10, 1).atStartOfDay().toTimestamp()
+        val lastUpdate = now.minusHours(1).toTimestamp()
+        
+        // Extra has 1000L capacity, 0 used.
+        // Use a very distant expiry to avoid issues with potential clock drift or unmocked time
+        val extra1 = DataPlanExtra(id = "extra1", dataAmount = DataSize(1000L), dataUsed = 0L, startStamp = startStamp, expiryStamp = Long.MAX_VALUE)
+        
+        val plan = DataPlan(
+            hashedSubscriberID = "hash",
+            encryptedSubscriberID = "enc",
+            startDate = startStamp,
+            mainDataSize = DataSize(5000L),
+            mainDataUsed = 1000L,
+            mainStartStamp = startStamp,
+            mainExpiryStamp = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp(),
+            extras = listOf(extra1),
+            lastUpdateStamp = lastUpdate
+        )
+
+        val mockStats = mockk<NetworkStats>(relaxed = true)
+        coEvery { networkUsageManager.queryDetails(any(), any(), any(), any()) } returns mockStats
+        every { mockStats.hasNextBucket() } returns false
+
+        // Volatile usage: 1500L
+        // Match with any end time to be resilient to System.currentTimeMillis() vs LocalDateTime.now()
+        coEvery { networkUsageManager.getNetworkDataForType(eq(lastUpdate), any(), any(), any()) } returns listOf(
+            UsageData(upload = 500L, download = 1000L)
+        )
+
+        val snapshot = plan.getUsageSnapshot(networkUsageManager)
+
+        assertEquals("Volatile usage should fill extra first", 1000L, snapshot.extras[0].dataUsed)
+        assertEquals("Remaining volatile usage should go to main plan", 1500L, snapshot.mainDataUsed) // 1000L initial + 500L remaining volatile
+        
+        // Ensure original plan is NOT modified beyond the updateUsage call (which doesn't move lastUpdateStamp here)
+        assertEquals("Original plan extra usage should be unchanged", 0L, plan.extras[0].dataUsed)
+        assertEquals("Original plan main usage should be unchanged", 1000L, plan.mainDataUsed)
+    }
+
+    @Test
+    fun `getUsageSnapshot handles extra expiry in volatile interval`() = runTest {
+        val now = LocalDateTime.of(2023, 10, 15, 12, 0)
+        setCurrentTime(now)
+
+        val startStamp = LocalDate.of(2023, 10, 1).atStartOfDay().toTimestamp()
+        val lastUpdate = now.minusHours(2).toTimestamp()
+        val extraExpiry = now.minusHours(1).toTimestamp()
+
+        // Extra expired 1 hour ago (within volatile window)
+        val extra1 = DataPlanExtra(id = "extra1", dataAmount = DataSize(1000L), dataUsed = 0L, startStamp = startStamp, expiryStamp = extraExpiry)
+
+        println(lastUpdate)
+        println(extraExpiry)
+        val plan = DataPlan(
+            hashedSubscriberID = "hash",
+            encryptedSubscriberID = "enc",
+            startDate = startStamp,
+            mainDataSize = DataSize(5000L),
+            mainDataUsed = 1000L,
+            mainStartStamp = startStamp,
+            mainExpiryStamp = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp(),
+            extras = listOf(extra1),
+            lastUpdateStamp = lastUpdate
+        )
+
+        val mockStats = mockk<NetworkStats>(relaxed = true)
+        coEvery { networkUsageManager.queryDetails(any(), any(), any(), any()) } returns mockStats
+        every { mockStats.hasNextBucket() } returns false
+
+        // Usage in [lastUpdate, extraExpiry]: 500L -> should go to extra
+        coEvery { networkUsageManager.getNetworkDataForType(eq(lastUpdate), eq(extraExpiry), any(), any()) } returns listOf(
+            UsageData(upload = 200L, download = 300L)
+        )
+        // Usage in [extraExpiry, now]: 400L -> should go to main
+        // Match with any end time to be resilient to System.currentTimeMillis() vs LocalDateTime.now()
+        coEvery { networkUsageManager.getNetworkDataForType(eq(extraExpiry), any(), any(), any()) } returns listOf(
+            UsageData(upload = 100L, download = 300L)
+        )
+
+        val snapshot = plan.getUsageSnapshot(networkUsageManager)
+
+        assertEquals("Usage before expiry should go to extra", 500L, snapshot.extras[0].dataUsed)
+        assertEquals("Usage after expiry should go to main", 1400L, snapshot.mainDataUsed) // 1000L initial + 400L post-expiry
+        assertTrue("Extra should be marked as expired in snapshot", snapshot.extras[0].expired)
     }
 
     private fun setBucketFields(bucket: NetworkStats.Bucket, uid: Int = 0, txBytes: Long = 0, rxBytes: Long = 0, startTime: Long = 0, endTime: Long = 0) {

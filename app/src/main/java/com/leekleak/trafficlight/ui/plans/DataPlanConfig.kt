@@ -197,13 +197,9 @@ fun DataPlanConfig(currentPlan: DataPlan) {
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        val plan = newPlan.copy()
         withContext(Dispatchers.Default) {
-            val total = plan.getUsage(networkUsageManager)
-            val extraUsed = plan.extras.sumOf { it.dataUsed }
-            plan.mainDataUsed = total - extraUsed
+            newPlan = newPlan.getUsageSnapshot(networkUsageManager)
         }
-        newPlan = plan
     }
 
     var showForegroundNotificationWarning by remember { mutableStateOf(false) }
@@ -218,12 +214,9 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                 planToCalculate.mainDataUsed = 0
                 planToCalculate.lastUpdateStamp = 0
                 planToCalculate.extras = planToCalculate.extras.map { it.copy(dataUsed = 0) }
-                
-                val total = planToCalculate.getUsage(networkUsageManager)
-                val extraUsed = planToCalculate.extras.sumOf { it.dataUsed }
-                planToCalculate.mainDataUsed = total - extraUsed
+
+                newPlan = planToCalculate.getUsageSnapshot(networkUsageManager)
             }
-            newPlan = planToCalculate
         }
     }
 

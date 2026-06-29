@@ -18,8 +18,11 @@ import kotlin.math.roundToInt
 
 class DataPlanLogic(private val networkUsageManager: NetworkUsageManager) {
     suspend fun getDataSafety(dataPlan: DataPlan): MiniCardState {
-        val planUsage = dataPlan.getUsage(networkUsageManager)
-        val usageRatio = planUsage.toDouble() / dataPlan.getTotalMax().toDouble()
+        val totalMax = dataPlan.getTotalMax()
+        if (totalMax <= 0L) return MiniCardState.NEUTRAL
+
+        val totalUsed = dataPlan.getTotalUsage(networkUsageManager)
+        val usageRatio = totalUsed.toDouble() / totalMax.toDouble()
         val startDate = dataPlan.getStartDate()
         val endDate = dataPlan.getStartDate(next = true)
         val timeRatio = Duration.between(startDate, LocalDateTime.now()).seconds.toDouble() / Duration.between(startDate, endDate).seconds.toDouble()
@@ -51,7 +54,7 @@ class DataPlanLogic(private val networkUsageManager: NetworkUsageManager) {
     }
 
     suspend fun getRemainingDailyBudget(dataPlan: DataPlan): Long {
-        val planUsage = dataPlan.getUsage(networkUsageManager)
+        val planUsage = dataPlan.getTotalUsage(networkUsageManager)
         val remaining = max(dataPlan.getTotalMax() - planUsage, 0L)
         val dailyBudget = remaining / (dataPlan.getRemainingDuration().toDays() + 1)
         return dailyBudget

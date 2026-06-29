@@ -55,33 +55,33 @@ import org.koin.compose.koinInject
 import java.text.DecimalFormat
 
 @Composable
-fun ConfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
+fun ConfiguredDataPlan(planSnapshot: DataPlan, onConfigure: () -> Unit) {
     val haptic = LocalHapticFeedback.current
 
     BoxBackground(
-        dataPlan = dataPlan,
+        dataPlan = planSnapshot,
         onClick = {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             onConfigure()
         }
     ) {
-        ConfiguredDataPlanContent(dataPlan)
+        ConfiguredDataPlanContent(planSnapshot)
     }
 }
 
 @Composable
-fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
+fun UnconfiguredDataPlan(planSnapshot: DataPlan, onConfigure: () -> Unit) {
     val haptic = LocalHapticFeedback.current
     val networkUsageManager: NetworkUsageManager = koinInject()
     val fontFamilyGoogleSans = remember { googleSansEmphasized() }
     val fontFamilyDoHyeon = remember { doHyeonFont() }
 
     val metric = LocalSizeMetric.current
-    val dataUsage by produceState(0L) { value = dataPlan.getUsage(networkUsageManager) }
-    val usage = DataSize(dataUsage).getAsUnit(dataPlan.mainDataSizeUnit, metric)
+    val dataUsage by produceState(0L) { value = planSnapshot.getTotalUsage(networkUsageManager) }
+    val usage = DataSize(dataUsage).getAsUnit(planSnapshot.mainDataSizeUnit, metric)
     val formatter = remember { DecimalFormat("0.##") }
     BoxBackground(
-        dataPlan = dataPlan,
+        dataPlan = planSnapshot,
         onClick = {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             onConfigure()
@@ -96,7 +96,7 @@ fun UnconfiguredDataPlan(dataPlan: DataPlan, onConfigure: () -> Unit) {
                         append(formatter.format(usage))
                     }
                     withStyle(style = SpanStyle(fontSize = 36.sp, fontFamily = fontFamilyDoHyeon)) {
-                        appendLine(dataPlan.mainDataSizeUnit.name)
+                        appendLine(planSnapshot.mainDataSizeUnit.name)
                     }
                     withStyle(
                         style = SpanStyle(
@@ -159,21 +159,20 @@ private fun BoxBackground(
 }
 
 @Composable
-private fun BoxScope.ConfiguredDataPlanContent(dataPlan: DataPlan) {
+private fun BoxScope.ConfiguredDataPlanContent(planSnapshot: DataPlan) {
     val context = LocalContext.current
-    val networkUsageManager: NetworkUsageManager = koinInject()
     val fontFamilyGoogleSans = remember { googleSansEmphasized() }
     val fontFamilyDoHyeon = remember { doHyeonFont() }
     val metric = LocalSizeMetric.current
-    val usageDataSize by produceState(DataSize(0)) { value = DataSize(dataPlan.getUsage(networkUsageManager)) }
+    val usageDataSize by produceState(DataSize(0)) { value = DataSize(planSnapshot.mainDataUsed) }
     val usageValue by remember(usageDataSize, metric) {
         derivedStateOf {
-            usageDataSize.getAsUnit(dataPlan.mainDataSizeUnit, metric)
+            usageDataSize.getAsUnit(planSnapshot.mainDataSizeUnit, metric)
         }
     }
 
     val formatter = remember { DecimalFormat("0.##") }
-    val data = remember(dataPlan, metric) { formatter.format(dataPlan.mainDataSize.getAsUnit(dataPlan.mainDataSizeUnit, metric)) }
+    val data = remember(planSnapshot, metric) { formatter.format(planSnapshot.mainDataSize.getAsUnit(planSnapshot.mainDataSizeUnit, metric)) }
 
     Box (Modifier.align(Alignment.Center)) {
         Text(
@@ -184,10 +183,10 @@ private fun BoxScope.ConfiguredDataPlanContent(dataPlan: DataPlan) {
                     append(formatter.format(usageValue))
                 }
                 withStyle(style = SpanStyle(fontSize = 36.sp, fontFamily = fontFamilyDoHyeon)) {
-                    if (dataPlan.mainDataSize.byteValue != 0L) {
-                        appendLine("/${data}${dataPlan.mainDataSizeUnit.name}")
+                    if (planSnapshot.mainDataSize.byteValue != 0L) {
+                        appendLine("/${data}${planSnapshot.mainDataSizeUnit.name}")
                     } else {
-                        appendLine(dataPlan.mainDataSizeUnit.name)
+                        appendLine(planSnapshot.mainDataSizeUnit.name)
                     }
                 }
             }
@@ -203,14 +202,14 @@ private fun BoxScope.ConfiguredDataPlanContent(dataPlan: DataPlan) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = dataPlan.resetString(context),
+            text = planSnapshot.resetString(context),
             fontFamily = fontFamilyGoogleSans
         )
-        if (dataPlan.mainDataSize.byteValue != 0L) {
+        if (planSnapshot.mainDataSize.byteValue != 0L) {
             LinearWavyProgressIndicator(
                 modifier = Modifier.fillMaxWidth(),
                 progress = {
-                    val totalMax = dataPlan.mainDataSize.byteValue
+                    val totalMax = planSnapshot.mainDataSize.byteValue
                     if (totalMax == 0L) 0f
                     else (usageDataSize.byteValue / totalMax.toDouble()).toFloat().coerceIn(0f, 1f)
                 },

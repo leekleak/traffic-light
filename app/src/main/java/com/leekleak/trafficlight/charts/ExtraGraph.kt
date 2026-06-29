@@ -41,7 +41,7 @@ fun ExtraGraph(
     val onBackgroundColor = GraphTheme.onBackgroundColor
 
     val maximum: Long = extra.dataAmount.byteValue
-    val used: Long = extra.dataUsed // TODO: Include volatile data
+    val used: Long = extra.dataUsed
     val expirationDate = fromTimestamp(extra.expiryStamp)
 
     val textMeasurer = rememberTextMeasurer()

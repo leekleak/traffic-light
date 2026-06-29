@@ -31,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -58,6 +59,7 @@ import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.integrations.Ad
 import com.leekleak.trafficlight.integrations.AdType
+import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.PlanConfigKey
 import com.leekleak.trafficlight.ui.settings.InfoCard
@@ -111,6 +113,7 @@ private fun DataPlanPager(
     val dataPlanDao: DataPlanDao = koinInject()
     val appPreferenceRepo: AppPreferenceRepo = koinInject()
     val viewModel: DataPlansVM = koinViewModel()
+    val networkUsageManager: NetworkUsageManager = koinInject()
 
     val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
@@ -142,12 +145,13 @@ private fun DataPlanPager(
     ) { page ->
         if (page < activePlans.size) {
             val plan = activePlans[page]
+            val planSnapshot by produceState(plan) { value = plan.getUsageSnapshot(networkUsageManager) }
             if (plan.configured) {
-                ConfiguredDataPlan(plan) {
+                ConfiguredDataPlan(planSnapshot) {
                     navigator.goTo(PlanConfigKey(plan))
                 }
             } else {
-                UnconfiguredDataPlan(plan) {
+                UnconfiguredDataPlan(planSnapshot) {
                     navigator.goTo(PlanConfigKey(plan))
                 }
             }

@@ -71,6 +71,13 @@ data class DataPlan(
     @Transient
     private val mutex = Mutex()
 
+    /**
+     * Snapshots do not have a mutex and cannot be updated.
+     */
+    @Ignore
+    @Transient
+    var isSnapshot: Boolean = false
+
     @Ignore
     @Transient
     private var _decryptedID: String? = null
@@ -145,7 +152,9 @@ data class DataPlan(
         }
     }
 
-    suspend fun updateUsage(networkUsageManager: NetworkUsageManager) = withContext(Dispatchers.Default) { mutex.withLock {
+    suspend fun updateUsage(networkUsageManager: NetworkUsageManager) = withContext(Dispatchers.Default) {
+        if (isSnapshot) return@withContext
+        mutex.withLock {
         val now = LocalDateTime.now().toTimestamp()
 
         val currentStart = getStartDate(false).toTimestamp()
@@ -172,6 +181,7 @@ data class DataPlan(
             }
             bestEnd = bucket.endTimeStamp
         }
+        usageBuckets.close()
 
         if (bestEnd > lastUpdateStamp) {
             val stamps = mutableSetOf(lastUpdateStamp, bestEnd)
@@ -193,50 +203,11 @@ data class DataPlan(
             }
 
             val sortedStamps = stamps.sorted()
-            val updatedExtras = extras.toMutableList()
 
             for (i in 0 until sortedStamps.size - 1) {
-                val start = sortedStamps[i]
-                val end = sortedStamps[i + 1]
-
-                if (start >= mainExpiryStamp) {
-                    val nextExpiry = calculateNextReset(mainExpiryStamp)
-                    if (recurring) {
-                        val remaining = mainDataSize.byteValue - mainDataUsed
-                        if (remaining > 0) {
-                            updatedExtras.add(
-                                DataPlanExtra(
-                                    dataAmount = DataSize(remaining),
-                                    unit = mainDataSizeUnit,
-                                    startStamp = mainExpiryStamp,
-                                    expiryStamp = nextExpiry
-                                )
-                            )
-                        }
-                    }
-                    mainDataUsed = 0
-                    mainStartStamp = mainExpiryStamp
-                    mainExpiryStamp = nextExpiry
-                }
-
-                val usageData = networkUsageManager.getNetworkDataForType(start, end, decryptedID, DataType.Mobile)
-                var usageToDistribute = usageData.filter { !excludedApps.contains(it.uid) }.sumOf { it.total }
-
-                val activeIndices = updatedExtras.indices.filter { idx ->
-                    val extra = updatedExtras[idx]
-                    !extra.expired && extra.startStamp <= start && extra.expiryStamp >= end
-                }.sortedBy { updatedExtras[it].expiryStamp }
-
-                for (idx in activeIndices) {
-                    val extra = updatedExtras[idx]
-                    val used = min(extra.dataRemaining, usageToDistribute)
-                    usageToDistribute -= used
-                    updatedExtras[idx] = extra.copy(dataUsed = extra.dataUsed + used)
-                }
-                mainDataUsed += usageToDistribute
+                processInterval(networkUsageManager, sortedStamps[i], sortedStamps[i + 1])
             }
 
-            extras = updatedExtras
             lastUpdateStamp = bestEnd
         }
 
@@ -247,6 +218,10 @@ data class DataPlan(
             lastUpdateStamp = maxOf(lastUpdateStamp, currentStart)
         }
 
+        markExpiredExtras(now)
+    } }
+
+    private fun markExpiredExtras(now: Long) {
         extras = extras.map { extra ->
             if (!extra.expired && extra.expiryStamp <= now) {
                 extra.copy(expired = true)
@@ -254,26 +229,102 @@ data class DataPlan(
                 extra
             }
         }
-    } }
+    }
 
     fun getTotalMax(): Long {
         return mainDataSize.byteValue + extras.filter { !it.expired }.sumOf { it.dataAmount.byteValue }
     }
 
-    suspend fun getUsage(networkUsageManager: NetworkUsageManager): Long {
+    suspend fun getTotalUsage(networkUsageManager: NetworkUsageManager): Long {
+        val snapshot = getUsageSnapshot(networkUsageManager)
+        return snapshot.mainDataUsed + snapshot.extras.filter { !it.expired }.sumOf { it.dataUsed }
+    }
+
+    suspend fun getUsageSnapshot(networkUsageManager: NetworkUsageManager): DataPlan {
         updateUsage(networkUsageManager)
+        val snapshot = this.copy(extras = this.extras.map { it.copy() })
+        snapshot.isSnapshot = true
+        val now = LocalDateTime.now().toTimestamp()
+        if (now > lastUpdateStamp) {
+            val stamps = mutableSetOf(lastUpdateStamp, now)
+            for (extra in snapshot.extras) {
+                if (extra.expiryStamp > lastUpdateStamp) {
+                    if (extra.startStamp in (lastUpdateStamp + 1)..<now) {
+                        stamps.add(extra.startStamp)
+                    }
+                    if (extra.expiryStamp in (lastUpdateStamp + 1)..<now) {
+                        stamps.add(extra.expiryStamp)
+                    }
+                }
+            }
 
-        val activeExtras = extras.filter { !it.expired }
-        val committedUsage = mainDataUsed + activeExtras.sumOf { it.dataUsed }
+            var nextReset = snapshot.mainExpiryStamp
+            while (nextReset in lastUpdateStamp..now) {
+                stamps.add(nextReset)
+                nextReset = calculateNextReset(nextReset)
+            }
 
-        return committedUsage + calculateVolatileUsage(networkUsageManager)
+            val sortedStamps = stamps.sorted()
+            for (i in 0 until sortedStamps.size - 1) {
+                val start = sortedStamps[i]
+                val end = sortedStamps[i + 1]
+                snapshot.processInterval(networkUsageManager, start, end)
+                snapshot.markExpiredExtras(end)
+            }
+        }
+        return snapshot
+    }
+
+    private suspend fun processInterval(networkUsageManager: NetworkUsageManager, start: Long, end: Long) {
+        if (start >= mainExpiryStamp) {
+            val nextExpiry = calculateNextReset(mainExpiryStamp)
+            if (recurring) {
+                val remaining = mainDataSize.byteValue - mainDataUsed
+                if (remaining > 0) {
+                    extras = extras + DataPlanExtra(
+                        dataAmount = DataSize(remaining),
+                        unit = mainDataSizeUnit,
+                        startStamp = mainExpiryStamp,
+                        expiryStamp = nextExpiry
+                    )
+                }
+            }
+            mainDataUsed = 0
+            mainStartStamp = mainExpiryStamp
+            mainExpiryStamp = nextExpiry
+        }
+
+        distributeUsage(networkUsageManager, start, end, decryptedID)
+    }
+
+    private suspend fun distributeUsage(networkUsageManager: NetworkUsageManager, start: Long, end: Long, id: String?) {
+        var usageToDistribute = getFilteredUsage(networkUsageManager, start, end, id)
+
+        val updatedExtras = extras.toMutableList()
+        val activeIndices = updatedExtras.indices.filter { idx ->
+            val extra = updatedExtras[idx]
+            extra.startStamp <= start && extra.expiryStamp >= end
+        }.sortedBy { updatedExtras[it].expiryStamp }
+
+        for (idx in activeIndices) {
+            val extra = updatedExtras[idx]
+            val used = min(extra.dataRemaining, usageToDistribute)
+            usageToDistribute -= used
+            updatedExtras[idx] = extra.copy(dataUsed = extra.dataUsed + used)
+        }
+        mainDataUsed += usageToDistribute
+        extras = updatedExtras
+    }
+
+    private suspend fun getFilteredUsage(networkUsageManager: NetworkUsageManager, start: Long, end: Long, id: String?): Long {
+        val usageData = networkUsageManager.getNetworkDataForType(start, end, id, DataType.Mobile)
+        return usageData.filter { !excludedApps.contains(it.uid) }.sumOf { it.total }
     }
 
     suspend fun calculateVolatileUsage(networkUsageManager: NetworkUsageManager): Long {
-        val now = System.currentTimeMillis()
+        val now = LocalDateTime.now().toTimestamp()
         if (now <= lastUpdateStamp) return 0L
-        val data = networkUsageManager.getNetworkDataForType(lastUpdateStamp, now, decryptedID, DataType.Mobile)
-        return data.filter { !excludedApps.contains(it.uid) }.sumOf { it.total }
+        return getFilteredUsage(networkUsageManager, lastUpdateStamp, now, decryptedID)
     }
 
     companion object {
