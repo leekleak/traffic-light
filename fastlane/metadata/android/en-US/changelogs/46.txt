@@ -1,0 +1,9 @@
+Changes compared to v3.0-beta4
+
+Hopefully the final beta before the release. Fingers crossed the bugs have all been ironed out.
+
+Enhancements:
+- Improved clarity of several strings
+
+Bug Fixes:
+- Fixed even more data plan edge cases and regressions
