@@ -27,7 +27,7 @@ class DataPlansVM(val dataPlansLogic: DataPlanLogic): ViewModel() {
     val dataSafety = planFlow.map { (plan, snapshot) -> dataPlansLogic.getDataSafety(plan, snapshot) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MiniCardState.NEUTRAL)
 
-    val trend = planFlow.map { (plan, snapshot) -> dataPlansLogic.getTrend(plan, snapshot) }.distinctUntilChanged()
+    val trend = planFlow.map { (plan, snapshot) -> dataPlansLogic.getTrend(plan) }.distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     val todayBudget = planFlow.map { (plan, snapshot) -> dataPlansLogic.getRemainingDailyBudgetToday(plan, snapshot) }
@@ -36,9 +36,9 @@ class DataPlansVM(val dataPlansLogic: DataPlanLogic): ViewModel() {
     val remainingDailyBudget = planFlow.map { (plan, snapshot) -> dataPlansLogic.getRemainingDailyBudget(plan, snapshot) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    val weekUsage = planFlow.map { (plan, snapshot) -> dataPlansLogic.getWeekUsage(plan, snapshot) }
+    val weekUsage = planFlow.map { (plan, snapshot) -> dataPlansLogic.getWeekUsage(plan) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val topApps = planFlow.map { (plan, snapshot) -> dataPlansLogic.getTopAppUsage(plan, snapshot) }
+    val topApps = planFlow.map { (plan, snapshot) -> dataPlansLogic.getTopAppUsage(plan) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 }

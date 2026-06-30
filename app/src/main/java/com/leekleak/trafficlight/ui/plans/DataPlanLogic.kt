@@ -20,7 +20,7 @@ import kotlin.math.roundToInt
 class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
     suspend fun getSnapshot(dataPlan: DataPlan): DataPlanSnapshot = dataPlan.getUsageSnapshot(networkUsageManager)
 
-    suspend fun getDataSafety(dataPlan: DataPlan, snapshot: DataPlanSnapshot): MiniCardState {
+    fun getDataSafety(dataPlan: DataPlan, snapshot: DataPlanSnapshot): MiniCardState {
         val totalMax = dataPlan.getTotalMax()
         if (totalMax <= 0L) return MiniCardState.NEUTRAL
 
@@ -39,7 +39,7 @@ class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
         }
     }
 
-    suspend fun getTrend(dataPlan: DataPlan, snapshot: DataPlanSnapshot): Int {
+    suspend fun getTrend(dataPlan: DataPlan): Int {
         val nowStamp = LocalDateTime.now().toTimestamp()
         val hourAverage24 = networkUsageManager
             .getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, dataPlan.decryptedID, DataType.Mobile)
@@ -68,15 +68,16 @@ class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
         if (dataPlan.interval == TimeInterval.DAY && dataPlan.intervalMultiplier == 1) return dailyBudget
         val todayUsage = networkUsageManager.totalDayUsage(
             query = UsageQuery(dataType = DataType.Mobile),
-            startDate = LocalDate.now()
+            startDate = LocalDate.now(),
+            subscriberId = dataPlan.decryptedID
         )
         val remaining = max(dailyBudget - todayUsage, 0L)
         return remaining
     }
 
-    suspend fun getWeekUsage(dataPlan: DataPlan, snapshot: DataPlanSnapshot): List<BarData> = networkUsageManager.getWeekUsage(dataPlan.decryptedID, DataType.Mobile)
+    suspend fun getWeekUsage(dataPlan: DataPlan): List<BarData> = networkUsageManager.getWeekUsage(dataPlan.decryptedID, DataType.Mobile)
 
-    suspend fun getTopAppUsage(dataPlan: DataPlan, snapshot: DataPlanSnapshot): List<AppUsage> {
+    suspend fun getTopAppUsage(dataPlan: DataPlan): List<AppUsage> {
         val todayUsage = networkUsageManager.getAllAppUsage(
             startStamp = dataPlan.getStartDate().toTimestamp(),
             endStamp = LocalDate.now().toTimestamp(),
