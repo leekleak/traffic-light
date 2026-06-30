@@ -18,6 +18,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import timber.log.Timber
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -184,21 +185,23 @@ data class DataPlan(
         }
         usageBuckets.close()
 
-        if (bestEnd > lastUpdateStamp) {
-            val stamps = mutableSetOf(lastUpdateStamp, bestEnd)
+        val timelineEnd = maxOf(bestEnd, currentStart)
+
+        if (timelineEnd > lastUpdateStamp) {
+            val stamps = mutableSetOf(lastUpdateStamp, timelineEnd)
             for (extra in extras) {
                 if (!extra.expired) {
-                    if (extra.startStamp in (lastUpdateStamp + 1)..<bestEnd) {
+                    if (extra.startStamp in (lastUpdateStamp + 1)..<timelineEnd) {
                         stamps.add(extra.startStamp)
                     }
-                    if (extra.expiryStamp in (lastUpdateStamp + 1)..<bestEnd) {
+                    if (extra.expiryStamp in (lastUpdateStamp + 1)..<timelineEnd) {
                         stamps.add(extra.expiryStamp)
                     }
                 }
             }
 
             var nextReset = mainExpiryStamp
-            while (nextReset in lastUpdateStamp..bestEnd) {
+            while (nextReset in lastUpdateStamp..timelineEnd) {
                 stamps.add(nextReset)
                 nextReset = calculateNextReset(nextReset)
             }
@@ -209,14 +212,7 @@ data class DataPlan(
                 processInterval(networkUsageManager, sortedStamps[i], sortedStamps[i + 1])
             }
 
-            lastUpdateStamp = bestEnd
-        }
-
-        if (mainStartStamp < currentStart) {
-            mainDataUsed = 0
-            mainStartStamp = currentStart
-            mainExpiryStamp = currentEnd
-            lastUpdateStamp = maxOf(lastUpdateStamp, currentStart)
+            lastUpdateStamp = timelineEnd
         }
 
         markExpiredExtras(now)
@@ -245,6 +241,7 @@ data class DataPlan(
 
         if (now > lastUpdateStamp) {
             val volatileUsage = getFilteredUsage(networkUsageManager, lastUpdateStamp, now, decryptedID)
+            Timber.e(volatileUsage.toString())
             
             var usageToDistribute = volatileUsage
 
@@ -270,7 +267,11 @@ data class DataPlan(
     }
 
     private suspend fun processInterval(networkUsageManager: NetworkUsageManager, start: Long, end: Long) {
-        if (start >= mainExpiryStamp) {
+        var currentStart = start
+        while (end > mainExpiryStamp || (currentStart < mainExpiryStamp && end == mainExpiryStamp)) {
+            val usageBeforeReset = getFilteredUsage(networkUsageManager, currentStart, mainExpiryStamp, decryptedID)
+            distributeUsage(usageBeforeReset, currentStart, mainExpiryStamp)
+
             val nextExpiry = calculateNextReset(mainExpiryStamp)
             if (recurring) {
                 val remaining = mainDataSize.byteValue - mainDataUsed
@@ -286,10 +287,13 @@ data class DataPlan(
             mainDataUsed = 0
             mainStartStamp = mainExpiryStamp
             mainExpiryStamp = nextExpiry
+            currentStart = mainStartStamp
         }
 
-        val usage = getFilteredUsage(networkUsageManager, start, end, decryptedID)
-        distributeUsage(usage, start, end)
+        if (end > currentStart) {
+            val usage = getFilteredUsage(networkUsageManager, currentStart, end, decryptedID)
+            distributeUsage(usage, currentStart, end)
+        }
     }
 
     private fun distributeUsage(usage: Long, start: Long, end: Long) {
