@@ -29,6 +29,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.TextStyle
@@ -120,7 +121,7 @@ class NetworkUsageManager(
                 buckets.add(UsageData(diffUpload, diffDownload, otherUsersApp.uid))
             }
         }
-
+        Timber.e(buckets.sumOf { it.total }.toString())
         buckets
     }
 

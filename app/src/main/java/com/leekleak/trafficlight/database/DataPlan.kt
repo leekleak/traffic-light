@@ -244,33 +244,11 @@ data class DataPlan(
         updateUsage(networkUsageManager)
         val snapshot = this.copy(extras = this.extras.map { it.copy() })
         snapshot.isSnapshot = true
+
         val now = LocalDateTime.now().toTimestamp()
-        if (now > lastUpdateStamp) {
-            val stamps = mutableSetOf(lastUpdateStamp, now)
-            for (extra in snapshot.extras) {
-                if (extra.expiryStamp > lastUpdateStamp) {
-                    if (extra.startStamp in (lastUpdateStamp + 1)..<now) {
-                        stamps.add(extra.startStamp)
-                    }
-                    if (extra.expiryStamp in (lastUpdateStamp + 1)..<now) {
-                        stamps.add(extra.expiryStamp)
-                    }
-                }
-            }
-
-            var nextReset = snapshot.mainExpiryStamp
-            while (nextReset in lastUpdateStamp..now) {
-                stamps.add(nextReset)
-                nextReset = calculateNextReset(nextReset)
-            }
-
-            val sortedStamps = stamps.sorted()
-            for (i in 0 until sortedStamps.size - 1) {
-                val start = sortedStamps[i]
-                val end = sortedStamps[i + 1]
-                snapshot.processInterval(networkUsageManager, start, end)
-                snapshot.markExpiredExtras(end)
-            }
+        if (now > snapshot.lastUpdateStamp) {
+            val volatileUsage = snapshot.getFilteredUsage(networkUsageManager, snapshot.lastUpdateStamp, now, snapshot.decryptedID)
+            snapshot.distributeUsage(volatileUsage, snapshot.lastUpdateStamp, now)
         }
         return snapshot
     }
@@ -294,11 +272,12 @@ data class DataPlan(
             mainExpiryStamp = nextExpiry
         }
 
-        distributeUsage(networkUsageManager, start, end, decryptedID)
+        val usage = getFilteredUsage(networkUsageManager, start, end, decryptedID)
+        distributeUsage(usage, start, end)
     }
 
-    private suspend fun distributeUsage(networkUsageManager: NetworkUsageManager, start: Long, end: Long, id: String?) {
-        var usageToDistribute = getFilteredUsage(networkUsageManager, start, end, id)
+    private fun distributeUsage(usage: Long, start: Long, end: Long) {
+        var usageToDistribute = usage
 
         val updatedExtras = extras.toMutableList()
         val activeIndices = updatedExtras.indices.filter { idx ->

@@ -15,6 +15,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -25,6 +26,7 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlanDao
+import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.plans.ConfiguredDataPlan
 import com.leekleak.trafficlight.ui.plans.UnconfiguredDataPlan
 import com.leekleak.trafficlight.ui.theme.Theme
@@ -61,6 +63,7 @@ class WidgetConfigureActivity : ComponentActivity() {
     @Composable
     private fun Content(appWidgetId: Int, resultValue: Intent, paddingValues: PaddingValues) {
         val dataPlanDao: DataPlanDao = koinInject()
+        val networkUsageManager: NetworkUsageManager = koinInject()
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
 
@@ -91,8 +94,9 @@ class WidgetConfigureActivity : ComponentActivity() {
                         finish()
                     }
                 }
-                if (it.configured) ConfiguredDataPlan(it) { onSelect() }
-                else UnconfiguredDataPlan(it) { onSelect() }
+                val snapshot by produceState(it) { value = it.getUsageSnapshot(networkUsageManager) }
+                if (snapshot.configured) ConfiguredDataPlan(snapshot) { onSelect() }
+                else UnconfiguredDataPlan(snapshot) { onSelect() }
             }
         }
     }
