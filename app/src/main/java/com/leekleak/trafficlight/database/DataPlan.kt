@@ -154,7 +154,7 @@ data class DataPlan(
         }
     }
 
-    suspend fun updateUsage(networkUsageManager: NetworkUsageManager) = withContext(Dispatchers.Default) {
+    suspend fun updateUsage(networkUsageManager: NetworkUsageManager): Long = withContext(Dispatchers.Default) {
         mutex.withLock {
         val now = LocalDateTime.now().toTimestamp()
 
@@ -215,6 +215,7 @@ data class DataPlan(
         }
 
         markExpiredExtras(now)
+        lastUpdateStamp
     } }
 
     private fun markExpiredExtras(now: Long) {

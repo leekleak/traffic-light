@@ -194,21 +194,18 @@ fun DataPlanConfig(currentPlan: DataPlan) {
     val activity = LocalActivity.current
 
     var newPlan by remember(currentPlan) { mutableStateOf(currentPlan.copy()) }
-    var volatileMain by remember { mutableLongStateOf(0L) }
-    var volatileExtras by remember { mutableStateOf(mapOf<String, Long>()) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.Default) {
+            val lastUpdateStamp = newPlan.updateUsage(networkUsageManager)
             val planToCalculate = newPlan.copy()
             val snapshot = planToCalculate.getUsageSnapshot(networkUsageManager)
             
-            volatileMain = snapshot.mainDataUsed - planToCalculate.mainDataUsed
-            volatileExtras = snapshot.extras.associate { it.id to (it.dataUsed - (planToCalculate.extras.find { e -> e.id == it.id }?.dataUsed ?: 0L)) }
-            
             newPlan = planToCalculate.copy(
                 mainDataUsed = snapshot.mainDataUsed,
-                extras = snapshot.extras
+                extras = snapshot.extras,
+                lastUpdateStamp = lastUpdateStamp
             )
         }
     }
@@ -228,12 +225,10 @@ fun DataPlanConfig(currentPlan: DataPlan) {
 
                 val snapshot = planToCalculate.getUsageSnapshot(networkUsageManager)
                 
-                volatileMain = snapshot.mainDataUsed - planToCalculate.mainDataUsed
-                volatileExtras = snapshot.extras.associate { it.id to (it.dataUsed - (planToCalculate.extras.find { e -> e.id == it.id }?.dataUsed ?: 0L)) }
-                
                 newPlan = planToCalculate.copy(
                     mainDataUsed = snapshot.mainDataUsed,
-                    extras = snapshot.extras
+                    extras = snapshot.extras,
+                    lastUpdateStamp = planToCalculate.lastUpdateStamp
                 )
             }
         }
@@ -308,9 +303,16 @@ fun DataPlanConfig(currentPlan: DataPlan) {
 
                     Button(onClick = {
                         scope.launch(Dispatchers.IO) {
+                            val planToSnapshot = newPlan.copy()
+                            val snapshot = planToSnapshot.getUsageSnapshot(networkUsageManager)
+
+                            val volatileMain = snapshot.mainDataUsed - planToSnapshot.mainDataUsed
+                            val volatileExtras = snapshot.extras.associate { it.id to (it.dataUsed - (planToSnapshot.extras.find { e -> e.id == it.id }?.dataUsed ?: 0L)) }
+
                             val planToSave = newPlan.copy(
                                 mainDataUsed = newPlan.mainDataUsed - volatileMain,
                                 extras = newPlan.extras.map { it.copy(dataUsed = it.dataUsed - (volatileExtras[it.id] ?: 0L)) },
+                                lastUpdateStamp = planToSnapshot.lastUpdateStamp,
                                 lastSafetyState = -1,
                                 budgetOvershotNotified = false,
                                 configured = true
@@ -368,7 +370,6 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                     newPlan = newPlan.copy(
                         mainDataUsed = it,
                     )
-                    volatileMain = 0L
                 },
                 enabled = !currentPlan.configured
             ) {
