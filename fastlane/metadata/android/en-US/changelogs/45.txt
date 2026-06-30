@@ -1,0 +1,4 @@
+Changes compared to v3.0-beta3
+
+Bug Fixes:
+- Fixed more data plan edge cases and regressions
