@@ -22,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
+import com.leekleak.trafficlight.database.DataPlanSnapshot
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.ui.theme.carrierFont
@@ -55,33 +55,32 @@ import org.koin.compose.koinInject
 import java.text.DecimalFormat
 
 @Composable
-fun ConfiguredDataPlan(planSnapshot: DataPlan, onConfigure: () -> Unit) {
+fun ConfiguredDataPlan(plan: DataPlan, planSnapshot: DataPlanSnapshot, onConfigure: () -> Unit) {
     val haptic = LocalHapticFeedback.current
 
     BoxBackground(
-        dataPlan = planSnapshot,
+        dataPlan = plan,
         onClick = {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             onConfigure()
         }
     ) {
-        ConfiguredDataPlanContent(planSnapshot)
+        ConfiguredDataPlanContent(plan, planSnapshot)
     }
 }
 
 @Composable
-fun UnconfiguredDataPlan(planSnapshot: DataPlan, onConfigure: () -> Unit) {
+fun UnconfiguredDataPlan(plan: DataPlan, planSnapshot: DataPlanSnapshot, onConfigure: () -> Unit) {
     val haptic = LocalHapticFeedback.current
     val networkUsageManager: NetworkUsageManager = koinInject()
     val fontFamilyGoogleSans = remember { googleSansEmphasized() }
     val fontFamilyDoHyeon = remember { doHyeonFont() }
 
     val metric = LocalSizeMetric.current
-    val dataUsage by produceState(0L) { value = planSnapshot.getTotalUsage(networkUsageManager) }
-    val usage = DataSize(dataUsage).getAsUnit(planSnapshot.mainDataSizeUnit, metric)
+    val usage = DataSize(planSnapshot.totalUsage).getAsUnit(planSnapshot.mainDataSizeUnit, metric)
     val formatter = remember { DecimalFormat("0.##") }
     BoxBackground(
-        dataPlan = planSnapshot,
+        dataPlan = plan,
         onClick = {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             onConfigure()
@@ -159,7 +158,7 @@ private fun BoxBackground(
 }
 
 @Composable
-private fun BoxScope.ConfiguredDataPlanContent(planSnapshot: DataPlan) {
+private fun BoxScope.ConfiguredDataPlanContent(plan: DataPlan, planSnapshot: DataPlanSnapshot) {
     val context = LocalContext.current
     val fontFamilyGoogleSans = remember { googleSansEmphasized() }
     val fontFamilyDoHyeon = remember { doHyeonFont() }
@@ -172,7 +171,7 @@ private fun BoxScope.ConfiguredDataPlanContent(planSnapshot: DataPlan) {
     }
 
     val formatter = remember { DecimalFormat("0.##") }
-    val data = remember(planSnapshot, metric) { formatter.format(planSnapshot.mainDataSize.getAsUnit(planSnapshot.mainDataSizeUnit, metric)) }
+    val data = remember(plan, metric) { formatter.format(plan.mainDataSize.getAsUnit(plan.mainDataSizeUnit, metric)) }
 
     Box (Modifier.align(Alignment.Center)) {
         Text(
@@ -183,10 +182,10 @@ private fun BoxScope.ConfiguredDataPlanContent(planSnapshot: DataPlan) {
                     append(formatter.format(usageValue))
                 }
                 withStyle(style = SpanStyle(fontSize = 36.sp, fontFamily = fontFamilyDoHyeon)) {
-                    if (planSnapshot.mainDataSize.byteValue != 0L) {
-                        appendLine("/${data}${planSnapshot.mainDataSizeUnit.name}")
+                    if (plan.mainDataSize.byteValue != 0L) {
+                        appendLine("/${data}${plan.mainDataSizeUnit.name}")
                     } else {
-                        appendLine(planSnapshot.mainDataSizeUnit.name)
+                        appendLine(plan.mainDataSizeUnit.name)
                     }
                 }
             }
@@ -202,14 +201,14 @@ private fun BoxScope.ConfiguredDataPlanContent(planSnapshot: DataPlan) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = planSnapshot.resetString(context),
+            text = plan.resetString(context),
             fontFamily = fontFamilyGoogleSans
         )
-        if (planSnapshot.mainDataSize.byteValue != 0L) {
+        if (plan.mainDataSize.byteValue != 0L) {
             LinearWavyProgressIndicator(
                 modifier = Modifier.fillMaxWidth(),
                 progress = {
-                    val totalMax = planSnapshot.mainDataSize.byteValue
+                    val totalMax = plan.mainDataSize.byteValue
                     if (totalMax == 0L) 0f
                     else (usageDataSize.byteValue / totalMax.toDouble()).toFloat().coerceIn(0f, 1f)
                 },

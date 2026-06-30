@@ -199,7 +199,11 @@ fun DataPlanConfig(currentPlan: DataPlan) {
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.Default) {
-            newPlan = newPlan.getUsageSnapshot(networkUsageManager)
+            val snapshot = newPlan.getUsageSnapshot(networkUsageManager)
+            newPlan = newPlan.copy(
+                mainDataUsed = snapshot.mainDataUsed,
+                extras = snapshot.extras
+            )
         }
     }
 
@@ -216,7 +220,11 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                 planToCalculate.lastUpdateStamp = 0
                 planToCalculate.extras = planToCalculate.extras.map { it.copy(dataUsed = 0) }
 
-                newPlan = planToCalculate.getUsageSnapshot(networkUsageManager)
+                val snapshot = planToCalculate.getUsageSnapshot(networkUsageManager)
+                newPlan = planToCalculate.copy(
+                    mainDataUsed = snapshot.mainDataUsed,
+                    extras = snapshot.extras
+                )
             }
         }
     }

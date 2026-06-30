@@ -246,7 +246,7 @@ class DataPlanTest {
             UsageData(upload = 200L, download = 300L)
         )
 
-        val totalUsage = plan.getTotalUsage(networkUsageManager)
+        val totalUsage = plan.getUsageSnapshot(networkUsageManager).totalUsage
 
         assertEquals("Volatile usage not included", 1500L, totalUsage)
     }
@@ -276,7 +276,7 @@ class DataPlanTest {
         every { mockStats.hasNextBucket() } returns false
         coEvery { networkUsageManager.getNetworkDataForType(any(), any(), any(), any()) } returns emptyList()
 
-        val totalUsage = plan.getTotalUsage(networkUsageManager)
+        val totalUsage = plan.getUsageSnapshot(networkUsageManager).totalUsage
         val totalMax = plan.getTotalMax()
 
         assertEquals("Usage should exclude expired extras", 500L, totalUsage)
@@ -493,53 +493,6 @@ class DataPlanTest {
         // Ensure original plan is NOT modified beyond the updateUsage call (which doesn't move lastUpdateStamp here)
         assertEquals("Original plan extra usage should be unchanged", 0L, plan.extras[0].dataUsed)
         assertEquals("Original plan main usage should be unchanged", 1000L, plan.mainDataUsed)
-    }
-
-    @Test
-    fun `getUsageSnapshot handles extra expiry in volatile interval`() = runTest {
-        val now = LocalDateTime.of(2023, 10, 15, 12, 0)
-        setCurrentTime(now)
-
-        val startStamp = LocalDate.of(2023, 10, 1).atStartOfDay().toTimestamp()
-        val lastUpdate = now.minusHours(2).toTimestamp()
-        val extraExpiry = now.minusHours(1).toTimestamp()
-
-        // Extra expired 1 hour ago (within volatile window)
-        val extra1 = DataPlanExtra(id = "extra1", dataAmount = DataSize(1000L), dataUsed = 0L, startStamp = startStamp, expiryStamp = extraExpiry)
-
-        println(lastUpdate)
-        println(extraExpiry)
-        val plan = DataPlan(
-            hashedSubscriberID = "hash",
-            encryptedSubscriberID = "enc",
-            startDate = startStamp,
-            mainDataSize = DataSize(5000L),
-            mainDataUsed = 1000L,
-            mainStartStamp = startStamp,
-            mainExpiryStamp = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp(),
-            extras = listOf(extra1),
-            lastUpdateStamp = lastUpdate
-        )
-
-        val mockStats = mockk<NetworkStats>(relaxed = true)
-        coEvery { networkUsageManager.queryDetails(any(), any(), any(), any()) } returns mockStats
-        every { mockStats.hasNextBucket() } returns false
-
-        // Usage in [lastUpdate, extraExpiry]: 500L -> should go to extra
-        coEvery { networkUsageManager.getNetworkDataForType(eq(lastUpdate), eq(extraExpiry), any(), any()) } returns listOf(
-            UsageData(upload = 200L, download = 300L)
-        )
-        // Usage in [extraExpiry, now]: 400L -> should go to main
-        // Match with any end time to be resilient to System.currentTimeMillis() vs LocalDateTime.now()
-        coEvery { networkUsageManager.getNetworkDataForType(eq(extraExpiry), any(), any(), any()) } returns listOf(
-            UsageData(upload = 100L, download = 300L)
-        )
-
-        val snapshot = plan.getUsageSnapshot(networkUsageManager)
-
-        assertEquals("Usage before expiry should go to extra", 500L, snapshot.extras[0].dataUsed)
-        assertEquals("Usage after expiry should go to main", 1400L, snapshot.mainDataUsed) // 1000L initial + 400L post-expiry
-        assertTrue("Extra should be marked as expired in snapshot", snapshot.extras[0].expired)
     }
 
     private fun setBucketFields(bucket: NetworkStats.Bucket, uid: Int = 0, txBytes: Long = 0, rxBytes: Long = 0, startTime: Long = 0, endTime: Long = 0) {

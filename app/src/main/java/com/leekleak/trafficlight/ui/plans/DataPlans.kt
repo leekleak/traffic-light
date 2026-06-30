@@ -55,8 +55,8 @@ import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.ExtraGraph
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.AppUsage
-import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
+import com.leekleak.trafficlight.database.DataPlanSnapshot
 import com.leekleak.trafficlight.integrations.Ad
 import com.leekleak.trafficlight.integrations.AdType
 import com.leekleak.trafficlight.model.NetworkUsageManager
@@ -145,13 +145,15 @@ private fun DataPlanPager(
     ) { page ->
         if (page < activePlans.size) {
             val plan = activePlans[page]
-            val planSnapshot by produceState(plan) { value = plan.getUsageSnapshot(networkUsageManager) }
+            val planSnapshot by produceState(DataPlanSnapshot(0, plan.mainDataSizeUnit, emptyList())) { 
+                value = plan.getUsageSnapshot(networkUsageManager) 
+            }
             if (plan.configured) {
-                ConfiguredDataPlan(planSnapshot) {
+                ConfiguredDataPlan(plan, planSnapshot) {
                     navigator.goTo(PlanConfigKey(plan))
                 }
             } else {
-                UnconfiguredDataPlan(planSnapshot) {
+                UnconfiguredDataPlan(plan, planSnapshot) {
                     navigator.goTo(PlanConfigKey(plan))
                 }
             }
@@ -209,7 +211,7 @@ private fun DataPlanPager(
 private fun DataPlanInsights(contentPadding: PaddingValues) {
     val viewModel: DataPlansVM = koinViewModel()
     val appPreferenceRepo: AppPreferenceRepo = koinInject()
-    val dataPlan by viewModel.planFlow.collectAsState(null)
+    val planPair by viewModel.planFlow.collectAsState(null)
     val topAppsList by viewModel.topApps.collectAsState()
     val listState = rememberLazyListState()
     val adsEnabled by appPreferenceRepo.ads.collectAsState(false)
@@ -225,7 +227,7 @@ private fun DataPlanInsights(contentPadding: PaddingValues) {
         state = listState
     ) {
         item{}
-        if (dataPlan != null && (dataPlan?.mainDataSize?.byteValue ?: 0) == 0L ) {
+        if (planPair != null && (planPair?.first?.mainDataSize?.byteValue ?: 0) == 0L ) {
             item {
                 InfoCard(
                     title = stringResource(R.string.hint),
@@ -235,7 +237,7 @@ private fun DataPlanInsights(contentPadding: PaddingValues) {
                 )
             }
         }
-        dataPlan?.let { plan ->
+        planPair?.let { (plan, snapshot) ->
             if (plan.note.isNotEmpty()) {
                 item(key = "note") {
                     Box(Modifier.animateItem()) {
@@ -249,7 +251,7 @@ private fun DataPlanInsights(contentPadding: PaddingValues) {
                 }
             }
             if (plan.mainDataSize.byteValue > 0) usageInsights()
-            extras(plan)
+            extras(snapshot)
             thisWeek()
             if (adsEnabled) item { Ad(AdType.NativeBanner, colorScheme.surface) }
             if (plan.mainDataSize.byteValue > 0) budgetInsights()
@@ -258,8 +260,8 @@ private fun DataPlanInsights(contentPadding: PaddingValues) {
     }
 }
 
-private fun LazyListScope.extras(plan: DataPlan) {
-    val activeExtras = plan.extras.filter { !it.expired }
+private fun LazyListScope.extras(snapshot: DataPlanSnapshot) {
+    val activeExtras = snapshot.extras.filter { !it.expired }
     if (activeExtras.isEmpty()) return
 
     item(key = "extras") {

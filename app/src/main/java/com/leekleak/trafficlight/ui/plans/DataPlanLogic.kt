@@ -3,6 +3,7 @@ package com.leekleak.trafficlight.ui.plans
 import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataPlan
+import com.leekleak.trafficlight.database.DataPlanSnapshot
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.database.UsageQuery
@@ -17,13 +18,13 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
-    suspend fun getSnapshot(dataPlan: DataPlan): DataPlan = dataPlan.getUsageSnapshot(networkUsageManager)
+    suspend fun getSnapshot(dataPlan: DataPlan): DataPlanSnapshot = dataPlan.getUsageSnapshot(networkUsageManager)
 
-    suspend fun getDataSafety(dataPlan: DataPlan): MiniCardState {
+    suspend fun getDataSafety(dataPlan: DataPlan, snapshot: DataPlanSnapshot): MiniCardState {
         val totalMax = dataPlan.getTotalMax()
         if (totalMax <= 0L) return MiniCardState.NEUTRAL
 
-        val totalUsed = dataPlan.getTotalUsage(networkUsageManager)
+        val totalUsed = snapshot.totalUsage
         val usageRatio = totalUsed.toDouble() / totalMax.toDouble()
         val startDate = dataPlan.getStartDate()
         val endDate = dataPlan.getStartDate(next = true)
@@ -38,7 +39,7 @@ class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
         }
     }
 
-    suspend fun getTrend(dataPlan: DataPlan): Int {
+    suspend fun getTrend(dataPlan: DataPlan, snapshot: DataPlanSnapshot): Int {
         val nowStamp = LocalDateTime.now().toTimestamp()
         val hourAverage24 = networkUsageManager
             .getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, dataPlan.decryptedID, DataType.Mobile)
@@ -55,15 +56,15 @@ class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
         return ((hourAverage24 / max(weekAverage, 1.0) - 1) * 100.0).roundToInt()
     }
 
-    suspend fun getRemainingDailyBudget(dataPlan: DataPlan): Long {
-        val planUsage = dataPlan.getTotalUsage(networkUsageManager)
+    suspend fun getRemainingDailyBudget(dataPlan: DataPlan, snapshot: DataPlanSnapshot): Long {
+        val planUsage = snapshot.totalUsage
         val remaining = max(dataPlan.getTotalMax() - planUsage, 0L)
         val dailyBudget = remaining / (dataPlan.getRemainingDuration().toDays() + 1)
         return dailyBudget
     }
 
-    suspend fun getRemainingDailyBudgetToday(dataPlan: DataPlan): Long {
-        val dailyBudget = getRemainingDailyBudget(dataPlan)
+    suspend fun getRemainingDailyBudgetToday(dataPlan: DataPlan, snapshot: DataPlanSnapshot): Long {
+        val dailyBudget = getRemainingDailyBudget(dataPlan, snapshot)
         if (dataPlan.interval == TimeInterval.DAY && dataPlan.intervalMultiplier == 1) return dailyBudget
         val todayUsage = networkUsageManager.totalDayUsage(
             query = UsageQuery(dataType = DataType.Mobile),
@@ -73,9 +74,9 @@ class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
         return remaining
     }
 
-    suspend fun getWeekUsage(dataPlan: DataPlan): List<BarData> = networkUsageManager.getWeekUsage(dataPlan.decryptedID, DataType.Mobile)
+    suspend fun getWeekUsage(dataPlan: DataPlan, snapshot: DataPlanSnapshot): List<BarData> = networkUsageManager.getWeekUsage(dataPlan.decryptedID, DataType.Mobile)
 
-    suspend fun getTopAppUsage(dataPlan: DataPlan): List<AppUsage> {
+    suspend fun getTopAppUsage(dataPlan: DataPlan, snapshot: DataPlanSnapshot): List<AppUsage> {
         val todayUsage = networkUsageManager.getAllAppUsage(
             startStamp = dataPlan.getStartDate().toTimestamp(),
             endStamp = LocalDate.now().toTimestamp(),

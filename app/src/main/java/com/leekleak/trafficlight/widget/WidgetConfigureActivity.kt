@@ -26,6 +26,7 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlanDao
+import com.leekleak.trafficlight.database.DataPlanSnapshot
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.plans.ConfiguredDataPlan
 import com.leekleak.trafficlight.ui.plans.UnconfiguredDataPlan
@@ -94,9 +95,9 @@ class WidgetConfigureActivity : ComponentActivity() {
                         finish()
                     }
                 }
-                val snapshot by produceState(it) { value = it.getUsageSnapshot(networkUsageManager) }
-                if (snapshot.configured) ConfiguredDataPlan(snapshot) { onSelect() }
-                else UnconfiguredDataPlan(snapshot) { onSelect() }
+                val snapshot by produceState(DataPlanSnapshot()) { value = it.getUsageSnapshot(networkUsageManager) }
+                if (it.configured) ConfiguredDataPlan(it, snapshot) { onSelect() }
+                else UnconfiguredDataPlan(it, snapshot) { onSelect() }
             }
         }
     }

@@ -25,6 +25,15 @@ import java.time.temporal.ChronoUnit
 import kotlin.math.min
 
 @Serializable
+data class DataPlanSnapshot(
+    val mainDataUsed: Long = 0,
+    val mainDataSizeUnit: DataSizeUnit = DataSizeUnit.GB,
+    val extras: List<DataPlanExtra> = emptyList()
+) {
+    val totalUsage: Long = mainDataUsed + extras.filter { !it.expired }.sumOf { it.dataUsed }
+}
+
+@Serializable
 @Entity
 data class DataPlan(
     @PrimaryKey
@@ -70,13 +79,6 @@ data class DataPlan(
     @Ignore
     @Transient
     private val mutex = Mutex()
-
-    /**
-     * Snapshots do not have a mutex and cannot be updated.
-     */
-    @Ignore
-    @Transient
-    var isSnapshot: Boolean = false
 
     @Ignore
     @Transient
@@ -153,7 +155,6 @@ data class DataPlan(
     }
 
     suspend fun updateUsage(networkUsageManager: NetworkUsageManager) = withContext(Dispatchers.Default) {
-        if (isSnapshot) return@withContext
         mutex.withLock {
         val now = LocalDateTime.now().toTimestamp()
 
@@ -235,22 +236,37 @@ data class DataPlan(
         return mainDataSize.byteValue + extras.filter { !it.expired }.sumOf { it.dataAmount.byteValue }
     }
 
-    suspend fun getTotalUsage(networkUsageManager: NetworkUsageManager): Long {
-        val snapshot = getUsageSnapshot(networkUsageManager)
-        return snapshot.mainDataUsed + snapshot.extras.filter { !it.expired }.sumOf { it.dataUsed }
-    }
-
-    suspend fun getUsageSnapshot(networkUsageManager: NetworkUsageManager): DataPlan {
+    suspend fun getUsageSnapshot(networkUsageManager: NetworkUsageManager): DataPlanSnapshot {
         updateUsage(networkUsageManager)
-        val snapshot = this.copy(extras = this.extras.map { it.copy() })
-        snapshot.isSnapshot = true
 
         val now = LocalDateTime.now().toTimestamp()
-        if (now > snapshot.lastUpdateStamp) {
-            val volatileUsage = snapshot.getFilteredUsage(networkUsageManager, snapshot.lastUpdateStamp, now, snapshot.decryptedID)
-            snapshot.distributeUsage(volatileUsage, snapshot.lastUpdateStamp, now)
+        var mainUsed = mainDataUsed
+        val snapshotExtras = extras.map { it.copy() }.toMutableList()
+
+        if (now > lastUpdateStamp) {
+            val volatileUsage = getFilteredUsage(networkUsageManager, lastUpdateStamp, now, decryptedID)
+            
+            var usageToDistribute = volatileUsage
+
+            val activeIndices = snapshotExtras.indices.filter { idx ->
+                val extra = snapshotExtras[idx]
+                extra.startStamp <= lastUpdateStamp && extra.expiryStamp >= now
+            }.sortedBy { snapshotExtras[it].expiryStamp }
+
+            for (idx in activeIndices) {
+                val extra = snapshotExtras[idx]
+                val used = min(extra.dataRemaining, usageToDistribute)
+                usageToDistribute -= used
+                snapshotExtras[idx] = extra.copy(dataUsed = extra.dataUsed + used)
+            }
+            mainUsed += usageToDistribute
         }
-        return snapshot
+
+        return DataPlanSnapshot(
+            mainDataUsed = mainUsed,
+            mainDataSizeUnit = mainDataSizeUnit,
+            extras = snapshotExtras
+        )
     }
 
     private suspend fun processInterval(networkUsageManager: NetworkUsageManager, start: Long, end: Long) {

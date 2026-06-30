@@ -86,7 +86,7 @@ class Widget: GlanceAppWidget() {
         val sizeMetric = appPreferenceRepo.sizeMetric.first()
         val usage = dataPlanSnapshot.mainDataUsed
         val usageSize = DataSize(usage).getAsUnit(dataPlanSnapshot.mainDataSizeUnit, sizeMetric)
-        val dataMax = dataPlanSnapshot.mainDataSize.getAsUnit(dataPlanSnapshot.mainDataSizeUnit, sizeMetric)
+        val dataMax = dataPlan.mainDataSize.getAsUnit(dataPlanSnapshot.mainDataSizeUnit, sizeMetric)
         val formatter = DecimalFormat("0.##")
 
         val usageString = formatter.format(usageSize)
@@ -101,7 +101,7 @@ class Widget: GlanceAppWidget() {
             if (
                 (mutable[LAST_USAGE] == usageString) &&
                 (mutable[LAST_MAX] == quotaString) &&
-                (mutable[BACKGROUND] == dataPlanSnapshot.uiBackground) &&
+                (mutable[BACKGROUND] == dataPlan.uiBackground) &&
                 (mutable[LAST_UNIT] == unitString) &&
                 (mutable[FORCE_REFRESH] != true)
             ) {
@@ -112,7 +112,7 @@ class Widget: GlanceAppWidget() {
                 mutable.apply {
                     this[LAST_USAGE] = usageString
                     this[LAST_MAX] = quotaString
-                    this[BACKGROUND] = dataPlanSnapshot.uiBackground
+                    this[BACKGROUND] = dataPlan.uiBackground
                     this[LAST_UNIT] = unitString
                     this[FORCE_REFRESH] = false
                 }
@@ -124,15 +124,15 @@ class Widget: GlanceAppWidget() {
         Timber.i("Updating widget")
         provideContent {
             GlanceTheme {
-                BoxBackground(dataPlanSnapshot, currentState(SIM_NUMBER) ?: 0, currentState(CARRIER_NAME) ?: "") {
-                    if (dataPlanSnapshot.configured) {
+                BoxBackground(dataPlan, currentState(SIM_NUMBER) ?: 0, currentState(CARRIER_NAME) ?: "") {
+                    if (dataPlan.configured) {
                         ConfiguredWidgetContent(
                             usageString = usageString,
                             quotaString = quotaString,
                             unitString = unitString,
                             progress = usageSize / max(dataMax, 1.0),
                             dataMax = dataMax,
-                            resetString = dataPlanSnapshot.resetString(context),
+                            resetString = dataPlan.resetString(context),
                         )
                     } else {
                         UnconfiguredWidgetContent(

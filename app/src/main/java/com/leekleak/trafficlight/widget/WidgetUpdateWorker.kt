@@ -65,9 +65,11 @@ class WidgetUpdateReceiver: BroadcastReceiver(), KoinComponent {
         val plans = dataPlanDao.getActivePlans()
         val updatedPlans = plans.map { plan ->
             var currentPlan = plan
+            val snapshot = plan.getUsageSnapshot(networkUsageManager)
             currentPlan.updateUsage(networkUsageManager)
+
             if (currentPlan.budgetWarning) {
-                val remainingBudget = dataPlanLogic.getRemainingDailyBudgetToday(currentPlan)
+                val remainingBudget = dataPlanLogic.getRemainingDailyBudgetToday(currentPlan, snapshot)
                 if (remainingBudget <= 0L && !currentPlan.budgetOvershotNotified) {
                     WarningNotificationHelper.showBudgetWarning(context, currentPlan)
                     currentPlan = currentPlan.copy(budgetOvershotNotified = true)
@@ -77,7 +79,7 @@ class WidgetUpdateReceiver: BroadcastReceiver(), KoinComponent {
             }
 
             if (currentPlan.safetyWarning) {
-                val safetyState = dataPlanLogic.getDataSafety(currentPlan)
+                val safetyState = dataPlanLogic.getDataSafety(currentPlan, snapshot)
                 val stateInt = safetyState.ordinal
                 if (currentPlan.lastSafetyState != stateInt) {
                     WarningNotificationHelper.showSafetyWarning(context, currentPlan, safetyState)

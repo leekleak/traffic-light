@@ -21,24 +21,24 @@ class DataPlansVM(val dataPlansLogic: DataPlanLogic): ViewModel() {
     fun selectDataPlan(dataPlan: DataPlan?) = selectedDataPlan.tryEmit(dataPlan)
 
     val planFlow = combine(selectedDataPlan, refreshTrigger) { plan, _ ->
-        plan?.let { dataPlansLogic.getSnapshot(it) }
+        plan?.let { it to dataPlansLogic.getSnapshot(it) }
     }.filterNotNull().shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), replay = 1)
 
-    val dataSafety = planFlow.map { dataPlansLogic.getDataSafety(it) }
+    val dataSafety = planFlow.map { (plan, snapshot) -> dataPlansLogic.getDataSafety(plan, snapshot) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MiniCardState.NEUTRAL)
 
-    val trend = planFlow.map { dataPlansLogic.getTrend(it) }.distinctUntilChanged()
+    val trend = planFlow.map { (plan, snapshot) -> dataPlansLogic.getTrend(plan, snapshot) }.distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    val todayBudget = planFlow.map { dataPlansLogic.getRemainingDailyBudgetToday(it) }
+    val todayBudget = planFlow.map { (plan, snapshot) -> dataPlansLogic.getRemainingDailyBudgetToday(plan, snapshot) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    val remainingDailyBudget = planFlow.map { dataPlansLogic.getRemainingDailyBudget(it) }
+    val remainingDailyBudget = planFlow.map { (plan, snapshot) -> dataPlansLogic.getRemainingDailyBudget(plan, snapshot) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    val weekUsage = planFlow.map { dataPlansLogic.getWeekUsage(it) }
+    val weekUsage = planFlow.map { (plan, snapshot) -> dataPlansLogic.getWeekUsage(plan, snapshot) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val topApps = planFlow.map { dataPlansLogic.getTopAppUsage(it) }
+    val topApps = planFlow.map { (plan, snapshot) -> dataPlansLogic.getTopAppUsage(plan, snapshot) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 }
