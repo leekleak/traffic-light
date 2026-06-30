@@ -171,7 +171,6 @@ import org.koin.compose.koinInject
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import kotlin.math.E
 import kotlin.math.max
@@ -195,12 +194,19 @@ fun DataPlanConfig(currentPlan: DataPlan) {
     val activity = LocalActivity.current
 
     var newPlan by remember(currentPlan) { mutableStateOf(currentPlan.copy()) }
+    var volatileMain by remember { mutableLongStateOf(0L) }
+    var volatileExtras by remember { mutableStateOf(mapOf<String, Long>()) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.Default) {
-            val snapshot = newPlan.getUsageSnapshot(networkUsageManager)
-            newPlan = newPlan.copy(
+            val planToCalculate = newPlan.copy()
+            val snapshot = planToCalculate.getUsageSnapshot(networkUsageManager)
+            
+            volatileMain = snapshot.mainDataUsed - planToCalculate.mainDataUsed
+            volatileExtras = snapshot.extras.associate { it.id to (it.dataUsed - (planToCalculate.extras.find { e -> e.id == it.id }?.dataUsed ?: 0L)) }
+            
+            newPlan = planToCalculate.copy(
                 mainDataUsed = snapshot.mainDataUsed,
                 extras = snapshot.extras
             )
@@ -221,6 +227,10 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                 planToCalculate.extras = planToCalculate.extras.map { it.copy(dataUsed = 0) }
 
                 val snapshot = planToCalculate.getUsageSnapshot(networkUsageManager)
+                
+                volatileMain = snapshot.mainDataUsed - planToCalculate.mainDataUsed
+                volatileExtras = snapshot.extras.associate { it.id to (it.dataUsed - (planToCalculate.extras.find { e -> e.id == it.id }?.dataUsed ?: 0L)) }
+                
                 newPlan = planToCalculate.copy(
                     mainDataUsed = snapshot.mainDataUsed,
                     extras = snapshot.extras
@@ -298,10 +308,9 @@ fun DataPlanConfig(currentPlan: DataPlan) {
 
                     Button(onClick = {
                         scope.launch(Dispatchers.IO) {
-                            val volatile = newPlan.calculateVolatileUsage(networkUsageManager)
                             val planToSave = newPlan.copy(
-                                lastUpdateStamp = LocalDateTime.now().toTimestamp(),
-                                mainDataUsed = max(0L, newPlan.mainDataUsed - volatile),
+                                mainDataUsed = newPlan.mainDataUsed - volatileMain,
+                                extras = newPlan.extras.map { it.copy(dataUsed = it.dataUsed - (volatileExtras[it.id] ?: 0L)) },
                                 lastSafetyState = -1,
                                 budgetOvershotNotified = false,
                                 configured = true
@@ -359,6 +368,7 @@ fun DataPlanConfig(currentPlan: DataPlan) {
                     newPlan = newPlan.copy(
                         mainDataUsed = it,
                     )
+                    volatileMain = 0L
                 },
                 enabled = !currentPlan.configured
             ) {

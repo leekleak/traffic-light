@@ -18,7 +18,6 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import timber.log.Timber
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -236,12 +235,12 @@ data class DataPlan(
         updateUsage(networkUsageManager)
 
         val now = LocalDateTime.now().toTimestamp()
+        val tomorrow = LocalDate.now().plusDays(1).atStartOfDay().toTimestamp()
         var mainUsed = mainDataUsed
         val snapshotExtras = extras.map { it.copy() }.toMutableList()
 
         if (now > lastUpdateStamp) {
-            val volatileUsage = getFilteredUsage(networkUsageManager, lastUpdateStamp, now, decryptedID)
-            Timber.e(volatileUsage.toString())
+            val volatileUsage = getFilteredUsage(networkUsageManager, lastUpdateStamp, tomorrow, decryptedID)
             
             var usageToDistribute = volatileUsage
 
@@ -318,12 +317,6 @@ data class DataPlan(
     private suspend fun getFilteredUsage(networkUsageManager: NetworkUsageManager, start: Long, end: Long, id: String?): Long {
         val usageData = networkUsageManager.getNetworkDataForType(start, end, id, DataType.Mobile)
         return usageData.filter { !excludedApps.contains(it.uid) }.sumOf { it.total }
-    }
-
-    suspend fun calculateVolatileUsage(networkUsageManager: NetworkUsageManager): Long {
-        val now = LocalDateTime.now().toTimestamp()
-        if (now <= lastUpdateStamp) return 0L
-        return getFilteredUsage(networkUsageManager, lastUpdateStamp, now, decryptedID)
     }
 
     companion object {
