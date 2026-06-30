@@ -66,7 +66,6 @@ class WidgetUpdateReceiver: BroadcastReceiver(), KoinComponent {
         val updatedPlans = plans.map { plan ->
             var currentPlan = plan
             val snapshot = plan.getUsageSnapshot(networkUsageManager)
-            currentPlan.updateUsage(networkUsageManager)
 
             if (currentPlan.budgetWarning) {
                 val remainingBudget = dataPlanLogic.getRemainingDailyBudgetToday(currentPlan, snapshot)

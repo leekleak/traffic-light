@@ -46,7 +46,7 @@
     <string name="appearance">Appearance</string>
     <string name="behavior">Behavior</string>
     <string name="alt_vpn_workaround">Alternate VPN workaround</string>
-    <string name="alt_vpn_workaround_description">Improves accuracy but breaks split tunneling.</string>
+    <string name="alt_vpn_workaround_description">Better accuracy but will not work when split tunneling.</string>
     <string name="donate">Donate</string>
     <string name="shizuku_not_running">Shizuku is not running</string>
     <string name="sim_card">SIM card</string>

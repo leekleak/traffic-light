@@ -3,12 +3,16 @@ package com.leekleak.trafficlight.ui.settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -103,23 +108,30 @@ fun LibraryLicenseScreen(paddingValues: PaddingValues) {
                         style = MaterialTheme.typography.titleMedium,
                         fontFamily = fontHeavy
                     )
-                    Row (horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Row (
+                        modifier = Modifier.padding(top = 4.dp).height(IntrinsicSize.Min),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
                         lib.artifactVersion?.let {
-                            Text(
-                                modifier = Modifier.padding(top = 4.dp)
+                            Box(
+                                modifier = Modifier.fillMaxHeight()
                                     .clip(MaterialTheme.shapes.small)
                                     .background(MaterialTheme.colorScheme.primary)
                                     .padding(vertical = 4.dp, horizontal = 8.dp),
-                                text = it,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                fontFamily = googleSans(),
-                            )
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = it,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    fontFamily = googleSans(),
+                                )
+                            }
                         }
 
                         lib.licenses.forEach { license ->
                             Text(
-                                modifier = Modifier.padding(top = 4.dp)
+                                modifier = Modifier
                                     .clip(MaterialTheme.shapes.small)
                                     .background(MaterialTheme.colorScheme.secondary)
                                     .padding(vertical = 4.dp, horizontal = 8.dp),
