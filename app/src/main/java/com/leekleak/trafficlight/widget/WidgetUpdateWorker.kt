@@ -53,8 +53,12 @@ class WidgetUpdateReceiver: BroadcastReceiver(), KoinComponent {
             try {
                 Widget().updateAll(context)
                 checkWarnings(context)
-            } catch (e: Exception) {
-                Timber.e(e)
+            } catch (e: IllegalArgumentException) {
+                Timber.e(e, "Failed to update all widgets: invalid ID or mismatch")
+            } catch (e: IllegalStateException) {
+                Timber.e(e, "Failed to update all widgets: invalid state")
+            } catch (e: java.io.IOException) {
+                Timber.e(e, "Failed to update all widgets: IO error")
             } finally {
                 pendingResult.finish()
             }

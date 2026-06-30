@@ -76,8 +76,12 @@ class TrafficSnapshot (
         if (useFallback) {
             try {
                 fallbackUpdateSnapshot()
-            } catch (e: Exception) {
-                Timber.e("Fallback unsupported: $e")
+            } catch (e: java.io.IOException) {
+                Timber.e(e, "Fallback IO error")
+                scope.launch { appPreferenceRepo.setForceFallback(false) }
+                useFallback = false
+            } catch (e: NumberFormatException) {
+                Timber.e(e, "Fallback number format error")
                 scope.launch { appPreferenceRepo.setForceFallback(false) }
                 useFallback = false
             }

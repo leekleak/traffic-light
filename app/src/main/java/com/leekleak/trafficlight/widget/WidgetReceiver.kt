@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import timber.log.Timber
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
@@ -56,7 +57,13 @@ class WidgetReceiver: GlanceAppWidgetReceiver(), KoinComponent {
                     if (prefs[SUBSCRIBER_ID_HASH] != null) {
                         glanceAppWidget.update(context, glanceId)
                     }
-                } catch (_: Exception) { }
+                } catch (e: IllegalArgumentException) {
+                    Timber.e(e, "Failed to update widget: invalid ID or mismatch")
+                } catch (e: IllegalStateException) {
+                    Timber.e(e, "Failed to update widget: invalid state")
+                } catch (e: java.io.IOException) {
+                    Timber.e(e, "Failed to update widget: IO error")
+                }
             }
             pendingResult.finish()
         }
@@ -77,7 +84,7 @@ class WidgetReceiver: GlanceAppWidgetReceiver(), KoinComponent {
     }
 
     override fun onDisabled(context: Context?) {
-        registered.exchange(false)
+        context?.let { unregisterReceiver(it) }
         super.onDisabled(context)
     }
 
@@ -87,6 +94,16 @@ class WidgetReceiver: GlanceAppWidgetReceiver(), KoinComponent {
             addAction(ACTION_SCREEN_ON)
             addAction(ACTION_SCREEN_OFF)
         })
+    }
+
+    fun unregisterReceiver(context: Context) {
+        if (!registered.load()) return
+        try {
+            context.applicationContext.unregisterReceiver(this)
+            registered.store(false)
+        } catch (e: IllegalArgumentException) {
+            Timber.e(e, "WidgetReceiver not registered")
+        }
     }
 
     companion object {

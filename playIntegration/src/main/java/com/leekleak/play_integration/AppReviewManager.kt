@@ -7,6 +7,7 @@ import com.google.android.play.core.ktx.requestReview
 import com.google.android.play.core.review.ReviewManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.seconds
 
 class AppReviewManager(
@@ -32,6 +33,7 @@ class AppReviewManager(
             reviewManager.launchReview(activity, reviewInfo)
             preferenceRepo.setReviewPromptStamp(-1)
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Log.e("ReviewManager", "Review flow failed: ${e.message}")
         }
     }

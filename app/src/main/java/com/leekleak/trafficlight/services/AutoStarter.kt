@@ -24,8 +24,10 @@ class AutoStarter : BroadcastReceiver(), KoinComponent {
                     permissionManager.update()
                     NotificationService.startService(context, this)
                     startAlarmManager(context)
-                } catch (e: Exception) {
-                    Timber.e(e)
+                } catch (e: SecurityException) {
+                    Timber.e(e, "Failed to start service or alarm")
+                } catch (e: IllegalStateException) {
+                    Timber.e(e, "Background execution limits prevented service start")
                 } finally {
                     pendingResult.finish()
                 }

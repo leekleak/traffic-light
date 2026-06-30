@@ -108,8 +108,10 @@ class NotificationService : LifecycleService() {
                 firstNotification.startForeground(this)
                 firstNotification.start()
                 foregroundNotification = firstNotification
-            } catch (e: Exception) {
-                Timber.e("Failed to start foreground service: $e")
+            } catch (e: SecurityException) {
+                Timber.e(e, "Failed to start foreground service due to permissions")
+            } catch (e: IllegalStateException) {
+                Timber.e(e, "Failed to start foreground service due to state")
             }
         } else if (foregroundNotification != null) {
             stopForeground(STOP_FOREGROUND_REMOVE)
@@ -120,10 +122,12 @@ class NotificationService : LifecycleService() {
     companion object {
         fun startService(context: Context, scope: CoroutineScope) {
             scope.launch {
-                runCatching {
+                try {
                     context.startService(Intent(context, NotificationService::class.java))
-                }.onFailure {
-                    Timber.e(it)
+                } catch (e: SecurityException) {
+                    Timber.e(e, "Failed to start NotificationService due to permissions")
+                } catch (e: IllegalStateException) {
+                    Timber.e(e, "Failed to start NotificationService due to background limits")
                 }
             }
         }

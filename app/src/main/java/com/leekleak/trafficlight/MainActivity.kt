@@ -39,14 +39,14 @@ class MainActivity : ComponentActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             lifecycleScope.launch {
                 delay(1.seconds) // Apparently if you refresh previews too soon on app launch they'll be ignored
-                GlanceAppWidgetManager(this@MainActivity).setWidgetPreviews<WidgetReceiver>()
+                GlanceAppWidgetManager(applicationContext).setWidgetPreviews<WidgetReceiver>()
             }
         }
 
         lifecycleScope.launch {
             dataPlanDao.getActivePlansWithNotificationsFlow().combine(appPreferenceRepo.notification) { _, _ ->
             }.collectLatest {
-                NotificationService.startService(this@MainActivity, this)
+                NotificationService.startService(applicationContext, this)
             }
         }
 

@@ -29,8 +29,8 @@ abstract class PersistentNotification(
         scope.cancel()
         try {
             notificationManager.cancel(notificationId)
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to cancel notification $notificationId")
+        } catch (e: SecurityException) {
+            Timber.e(e, "SecurityException while cancelling notification $notificationId")
         }
     }
     fun startForeground(service: LifecycleService) {
@@ -52,8 +52,8 @@ abstract class PersistentNotification(
     internal fun notifySafely(id: Int, notification: Notification) {
         try {
             notificationManager.notify(id, notification)
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to notify $id")
+        } catch (e: SecurityException) {
+            Timber.e(e, "SecurityException while notifying $id")
         }
     }
     abstract fun screenStateChange(on: Boolean)

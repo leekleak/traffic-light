@@ -7,7 +7,7 @@ import org.koin.dsl.module
 
 val integrationsModule = module {
     includes(playModule)
-    single<PlayServicesProvider> { PlayServicesProviderImpl(get(), get(), get()) }
+    single<PlayServicesProvider> { PlayServicesProviderImpl(get(), get(), get(), get()) }
     single<ShizukuServicesProvider> {
         val dataPlanRepository: DataPlanRepository = get()
         object : ShizukuServicesProvider {

@@ -173,8 +173,8 @@ class HistoryVM(
         launchIntent?.let {
             try {
                 activity?.startActivity(it)
-            } catch (e: Exception) {
-                Timber.e(e)
+            } catch (e: android.content.ActivityNotFoundException) {
+                Timber.e(e, "App not found for launch intent")
             }
         }
     }
