@@ -681,8 +681,8 @@ private fun LazyListScope.typeConfig(
                         )
                         HorizontalDivider()
                         SwitchPreference(
-                            title = stringResource(R.string.recursion),
-                            summary = stringResource(R.string.recursion_description),
+                            title = stringResource(R.string.rollover),
+                            summary = stringResource(R.string.rollover_description),
                             icon = painterResource(R.drawable.repeat),
                             value = plan.recurring,
                             enabled = enabled,
@@ -778,18 +778,8 @@ private fun LazyListScope.typeConfig(
                         }
                         Button(
                             onClick = {
-                                val oldUnit = displayUnit
                                 displayUnit = if (displayUnit == DataSizeUnit.GB) DataSizeUnit.MB else DataSizeUnit.GB
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-
-                                val text = textFieldState.text.toString()
-                                val parsed = try { numberFormat.parse(text)?.toDouble() } catch (_: Exception) { null }
-                                if (parsed != null) {
-                                    val base = if (metric) 1000.0 else 1024.0
-                                    val bits = parsed * oldUnit.toBits(base)
-                                    val newValue = bits / displayUnit.toBits(base)
-                                    textFieldState.setTextAndPlaceCursorAtEnd(formatter.format(newValue))
-                                }
                             },
                             enabled = enabled,
                             shape = MaterialTheme.shapes.medium,
