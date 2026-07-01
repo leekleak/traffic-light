@@ -54,8 +54,8 @@ class PlanNotification(
 
     private suspend fun updateNotification() {
         val snapshot = dataPlan.getUsageSnapshot(networkUsageManager)
-        val dataSize = DataSize(snapshot.totalUsage)
-        val dataSizeMax = DataSize(dataPlan.getTotalMax())
+        val dataSize = DataSize(snapshot.mainDataUsed)
+        val dataSizeMax = dataPlan.mainDataSize
         val progress = if (dataSizeMax.byteValue != 0L) dataSize.byteValue.toDouble() / dataSizeMax.byteValue.toDouble() else 0.0
 
         val data = dataSize.toString(metric = sizeMetric)

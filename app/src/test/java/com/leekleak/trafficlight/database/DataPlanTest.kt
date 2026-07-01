@@ -246,41 +246,9 @@ class DataPlanTest {
             UsageData(upload = 200L, download = 300L)
         )
 
-        val totalUsage = plan.getUsageSnapshot(networkUsageManager).totalUsage
+        val totalUsage = plan.getUsageSnapshot(networkUsageManager).mainDataUsed
 
         assertEquals("Volatile usage not included", 1500L, totalUsage)
-    }
-
-    @Test
-    fun `getTotalUsage correctly handles expired extras by excluding them from both used and max`() = runTest {
-        val now = LocalDateTime.of(2023, 10, 15, 12, 0)
-        setCurrentTime(now)
-
-        val startStamp = LocalDate.of(2023, 10, 1).atStartOfDay().toTimestamp()
-        val extra1 = DataPlanExtra(dataAmount = DataSize(1000L), dataUsed = 1000L, startStamp = startStamp, expiryStamp = now.minusDays(1).toTimestamp(), expired = true)
-        
-        val plan = DataPlan(
-            hashedSubscriberID = "hash",
-            encryptedSubscriberID = "enc",
-            startDate = startStamp,
-            mainDataSize = DataSize(5000L),
-            mainDataUsed = 500L,
-            mainStartStamp = startStamp,
-            mainExpiryStamp = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp(),
-            extras = listOf(extra1),
-            lastUpdateStamp = now.minusHours(1).toTimestamp()
-        )
-
-        val mockStats = mockk<NetworkStats>(relaxed = true)
-        coEvery { networkUsageManager.queryDetails(any(), any(), any(), any()) } returns mockStats
-        every { mockStats.hasNextBucket() } returns false
-        coEvery { networkUsageManager.getNetworkDataForType(any(), any(), any(), any()) } returns emptyList()
-
-        val totalUsage = plan.getUsageSnapshot(networkUsageManager).totalUsage
-        val totalMax = plan.getTotalMax()
-
-        assertEquals("Usage should exclude expired extras", 500L, totalUsage)
-        assertEquals("Max should exclude expired extras", 5000L, totalMax)
     }
 
     @Test
@@ -322,24 +290,6 @@ class DataPlanTest {
         
         assertEquals("Sooner extra mismatch", 1000L, sooner.dataUsed)
         assertEquals("Later extra mismatch", 500L, later.dataUsed)
-    }
-
-    @Test
-    fun `getTotalMax sums main plan and active extras`() {
-        val plan = DataPlan(
-            hashedSubscriberID = "hash",
-            encryptedSubscriberID = "enc",
-            mainDataSize = DataSize(5000L),
-            mainDataUsed = 0L,
-            mainStartStamp = 0L,
-            mainExpiryStamp = 0L,
-            extras = listOf(
-                DataPlanExtra(dataAmount = DataSize(1000L), dataUsed = 0L, startStamp = 0L, expiryStamp = 0L, expired = false),
-                DataPlanExtra(dataAmount = DataSize(2000L), dataUsed = 0L, startStamp = 0L, expiryStamp = 0L, expired = true)
-            )
-        )
-
-        assertEquals("Total max sum mismatch", 6000L, plan.getTotalMax())
     }
 
     @Test

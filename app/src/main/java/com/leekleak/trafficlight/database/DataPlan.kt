@@ -22,6 +22,7 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.min
 
 @Serializable
@@ -29,9 +30,7 @@ data class DataPlanSnapshot(
     val mainDataUsed: Long = 0,
     val mainDataSizeUnit: DataSizeUnit = DataSizeUnit.GB,
     val extras: List<DataPlanExtra> = emptyList()
-) {
-    val totalUsage: Long = mainDataUsed + extras.filter { !it.expired }.sumOf { it.dataUsed }
-}
+)
 
 @Serializable
 @Entity
@@ -76,10 +75,6 @@ data class DataPlan(
     @ColumnInfo val uiColor: Int = 0,
     @ColumnInfo val note: String = "",
 ) {
-    @Ignore
-    @Transient
-    private val mutex = Mutex()
-
     @Ignore
     @Transient
     private var _decryptedID: String? = null
@@ -155,7 +150,7 @@ data class DataPlan(
     }
 
     suspend fun updateUsage(networkUsageManager: NetworkUsageManager): Long = withContext(Dispatchers.Default) {
-        mutex.withLock {
+        mutexes.computeIfAbsent(hashedSubscriberID) { Mutex() }.withLock {
         val now = LocalDateTime.now().toTimestamp()
 
         val currentStart = getStartDate(false).toTimestamp()
@@ -228,10 +223,6 @@ data class DataPlan(
         }
     }
 
-    fun getTotalMax(): Long {
-        return mainDataSize.byteValue + extras.filter { !it.expired }.sumOf { it.dataAmount.byteValue }
-    }
-
     suspend fun getUsageSnapshot(networkUsageManager: NetworkUsageManager): DataPlanSnapshot {
         updateUsage(networkUsageManager)
 
@@ -284,6 +275,7 @@ data class DataPlan(
                     )
                 }
             }
+            extras = extras.filter { it.expiryStamp > mainExpiryStamp }
             mainDataUsed = 0
             mainStartStamp = mainExpiryStamp
             mainExpiryStamp = nextExpiry
@@ -322,5 +314,6 @@ data class DataPlan(
 
     companion object {
         const val NULL_SUBSCRIBER = "__shizuku_disabled_sim_fallback__"
+        private val mutexes = ConcurrentHashMap<String, Mutex>()
     }
 }

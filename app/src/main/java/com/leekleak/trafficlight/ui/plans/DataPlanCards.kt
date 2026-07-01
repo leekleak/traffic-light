@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.sp
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanSnapshot
-import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.trafficlight.ui.theme.carrierFont
 import com.leekleak.trafficlight.ui.theme.doHyeonFont
@@ -51,7 +50,6 @@ import com.leekleak.trafficlight.ui.theme.googleSansEmphasized
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.LocalSizeMetric
 import com.leekleak.trafficlight.util.simIconRes
-import org.koin.compose.koinInject
 import java.text.DecimalFormat
 
 @Composable
@@ -72,12 +70,11 @@ fun ConfiguredDataPlan(plan: DataPlan, planSnapshot: DataPlanSnapshot, onConfigu
 @Composable
 fun UnconfiguredDataPlan(plan: DataPlan, planSnapshot: DataPlanSnapshot, onConfigure: () -> Unit) {
     val haptic = LocalHapticFeedback.current
-    val networkUsageManager: NetworkUsageManager = koinInject()
     val fontFamilyGoogleSans = remember { googleSansEmphasized() }
     val fontFamilyDoHyeon = remember { doHyeonFont() }
 
     val metric = LocalSizeMetric.current
-    val usage = DataSize(planSnapshot.totalUsage).getAsUnit(planSnapshot.mainDataSizeUnit, metric)
+    val usage = DataSize(planSnapshot.mainDataUsed).getAsUnit(planSnapshot.mainDataSizeUnit, metric)
     val formatter = remember { DecimalFormat("0.##") }
     BoxBackground(
         dataPlan = plan,

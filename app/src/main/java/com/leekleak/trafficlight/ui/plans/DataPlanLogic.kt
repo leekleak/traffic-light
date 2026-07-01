@@ -21,11 +21,10 @@ class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
     suspend fun getSnapshot(dataPlan: DataPlan): DataPlanSnapshot = dataPlan.getUsageSnapshot(networkUsageManager)
 
     fun getDataSafety(dataPlan: DataPlan, snapshot: DataPlanSnapshot): MiniCardState {
-        val totalMax = dataPlan.getTotalMax()
+        val totalMax = dataPlan.mainDataSize.byteValue
         if (totalMax <= 0L) return MiniCardState.NEUTRAL
 
-        val totalUsed = snapshot.totalUsage
-        val usageRatio = totalUsed.toDouble() / totalMax.toDouble()
+        val usageRatio = snapshot.mainDataUsed.toDouble() / totalMax.toDouble()
         val startDate = dataPlan.getStartDate()
         val endDate = dataPlan.getStartDate(next = true)
         val timeRatio = Duration.between(startDate, LocalDateTime.now()).seconds.toDouble() / Duration.between(startDate, endDate).seconds.toDouble()
@@ -56,9 +55,8 @@ class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
         return ((hourAverage24 / max(weekAverage, 1.0) - 1) * 100.0).roundToInt()
     }
 
-    suspend fun getRemainingDailyBudget(dataPlan: DataPlan, snapshot: DataPlanSnapshot): Long {
-        val planUsage = snapshot.totalUsage
-        val remaining = max(dataPlan.getTotalMax() - planUsage, 0L)
+    fun getRemainingDailyBudget(dataPlan: DataPlan, snapshot: DataPlanSnapshot): Long {
+        val remaining = max(dataPlan.mainDataSize.byteValue - snapshot.mainDataUsed, 0L)
         val dailyBudget = remaining / (dataPlan.getRemainingDuration().toDays() + 1)
         return dailyBudget
     }
