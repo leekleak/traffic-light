@@ -7,7 +7,7 @@ import com.leekleak.trafficlight.database.DataPlanSnapshot
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.database.UsageQuery
-import com.leekleak.trafficlight.model.DataUIDApp
+import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.MiniCardState
 import com.leekleak.trafficlight.util.toTimestamp
@@ -85,6 +85,6 @@ class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
             query2 = UsageQuery(DataType.None),
             subscriberId = dataPlan.decryptedID
         )
-        return todayUsage.filter { !dataPlan.excludedApps.contains(it.app.uid) && it.app is DataUIDApp }.take(3)
+        return todayUsage.filter { it.app != allApp }.take(3)
     }
 }
