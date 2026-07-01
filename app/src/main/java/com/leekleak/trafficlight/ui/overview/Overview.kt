@@ -11,7 +11,6 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -30,7 +29,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -63,7 +61,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -80,30 +77,23 @@ import com.leekleak.trafficlight.ui.theme.googleSans
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.EqualHeightRow
+import com.leekleak.trafficlight.util.HazeScaffold
 import com.leekleak.trafficlight.util.MiniCard
 import com.leekleak.trafficlight.util.MiniCardState
-import com.leekleak.trafficlight.util.PageTitle
 import com.leekleak.trafficlight.util.TrendCard
 import com.leekleak.trafficlight.util.formattedParts
 import com.leekleak.trafficlight.util.iconToggleButton
 import com.leekleak.trafficlight.util.px
-import dev.chrisbanes.haze.hazeSource
-import dev.chrisbanes.haze.rememberHazeState
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
 
 @Composable
-fun Overview(
-    paddingValues: PaddingValues,
-) {
+fun Overview(paddingValues: PaddingValues) {
     val viewModel: OverviewVM = koinViewModel()
     val navigator: Navigator = koinInject()
     val haptic = LocalHapticFeedback.current
-
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
-
-    val hazeState = rememberHazeState()
     val scrollState = rememberScrollState()
 
     LifecycleResumeEffect(Unit) {
@@ -111,33 +101,32 @@ fun Overview(
         onPauseOrDispose {}
     }
 
-    val paddingSide = paddingValues.calculateLeftPadding(LayoutDirection.Ltr)
-    val paddingTop = paddingValues.calculateTopPadding()
-    val paddingBottom = paddingValues.calculateBottomPadding()
-
-    Column(
-        modifier = Modifier
-            .background(colorScheme.surface)
-            .fillMaxSize()
-            .hazeSource(hazeState)
-            .padding(horizontal = paddingSide)
-            .verticalScroll(scrollState),
+    HazeScaffold(
+        title = stringResource(R.string.today),
+        paddingValues = paddingValues,
         verticalArrangement = Arrangement.spacedBy(8.dp),
+        actions = {
+            IconButton(
+                modifier = Modifier.align(Alignment.CenterEnd),
+                onClick = {
+                    navigator.goTo(SettingsKey)
+                    haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                }
+            ) {
+                Icon(painterResource(R.drawable.settings), contentDescription = stringResource(R.string.settings))
+            }
+        }
     ) {
-        Box(Modifier.height(paddingTop - 8.dp))
         if (windowSizeClass.isWidthAtLeastBreakpoint(400)) {
-            EqualHeightRow (
-                modifier = Modifier
-                    .padding(horizontal = 16.dp),
+            EqualHeightRow(
+                modifier = Modifier.padding(horizontal = 16.dp),
                 first = {
-                    Column (Modifier
-                        .weight(1f)
-                        .fillMaxHeight(), verticalArrangement = Arrangement.SpaceBetween) {
+                    Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.SpaceBetween) {
                         HeroItems(scrollState)
                     }
                 },
                 second = {
-                    Column (Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         OverviewItems()
                     }
                 },
@@ -146,21 +135,6 @@ fun Overview(
         } else {
             HeroItems(scrollState)
             OverviewItems()
-        }
-        Box(Modifier.height(paddingBottom - 8.dp))
-    }
-    PageTitle(false, hazeState, stringResource(R.string.today)) {
-        IconButton(
-            modifier = Modifier.align(Alignment.CenterEnd),
-            onClick = {
-                navigator.goTo(SettingsKey)
-                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-            }
-        ) {
-            Icon(
-                painterResource(R.drawable.settings),
-                contentDescription = stringResource(R.string.settings)
-            )
         }
     }
 }

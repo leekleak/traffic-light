@@ -55,7 +55,7 @@ import com.leekleak.trafficlight.ui.overview.Overview
 import com.leekleak.trafficlight.ui.plans.DataPlanConfig
 import com.leekleak.trafficlight.ui.plans.DataPlans
 import com.leekleak.trafficlight.ui.settings.LibraryLicenseScreen
-import com.leekleak.trafficlight.ui.settings.NotificationSettings
+import com.leekleak.trafficlight.ui.settings.NotificationSettingsScreen
 import com.leekleak.trafficlight.ui.settings.Settings
 import com.leekleak.trafficlight.ui.settings.UsagePermissionRequest
 import com.leekleak.trafficlight.util.TOP_BAR_HEIGHT
@@ -136,7 +136,7 @@ fun NavigationManager() {
 
                 entry<UsagePermissionRequestKey> { UsagePermissionRequest(paddingValues) }
                 entry<PlanConfigKey> { DataPlanConfig(it.dataPlan) }
-                entry<NotificationSettingsKey> { NotificationSettings(paddingValues) }
+                entry<NotificationSettingsKey> { NotificationSettingsScreen(paddingValues) }
                 entry<LibraryLicenseScreen> { LibraryLicenseScreen(paddingValues) }
             },
             transitionSpec = {

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
@@ -36,17 +37,14 @@ import androidx.compose.ui.unit.dp
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.googleSans
-import com.leekleak.trafficlight.util.PageTitle
+import com.leekleak.trafficlight.util.HazeScaffold
 import com.mikepenz.aboutlibraries.entity.Library
 import com.mikepenz.aboutlibraries.ui.compose.android.produceLibraries
-import dev.chrisbanes.haze.hazeSource
-import dev.chrisbanes.haze.rememberHazeState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryLicenseScreen(paddingValues: PaddingValues) {
     val haptic = LocalHapticFeedback.current
-    val hazeState = rememberHazeState()
     val libraries by produceLibraries(R.raw.aboutlibraries)
 
     var selectedLib: Library? by remember { mutableStateOf(null) }
@@ -55,6 +53,74 @@ fun LibraryLicenseScreen(paddingValues: PaddingValues) {
 
     val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
+    HazeScaffold(
+        title = stringResource(R.string.licenses),
+        backButton = true,
+        paddingValues = null,
+        scrollState = null,
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().weight(1f),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = paddingValues
+        ) {
+            item {  }
+            libraries?.let { libs ->
+                items(libs.libraries) { lib ->
+                    Column (
+                        Modifier
+                            .fillMaxWidth()
+                            .card()
+                            .clickable {
+                                selectedLib = lib
+                                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                            }
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = lib.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontFamily = fontHeavy
+                        )
+                        Row (
+                            modifier = Modifier.padding(top = 4.dp).height(IntrinsicSize.Min),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            lib.artifactVersion?.let {
+                                Box(
+                                    modifier = Modifier.fillMaxHeight()
+                                        .clip(MaterialTheme.shapes.small)
+                                        .background(MaterialTheme.colorScheme.primary)
+                                        .padding(vertical = 4.dp, horizontal = 8.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = it,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onPrimary,
+                                        fontFamily = googleSans(),
+                                    )
+                                }
+                            }
+
+                            lib.licenses.forEach { license ->
+                                Text(
+                                    modifier = Modifier
+                                        .clip(MaterialTheme.shapes.small)
+                                        .background(MaterialTheme.colorScheme.secondary)
+                                        .padding(vertical = 4.dp, horizontal = 8.dp),
+                                    text = license.name,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSecondary,
+                                    fontFamily = googleSans(),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     if (selectedLib != null) {
         ModalBottomSheet(
             onDismissRequest = { selectedLib = null },
@@ -82,70 +148,4 @@ fun LibraryLicenseScreen(paddingValues: PaddingValues) {
             }
         }
     }
-
-    LazyColumn(
-        Modifier
-            .background(MaterialTheme.colorScheme.surface)
-            .hazeSource(hazeState),
-        contentPadding = paddingValues,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        item {  }
-        libraries?.let { libs ->
-            items(libs.libraries) { lib ->
-                Column (
-                    Modifier
-                        .fillMaxWidth()
-                        .card()
-                        .clickable {
-                            selectedLib = lib
-                            haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-                        }
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = lib.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontFamily = fontHeavy
-                    )
-                    Row (
-                        modifier = Modifier.padding(top = 4.dp).height(IntrinsicSize.Min),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        lib.artifactVersion?.let {
-                            Box(
-                                modifier = Modifier.fillMaxHeight()
-                                    .clip(MaterialTheme.shapes.small)
-                                    .background(MaterialTheme.colorScheme.primary)
-                                    .padding(vertical = 4.dp, horizontal = 8.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = it,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onPrimary,
-                                    fontFamily = googleSans(),
-                                )
-                            }
-                        }
-
-                        lib.licenses.forEach { license ->
-                            Text(
-                                modifier = Modifier
-                                    .clip(MaterialTheme.shapes.small)
-                                    .background(MaterialTheme.colorScheme.secondary)
-                                    .padding(vertical = 4.dp, horizontal = 8.dp),
-                                text = license.name,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSecondary,
-                                fontFamily = googleSans(),
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    PageTitle (true, hazeState, stringResource(R.string.licenses))
 }

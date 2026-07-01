@@ -18,6 +18,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -27,18 +28,23 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ButtonGroupScope
@@ -80,6 +86,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -91,8 +98,10 @@ import com.leekleak.trafficlight.ui.theme.googleSans
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
+import dev.chrisbanes.haze.rememberHazeState
 import org.koin.compose.koinInject
 import java.time.DayOfWeek
 import java.time.Instant
@@ -505,5 +514,39 @@ fun Modifier.clearFocusOnTap(): Modifier {
             awaitFirstDown(pass = PointerEventPass.Initial)
             focusManager.clearFocus()
         }
+    }
+}
+
+@Composable
+fun HazeScaffold(
+    title: String,
+    paddingValues: PaddingValues?,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState? = rememberScrollState(),
+    hazeState: HazeState = rememberHazeState(),
+    backButton: Boolean = false,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    actions: @Composable BoxScope.() -> Unit = {},
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val paddingSide = paddingValues?.calculateLeftPadding(LayoutDirection.Ltr)
+    val paddingTop = paddingValues?.calculateTopPadding()
+    val paddingBottom = paddingValues?.calculateBottomPadding()
+
+    Box(modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .background(colorScheme.surface)
+                .fillMaxSize()
+                .hazeSource(hazeState)
+                .padding(horizontal = paddingSide ?: 0.dp)
+                .then(if (scrollState != null) Modifier.verticalScroll(scrollState) else Modifier),
+            verticalArrangement = verticalArrangement
+        ) {
+            paddingTop?.let { Spacer(Modifier.height((it - 8.dp).coerceAtLeast(0.dp))) }
+            content()
+            paddingBottom?.let { Spacer(Modifier.height((it - 8.dp).coerceAtLeast(0.dp))) }
+        }
+        PageTitle(backButton, hazeState, title, actions)
     }
 }
