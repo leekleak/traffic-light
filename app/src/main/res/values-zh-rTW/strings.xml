@@ -15,7 +15,6 @@
     <string name="length">長度：</string>
     <string name="days">日</string>
     <string name="add_widget">新增小工具</string>
-    <string name="warning">警告</string>
     <string name="screen_off_update">於螢幕關閉時持續更新</string>
     <string name="screen_off_update_description">讓AOD顯示時也能持續更新使用量，但影響電池續航。</string>
     <string name="background">小工具背景</string>
@@ -59,7 +58,6 @@
     <string name="wifi">Wi-Fi</string>
     <string name="cellular">行動網路</string>
     <string name="grant">授予權限</string>
-    <string name="speed">速度：%1$s</string>
     <string name="settings">設定</string>
     <string name="battery_optimization">電池效能最佳化設定</string>
     <string name="battery_optimization_description">需忽略此設定，避免背景服務遭系統強制終止。</string>
