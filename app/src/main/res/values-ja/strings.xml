@@ -6,7 +6,6 @@
     <string name="wifi">Wi-Fi</string>
     <string name="cellular">モバイルデータ通信</string>
     <string name="grant">付与</string>
-    <string name="speed">速度: %1$s</string>
     <string name="settings">設定</string>
     <string name="battery_optimization">バッテリーの最適化</string>
     <string name="battery_optimization_description">一定時間後にスマホがバックグラウンドサービスを強制終了するのを防ぐためには、無効にする必要があります。</string>
@@ -57,7 +56,6 @@
     <string name="add_widget">ウィジェットを追加</string>
     <string name="configured_plans">構成されたプラン</string>
     <string name="data_plan_widget_description">ホーム画面でデータプランを追跡する</string>
-    <string name="warning">警告</string>
     <string name="tethering">テザリング</string>
     <string name="removed_apps">削除されたアプリ</string>
     <string name="prediction">予測</string>
@@ -103,7 +101,6 @@
     <string name="budget">予算</string>
     <string name="daily">毎日</string>
     <string name="notes">注記</string>
-    <string name="color">カラー</string>
     <string name="plans">プラン</string>
     <plurals name="resets_in_hours">
         <item quantity="other">%d時間後にリセットされます</item>

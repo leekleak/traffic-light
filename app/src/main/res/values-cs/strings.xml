@@ -7,7 +7,6 @@
     <string name="wifi">Wi-Fi</string>
     <string name="cellular">Mobilní</string>
     <string name="grant">Grant</string>
-    <string name="speed">Rychlost: %1$s</string>
     <string name="settings">Nastavení</string>
     <string name="battery_optimization">Optimalizace baterie</string>
     <string name="battery_optimization_description">Musí být vypnuto, aby telefon po chvíli neukončil službu na pozadí.</string>

@@ -7,7 +7,6 @@
     <string name="wifi">Wi-Fi</string>
     <string name="cellular">Celular</string>
     <string name="grant">Conceder</string>
-    <string name="speed">Velocidad: %1$s</string>
     <string name="settings">Configuración</string>
     <string name="battery_optimization">Optimización de la batería</string>
     <string name="battery_optimization_description">Debe desactivarse para evitar que el teléfono elimine el servicio en segundo plano después de un tiempo.</string>
@@ -57,7 +56,6 @@
     <string name="add_widget">Agregar widget</string>
     <string name="configured_plans">Planes configurados</string>
     <string name="data_plan_widget_description">Consulta tu plan de datos desde la pantalla de inicio</string>
-    <string name="warning">Advertencia</string>
     <plurals name="resets_in_days">
         <item quantity="one">Reiniciará mañana</item>
         <item quantity="many">Reiniciará en %d días</item>

@@ -7,7 +7,6 @@
     <string name="wifi">Wi-Fi</string>
     <string name="cellular">Hücresel</string>
     <string name="grant">İzin ver</string>
-    <string name="speed">Hız: %1$s</string>
     <string name="settings">Ayarlar</string>
     <string name="battery_optimization">Pil optimizasyonu</string>
     <string name="battery_optimization_description">Sistemin hizmeti durdurmamasını sağlar</string>
@@ -37,7 +36,7 @@
     <string name="appearance">Görünüm</string>
     <string name="behavior">Davranış</string>
     <string name="alt_vpn_workaround">Alternatif VPN geçici çözümü</string>
-    <string name="alt_vpn_workaround_description">Doğruluğu arttırır fakat bölünmüş tünellemeyi bozar.</string>
+    <string name="alt_vpn_workaround_description">Daha yüksek doğruluk sağlar ancak bölünmüş tünelleme durumunda çalışmaz.</string>
     <string name="shizuku_not_running">Shizuku aktif değil</string>
     <string name="sim_card">SIM kart</string>
     <string name="data_plans">Veri Planları</string>
@@ -55,7 +54,6 @@
     <string name="days">günler</string>
     <string name="add_widget">Araç takımı ekle</string>
     <string name="data_plan_widget_description">Ana ekranınızda veri planlarınızı takip edin</string>
-    <string name="warning">Uyarı</string>
     <plurals name="resets_in_days">
         <item quantity="one">Yarın sıfırlanacak</item>
         <item quantity="other">%d gün içerisinde sıfırlanacak</item>
@@ -104,7 +102,6 @@
     <string name="budget">Bütçe</string>
     <string name="daily">Günlük</string>
     <string name="notes">Notlar</string>
-    <string name="color">Renk</string>
     <string name="plans">Planlar</string>
     <plurals name="resets_in_hours">
         <item quantity="one">%d saat içinde sıfırlanacak</item>
@@ -123,7 +120,6 @@
     <string name="delete_plan_confirmation">Bu planı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</string>
     <string name="cancel">İptal</string>
     <string name="other_users">Diğer kullanıcılar</string>
-    <string name="disconnected_from_network_or_low_speed">Ağ bağlantısı kesik veya bağlantı hızı düşük</string>
     <string name="disconnected">Bağlantı kesik</string>
     <string name="budget_overshoot_warning">Bütçe Uyarısı</string>
     <string name="budget_overshoot_warning_description">Günlük bütçe aşıldığında bildirim gönder.</string>
@@ -148,8 +144,6 @@
     <string name="speed_threshold_description">Eşik değerinin altında olduğunda bildirimleri sessize al.</string>
     <string name="threshold">Eşik değeri</string>
     <string name="add_extra">Ekstra Ekle</string>
-    <string name="recursion">Yineleme</string>
-    <string name="recursion_description">Dönemin sonunda kullanılmayan verileri ekstraya ekleyin.</string>
     <string name="amount">Miktar</string>
     <string name="expiry">Bitiş</string>
     <string name="start">Başlat</string>
@@ -168,4 +162,6 @@
     <string name="plan_usage">Plan kullanımı</string>
     <string name="calculate_usage">Kullanımı ölç</string>
     <string name="system_service">Sistem servisi %1$d</string>
+    <string name="rollover">Devretme</string>
+    <string name="rollover_description">Dönem sonunda kullanılmayan verileri bir ek hesaba aktarın.</string>
 </resources>

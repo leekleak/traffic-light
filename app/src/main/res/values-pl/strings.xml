@@ -7,7 +7,6 @@
     <string name="wifi">Wi-Fi</string>
     <string name="cellular">Sieć komórkowa</string>
     <string name="grant">Zezwól</string>
-    <string name="speed">Prędkość: %1$s</string>
     <string name="settings">Ustawienia</string>
     <string name="battery_optimization">Optymalizacja baterii</string>
     <string name="battery_optimization_description">Musi zostać wyłączona, aby telefon nie wyłączał aplikacji działającej w tle po pewnym czasie.</string>
@@ -57,7 +56,6 @@
     <string name="add_widget">Dodaj widżet</string>
     <string name="configured_plans">Skonfigurowane plany</string>
     <string name="data_plan_widget_description">Śledź swoje pakiety danych na ekranie głównym</string>
-    <string name="warning">Ostrzeżenie</string>
     <string name="tethering">Mobilny hotspot</string>
     <string name="removed_apps">Usunięte aplikacje</string>
     <string name="prediction">Prognoza</string>

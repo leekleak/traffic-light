@@ -20,7 +20,6 @@
     <string name="ui">Interface</string>
     <string name="auto">Auto</string>
     <string name="default_theme">Défaut</string>
-    <string name="speed">Vitesse :%1$s</string>
     <string name="battery_optimization_description">Garantit que le système n\'arrête pas le service</string>
     <string name="notifications">Notification</string>
     <string name="wi_fi">Wi-Fi :%1$s</string>
@@ -62,7 +61,6 @@
     <string name="time">Heure :</string>
     <string name="length">Durée :</string>
     <string name="days">jours</string>
-    <string name="warning">Avertissement</string>
     <string name="tethering">Point d\'accès mobile</string>
     <string name="removed_apps">Applications supprimées</string>
     <string name="prediction">Prédiction</string>
@@ -105,7 +103,6 @@
     <string name="budget">Budget</string>
     <string name="daily">Quotidien</string>
     <string name="notes">Notes</string>
-    <string name="color">Couleur</string>
     <string name="plans">Forfaits</string>
     <plurals name="resets_in_hours">
         <item quantity="one">Réinitialisation dans %d heure</item>
@@ -140,7 +137,6 @@
     <string name="delete_plan">Supprimer le forfait</string>
     <string name="delete_plan_confirmation">Êtes-vous certain de vouloir supprimer ce forfait ? Cette action ne peut pas être annulée.</string>
     <string name="cancel">Annuler</string>
-    <string name="disconnected_from_network_or_low_speed">Déconnecté du réseau ou basse vitesse</string>
     <string name="disconnected">Déconnecté</string>
     <string name="note">Note</string>
     <string name="write_your_note_here">Saisissez votre note ici …</string>
@@ -150,8 +146,6 @@
     <string name="speed_threshold_description">Rend la notification silencieuse en dessous d\'un seuil.</string>
     <string name="threshold">Seuil</string>
     <string name="add_extra">Ajouter un supplément</string>
-    <string name="recursion">Récursion</string>
-    <string name="recursion_description">Ajouter les données inutilisées en supplément à la fin de la période.</string>
     <string name="amount">Montant</string>
     <string name="expiry">Expiration</string>
     <string name="start">Début</string>

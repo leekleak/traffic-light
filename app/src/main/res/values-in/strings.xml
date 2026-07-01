@@ -7,7 +7,6 @@
     <string name="wifi">Wi-Fi</string>
     <string name="cellular">Selular</string>
     <string name="grant">Izinkan</string>
-    <string name="speed">Kecepatan: %1$s</string>
     <string name="settings">Pengaturan</string>
     <string name="battery_optimization">Optimasi baterai</string>
     <string name="battery_optimization_description">Pastikan sistem tidak menghentikan layanan</string>
@@ -56,7 +55,6 @@
     <string name="add_widget">Tambah widget</string>
     <string name="configured_plans">Data yang telah diatur</string>
     <string name="data_plan_widget_description">Lacak paket data Anda di layar utama</string>
-    <string name="warning">Peringatan</string>
     <string name="day">Hari:</string>
     <string name="time">Waktu:</string>
     <string name="length">Durasi:</string>
@@ -114,7 +112,6 @@
     <string name="budget">Anggaran</string>
     <string name="daily">Harian</string>
     <string name="notes">Catatan</string>
-    <string name="color">Warna</string>
     <string name="plans">Paket</string>
     <string name="separate_upload_and_download">Pisahkan unggah dan unduh</string>
     <string name="supporter_ads">Iklan pendukung</string>
@@ -136,7 +133,6 @@
     <string name="delete_plan">Hapus Paket</string>
     <string name="delete_plan_confirmation">Apakah Anda yakin ingin menghapus paket ini? Tindakan ini tidak dapat dibatalkan.</string>
     <string name="cancel">Batal</string>
-    <string name="disconnected_from_network_or_low_speed">Terputus dari jaringan atau kecepatan rendah</string>
     <string name="disconnected">Terputus</string>
     <string name="note">Catatan</string>
     <string name="write_your_note_here">Tulis catatan Anda di sini…</string>
@@ -149,8 +145,6 @@
     <string name="amount">Jumlah</string>
     <string name="expiry">Masa berlaku</string>
     <string name="start">Mulai</string>
-    <string name="recursion">Pemosisian</string>
-    <string name="recursion_description">Tambahkan data yang belum terpakai ke dalam ekstra di akhir periode.</string>
     <string name="doesn_t_work">Tidak berfungsi?</string>
     <string name="no_usage_detected">Tidak ditemukan penggunaan</string>
     <string name="notification_aggregation_warning_title">Beberapa pemberitahuan</string>

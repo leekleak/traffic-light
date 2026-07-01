@@ -10,7 +10,6 @@
     <string name="usage_statistics">Разрешение использования</string>
     <string name="usage_statistics_description">Требуется для долгосрочного отслеживания использования сети.</string>
     <string name="notifications">Уведомление</string>
-    <string name="speed">Скорость: %1$s</string>
     <string name="settings">Настройки</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Сотовая связь: %1$s</string>
@@ -57,7 +56,6 @@
     <string name="add_widget">Добавить виджет</string>
     <string name="configured_plans">Настроенные планы</string>
     <string name="data_plan_widget_description">Отслеживайте ваши тарифные планы на вашем домашнем экране</string>
-    <string name="warning">Предупреждение</string>
     <string name="all_apps">Все приложения</string>
     <string name="prediction">Предсказание</string>
     <string name="trend">Тренд</string>
@@ -105,7 +103,6 @@
     <string name="budget">Бюджет</string>
     <string name="daily">Ежедневно</string>
     <string name="notes">Заметки</string>
-    <string name="color">Цвет</string>
     <string name="plans">Планы</string>
     <plurals name="resets_in_hours">
         <item quantity="one">Сбрасывается в течение %d часа</item>

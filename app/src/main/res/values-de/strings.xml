@@ -7,7 +7,6 @@
     <string name="wifi">WLAN</string>
     <string name="cellular">Mobilfunk</string>
     <string name="grant">Erlauben</string>
-    <string name="speed">Geschwindigkeit: %1$s</string>
     <string name="settings">Einstellungen</string>
     <string name="battery_optimization">Batterieoptimierung</string>
     <string name="battery_optimization_description">Stelle sicher, dass das System den Dienst nicht stoppt</string>
@@ -61,7 +60,6 @@
     <string name="time">Zeit:</string>
     <string name="length">Zeitraum:</string>
     <string name="days">Tage</string>
-    <string name="warning">Warnung</string>
     <string name="tethering">Tethering</string>
     <string name="removed_apps">Entfernte Apps</string>
     <string name="prediction">Vorhersage</string>
@@ -105,7 +103,6 @@
     <string name="budget">Budget</string>
     <string name="daily">Täglich</string>
     <string name="notes">Anmerkungen</string>
-    <string name="color">Farbe</string>
     <string name="plans">Pläne</string>
     <plurals name="resets_in_hours">
         <item quantity="one">Zurücksetzung in %d Stunde</item>
@@ -123,7 +120,6 @@
     <string name="delete_plan_confirmation">Bist du sicher, dass du diesen Plan löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.</string>
     <string name="cancel">Abbrechen</string>
     <string name="other_users">Andere Benutzer</string>
-    <string name="disconnected_from_network_or_low_speed">Vom Netzwerk getrennt oder langsame Verbindung</string>
     <string name="disconnected">Verbindung getrennt</string>
     <string name="budget_overshoot_warning">Budget Warnung</string>
     <string name="budget_overshoot_warning_description">Benachrichtigen, wenn das tägliche Budget überschritten wird.</string>
@@ -148,8 +144,6 @@
     <string name="speed_threshold_description">Benachrichtigung stummschalten, wenn ein Schwellenwert unterschritten wird.</string>
     <string name="threshold">Schwellwert</string>
     <string name="add_extra">Extra hinzufügen</string>
-    <string name="recursion">Rekursion</string>
-    <string name="recursion_description">Ungenutzte Daten am Ende des Zeitraums als Extra hinzufügen.</string>
     <string name="amount">Betrag</string>
     <string name="expiry">Ablaufdatum</string>
     <string name="start">Start</string>
@@ -160,4 +154,12 @@
     <string name="trend_tooltip">Nutzung der letzten 24 Stunden im Vergleich zu den letzten 7 Tagen.</string>
     <string name="prediction_tooltip">Prognose basierend auf der bisherigen Nutzung zu dieser Zeit der Woche.</string>
     <string name="safety_tooltip">Verhältnis der geplanten Nutzung zur verstrichenen Zeit.</string>
+    <string name="speed_unit">Geschwindigkeitseinheit</string>
+    <string name="size_unit">Größeneinheit</string>
+    <string name="base_1024">Basis 1024</string>
+    <string name="base_1000">Basis 1000</string>
+    <string name="sizes">Größen</string>
+    <string name="plan_usage">Plannutzung</string>
+    <string name="calculate_usage">Verbrauch berechnen</string>
+    <string name="system_service">Systemdienst %1$d</string>
 </resources>

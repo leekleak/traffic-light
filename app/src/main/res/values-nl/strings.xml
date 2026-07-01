@@ -7,7 +7,6 @@
     <string name="wifi">Wi-Fi</string>
     <string name="cellular">Mobiel</string>
     <string name="grant">Toestaan</string>
-    <string name="speed">Snelheid: %1$s</string>
     <string name="settings">Instellingen</string>
     <string name="battery_optimization">Batterijoptimalisatie</string>
     <string name="battery_optimization_description">Zorgt ervoor dat het systeem niet de service stopt</string>
@@ -61,7 +60,6 @@
     <string name="time">Tijd:</string>
     <string name="length">Duur:</string>
     <string name="days">dagen</string>
-    <string name="warning">Waarschuwing</string>
     <string name="tethering">Tethering</string>
     <string name="removed_apps">Verwijderde apps</string>
     <string name="prediction">Voorspelling</string>
@@ -105,7 +103,6 @@
     <string name="budget">Budget</string>
     <string name="daily">Dagelijks</string>
     <string name="notes">Opmerkingen</string>
-    <string name="color">Kleur</string>
     <string name="plans">Bundels</string>
     <plurals name="resets_in_hours">
         <item quantity="one">Reset in %d uur</item>
@@ -144,7 +141,6 @@
     <string name="delete_plan_confirmation">Weet je zeker dat je deze bundel wilt verwijderen? Dit kan niet ongedaan gemaakt worden.</string>
     <string name="cancel">Annuleren</string>
     <string name="no_usage_detected">Geen gebruik gedetecteerd</string>
-    <string name="disconnected_from_network_or_low_speed">Niet verbonden met netwerk of met lage snelheid</string>
     <string name="disconnected">Niet verbonden</string>
     <string name="note">Opmerking</string>
     <string name="write_your_note_here">Schrijf hier je opmerking…</string>
@@ -155,8 +151,6 @@
     <string name="speed_threshold_description">Meldingen stilzetten onder een bepaalde drempelwaarde.</string>
     <string name="threshold">Drempelwaarde</string>
     <string name="add_extra">Extra toevoegen</string>
-    <string name="recursion">Recursie</string>
-    <string name="recursion_description">Ongebruikte data toevoegen aan een extra aan het einde van de periode.</string>
     <string name="amount">Hoeveelheid</string>
     <string name="expiry">Verloopdatum</string>
     <string name="start">Start</string>

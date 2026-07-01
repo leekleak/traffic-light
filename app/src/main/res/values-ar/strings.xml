@@ -7,7 +7,6 @@
     <string name="wifi">واي فاي</string>
     <string name="cellular">بيانات الجوال</string>
     <string name="grant">امنح</string>
-    <string name="speed">السرعة: %1$s</string>
     <string name="settings">الإعدادات</string>
     <string name="battery_optimization">تحسين البطارية</string>
     <string name="battery_optimization_description">تأكد مِن أن النظام لا يوقف الخدمة</string>
@@ -37,7 +36,7 @@
     <string name="appearance">المظهر</string>
     <string name="behavior">السلوك</string>
     <string name="alt_vpn_workaround">حل بديل لـ VPN</string>
-    <string name="alt_vpn_workaround_description">يحسن الدقة ولكنه يعطّل التقسيم النفقي.</string>
+    <string name="alt_vpn_workaround_description">دقة أفضل، لكنه لا يعمل عند استخدام التقسيم النفقي.</string>
     <string name="shizuku_not_running">Shizuku لا يعمل</string>
     <string name="sim_card">بطاقة SIM</string>
     <string name="data_plans">خطط البيانات</string>
@@ -61,7 +60,6 @@
     <string name="add_widget">أضف ويدجت</string>
     <string name="configured_plans">الخطط المضبوطة</string>
     <string name="data_plan_widget_description">تتبع خطط بياناتك من شاشتك الرئيسية</string>
-    <string name="warning">تحذير</string>
     <string name="day">اليوم:</string>
     <string name="time">الوقت:</string>
     <string name="length">الطول:</string>
@@ -107,7 +105,6 @@
     <string name="budget">الميزانية</string>
     <string name="daily">يوميًا</string>
     <string name="notes">الملاحظات</string>
-    <string name="color">اللون</string>
     <string name="plans">الخطط</string>
     <string name="top_apps">التطبيقات العالية</string>
     <string name="selected_item">محدد</string>
@@ -143,7 +140,6 @@
     <string name="press_the_card_to_configure_plan_data">اضغط على البطاقة لتضبيط بيانات الخطة.</string>
     <string name="other_users">مستخدمون آخرون</string>
     <string name="extras">زيادات</string>
-    <string name="disconnected_from_network_or_low_speed">مفصول من الشبكة أو سرعة منخفضة</string>
     <string name="disconnected">مفصول</string>
     <string name="note">ملاحظة</string>
     <string name="write_your_note_here">اكتب ملاحظتك هنا…</string>
@@ -156,8 +152,6 @@
     <string name="delete_plan_confirmation">أمتأكد من رغبتك في حذف هذه الخطة؟ لا يمكن التراجع عن هذا الإجراء.</string>
     <string name="cancel">ألغِ</string>
     <string name="add_extra">أضف زيادة</string>
-    <string name="recursion">التكرار</string>
-    <string name="recursion_description">أضف البيانات غير المستخدمة إلى الرصيد زيادة في نهاية الفترة.</string>
     <string name="amount">الكمية</string>
     <string name="expiry">الإنتهاء</string>
     <string name="start">البدء</string>
@@ -176,4 +170,6 @@
     <string name="plan_usage">استخدام الخطة</string>
     <string name="calculate_usage">احسب الاستخدام</string>
     <string name="system_service">خدمة النظام %1$d</string>
+    <string name="rollover">مرّر</string>
+    <string name="rollover_description">أضف البيانات غير المستخدمة إلى الرصيد الإضافي في نهاية الفترة.</string>
 </resources>

@@ -8,7 +8,6 @@
     <string name="wifi">Wi-Fi</string>
     <string name="cellular">Cellulare</string>
     <string name="grant">Autorizzare</string>
-    <string name="speed">Velocità: %1$s</string>
     <string name="settings">Impostazioni</string>
     <string name="battery_optimization">Ottimizzazione Batteria</string>
     <string name="battery_optimization_description">Va disabilitata per impedire al telefono di chiudere il servizio in background dopo un po\'.</string>
@@ -58,7 +57,6 @@
     <string name="add_widget">Aggiungi widget</string>
     <string name="configured_plans">Piani configurati</string>
     <string name="data_plan_widget_description">Monitora i piani dati nella schermata home</string>
-    <string name="warning">Avviso</string>
     <string name="tethering">Hotspot</string>
     <string name="removed_apps">Applicazioni rimosse</string>
     <string name="all_apps">Tutte le app</string>
