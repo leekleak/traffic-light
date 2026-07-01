@@ -7,7 +7,6 @@
     <string name="wifi">Wi-Fi</string>
     <string name="cellular">Celulară</string>
     <string name="grant">Permite</string>
-    <string name="speed">Viteză: %1$s</string>
     <string name="settings">Configurări</string>
     <string name="battery_optimization">Optimizare baterie</string>
     <string name="battery_optimization_description">Asigură-te că sistemul nu oprește serviciul</string>
@@ -57,7 +56,6 @@
     <string name="add_widget">Adaugă widget</string>
     <string name="configured_plans">Configurează planurile</string>
     <string name="data_plan_widget_description">Urmărește planurile de date pe ecranul de pornire</string>
-    <string name="warning">Avertizare</string>
     <plurals name="resets_in_days">
         <item quantity="one">Se va reseta mâine</item>
         <item quantity="few">Se va reseta în %d zile</item>
