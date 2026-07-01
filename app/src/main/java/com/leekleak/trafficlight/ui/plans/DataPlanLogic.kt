@@ -80,7 +80,7 @@ class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
     suspend fun getTopAppUsage(dataPlan: DataPlan): List<AppUsage> {
         val todayUsage = networkUsageManager.getAllAppUsage(
             startStamp = dataPlan.getStartDate().toTimestamp(),
-            endStamp = LocalDate.now().toTimestamp(),
+            endStamp = LocalDate.now().plusDays(1).toTimestamp(),
             query1 = UsageQuery(DataType.Mobile),
             query2 = UsageQuery(DataType.None),
             subscriberId = dataPlan.decryptedID
