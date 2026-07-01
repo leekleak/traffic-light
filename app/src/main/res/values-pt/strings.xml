@@ -7,7 +7,6 @@
     <string name="wifi">Wi-FI</string>
     <string name="cellular">Rede móvel</string>
     <string name="grant">Conceder</string>
-    <string name="speed">Velocidade: %1$s</string>
     <string name="settings">Definições</string>
     <string name="battery_optimization">Otimização da bateria</string>
     <string name="battery_optimization_description">Deve ser desativada para evitar que o telemóvel encerre o serviço em segundo plano após algum tempo.</string>
@@ -56,7 +55,6 @@
     <string name="add_widget">Adicionar widget</string>
     <string name="configured_plans">Planos configurados</string>
     <string name="data_plan_widget_description">Rastreia os teus planos de dados no teu ecrã inicial</string>
-    <string name="warning">Aviso</string>
     <string name="removed_apps">Aplicações removidas</string>
     <string name="all_apps">Todas as aplicações</string>
     <string name="prediction">Previsão</string>
