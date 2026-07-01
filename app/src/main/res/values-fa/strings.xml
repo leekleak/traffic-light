@@ -6,7 +6,6 @@
     <string name="history">تاریخچه</string>
     <string name="wifi">وای فای</string>
     <string name="cellular">موبایل</string>
-    <string name="speed">سرعت: %1$s</string>
     <string name="settings">تنظیمات</string>
     <string name="battery_optimization">بهینه سازی باتری</string>
     <string name="grant">اجازه</string>
