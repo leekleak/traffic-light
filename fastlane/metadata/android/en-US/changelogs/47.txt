@@ -1,0 +1,32 @@
+Changes compared to v2.18.2
+
+Data Plans:
+- Added extras
+- Added notifications to warn about data safety changes
+- Monthly data plan can now be recurring
+- Added plan notes
+- Added ability to change plan unit (MB/GB))
+- Added support for manually setting plan usage.
+- Added new plan notification icon
+- Polished UI for data plans with 0/infinite data usage
+
+Persistent Notification:
+- Added warnings about several foreground notifications on Android 16 and above
+- Improved split notification visibility
+- Speed notification title now shows up/down speeds separately
+- Speed notification can now be hidden for low speeds
+
+Other enhancements:
+- Improved data accuracy
+- Added switch in Overview to show Wifi usage
+- Added support for switching between 1000 and 1024 as bases for speed and usage
+- Added a screen to display library licenses
+- Added tooltips to cards such as "Trend", "Prediction" and "Safety", explaining what they mean
+- Updated in-built color palette
+- History now shows system service usage
+- Other user usage may now show up in top apps cards
+- Widget text now resizes to better account for different widget sizes
+- Various UI/UX and performance improvements
+
+Bug Fixes:
+- Too many to list
