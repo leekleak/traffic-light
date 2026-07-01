@@ -308,12 +308,14 @@ fun DataPlanConfig(currentPlan: DataPlan) {
 
                             val volatileMain = snapshot.mainDataUsed - planToSnapshot.mainDataUsed
                             val volatileExtras = snapshot.extras.associate { it.id to (it.dataUsed - (planToSnapshot.extras.find { e -> e.id == it.id }?.dataUsed ?: 0L)) }
+                            val expiry = newPlan.getStartDate(true)
 
                             val planToSave = newPlan.copy(
                                 mainDataUsed = newPlan.mainDataUsed - volatileMain,
                                 extras = newPlan.extras.map { it.copy(dataUsed = it.dataUsed - (volatileExtras[it.id] ?: 0L)) },
                                 lastUpdateStamp = planToSnapshot.lastUpdateStamp,
                                 lastSafetyState = -1,
+                                mainExpiryStamp = expiry.toTimestamp(),
                                 budgetOvershotNotified = false,
                                 configured = true
                             )

@@ -47,7 +47,7 @@ data class DataPlan(
 
     @ColumnInfo val startDate: Long = LocalDate.now().withDayOfMonth(1).atStartOfDay().toTimestamp(),
     @ColumnInfo val interval: TimeInterval = TimeInterval.MONTH,
-    @ColumnInfo val intervalMultiplier: Int = 1,
+    @ColumnInfo val intervalMultiplier: Int = 1, // Intended only for use when TimeInterval.DAY. Otherwise should be ignored.
     @ColumnInfo val recurring: Boolean = false,
 
     @ColumnInfo val excludedApps: List<Int> = listOf(),
@@ -180,7 +180,7 @@ data class DataPlan(
                 bestEnd = maxOf(bestEnd, bucket.startTimeStamp)
                 break
             }
-            bestEnd = bucket.endTimeStamp
+            bestEnd = maxOf(bestEnd, bucket.endTimeStamp)
         }
         usageBuckets.close()
 
