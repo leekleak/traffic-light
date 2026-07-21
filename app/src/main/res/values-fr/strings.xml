@@ -36,7 +36,7 @@
     <string name="appearance">Apparence</string>
     <string name="behavior">Comportement</string>
     <string name="alt_vpn_workaround">Contournement VPN alternatif</string>
-    <string name="alt_vpn_workaround_description">Améliore la précision mais casse les tunnels séparés.</string>
+    <string name="alt_vpn_workaround_description">Améliore la précision mais ne fonctionne pas avec les tunnels séparés.</string>
     <string name="shizuku_not_running">Shizuku n\'est pas lancé</string>
     <string name="sim_card">Carte SIM</string>
     <string name="data_plans">Forfaits de données</string>
@@ -164,4 +164,6 @@
     <string name="plan_usage">Utilisation du forfait</string>
     <string name="calculate_usage">Calculer l\'utilisation</string>
     <string name="system_service">Service système %1$d</string>
+    <string name="rollover">Retour</string>
+    <string name="rollover_description">Ajoute les données inutilisées à un supplément en fin de période.</string>
 </resources>
