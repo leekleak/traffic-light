@@ -36,7 +36,7 @@
     <string name="appearance">Tampilan</string>
     <string name="behavior">Perilaku</string>
     <string name="alt_vpn_workaround">Solusi alternatif VPN</string>
-    <string name="alt_vpn_workaround_description">Meningkatkan akurasi tetapi merusak split tunneling.</string>
+    <string name="alt_vpn_workaround_description">Akurasi yang lebih baik tetapi tidak akan berfungsi saat menggunakan tunneling terpisah.</string>
     <string name="shizuku_not_running">Shizuku tidak berjalan</string>
     <string name="sim_card">Kartu SIM</string>
     <string name="data_plans">Paket Data</string>
@@ -160,4 +160,6 @@
     <string name="size_unit">Satuan ukuran</string>
     <string name="calculate_usage">Hitung penggunaan</string>
     <string name="system_service">Layanan sistem %1$d</string>
+    <string name="rollover">Rollover</string>
+    <string name="rollover_description">Tambahkan data yang belum terpakai pada bagian tambahan di akhir periode.</string>
 </resources>
