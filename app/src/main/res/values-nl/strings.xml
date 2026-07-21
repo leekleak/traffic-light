@@ -36,7 +36,7 @@
     <string name="appearance">Uiterlijk</string>
     <string name="behavior">Gedrag</string>
     <string name="alt_vpn_workaround">Alternatieve VPN-omzeiling</string>
-    <string name="alt_vpn_workaround_description">Verbetert nauwkeurigheid, maar breekt split tunnels.</string>
+    <string name="alt_vpn_workaround_description">Betere nauwkeurigheid, maar zal niet werken met split tunnels.</string>
     <string name="shizuku_not_running">Shizuku loopt niet</string>
     <string name="sim_card">Simkaart</string>
     <string name="data_plans">Databundels</string>
@@ -162,4 +162,6 @@
     <string name="plan_usage">Bundelgebruik</string>
     <string name="calculate_usage">Gebruik berekenen</string>
     <string name="system_service">Systeemservice %1$d</string>
+    <string name="rollover">Overblijfsel</string>
+    <string name="rollover_description">Voeg ongebruikte data toe als extra aan het einde van de periode.</string>
 </resources>
