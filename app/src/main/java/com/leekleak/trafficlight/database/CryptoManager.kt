@@ -16,7 +16,9 @@ object CryptoManager {
     private const val ALGORITHM = "AES/GCM/NoPadding"
     private const val KEY_ALIAS = "data_plan_key"
     private const val HMAC_ALIAS = "hmac_key"
-    private val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+private val keyStore = KeyStore.getInstance("AndroidKeyStore").apply {
+    load(this.getApplicationContext().getFilesDir() + File.separator + "keystore")
+}
 
     private val keyCache = ConcurrentHashMap<String, SecretKey>()
 
