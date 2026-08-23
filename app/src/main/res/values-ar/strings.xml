@@ -172,4 +172,7 @@
     <string name="system_service">خدمة النظام %1$d</string>
     <string name="rollover">مرّر</string>
     <string name="rollover_description">أضف البيانات غير المستخدمة إلى الرصيد الإضافي في نهاية الفترة.</string>
+    <string name="selected">مُحدّد</string>
+    <string name="blur_effects">تأثيرات التمويه</string>
+    <string name="set_as_default">عيّن كافتراضي</string>
 </resources>
