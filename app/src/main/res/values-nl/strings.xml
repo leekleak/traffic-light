@@ -164,4 +164,7 @@
     <string name="system_service">Systeemservice %1$d</string>
     <string name="rollover">Overblijfsel</string>
     <string name="rollover_description">Voeg ongebruikte data toe als extra aan het einde van de periode.</string>
+    <string name="selected">Geselecteerd</string>
+    <string name="blur_effects">Vervagingseffecten</string>
+    <string name="set_as_default">Als standaard instellen</string>
 </resources>
