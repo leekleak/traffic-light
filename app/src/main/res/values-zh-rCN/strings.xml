@@ -162,4 +162,7 @@
     <string name="plan_usage">计划用量</string>
     <string name="calculate_usage">计算用量</string>
     <string name="system_service">系统服务%1$d</string>
+    <string name="selected">已选中的</string>
+    <string name="blur_effects">模糊效果</string>
+    <string name="set_as_default">设置为默认</string>
 </resources>
