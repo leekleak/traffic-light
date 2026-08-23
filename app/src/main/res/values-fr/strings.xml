@@ -166,4 +166,7 @@
     <string name="system_service">Service système %1$d</string>
     <string name="rollover">Retour</string>
     <string name="rollover_description">Ajoute les données inutilisées à un supplément en fin de période.</string>
+    <string name="selected">Sélectionné</string>
+    <string name="blur_effects">Effets de floutage</string>
+    <string name="set_as_default">Régler par défaut</string>
 </resources>
