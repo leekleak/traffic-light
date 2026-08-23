@@ -26,7 +26,7 @@
     <string name="auto">Otomatik</string>
     <string name="light">Aydınlık</string>
     <string name="dark">Karanlık</string>
-    <string name="default_theme">Varsayılan</string>
+    <string name="default_theme">Öntanımlı</string>
     <string name="help">Yardım</string>
     <string name="advanced_settings">Gelişmiş Ayarlar</string>
     <string name="notification_description">Durum çubuğunda ağ hızını takip edin.</string>
@@ -164,4 +164,7 @@
     <string name="system_service">Sistem servisi %1$d</string>
     <string name="rollover">Devretme</string>
     <string name="rollover_description">Dönem sonunda kullanılmayan verileri bir ek hesaba aktarın.</string>
+    <string name="selected">Seçildi</string>
+    <string name="blur_effects">Bulanıklık efektleri</string>
+    <string name="set_as_default">Öntanımlı olarak ayarla</string>
 </resources>
