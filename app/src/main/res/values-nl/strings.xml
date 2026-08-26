@@ -35,8 +35,6 @@
     <string name="unknown">Onbekend</string>
     <string name="appearance">Uiterlijk</string>
     <string name="behavior">Gedrag</string>
-    <string name="alt_vpn_workaround">Alternatieve VPN-omzeiling</string>
-    <string name="alt_vpn_workaround_description">Betere nauwkeurigheid, maar zal niet werken met split tunnels.</string>
     <string name="shizuku_not_running">Shizuku loopt niet</string>
     <string name="sim_card">Simkaart</string>
     <string name="data_plans">Databundels</string>

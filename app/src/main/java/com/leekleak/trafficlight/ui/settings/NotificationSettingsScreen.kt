@@ -130,15 +130,6 @@ private fun BehaviorSettings() {
         onValueChanged = { scope.launch { appPreferenceRepo.setModeAOD(it) } }
     )
 
-    val altVpn by appPreferenceRepo.altVpn.collectAsState(false)
-    SwitchPreference(
-        title = stringResource(R.string.alt_vpn_workaround),
-        summary = stringResource(R.string.alt_vpn_workaround_description),
-        icon = painterResource(R.drawable.vpn),
-        value = altVpn,
-        onValueChanged = { scope.launch { appPreferenceRepo.setAltVpn(it) } }
-    )
-
     val forceFallback by appPreferenceRepo.forceFallback.collectAsState(false)
     val doesFallbackWork = remember { TrafficSnapshot.doesFallbackWork() }
     SwitchPreference(

@@ -35,8 +35,6 @@
     <string name="unknown">未知</string>
     <string name="appearance">外观</string>
     <string name="behavior">行为</string>
-    <string name="alt_vpn_workaround">替代性VPN计算方法</string>
-    <string name="alt_vpn_workaround_description">精度更高，但在分流隧道模式下无效。</string>
     <string name="shizuku_not_running">Shizuku未运行</string>
     <string name="sim_card">SIM卡</string>
     <string name="data_plans">数据计划</string>

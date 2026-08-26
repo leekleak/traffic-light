@@ -35,6 +35,4 @@
     <string name="unknown">ناشناخته</string>
     <string name="appearance">ظاهر</string>
     <string name="behavior">رفتار</string>
-    <string name="alt_vpn_workaround">راهکار جایگزین فیلترشکن</string>
-    <string name="alt_vpn_workaround_description">دقت اندازه‌گیری را کاهش می‌دهد، اما با تونل‌بندی تفکیکی سازگار است.</string>
 </resources>
