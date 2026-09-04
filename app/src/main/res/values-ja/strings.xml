@@ -33,8 +33,6 @@
     <string name="total_usage">総使用量</string>
     <string name="unknown">不明</string>
     <string name="app_name">Traffic Light：ネットワークトラッカー</string>
-    <string name="alt_vpn_workaround_description">精度は向上しますが、スプリットトンネル機能が損なわれます。</string>
-    <string name="alt_vpn_workaround">代替VPNの回避策</string>
     <string name="behavior">行動</string>
     <string name="appearance">外観</string>
     <string name="shizuku_not_running">Shizukuが起動していません</string>
