@@ -35,8 +35,6 @@
     <string name="unknown">Unbekannt</string>
     <string name="appearance">Aussehen</string>
     <string name="behavior">Verhalten</string>
-    <string name="alt_vpn_workaround">Alternative VPN-Lösung</string>
-    <string name="alt_vpn_workaround_description">Verbessert die Genauigkeit, unterbricht jedoch das Split-Tunneling.</string>
     <string name="shizuku_not_running">Shizuku läuft nicht</string>
     <string name="sim_card">SIM-Karte</string>
     <string name="data_plans">Datenpläne</string>
