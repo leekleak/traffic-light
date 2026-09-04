@@ -35,8 +35,6 @@
     <string name="unknown">ناشناخته</string>
     <string name="appearance">ظاهر</string>
     <string name="behavior">رفتار</string>
-    <string name="alt_vpn_workaround">راهکار جایگزین فیلترشکن</string>
-    <string name="alt_vpn_workaround_description">دقت بیشتر اما با تونل‌بندی تفکیکی کار نمی‌کند.</string>
     <string name="app_name_short">چراغ راهنمایی</string>
     <string name="speed_unit">واحد سرعت</string>
     <string name="size_unit">واحد اندازه</string>
