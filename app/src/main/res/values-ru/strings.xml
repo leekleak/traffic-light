@@ -36,8 +36,6 @@
     <string name="unknown">Неизвестно</string>
     <string name="appearance">Внешний вид</string>
     <string name="behavior">Поведение</string>
-    <string name="alt_vpn_workaround">Чередовать обход VPN</string>
-    <string name="alt_vpn_workaround_description">Улучшает точность но ломает split tunneling (раздельное туннелирование).</string>
     <string name="shizuku_not_running">Shizuku не запущен</string>
     <string name="sim_card">SIM карта</string>
     <string name="data_plans">Тарифные планы</string>
