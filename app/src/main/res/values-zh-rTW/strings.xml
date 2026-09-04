@@ -45,8 +45,6 @@
     <string name="unknown">未知程式</string>
     <string name="behavior">行為</string>
     <string name="appearance">外觀</string>
-    <string name="alt_vpn_workaround">VPN替代模式</string>
-    <string name="alt_vpn_workaround_description">精準度高，但隧道分離模式 (split tunneling) 下無法使用。</string>
     <string name="total_usage">總計使用量</string>
     <string name="notification_description">於狀態列中顯示網路速度。</string>
     <string name="auto">自動</string>
