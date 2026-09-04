@@ -35,8 +35,6 @@
     <string name="unknown">مجهول</string>
     <string name="appearance">المظهر</string>
     <string name="behavior">السلوك</string>
-    <string name="alt_vpn_workaround">حل بديل لـ VPN</string>
-    <string name="alt_vpn_workaround_description">دقة أفضل، لكنه لا يعمل عند استخدام التقسيم النفقي.</string>
     <string name="shizuku_not_running">Shizuku لا يعمل</string>
     <string name="sim_card">بطاقة SIM</string>
     <string name="data_plans">خطط البيانات</string>
