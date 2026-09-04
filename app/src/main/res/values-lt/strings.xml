@@ -35,8 +35,6 @@
     <string name="unknown">Nežinoma</string>
     <string name="appearance">Išvaizda</string>
     <string name="behavior">Elgsena</string>
-    <string name="alt_vpn_workaround">Alternatyvus VPN duomenų skaičiavimas</string>
-    <string name="alt_vpn_workaround_description">Tikslesni matavimai, tačiau neveikia naudojant kelių tunelių konfigūracijos VPN.</string>
     <string name="shizuku_not_running">Shizuku nepaleistas</string>
     <string name="sim_card">SIM kortelė</string>
     <string name="data_plans">Duomenų Planai</string>
