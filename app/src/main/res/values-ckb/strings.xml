@@ -36,8 +36,6 @@
     <string name="unknown">نەزانراو</string>
     <string name="appearance">ڕووکار</string>
     <string name="behavior">ڕەفتار</string>
-    <string name="alt_vpn_workaround">ڕێگەچارەی جێگرەوەی VPN</string>
-    <string name="alt_vpn_workaround_description">وردیی پێوانەکردن کەمدەکاتەوە بەڵام ڕێگە بە تونێلکردنی جیاکەرەوە دەدات.</string>
     <string name="shizuku_not_running">شیزوکو کار ناکات</string>
     <string name="sim_card">سیم کارد</string>
     <string name="data_plans">پلانەکانی داتا</string>
