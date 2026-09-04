@@ -35,8 +35,6 @@
     <string name="unknown">Bilinmeyen</string>
     <string name="appearance">Görünüm</string>
     <string name="behavior">Davranış</string>
-    <string name="alt_vpn_workaround">Alternatif VPN geçici çözümü</string>
-    <string name="alt_vpn_workaround_description">Daha yüksek doğruluk sağlar ancak bölünmüş tünelleme durumunda çalışmaz.</string>
     <string name="shizuku_not_running">Shizuku aktif değil</string>
     <string name="sim_card">SIM kart</string>
     <string name="data_plans">Veri Planları</string>
