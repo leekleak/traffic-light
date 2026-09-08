@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Traffic Light: Trình theo dõi mạng</string>
+    <string name="app_name_short">Traffic Light</string>
+    <string name="today">Hôm nay</string>
+    <string name="this_week">Tuần này</string>
+    <string name="history">Lịch sử</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="cellular">Mạng di động</string>
+    <string name="grant">Cho phép</string>
+    <string name="settings">Cài đặt</string>
+    <string name="battery_optimization">Cho phép chạy nền</string>
+    <string name="battery_optimization_description">Đảm bảo rằng hệ thống không dừng ứng dụng đột ngột</string>
+    <string name="usage_statistics">Quyền đọc dữ liệu sử dụng</string>
+    <string name="usage_statistics_description">Cần thiết để theo dõi dữ liệu sử dụng lâu dài.</string>
+    <string name="notifications">Thông báo</string>
+    <string name="screen_off_update">Cập nhật khi màn hình tắt</string>
+    <string name="screen_off_update_description">Cho phép theo dõi tần xuất sử dụng trong chế độ Màn hình luôn bật, nhưng ảnh hưởng đến pin.</string>
+    <string name="wi_fi">Wi-Fi: %1$s</string>
+    <string name="mobile">Di động: %1$s</string>
+    <string name="about">Về chúng tôi</string>
+    <string name="speed_in_bits">Hiện tốc độ theo đơn vị bit</string>
+    <string name="speed_unit">Đơn vị đo tốc độ</string>
+    <string name="size_unit">Đơn vị đo kích thước</string>
+    <string name="base_1024">Hệ cơ số 1024</string>
+    <string name="base_1000">Hệ cơ số 1000</string>
+    <string name="force_fallback">Buộc quay về cách đo tốc độ trước</string>
+    <string name="force_fallback_description">Hữu ích khi dùng một hệ điều hành lâu la hoặc mạng có dây</string>
+    <string name="fallback_unsupported">Không hỗ trợ quay về phương pháp cũ</string>
+    <string name="ui">Giao diện</string>
+    <string name="auto">Tự động</string>
+    <string name="light">Sáng</string>
+    <string name="dark">Tối</string>
+    <string name="default_theme">Mặc định</string>
+    <string name="help">Trợ giúp</string>
+    <string name="advanced_settings">Cài đặt nâng cao</string>
+    <string name="notification_description">Theo dõi tốc độ mạng trong thanh trạng thái.</string>
+    <string name="missing_permissions">Thiếu quyền</string>
+    <string name="total_usage">Tổng tiêu thụ</string>
+    <string name="unknown">Không rõ</string>
+    <string name="appearance">Vẻ ngoài</string>
+    <string name="behavior">Hành vi</string>
+    <string name="donate">Khuyên góp</string>
+</resources>
