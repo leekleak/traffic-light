@@ -17,10 +17,12 @@ import com.leekleak.trafficlight.services.notifications.NotificationService
 import com.leekleak.trafficlight.ui.app.App
 import com.leekleak.trafficlight.ui.theme.AppTheme
 import com.leekleak.trafficlight.widget.WidgetReceiver
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import org.koin.compose.koinInject
 import kotlin.time.Duration.Companion.seconds
@@ -38,8 +40,10 @@ class MainActivity : ComponentActivity() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             lifecycleScope.launch {
-                delay(1.seconds) // Apparently if you refresh previews too soon on app launch they'll be ignored
-                GlanceAppWidgetManager(applicationContext).setWidgetPreviews<WidgetReceiver>()
+                withContext(Dispatchers.IO) {
+                    delay(1.seconds) // Apparently if you refresh previews too soon on app launch they'll be ignored
+                    GlanceAppWidgetManager(applicationContext).setWidgetPreviews<WidgetReceiver>()
+                }
             }
         }
 
