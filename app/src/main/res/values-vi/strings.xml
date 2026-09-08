@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Traffic Light: Trình theo dõi mạng</string>
+    <string name="app_name_short">Traffic Light</string>
+    <string name="today">Hôm nay</string>
+    <string name="this_week">Tuần này</string>
+    <string name="history">Lịch sử</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="cellular">Mạng di động</string>
+    <string name="grant">Cho phép</string>
+    <string name="settings">Cài đặt</string>
+    <string name="battery_optimization">Cho phép sử dụng nền</string>
+    <string name="battery_optimization_description">Đảm bảo rằng hệ thống không dừng ứng dụng đột ngột</string>
+    <string name="usage_statistics">Quyền sử dụng</string>
+</resources>
