@@ -166,4 +166,7 @@
     <string name="note">Užrašai</string>
     <string name="write_your_note_here">Čia galite rašyti savo užrašus…</string>
     <string name="persistent_notification">Nuolatinis pranešimas</string>
+    <string name="selected">Pasirinkta</string>
+    <string name="blur_effects">Išliejantys efektai</string>
+    <string name="set_as_default">Nustatyti kaip numatytąjį</string>
 </resources>
