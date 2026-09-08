@@ -25,6 +25,7 @@ kotlin {
 android {
     namespace = "com.leekleak.trafficlight"
     compileSdk = 37
+    compileSdkMinor = 2
 
     defaultConfig {
         applicationId = "com.leekleak.trafficlight"
@@ -77,10 +78,6 @@ android {
     }
     androidResources {
         generateLocaleConfig = true
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
         compose = true

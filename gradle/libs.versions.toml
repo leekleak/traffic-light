@@ -1,12 +1,12 @@
 [versions]
 adaptive = "1.3.0"
 agp = "9.3.2"
-coilCompose = "3.6.0"
+coilCompose = "3.6.2"
 coreKtx = "1.19.0"
 activityCompose = "1.13.0"
 
 datastore = "1.2.1"
-haze = "2.0.0-beta02"
+haze = "2.0.0-beta03"
 kotlin = "2.4.10"
 kotlinxSerializationJson = "1.11.0"
 ksp = "2.3.6"
