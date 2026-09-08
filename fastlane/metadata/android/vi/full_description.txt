@@ -1,0 +1,9 @@
+Traffict Light là một công cụ nguồn mở dùng để theo dõi tần xuất sử dụng mạng và dữ liệu song cũng đảm bảo sự riêng tư của bạn. Được lấy cảm hứng từ ứng dụng Internet Speed Meter và GlassWire.
+
+Các tính năng:
+- Miễn phí và nguồn mở
+- Yêu cầu ít quyền hệ thống
+- Tốn ít pin
+- Không theo dõi
+- Giao diện đẹp
+- Nhanh và hiện đại
