@@ -165,4 +165,5 @@
     <string name="selected">Seçildi</string>
     <string name="blur_effects">Bulanıklık efektleri</string>
     <string name="set_as_default">Öntanımlı olarak ayarla</string>
+    <string name="speed_test">Hız Testi</string>
 </resources>
