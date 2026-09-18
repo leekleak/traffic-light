@@ -167,4 +167,5 @@
     <string name="selected">Sélectionné</string>
     <string name="blur_effects">Effets de floutage</string>
     <string name="set_as_default">Régler par défaut</string>
+    <string name="speed_test">Test de vitesse</string>
 </resources>

@@ -173,4 +173,5 @@
     <string name="selected">مُحدّد</string>
     <string name="blur_effects">تأثيرات التمويه</string>
     <string name="set_as_default">عيّن كافتراضي</string>
+    <string name="speed_test">اختبار السرعة</string>
 </resources>
