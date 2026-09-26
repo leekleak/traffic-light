@@ -160,4 +160,9 @@
     <string name="plan_usage">Plannutzung</string>
     <string name="calculate_usage">Verbrauch berechnen</string>
     <string name="system_service">Systemdienst %1$d</string>
+    <string name="rollover">Datenübertrag</string>
+    <string name="rollover_description">Füge nicht verbrauchtes Datenvolumen am Ende des Abrechnungszeitraums als Zusatzpaket hinzu.</string>
+    <string name="selected">Ausgewählt</string>
+    <string name="blur_effects">Weichzeichnungs-Effekte</string>
+    <string name="set_as_default">Als Standard festlegen</string>
 </resources>
