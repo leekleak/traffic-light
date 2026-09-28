@@ -167,4 +167,21 @@
     <string name="selected">Sélectionné</string>
     <string name="blur_effects">Effets de floutage</string>
     <string name="set_as_default">Régler par défaut</string>
+    <string name="search">Rechercher</string>
+    <string name="server_ip_address">Adresse IP</string>
+    <string name="no_server_selected">Aucun serveur sélectionné</string>
+    <string name="select_server">Sélectionner un serveur</string>
+    <string name="add_server">Ajouter un serveur</string>
+    <string name="network_port">Port</string>
+    <string name="server_name">Nom du serveur</string>
+    <string name="my_server">Mon serveur</string>
+    <string name="name_cannot_be_empty">Le nom ne peut être vide</string>
+    <string name="name_already_used">Le nom est déjà utilisé</string>
+    <string name="invalid_ip_address">Adresse IP invalide</string>
+    <string name="invalid_port">Port invalide</string>
+    <string name="remove_server">Supprimer le serveur</string>
+    <string name="remove_server_question">Êtes-vous certain de vouloir supprimer ce serveur ?</string>
+    <string name="remove">Supprimer</string>
+    <string name="client">Client</string>
+    <string name="server">Serveur</string>
 </resources>
