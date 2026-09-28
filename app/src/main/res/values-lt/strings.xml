@@ -169,4 +169,22 @@
     <string name="selected">Pasirinkta</string>
     <string name="blur_effects">Išliejantys efektai</string>
     <string name="set_as_default">Nustatyti kaip numatytąjį</string>
+    <string name="search">Paieška</string>
+    <string name="server_ip_address">IP adresas</string>
+    <string name="no_server_selected">Serveris nepasirinktas</string>
+    <string name="select_server">Pasirinkti serverį</string>
+    <string name="add_server">Pridėti serverį</string>
+    <string name="network_port">Prievadas</string>
+    <string name="server_name">Serverio pavadinimas</string>
+    <string name="my_server">Mano serveris</string>
+    <string name="name_cannot_be_empty">Pavadinimas negali būti tuščias</string>
+    <string name="name_already_used">Pavadinimas jau naudojamas</string>
+    <string name="invalid_ip_address">Neteisingas IP adresas</string>
+    <string name="invalid_port">Neteisingas prievadas</string>
+    <string name="remove_server">Panaikinti serverį</string>
+    <string name="remove_server_question">Ar jūs tikrai norite panaikinti šį serverį?</string>
+    <string name="remove">Panaikinti</string>
+    <string name="client">Klientas</string>
+    <string name="server">Serveris</string>
+    <string name="server_address">Serverio adresas</string>
 </resources>
