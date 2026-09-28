@@ -165,4 +165,22 @@
     <string name="selected">Seçildi</string>
     <string name="blur_effects">Bulanıklık efektleri</string>
     <string name="set_as_default">Öntanımlı olarak ayarla</string>
+    <string name="search">Ara</string>
+    <string name="server_ip_address">IP adresi</string>
+    <string name="no_server_selected">Sunucu seçilmedi</string>
+    <string name="select_server">Sunucu Seç</string>
+    <string name="add_server">Sunucu ekle</string>
+    <string name="network_port">Bağlantı noktası</string>
+    <string name="server_name">Sunucu adı</string>
+    <string name="my_server">Sunucum</string>
+    <string name="name_cannot_be_empty">Ad boş olamaz</string>
+    <string name="name_already_used">Ad zaten kullanılıyor</string>
+    <string name="invalid_ip_address">Geçersiz IP adresi</string>
+    <string name="invalid_port">Geçersiz bağlantı noktası</string>
+    <string name="remove_server">Sunucuyu kaldır</string>
+    <string name="remove_server_question">Bu sunucuyu kaldırmak istediğinizden emin misiniz?</string>
+    <string name="remove">Kaldır</string>
+    <string name="client">İstemci</string>
+    <string name="server">Sunucu</string>
+    <string name="server_address">Sunucu adresi</string>
 </resources>
