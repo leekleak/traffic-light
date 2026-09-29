@@ -1,0 +1,9 @@
+Traffic Light, tam gizlilik sağlarken ağ kullanımınızı takip etmenize olanak tanıyan açık kaynaklı bir araçtır. Internet Speed Meter ve GlassWire'dan esinlenmiştir.
+
+Özellikler:
+- Özgür ve açık kaynaklı
+- Az sayıda izin gerektirir
+- Daha az pil tüketir
+- İzleme yapmaz
+- Güzel kullanıcı arayüzü
+- Hızlı ve yeni
