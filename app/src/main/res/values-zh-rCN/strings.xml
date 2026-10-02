@@ -163,4 +163,22 @@
     <string name="selected">已选中的</string>
     <string name="blur_effects">模糊效果</string>
     <string name="set_as_default">设置为默认</string>
+    <string name="search">搜索</string>
+    <string name="server_ip_address">IP 地址</string>
+    <string name="no_server_selected">尚未选择服务器</string>
+    <string name="select_server">选择服务器</string>
+    <string name="add_server">添加服务器</string>
+    <string name="network_port">端口</string>
+    <string name="server_name">服务器名称</string>
+    <string name="my_server">我的服务器</string>
+    <string name="name_cannot_be_empty">名称不能为空白</string>
+    <string name="name_already_used">此名称已被占用</string>
+    <string name="invalid_ip_address">无效IP地址</string>
+    <string name="invalid_port">无效端口</string>
+    <string name="remove_server">远程服务器</string>
+    <string name="remove_server_question">您确定要移除这个服务器？</string>
+    <string name="remove">移除</string>
+    <string name="client">客户端</string>
+    <string name="server">服务器</string>
+    <string name="server_address">服务器地址</string>
 </resources>
