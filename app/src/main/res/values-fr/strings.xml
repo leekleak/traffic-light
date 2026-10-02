@@ -184,4 +184,5 @@
     <string name="remove">Supprimer</string>
     <string name="client">Client</string>
     <string name="server">Serveur</string>
+    <string name="server_address">Adresse du serveur</string>
 </resources>
