@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.22.1)
 project("iperf3" C)
 
 set(IPERF_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/iperf/src")
+set(IPERF_GEN_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 set(PACKAGE_VERSION "3.22")
 
 configure_file(
@@ -44,6 +45,7 @@ add_executable(${IPERF_TARGET}
 )
 
 target_include_directories(${IPERF_TARGET} PRIVATE
+    "${IPERF_GEN_DIR}"
     "${IPERF_SRC_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}"
 )
