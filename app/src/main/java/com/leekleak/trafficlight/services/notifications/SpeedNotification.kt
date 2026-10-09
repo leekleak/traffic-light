@@ -8,6 +8,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.DeadSystemException
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.LifecycleCoroutineScope
 import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
@@ -17,25 +18,27 @@ import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.database.TrafficSnapshotManager
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.NetworkUsageManager
+import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.clipAndPad
 import com.leekleak.trafficlight.util.toKb
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.koin.core.annotation.InjectedParam
 import timber.log.Timber
 import java.time.LocalDate
 import kotlin.time.Duration.Companion.milliseconds
 
 class SpeedNotification(
-    serviceScope: CoroutineScope,
+    @InjectedParam serviceScope: LifecycleCoroutineScope,
+    @InjectedParam notificationId: Int,
     context: Context,
     notificationManager: NotificationManager,
-    notificationId: Int,
     private val networkUsageManager: NetworkUsageManager,
     private val connectivityManager: ConnectivityManager,
     private val appPreferenceRepo: AppPreferenceRepo,
     private val trafficSnapshotManager: TrafficSnapshotManager,
+    private val permissionManager: PermissionManager,
 ) : PersistentNotification(serviceScope, context, notificationManager, notificationId) {
 
     private var notificationBuilderSilent = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID_SILENT)
@@ -262,6 +265,7 @@ class SpeedNotification(
     private fun shouldGoSilent(): Boolean = (silentChannelTicks >= SILENT_CHANNEL_TICK_TARGET) && speedThreshold
 
     private fun isNetworkAvailable(): Boolean {
+        if (!permissionManager.internetPermission.value) return true
         return connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)?.run {
             hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
             hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||

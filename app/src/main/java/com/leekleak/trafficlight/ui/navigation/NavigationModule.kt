@@ -26,7 +26,7 @@ val navigationModule = module {
     single {
         val permissionManager: PermissionManager = get()
         permissionManager.update()
-        val destination = if (permissionManager.usagePermissionFlow.value) OverviewKey else UsagePermissionRequestKey
+        val destination = if (permissionManager.usagePermission.value) OverviewKey else UsagePermissionRequestKey
         Navigator(startDestination = destination)
     }
     navigation<OverviewKey> { Overview(get(), get()) }

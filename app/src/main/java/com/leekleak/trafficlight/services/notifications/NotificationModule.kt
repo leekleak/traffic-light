@@ -10,18 +10,7 @@ import org.koin.plugin.module.dsl.factory
 val notificationModule = module {
     factory<TrafficSnapshotManager>()
 
-    factory { (scope: CoroutineScope, id: Int) ->
-        SpeedNotification(
-            serviceScope = scope,
-            context = androidContext(),
-            notificationId = id,
-            networkUsageManager = get(),
-            notificationManager = get(),
-            connectivityManager = get(),
-            appPreferenceRepo = get(),
-            trafficSnapshotManager = get()
-        )
-    }
+    factory<SpeedNotification>()
     factory { (scope: CoroutineScope, id: Int, dataPlan: DataPlan) ->
         PlanNotification(
             serviceScope = scope,

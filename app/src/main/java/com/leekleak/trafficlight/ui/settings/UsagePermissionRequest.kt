@@ -41,7 +41,7 @@ fun UsagePermissionRequest(
     permissionManager: PermissionManager
 ) {
     val activity = LocalActivity.current
-    val usagePermission by permissionManager.usagePermissionFlow.collectAsStateWithLifecycle()
+    val usagePermission by permissionManager.usagePermission.collectAsStateWithLifecycle()
 
     LaunchedEffect(usagePermission) {
         if (usagePermission) navigator.setTo(OverviewKey)

@@ -19,7 +19,7 @@ import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.integrations.ShizukuServicesProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -30,27 +30,38 @@ class PermissionManager(
     appPreferenceRepo: AppPreferenceRepo,
     private val shizukuServicesProvider: ShizukuServicesProvider
 ) {
-    private val _backgroundPermission = MutableStateFlow(false)
-    val backgroundPermissionFlow = _backgroundPermission.asStateFlow()
+    val backgroundPermission: StateFlow<Boolean>
+        field = MutableStateFlow(false)
 
-    private val _usagePermission = MutableStateFlow(false)
-    val usagePermissionFlow = _usagePermission.asStateFlow()
+    val usagePermission: StateFlow<Boolean>
+        field = MutableStateFlow(false)
 
-    private val _notificationPermission = MutableStateFlow(false)
-    val notificationPermissionFlow = _notificationPermission.asStateFlow()
+    val notificationPermission: StateFlow<Boolean>
+        field = MutableStateFlow(false)
 
-    private val _shizukuRunning = MutableStateFlow(false)
-    val shizukuRunningFlow = _shizukuRunning.asStateFlow()
+    val shizukuRunning: StateFlow<Boolean>
+        field = MutableStateFlow(false)
 
-    private val _shizukuPermission = MutableStateFlow(false)
-    val shizukuPermissionFlow = _shizukuPermission.asStateFlow()
+    val shizukuPermission: StateFlow<Boolean>
+        field = MutableStateFlow(false)
+
+    /**
+     * Technically internet permission should always be granted. Unfortunately, that's not necessarily
+     * the case in GrapheneOS. While the internet permission should not affect network counting at all,
+     * whenever the permission is rejected, GrapheneOS also spoofs all system calls such as available
+     * network interfaces and transport capabilities to indicate that no network is configured.
+     *
+     * In such cases we should just fall back and assume the device is connected.
+     */
+    val internetPermission: StateFlow<Boolean>
+        field = MutableStateFlow(true)
 
     init {
         scope.launch {
             combine(
                 appPreferenceRepo.shizukuTracking,
-                shizukuPermissionFlow,
-                shizukuRunningFlow
+                shizukuPermission,
+                shizukuRunning
             ) {
                 setting, permission, running ->
                 return@combine Triple(setting, permission, running)
@@ -107,7 +118,9 @@ class PermissionManager(
     fun update() {
         val packageName: String? = context.packageName
         val pm = context.getSystemService(POWER_SERVICE) as PowerManager
-        _backgroundPermission.value = pm.isIgnoringBatteryOptimizations(packageName)
+        backgroundPermission.value = pm.isIgnoringBatteryOptimizations(packageName)
+
+        internetPermission.value = context.checkSelfPermission(android.Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED
 
         val appOpsManager = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
         val mode = appOpsManager.checkOpNoThrow(
@@ -115,19 +128,19 @@ class PermissionManager(
             myUid(),
             context.packageName
         )
-        _usagePermission.value = mode == AppOpsManager.MODE_ALLOWED
+        usagePermission.value = mode == AppOpsManager.MODE_ALLOWED
 
-        _notificationPermission.value = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        notificationPermission.value = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             context.checkSelfPermission(POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
         } else {
             true
         }
 
-        _shizukuRunning.value = shizukuServicesProvider.shizukuRunning()
-        if (_shizukuRunning.value) {
-            _shizukuPermission.value = shizukuServicesProvider.shizukuPermission() == PackageManager.PERMISSION_GRANTED
+        shizukuRunning.value = shizukuServicesProvider.shizukuRunning()
+        if (shizukuRunning.value) {
+            shizukuPermission.value = shizukuServicesProvider.shizukuPermission() == PackageManager.PERMISSION_GRANTED
         } else {
-            _shizukuPermission.value = false
+            shizukuPermission.value = false
         }
     }
 }

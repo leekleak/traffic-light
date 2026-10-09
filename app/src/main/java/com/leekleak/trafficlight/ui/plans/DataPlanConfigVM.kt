@@ -47,11 +47,7 @@ class DataPlanConfigVM (
         initialValue = emptyList()
     )
 
-    val notificationPermission = permissionManager.notificationPermissionFlow.stateIn(
-        viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = true
-    )
+    val notificationPermission = permissionManager.notificationPermission
 
     init {
         viewModelScope.launch {

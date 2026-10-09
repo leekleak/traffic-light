@@ -6,6 +6,7 @@ import android.net.Network
 import android.net.NetworkRequest
 import android.net.TrafficStats
 import android.os.Build
+import com.leekleak.trafficlight.model.PermissionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -20,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap
 class TrafficSnapshotManager(
     private val appPreferenceRepo: AppPreferenceRepo,
     private val connectivityManager: ConnectivityManager,
+    private val permissionManager: PermissionManager,
 ) : AutoCloseable {
     @Volatile private var useFallback: Boolean = TrafficStats.getTotalTxBytes() == TrafficStats.UNSUPPORTED.toLong()
     private val activeInterfaceNames = ConcurrentHashMap<Network, String>()
@@ -91,7 +93,7 @@ class TrafficSnapshotManager(
 
     private suspend fun regularUpdateSnapshot(): TrafficSnapshot = withContext(Dispatchers.IO) {
         val inter = interfaces
-        return@withContext if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        return@withContext if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && permissionManager.internetPermission.value) {
             TrafficSnapshot(
                 up = inter.sumOf { TrafficStats.getTxBytes(it).coerceAtLeast(0L) },
                 down = inter.sumOf { TrafficStats.getRxBytes(it).coerceAtLeast(0L) },

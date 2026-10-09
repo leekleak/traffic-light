@@ -211,8 +211,8 @@ private fun ShizukuSettings(
 
     CategoryTitleSmallText(stringResource(R.string.data_plans))
     val shizukuTracking by appPreferenceRepo.shizukuTracking.collectAsState(false)
-    val shizukuPermission by permissionManager.shizukuPermissionFlow.collectAsState(false)
-    val shizukuRunning by permissionManager.shizukuRunningFlow.collectAsState(false)
+    val shizukuPermission by permissionManager.shizukuPermission.collectAsState()
+    val shizukuRunning by permissionManager.shizukuRunning.collectAsState()
     var expectingPermissionChange by remember { mutableStateOf(false) }
     LaunchedEffect(shizukuPermission) {
         if (shizukuPermission && expectingPermissionChange) {
@@ -241,7 +241,7 @@ private fun ShizukuSettings(
 @Composable
 private fun BackgroundPermissionPrompt(permissionManager: PermissionManager) {
     val activity = LocalActivity.current
-    val backgroundPermission by permissionManager.backgroundPermissionFlow.collectAsStateWithLifecycle()
+    val backgroundPermission by permissionManager.backgroundPermission.collectAsStateWithLifecycle()
     SlideAnimatedVisibility(!backgroundPermission) {
         CategoryTitleSmallText(stringResource(R.string.missing_permissions))
         PermissionCard(
@@ -266,7 +266,7 @@ private fun NotificationSettings(
     CategoryTitleSmallText(stringResource(R.string.notifications))
     val notification by viewModel.notification.collectAsStateWithLifecycle()
     val activePlanNotificationsCount by viewModel.activePlanNotificationsCount.collectAsStateWithLifecycle()
-    val notificationPermission by permissionManager.notificationPermissionFlow.collectAsStateWithLifecycle()
+    val notificationPermission by permissionManager.notificationPermission.collectAsStateWithLifecycle()
     val notificationPermissionCallback =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
 
