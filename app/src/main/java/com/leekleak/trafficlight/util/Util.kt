@@ -84,6 +84,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -123,7 +124,6 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.enums.enumEntries
-import androidx.compose.ui.platform.LocalLocale
 
 enum class NetworkType {
     Cellular,
@@ -583,7 +583,7 @@ fun Modifier.clearFocusOnTap(): Modifier {
     val focusManager = LocalFocusManager.current
     return this.pointerInput(Unit) {
         awaitEachGesture {
-            awaitFirstDown(pass = PointerEventPass.Initial)
+            awaitFirstDown(requireUnconsumed = true, pass = PointerEventPass.Final)
             focusManager.clearFocus()
         }
     }

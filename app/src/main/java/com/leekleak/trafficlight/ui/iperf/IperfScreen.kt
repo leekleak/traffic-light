@@ -245,7 +245,7 @@ private fun ClientScreen(
             modifier = Modifier
                 .align(alignment)
                 .padding(32.dp),
-            arguments = selectedEntry?.let { arrayOf("-c", it.ip, "-p", it.port, "-i", "0.5", "-p", "5201") },
+            arguments = selectedEntry?.let { arrayOf("-c", it.ip, "-p", it.port, "-i", "0.5") },
             addData = data::add,
             clearData = data::clear,
             iPerf3Provider = iPerf3Provider
