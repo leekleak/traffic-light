@@ -16,7 +16,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 @Entity
 data class IPerfEntry(
-    @PrimaryKey val name: String,
+    @PrimaryKey val uuid: String,
+    @ColumnInfo val name: String,
     @ColumnInfo val ip: String,
     @ColumnInfo val port: String,
     @ColumnInfo val selected: Boolean

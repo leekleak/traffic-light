@@ -2,12 +2,18 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "6d68cc6808b18a1fdda96736d62732f6",
+    "identityHash": "3f206430b7afe439d2b6a7f9632e8cac",
     "entities": [
       {
         "tableName": "IPerfEntry",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `ip` TEXT NOT NULL, `port` TEXT NOT NULL, `selected` INTEGER NOT NULL, PRIMARY KEY(`name`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `name` TEXT NOT NULL, `ip` TEXT NOT NULL, `port` TEXT NOT NULL, `selected` INTEGER NOT NULL, PRIMARY KEY(`uuid`))",
         "fields": [
+          {
+            "fieldPath": "uuid",
+            "columnName": "uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
           {
             "fieldPath": "name",
             "columnName": "name",
@@ -36,14 +42,14 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "name"
+            "uuid"
           ]
         }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6d68cc6808b18a1fdda96736d62732f6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3f206430b7afe439d2b6a7f9632e8cac')"
     ]
   }
 }

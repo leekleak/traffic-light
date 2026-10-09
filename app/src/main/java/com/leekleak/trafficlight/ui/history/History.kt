@@ -689,9 +689,11 @@ private fun <T : DropdownItem> FilterDropdownButton(
 ) {
     val scrollState = rememberScrollState()
     var expanded by remember { mutableStateOf(false)}
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .wrapContentSize(Alignment.TopStart)) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentSize(Alignment.TopStart)
+    ) {
         FilterButton(
             n = n,
             enabled = enabled,

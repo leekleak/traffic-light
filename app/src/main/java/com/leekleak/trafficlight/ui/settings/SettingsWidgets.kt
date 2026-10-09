@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -291,7 +292,7 @@ fun FancyDialog(
     title: String,
     icon: Painter,
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(16.dp),
-    actionButton: @Composable (() -> Unit) = {},
+    actionButton: @Composable (RowScope.() -> Unit) = {},
     content: @Composable (ColumnScope.() -> Unit),
 ) {
     Dialog(onDismissRequest = onDismissRequest) {

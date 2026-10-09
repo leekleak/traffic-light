@@ -33,7 +33,7 @@ val databaseModule = module {
         Room.databaseBuilder(
             androidContext(),
             IPerfEntryDatabase::class.java,
-            "iperf_database"
+            "iperf_servers"
         )
             .addMigrations()
             .build()
