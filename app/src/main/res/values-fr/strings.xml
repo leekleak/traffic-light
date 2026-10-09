@@ -168,7 +168,6 @@
     <string name="blur_effects">Effets de floutage</string>
     <string name="set_as_default">Régler par défaut</string>
     <string name="search">Rechercher</string>
-    <string name="server_ip_address">Adresse IP</string>
     <string name="no_server_selected">Aucun serveur sélectionné</string>
     <string name="select_server">Sélectionner un serveur</string>
     <string name="add_server">Ajouter un serveur</string>
