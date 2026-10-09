@@ -22,7 +22,6 @@ android {
             version = "4.1.2"
         }
     }
-    ndkVersion = "30.0.16248370"
 
     packaging {
         jniLibs {
