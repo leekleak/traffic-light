@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.leekleak.iperfintegration.IPerf3Provider
 import com.leekleak.trafficlight.database.IPerfEntry
 import com.leekleak.trafficlight.database.IPerfEntryDao
+import com.leekleak.trafficlight.util.DataSizeUnit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +17,9 @@ data class IperfClientUIState(
     val selectedEntry: IPerfEntry? = null,
     val entries: List<IPerfEntry> = emptyList(),
     val selectedProtocol: IperfProtocol = IperfProtocol.TCP,
+    val selectedDirection: IperfDirection = IperfDirection.UPLOAD,
+    val bandwidth: Int = 1,
+    val bandwidthUnit: DataSizeUnit = DataSizeUnit.MB,
     val showTestSettings: Boolean = false,
     val showEntrySelector: Boolean = false,
     val showEntryCreator: Boolean = false,
@@ -27,7 +31,19 @@ data class IperfClientUIState(
             val entry = selectedEntry ?: return null
             val args = mutableListOf("-c", entry.ip, "-p", entry.port, "-i", "0.5")
             when (selectedProtocol) {
-                IperfProtocol.UDP -> args.add("--udp")
+                IperfProtocol.UDP -> {
+                    args.add("--udp")
+                    val unitChar = when (bandwidthUnit) {
+                        DataSizeUnit.GB -> "G"
+                        DataSizeUnit.KB -> "K"
+                        else -> "M"
+                    }
+                    args.addAll(listOf("-b", "$bandwidth$unitChar"))
+                }
+                else -> {}
+            }
+            when (selectedDirection) {
+                IperfDirection.DOWNLOAD -> args.add("-R")
                 else -> {}
             }
             return args.toTypedArray()
@@ -40,6 +56,9 @@ class IperfClientVM(
 ) : ViewModel() {
 
     private val selectedProtocol = MutableStateFlow(IperfProtocol.TCP)
+    private val selectedDirection = MutableStateFlow(IperfDirection.UPLOAD)
+    private val bandwidth = MutableStateFlow(1)
+    private val bandwidthUnit = MutableStateFlow(DataSizeUnit.MB)
     private val showTestSettings = MutableStateFlow(value = false)
     private val showEntrySelector = MutableStateFlow(value = false)
     private val showEntryCreator = MutableStateFlow(value = false)
@@ -49,6 +68,9 @@ class IperfClientVM(
     val uiState: StateFlow<IperfClientUIState> = combine(
         iPerfEntryDao.allEntries,
         selectedProtocol,
+        selectedDirection,
+        bandwidth,
+        bandwidthUnit,
         showTestSettings,
         showEntrySelector,
         showEntryCreator,
@@ -58,16 +80,22 @@ class IperfClientVM(
         @Suppress("UNCHECKED_CAST")
         val entries = flows[0] as List<IPerfEntry>
         val protocol = flows[1] as IperfProtocol
-        val testSettings = flows[2] as Boolean
-        val entrySelector = flows[3] as Boolean
-        val entryCreator = flows[4] as Boolean
-        val entryDeletion = flows[5] as Boolean
-        val editing = flows[6] as IPerfEntry?
+        val direction = flows[2] as IperfDirection
+        val bw = flows[3] as Int
+        val bwUnit = flows[4] as DataSizeUnit
+        val testSettings = flows[5] as Boolean
+        val entrySelector = flows[6] as Boolean
+        val entryCreator = flows[7] as Boolean
+        val entryDeletion = flows[8] as Boolean
+        val editing = flows[9] as IPerfEntry?
 
         IperfClientUIState(
             selectedEntry = entries.firstOrNull { it.selected },
             entries = entries,
             selectedProtocol = protocol,
+            selectedDirection = direction,
+            bandwidth = bw,
+            bandwidthUnit = bwUnit,
             showTestSettings = testSettings,
             showEntrySelector = entrySelector,
             showEntryCreator = entryCreator,
@@ -99,6 +127,18 @@ class IperfClientVM(
 
     fun setSelectedProtocol(protocol: IperfProtocol) {
         selectedProtocol.value = protocol
+    }
+
+    fun setSelectedDirection(direction: IperfDirection) {
+        selectedDirection.value = direction
+    }
+
+    fun setBandwidth(bandwidth: Int) {
+        this.bandwidth.value = bandwidth
+    }
+
+    fun setBandwidthUnit(bandwidthUnit: DataSizeUnit) {
+        this.bandwidthUnit.value = bandwidthUnit
     }
 
     fun setShowTestSettings(show: Boolean) {

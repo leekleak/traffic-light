@@ -182,6 +182,8 @@
     <string name="server">Server</string>
     <string name="edit">Edit</string>
     <string name="protocol">Protocol</string>
+    <string name="direction">Direction</string>
+    <string name="bandwidth">Bandwidth</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -19,6 +20,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonGroup
@@ -30,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -37,11 +42,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -55,6 +64,7 @@ import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.googleSans
 import com.leekleak.trafficlight.util.CategoryTitleSmallText
 import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.trafficlight.util.DataSizeUnit
 import com.leekleak.trafficlight.util.SearchField
 import com.leekleak.trafficlight.util.animateAlignmentAsState
 import com.leekleak.trafficlight.util.formattedParts
@@ -64,6 +74,10 @@ import java.util.UUID
 
 enum class IperfProtocol {
     TCP, UDP // SCTP should also be here, but it doesn't work and no one uses it either way
+}
+
+enum class IperfDirection {
+    UPLOAD, DOWNLOAD
 }
 
 @Composable
@@ -119,7 +133,13 @@ fun ClientScreen(
         TestSettingsComponent(
             onDismissRequest = { viewModel.setShowTestSettings(false) },
             selectedProtocol = uiState.selectedProtocol,
-            onProtocolSelected = viewModel::setSelectedProtocol
+            onProtocolSelected = viewModel::setSelectedProtocol,
+            selectedDirection = uiState.selectedDirection,
+            onDirectionSelected = viewModel::setSelectedDirection,
+            bandwidth = uiState.bandwidth,
+            bandwidthUnit = uiState.bandwidthUnit,
+            onBandwidthChanged = viewModel::setBandwidth,
+            onBandwidthUnitChanged = viewModel::setBandwidthUnit,
         )
     }
 
@@ -416,8 +436,18 @@ private fun EntryDeletionComponent(
 private fun TestSettingsComponent(
     onDismissRequest: () -> Unit,
     selectedProtocol: IperfProtocol,
-    onProtocolSelected: (IperfProtocol) -> Unit
+    onProtocolSelected: (IperfProtocol) -> Unit,
+    selectedDirection: IperfDirection,
+    onDirectionSelected: (IperfDirection) -> Unit,
+    bandwidth: Int,
+    bandwidthUnit: DataSizeUnit,
+    onBandwidthChanged: (Int) -> Unit,
+    onBandwidthUnitChanged: (DataSizeUnit) -> Unit,
 ) {
+    val haptic = LocalHapticFeedback.current
+    val colorScheme = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     ModalBottomSheet(
         onDismissRequest = onDismissRequest
     ) {
@@ -427,6 +457,33 @@ private fun TestSettingsComponent(
                 .padding(horizontal = 16.dp)
                 .padding(bottom = 16.dp),
         ) {
+            val uploadText = stringResource(R.string.upload)
+            val downloadText = stringResource(R.string.download)
+            CategoryTitleSmallText(stringResource(R.string.direction))
+            ButtonGroup(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(
+                    4.dp,
+                    Alignment.CenterHorizontally
+                ),
+                overflowIndicator = {}
+            ) {
+                iconToggleButton(
+                    selected = selectedDirection == IperfDirection.UPLOAD,
+                    onSelect = { onDirectionSelected(IperfDirection.UPLOAD) },
+                    text = uploadText,
+                    icon = { Icon(painterResource(R.drawable.arrow_upward_alt), null) },
+                    weight = 1f
+                )
+                iconToggleButton(
+                    selected = selectedDirection == IperfDirection.DOWNLOAD,
+                    onSelect = { onDirectionSelected(IperfDirection.DOWNLOAD) },
+                    text = downloadText,
+                    icon = { Icon(painterResource(R.drawable.arrow_downward_alt), null) },
+                    weight = 1f
+                )
+            }
+
             CategoryTitleSmallText(stringResource(R.string.protocol))
             ButtonGroup(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
@@ -448,6 +505,54 @@ private fun TestSettingsComponent(
                     text = "UDP",
                     weight = 1f
                 )
+            }
+
+            AnimatedVisibility(visible = selectedProtocol == IperfProtocol.UDP) {
+                val bandwidthState = rememberTextFieldState(bandwidth.toString())
+
+                LaunchedEffect(bandwidthState.text) {
+                    bandwidthState.text.toString().toIntOrNull()?.let {
+                        if (it > 0) onBandwidthChanged(it)
+                    }
+                }
+
+                Column {
+                    CategoryTitleSmallText(stringResource(R.string.bandwidth))
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        BasicTextField(
+                            state = bandwidthState,
+                            modifier = Modifier
+                                .weight(1f)
+                                .card()
+                                .background(colorScheme.background)
+                                .padding(8.dp),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            textStyle = typography.bodyLarge.copy(color = colorScheme.onSurface),
+                            cursorBrush = SolidColor(colorScheme.onSurface),
+                            lineLimits = TextFieldLineLimits.SingleLine,
+                        )
+                        Button(
+                            onClick = {
+                                onBandwidthUnitChanged(
+                                    when (bandwidthUnit) {
+                                        DataSizeUnit.GB -> DataSizeUnit.KB
+                                        DataSizeUnit.KB -> DataSizeUnit.MB
+                                        else -> DataSizeUnit.GB
+                                    }
+                                )
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            },
+                            shape = MaterialTheme.shapes.medium,
+                            contentPadding = PaddingValues(horizontal = 12.dp)
+                        ) {
+                            Text(bandwidthUnit.name)
+                        }
+                    }
+                }
             }
         }
     }

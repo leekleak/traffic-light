@@ -365,7 +365,10 @@ fun ButtonGroupScope.iconToggleButton(
                 fun content() {
                     Row {
                         icon?.let { it() }
-                        text?.let { Text(modifier = Modifier.padding(start = 8.dp), text = it) }
+                        text?.let { Text(
+                            modifier = if (icon!= null) Modifier.padding(start = 8.dp) else Modifier,
+                            text = it)
+                        }
                     }
                 }
                 if (showBadge) {
