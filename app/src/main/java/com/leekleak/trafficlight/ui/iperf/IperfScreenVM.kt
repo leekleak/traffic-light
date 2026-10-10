@@ -11,19 +11,15 @@ import android.text.format.Formatter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leekleak.iperfintegration.IPerf3Provider
-import com.leekleak.trafficlight.database.IPerfEntry
-import com.leekleak.trafficlight.database.IPerfEntryDao
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 
 class IperfScreenVM(
     private val connectivityManager: ConnectivityManager,
     private val wifiManager: WifiManager,
-    private val iPerfEntryDao: IPerfEntryDao,
     val iPerf3Provider: IPerf3Provider,
 ): ViewModel() {
     val ipFlow: StateFlow<String?> = callbackFlow {
@@ -64,26 +60,4 @@ class IperfScreenVM(
         SharingStarted.WhileSubscribed(5000L),
         null
     )
-
-    val iperfEntries = iPerfEntryDao.allEntries.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000L),
-        emptyList()
-    )
-
-    fun selectEntry(entry: IPerfEntry) {
-        viewModelScope.launch {
-            val selected = iperfEntries.value.find { it.selected }
-            if (selected != null) {
-                iPerfEntryDao.upsert(selected.copy(selected = false))
-            }
-            iPerfEntryDao.upsert(entry.copy(selected = true))
-        }
-    }
-
-    fun deleteEntry(entry: IPerfEntry) {
-        viewModelScope.launch {
-            iPerfEntryDao.delete(entry)
-        }
-    }
 }

@@ -1,6 +1,7 @@
 package com.leekleak.trafficlight.ui
 
 import com.leekleak.trafficlight.ui.history.HistoryVM
+import com.leekleak.trafficlight.ui.iperf.IperfClientVM
 import com.leekleak.trafficlight.ui.iperf.IperfScreenVM
 import com.leekleak.trafficlight.ui.overview.OverviewVM
 import com.leekleak.trafficlight.ui.plans.DataPlanConfigVM
@@ -14,6 +15,7 @@ val viewModelModule = module {
     viewModel<DataPlansVM>()
     viewModel<HistoryVM>()
     viewModel<IperfScreenVM>()
+    viewModel<IperfClientVM>()
     viewModel<DataPlanConfigVM>()
     viewModel<SettingsVM>()
 }

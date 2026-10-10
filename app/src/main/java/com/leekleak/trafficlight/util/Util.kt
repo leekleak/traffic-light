@@ -322,15 +322,16 @@ fun SearchField(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun ButtonGroupScope.iconToggleButton(
     text: String? = null,
     showBadge: Boolean = false,
-    fillWidth: Boolean = false,
+    weight: Float? = null,
+    enabled: Boolean = true,
     selected: Boolean,
     onSelect: () -> Unit,
-    toggledColors: IconButtonColors? = null,
-    icon: @Composable (() -> Unit)
+    selectedColors: IconButtonColors? = null,
+    unselectedColors: IconButtonColors? = null,
+    icon: @Composable (() -> Unit)? = null
 ) {
     customItem(
         buttonGroupContent = {
@@ -339,17 +340,16 @@ fun ButtonGroupScope.iconToggleButton(
             val press by source.collectIsPressedAsState()
             val cornerRadius by animateDpAsState(if (press || selected) 12.dp else 24.dp)
             val containerColor by animateColorAsState(targetValue =
-                if (selected) toggledColors?.containerColor ?: colorScheme.primaryContainer
-                else colorScheme.surfaceContainer
+                if (selected) selectedColors?.containerColor ?: colorScheme.primaryContainer
+                else unselectedColors?.containerColor ?: colorScheme.surfaceContainerHigh
             )
             val contentColor by animateColorAsState(targetValue =
-                if (selected) toggledColors?.contentColor ?: colorScheme.onPrimaryContainer
-                else colorScheme.onSurfaceVariant
+                if (selected) selectedColors?.contentColor ?: colorScheme.onPrimaryContainer
+                else unselectedColors?.contentColor ?: colorScheme.onSurfaceVariant
             )
             TextButton(
-                modifier = Modifier.let {
-                    if (fillWidth) { it.weight(1f) } else it
-                }.animateWidth(source),
+                modifier = Modifier.let { mod -> weight?.let { mod.weight(it) } ?: mod }.animateWidth(source),
+                enabled = enabled,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = containerColor,
                     contentColor = contentColor
@@ -361,14 +361,18 @@ fun ButtonGroupScope.iconToggleButton(
                     haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                 }
             ) {
-                Row {
-                    if (showBadge) {
-                        BadgedBox({ Badge() }) {
-                            icon()
-                        }
-                    } else icon()
-                    text?.let { Text(it) }
+                @Composable
+                fun content() {
+                    Row {
+                        icon?.let { it() }
+                        text?.let { Text(modifier = Modifier.padding(start = 8.dp), text = it) }
+                    }
                 }
+                if (showBadge) {
+                    BadgedBox({ Badge() }) {
+                        content()
+                    }
+                } else content()
             }
         },
         menuContent = {}

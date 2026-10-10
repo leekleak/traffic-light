@@ -21,10 +21,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,7 +47,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.leekleak.iperfintegration.IPerf3Provider
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.SpeedGraph
 import com.leekleak.trafficlight.database.IPerfEntry
@@ -56,62 +58,68 @@ import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.SearchField
 import com.leekleak.trafficlight.util.animateAlignmentAsState
 import com.leekleak.trafficlight.util.formattedParts
+import com.leekleak.trafficlight.util.iconToggleButton
+import org.koin.compose.viewmodel.koinViewModel
 import java.util.UUID
+
+enum class IperfProtocol {
+    TCP, UDP // SCTP should also be here, but it doesn't work and no one uses it either way
+}
 
 @Composable
 fun ClientScreen(
-    selectedEntry: IPerfEntry?,
-    entries: List<IPerfEntry>,
-    selectEntry: (IPerfEntry) -> Unit,
-    deleteEntry: (IPerfEntry) -> Unit,
-    iPerf3Provider: IPerf3Provider,
     myIp: String?,
+    viewModel: IperfClientVM = koinViewModel(),
 ) {
-    var showEntrySelector by remember { mutableStateOf(false) }
-    var showEntryCreator by remember { mutableStateOf(false) }
-    var showEntryDeletion by remember { mutableStateOf(false) }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    var editEntry: IPerfEntry? by remember { mutableStateOf(null) }
-
-    if (showEntrySelector) {
+    if (uiState.showEntrySelector) {
         EntrySelectorComponent(
-            onDismissRequest = { showEntrySelector = false },
-            entries = entries,
-            selectEntry = selectEntry,
+            onDismissRequest = { viewModel.setShowEntrySelector(false) },
+            entries = uiState.entries,
+            selectEntry = viewModel::selectEntry,
             setShowEntryEdit = {
-                showEntryCreator = true
-                editEntry = it
+                viewModel.setEditEntry(it)
+                viewModel.setShowEntryCreator(true)
             },
             setShowEntryDeletion = {
-                showEntryDeletion = true
-                editEntry = it
+                viewModel.setEditEntry(it)
+                viewModel.setShowEntryDeletion(true)
             },
-            setShowEntryCreator = { showEntryCreator = true }
+            setShowEntryCreator = { viewModel.setShowEntryCreator(true) }
         )
     }
 
-    if (showEntryDeletion) {
-        editEntry?.let { entry ->
+    if (uiState.showEntryDeletion) {
+        uiState.editEntry?.let { entry ->
             EntryDeletionComponent(
-                onDismissRequest = { showEntryDeletion = false },
+                onDismissRequest = { viewModel.setShowEntryDeletion(false) },
                 deleteEntry = {
-                    deleteEntry(entry)
-                    showEntryCreator = false
-                    editEntry = null
+                    viewModel.deleteEntry(entry)
+                    viewModel.setShowEntryCreator(false)
+                    viewModel.setEditEntry(null)
                 }
             )
         }
     }
 
-    if (showEntryCreator) {
+    if (uiState.showEntryCreator) {
         EntryCreatorComponent(
             onDismissRequest = {
-                showEntryCreator = false
-                editEntry = null
+                viewModel.setShowEntryCreator(false)
+                viewModel.setEditEntry(null)
             },
-            entry = editEntry,
-            selectEntry = selectEntry,
+            entry = uiState.editEntry,
+            selectEntry = viewModel::selectEntry,
             myIp = myIp
+        )
+    }
+
+    if (uiState.showTestSettings) {
+        TestSettingsComponent(
+            onDismissRequest = { viewModel.setShowTestSettings(false) },
+            selectedProtocol = uiState.selectedProtocol,
+            onProtocolSelected = viewModel::setSelectedProtocol
         )
     }
 
@@ -123,19 +131,19 @@ fun ClientScreen(
                 .padding(top = 4.dp)
                 .align(Alignment.TopCenter),
             shape = MaterialTheme.shapes.medium,
-            onClick = { showEntrySelector = true },
+            onClick = { viewModel.setShowEntrySelector(true) },
             contentPadding = PaddingValues(start = 12.dp, top = 4.dp, end = 8.dp, bottom = 4.dp)
         ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (selectedEntry == null) {
+                if (uiState.selectedEntry == null) {
                     Text(text = stringResource(R.string.no_server_selected))
                 } else {
                     Column {
-                        Text(selectedEntry.name, fontWeight = FontWeight.Bold)
-                        Text(selectedEntry.ip + ":" + selectedEntry.port)
+                        Text(uiState.selectedEntry!!.name, fontWeight = FontWeight.Bold)
+                        Text(uiState.selectedEntry!!.ip + ":" + uiState.selectedEntry!!.port)
                     }
                 }
                 Icon(painterResource(R.drawable.arrow_drop_down), null)
@@ -143,7 +151,7 @@ fun ClientScreen(
         }
 
         val data = remember { mutableStateListOf<Float>() }
-        val iPerfRunning by iPerf3Provider.running.collectAsStateWithLifecycle()
+        val iPerfRunning by viewModel.iPerf3Provider.running.collectAsStateWithLifecycle()
 
         SpeedGraph(
             modifier = Modifier
@@ -154,14 +162,15 @@ fun ClientScreen(
         )
 
         val alignment by animateAlignmentAsState(if (iPerfRunning) Alignment.BottomCenter else Alignment.Center)
+
         PlayButton(
             modifier = Modifier
                 .align(alignment)
                 .padding(32.dp),
-            arguments = selectedEntry?.let { arrayOf("-c", it.ip, "-p", it.port, "-i", "0.5") },
+            arguments = uiState.arguments,
             addData = data::add,
             clearData = data::clear,
-            iPerf3Provider = iPerf3Provider
+            iPerf3Provider = viewModel.iPerf3Provider
         )
 
         AnimatedVisibility(
@@ -201,6 +210,20 @@ fun ClientScreen(
                     }
                 }
             )
+        }
+
+        AnimatedVisibility(
+            visible = !iPerfRunning,
+            modifier = Modifier.align(Alignment.BottomCenter),
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Button(onClick = { viewModel.setShowTestSettings(true) }) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(painterResource(R.drawable.settings), null)
+                    Text(modifier = Modifier.padding(start = 8.dp), text = stringResource(R.string.settings))
+                }
+            }
         }
     }
 }
@@ -385,5 +408,47 @@ private fun EntryDeletionComponent(
         }
     ) {
         Text(stringResource(R.string.remove_server_question))
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TestSettingsComponent(
+    onDismissRequest: () -> Unit,
+    selectedProtocol: IperfProtocol,
+    onProtocolSelected: (IperfProtocol) -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp),
+        ) {
+            CategoryTitleSmallText(stringResource(R.string.protocol))
+            ButtonGroup(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(
+                    4.dp,
+                    Alignment.CenterHorizontally
+                ),
+                overflowIndicator = {}
+            ) {
+                iconToggleButton(
+                    selected = selectedProtocol == IperfProtocol.TCP,
+                    onSelect = { onProtocolSelected(IperfProtocol.TCP) },
+                    text = "TCP",
+                    weight = 1f
+                )
+                iconToggleButton(
+                    selected = selectedProtocol == IperfProtocol.UDP,
+                    onSelect = { onProtocolSelected(IperfProtocol.UDP) },
+                    text = "UDP",
+                    weight = 1f
+                )
+            }
+        }
     }
 }

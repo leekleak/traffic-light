@@ -73,9 +73,6 @@ fun IperfScreen(
     ) { contentPadding ->
         var showServer by remember { mutableStateOf(false) }
 
-        val entries by viewModel.iperfEntries.collectAsStateWithLifecycle()
-        val selectedEntry = entries.firstOrNull { it.selected }
-
         val topPadding = contentPadding.calculateTopPadding()
         val sidePadding = contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
         val bottomPadding = contentPadding.calculateBottomPadding()
@@ -96,7 +93,7 @@ fun IperfScreen(
             ) {
                 iconToggleButton(
                     selected = !showServer,
-                    fillWidth = true,
+                    weight = 1f,
                     onSelect = { showServer = false }
                 ) {
                     Icon(painterResource(R.drawable.arrow_downward_alt), null)
@@ -104,7 +101,7 @@ fun IperfScreen(
                 }
                 iconToggleButton(
                     selected = showServer,
-                    fillWidth = true,
+                    weight = 1f,
                     onSelect = { showServer = true }
                 ) {
                     Icon(painterResource(R.drawable.arrow_upward_alt), null)
@@ -115,12 +112,7 @@ fun IperfScreen(
             AnimatedContent(showServer) {
                 if (!it) {
                     ClientScreen(
-                        selectedEntry = selectedEntry,
-                        entries = entries,
-                        selectEntry = viewModel::selectEntry,
-                        deleteEntry = viewModel::deleteEntry,
-                        myIp = myIp,
-                        iPerf3Provider = iPerf3Provider
+                        myIp = myIp
                     )
                 } else {
                     ServerScreen(

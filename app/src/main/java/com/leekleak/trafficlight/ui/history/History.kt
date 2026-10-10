@@ -44,6 +44,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ModalBottomSheet
@@ -175,6 +176,10 @@ fun History(viewModel: HistoryVM, appManager: AppManager) {
                 var showFilter by remember { mutableStateOf(false) }
                 if (showFilter) HistoryFilter(viewModel, appManager) { showFilter = false }
                 val filtersChanged by viewModel.filtersChanged.collectAsStateWithLifecycle()
+                val buttonUnselectedColors = IconButtonDefaults.iconButtonColors(
+                    containerColor = colorScheme.surfaceContainer,
+                    contentColor = colorScheme.onSurfaceVariant
+                )
                 ButtonGroup(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(
@@ -187,10 +192,8 @@ fun History(viewModel: HistoryVM, appManager: AppManager) {
                     iconToggleButton(
                         showBadge = filtersChanged,
                         selected = showFilter,
-                        onSelect = {
-                            showFilter = true
-                            haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
-                        }
+                        onSelect = { showFilter = true },
+                        unselectedColors = buttonUnselectedColors
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.filter_list),
@@ -432,25 +435,19 @@ fun HistoryFilter(
                     expandedRatio = 0.05f,
                     overflowIndicator = {}
                 ) {
-                    toggleableItem(
-                        onCheckedChange = {
-                            viewModel.updateListQuery(ListParam.AppList)
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        },
-                        label = ListParam.AppList.getString(context),
+                    iconToggleButton(
+                        onSelect = { viewModel.updateListQuery(ListParam.AppList) },
+                        text = ListParam.AppList.getString(context),
                         icon = { Icon(painterResource(R.drawable.apps), null) },
                         enabled = !forceHourList,
-                        checked = listParam == ListParam.AppList,
+                        selected = listParam == ListParam.AppList,
                         weight = 1f
                     )
-                    toggleableItem(
-                        onCheckedChange = {
-                            viewModel.updateListQuery(ListParam.HourList)
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        },
-                        label = ListParam.HourList.getString(context),
+                    iconToggleButton(
+                        onSelect = { viewModel.updateListQuery(ListParam.HourList) },
+                        text = ListParam.HourList.getString(context),
                         icon = { Icon(painterResource(R.drawable.clock_analog), null) },
-                        checked = listParam == ListParam.HourList,
+                        selected = listParam == ListParam.HourList,
                         weight = 1f
                     )
                 }

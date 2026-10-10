@@ -181,6 +181,7 @@
     <string name="client">Client</string>
     <string name="server">Server</string>
     <string name="edit">Edit</string>
+    <string name="protocol">Protocol</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

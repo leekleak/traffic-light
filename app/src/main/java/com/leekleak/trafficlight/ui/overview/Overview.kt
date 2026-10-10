@@ -301,7 +301,7 @@ private fun OverviewHero(viewModel: OverviewVM, scrollState: ScrollState) {
             iconToggleButton(
                 text = null,
                 selected = query.dataType == DataType.Wifi,
-                toggledColors = wifiToggledColors,
+                selectedColors = wifiToggledColors,
                 onSelect = { viewModel.setDataType(DataType.Wifi) }
             ) {
                 Icon(
