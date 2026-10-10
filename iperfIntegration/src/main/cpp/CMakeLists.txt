@@ -8,13 +8,13 @@ set(PACKAGE_VERSION "3.22")
 
 configure_file(
     "${IPERF_SRC_DIR}/version.h.in"
-    "${IPERF_SRC_DIR}/version.h"
+    "${IPERF_GEN_DIR}/version.h"
     @ONLY
 )
 
 configure_file(
     "iperf_config.h"
-    "${IPERF_SRC_DIR}/iperf_config.h"
+    "${IPERF_GEN_DIR}/iperf_config.h"
     @ONLY
 )
 
