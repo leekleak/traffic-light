@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leekleak.iperfintegration.IPerf3Provider
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
@@ -22,6 +23,12 @@ class IperfScreenVM(
     private val wifiManager: WifiManager,
     val iPerf3Provider: IPerf3Provider,
 ): ViewModel() {
+    private val _showServer = MutableStateFlow(false)
+    val showServer: StateFlow<Boolean> = _showServer
+
+    fun setShowServer(show: Boolean) {
+        _showServer.value = show
+    }
     val ipFlow: StateFlow<String?> = callbackFlow {
         var networkCallback: ConnectivityManager.NetworkCallback? = null
 

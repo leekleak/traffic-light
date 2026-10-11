@@ -1,13 +1,17 @@
 package com.leekleak.trafficlight.ui.iperf
 
+import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leekleak.iperfintegration.IPerf3Provider
 import com.leekleak.iperfintegration.IntervalEvent
+import com.leekleak.iperfintegration.IperfCallback
 import com.leekleak.iperfintegration.IperfEvent
 import com.leekleak.trafficlight.database.IPerfEntry
 import com.leekleak.trafficlight.database.IPerfEntryDao
 import com.leekleak.trafficlight.util.DataSizeUnit
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,6 +20,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 data class IperfClientUIState(
     val selectedEntry: IPerfEntry? = null,
@@ -199,5 +204,35 @@ class IperfClientVM(
 
     fun clearIperfEvents() {
         data.value = emptyList()
+    }
+
+    fun startTest(context: Context) {
+        val args = uiState.value.arguments ?: return
+        if (iPerf3Provider.running.value) return
+        clearIperfEvents()
+        viewModelScope.launch {
+            iPerf3Provider.runTest(
+                args,
+                object : IperfCallback {
+                    override fun onOutput(event: IperfEvent) {
+                        addIperfEvent(event)
+                    }
+
+                    override fun onError(error: String) {
+                        viewModelScope.launch {
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+
+                    override fun onComplete() {}
+                }
+            )
+        }
+    }
+
+    fun stopTest() {
+        iPerf3Provider.stopTest()
     }
 }

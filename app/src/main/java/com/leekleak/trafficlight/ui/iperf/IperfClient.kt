@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -188,12 +189,12 @@ fun ClientScreen(
 
         val alignment by animateAlignmentAsState(if (iPerfRunning) Alignment.BottomCenter else Alignment.Center)
 
+        val context = LocalContext.current
         PlayButton(
             modifier = Modifier.padding(64.dp).align(alignment),
-            arguments = uiState.arguments,
-            addData = viewModel::addIperfEvent,
-            clearData = viewModel::clearIperfEvents,
-            iPerf3Provider = viewModel.iPerf3Provider
+            iPerf3Provider = viewModel.iPerf3Provider,
+            onStartTest = { viewModel.startTest(context) },
+            onStopTest = { viewModel.stopTest() }
         )
 
         AnimatedVisibility(
@@ -261,7 +262,7 @@ fun ClientScreen(
                 exit = fadeOut()
             ) {
                 FilledTonalButton(
-                    onClick = { navigator.goTo(IperfLogScreenKey(data)) },
+                    onClick = { navigator.goTo(IperfLogScreenKey(data, isServer = false)) },
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(painterResource(R.drawable.text_snippet), null)

@@ -2,7 +2,6 @@
 
 package com.leekleak.trafficlight.ui.iperf
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -25,38 +24,27 @@ import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialShapes.Companion.Cookie12Sided
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.iperfintegration.IPerf3Provider
-import com.leekleak.iperfintegration.IperfCallback
-import com.leekleak.iperfintegration.IperfEvent
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.ui.components.BackAction
 import com.leekleak.trafficlight.ui.components.HazeScaffold
 import com.leekleak.trafficlight.ui.navigation.NAVBAR_PADDING
 import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.util.iconToggleButton
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
 fun IperfScreen(
@@ -64,7 +52,7 @@ fun IperfScreen(
     viewModel: IperfScreenVM
 ) {
     val myIp by viewModel.ipFlow.collectAsStateWithLifecycle()
-    val iPerf3Provider = viewModel.iPerf3Provider
+    val showServer by viewModel.showServer.collectAsStateWithLifecycle()
 
     HazeScaffold(
         title = stringResource(R.string.iperf3) + " (Beta)",
@@ -72,8 +60,6 @@ fun IperfScreen(
         scrollState = null,
         extraPadding = PaddingValues(bottom = NAVBAR_PADDING),
     ) { contentPadding ->
-        var showServer by remember { mutableStateOf(false) }
-
         val topPadding = contentPadding.calculateTopPadding()
         val sidePadding = contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
         val bottomPadding = contentPadding.calculateBottomPadding()
@@ -95,7 +81,7 @@ fun IperfScreen(
                 iconToggleButton(
                     selected = !showServer,
                     weight = 1f,
-                    onSelect = { showServer = false }
+                    onSelect = { viewModel.setShowServer(false) }
                 ) {
                     Icon(painterResource(R.drawable.arrow_downward_alt), null)
                     Text(stringResource(R.string.client))
@@ -103,23 +89,23 @@ fun IperfScreen(
                 iconToggleButton(
                     selected = showServer,
                     weight = 1f,
-                    onSelect = { showServer = true }
+                    onSelect = { viewModel.setShowServer(true) }
                 ) {
                     Icon(painterResource(R.drawable.arrow_upward_alt), null)
                     Text(stringResource(R.string.server))
                 }
             }
 
-            AnimatedContent(showServer) {
-                if (!it) {
+            AnimatedContent(showServer) { isServer ->
+                if (!isServer) {
                     ClientScreen(
                         navigator = navigator,
                         myIp = myIp
                     )
                 } else {
                     ServerScreen(
-                        myIp = myIp,
-                        iPerf3Provider = iPerf3Provider
+                        navigator = navigator,
+                        myIp = myIp
                     )
                 }
             }
@@ -130,13 +116,10 @@ fun IperfScreen(
 @Composable
 fun PlayButton(
     modifier: Modifier = Modifier,
-    arguments: Array<String>?,
-    addData: (IperfEvent) -> Unit, // bytes/sec
-    clearData: () -> Unit,
     iPerf3Provider: IPerf3Provider,
+    onStartTest: () -> Unit,
+    onStopTest: () -> Unit = { iPerf3Provider.stopTest() },
 ) {
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
     val iPerfRunning by iPerf3Provider.running.collectAsStateWithLifecycle()
     val iPerfStopping by iPerf3Provider.stopping.collectAsStateWithLifecycle()
 
@@ -160,30 +143,9 @@ fun PlayButton(
             .size(size),
         onClick = {
             if (!iPerfRunning) {
-                clearData()
-                scope.launch { // Intentionally scope to ui instance so the test gets canceled automatically and doesn't leak
-                    if (arguments == null) return@launch
-                    iPerf3Provider.runTest(
-                        arguments,
-                        object : IperfCallback {
-                            override fun onOutput(event: IperfEvent) {
-                                addData(event)
-                            }
-
-                            override fun onError(error: String) {
-                                scope.launch {
-                                    withContext(Dispatchers.Main) {
-                                        Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                            }
-
-                            override fun onComplete() {}
-                        }
-                    )
-                }
+                onStartTest()
             } else {
-                iPerf3Provider.stopTest()
+                onStopTest()
             }
         },
         enabled = !iPerfStopping,
@@ -205,39 +167,5 @@ fun PlayButton(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun ServerScreen(
-    myIp: String?,
-    iPerf3Provider: IPerf3Provider
-) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        if (myIp != null) {
-            Button(
-                modifier = Modifier
-                    .padding(top = 4.dp)
-                    .align(Alignment.TopCenter),
-                shape = MaterialTheme.shapes.medium,
-                onClick = {},
-                contentPadding = PaddingValues(start = 12.dp, top = 4.dp, end = 12.dp, bottom = 4.dp)
-            ) {
-                Column {
-                    Text(stringResource(R.string.server_address), fontWeight = FontWeight.Bold)
-                    Text("$myIp:5201")
-                }
-            }
-        }
-
-        PlayButton(
-            modifier = Modifier.padding(32.dp).align(Alignment.Center),
-            arguments = arrayOf("-s", "-p", "5201"),
-            addData = {},
-            clearData = {},
-            iPerf3Provider = iPerf3Provider
-        )
     }
 }

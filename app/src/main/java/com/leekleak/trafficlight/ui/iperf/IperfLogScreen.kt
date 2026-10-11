@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.iperfintegration.EndData
 import com.leekleak.iperfintegration.EndEvent
 import com.leekleak.iperfintegration.ErrorEvent
@@ -53,6 +55,7 @@ import com.leekleak.trafficlight.ui.theme.LocalSpeedMetric
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.DataSize
 import kotlinx.serialization.json.JsonObject
+import org.koin.compose.viewmodel.koinViewModel
 import java.util.Locale
 
 private val TcpColIdWidth = 50.dp
@@ -106,7 +109,15 @@ private sealed interface IntervalTableRowData {
 }
 
 @Composable
-fun IperfLogScreen(navigator: Navigator, events: List<IperfEvent>) {
+fun IperfLogScreen(
+    navigator: Navigator,
+    events: List<IperfEvent>,
+    isServer: Boolean = false,
+) {
+    val clientViewModel: IperfClientVM = koinViewModel()
+    val serverViewModel: IperfServerVM = koinViewModel()
+    val liveEvents by (if (isServer) serverViewModel.data else clientViewModel.data).collectAsStateWithLifecycle()
+    val displayEvents = liveEvents.ifEmpty { events }
     val sizeMetric = LocalSizeMetric.current
     val speedMetric = LocalSpeedMetric.current
 
@@ -114,7 +125,7 @@ fun IperfLogScreen(navigator: Navigator, events: List<IperfEvent>) {
         title = stringResource(R.string.logs),
         backAction = BackAction.Normal(navigator),
     ) { contentPadding ->
-        if (events.isEmpty()) {
+        if (displayEvents.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -128,7 +139,7 @@ fun IperfLogScreen(navigator: Navigator, events: List<IperfEvent>) {
                 )
             }
         } else {
-            val blocks = remember(events) { partitionEvents(events) }
+            val blocks = remember(displayEvents) { partitionEvents(displayEvents) }
             val blockRows = remember(blocks, sizeMetric, speedMetric) {
                 blocks.map { block ->
                     if (block is LogBlock.IntervalGroup) {
@@ -440,7 +451,6 @@ private fun StartEventCard(data: StartData) {
             Icon(
                 painter = painterResource(R.drawable.discover_tune),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
             )
             Text(
                 text = stringResource(R.string.test_configuration),
@@ -532,7 +542,6 @@ private fun EndEventCard(data: EndData) {
             Icon(
                 painter = painterResource(R.drawable.text_snippet),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
             )
             Text(
                 text = stringResource(R.string.test_summary),

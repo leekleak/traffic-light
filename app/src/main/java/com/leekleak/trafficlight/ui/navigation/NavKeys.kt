@@ -20,7 +20,10 @@ data object HistoryKey : NavKey
 @Serializable
 data object IperfScreenKey : NavKey
 @Serializable
-data class IperfLogScreenKey(val events: List<IperfEvent>) : NavKey
+data class IperfLogScreenKey(
+    val events: List<IperfEvent>,
+    val isServer: Boolean = false
+) : NavKey
 
 @Serializable
 data object SettingsKey : NavKey
