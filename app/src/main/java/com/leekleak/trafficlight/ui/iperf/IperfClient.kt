@@ -29,6 +29,7 @@ import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -58,6 +59,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.SpeedGraph
 import com.leekleak.trafficlight.database.IPerfEntry
+import com.leekleak.trafficlight.ui.navigation.IperfLogScreenKey
+import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.settings.FancyDialog
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.googleSans
@@ -81,6 +84,7 @@ enum class IperfDirection {
 
 @Composable
 fun ClientScreen(
+    navigator: Navigator,
     myIp: String?,
     viewModel: IperfClientVM = koinViewModel(),
 ) {
@@ -172,6 +176,7 @@ fun ClientScreen(
         }
 
         val iPerfRunning by viewModel.iPerf3Provider.running.collectAsStateWithLifecycle()
+        val data by viewModel.data.collectAsStateWithLifecycle()
 
         SpeedGraph(
             modifier = Modifier
@@ -184,9 +189,7 @@ fun ClientScreen(
         val alignment by animateAlignmentAsState(if (iPerfRunning) Alignment.BottomCenter else Alignment.Center)
 
         PlayButton(
-            modifier = Modifier
-                .align(alignment)
-                .padding(32.dp),
+            modifier = Modifier.padding(64.dp).align(alignment),
             arguments = uiState.arguments,
             addData = viewModel::addIperfEvent,
             clearData = viewModel::clearIperfEvents,
@@ -232,16 +235,41 @@ fun ClientScreen(
             )
         }
 
-        AnimatedVisibility(
-            visible = !iPerfRunning,
+        Row(
             modifier = Modifier.align(Alignment.BottomCenter),
-            enter = fadeIn(),
-            exit = fadeOut()
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Button(onClick = { viewModel.setShowTestSettings(true) }) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(painterResource(R.drawable.settings), null)
-                    Text(modifier = Modifier.padding(start = 8.dp), text = stringResource(R.string.settings))
+            AnimatedVisibility(
+                visible = !iPerfRunning,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Button(onClick = { viewModel.setShowTestSettings(true) }) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(painterResource(R.drawable.settings), null)
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = stringResource(R.string.settings)
+                        )
+                    }
+                }
+            }
+
+            AnimatedVisibility(
+                visible = data.isNotEmpty(),
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                FilledTonalButton(
+                    onClick = { navigator.goTo(IperfLogScreenKey(data)) },
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(painterResource(R.drawable.text_snippet), null)
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = stringResource(R.string.logs)
+                        )
+                    }
                 }
             }
         }

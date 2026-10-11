@@ -52,6 +52,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.ui.components.BackAction
 import com.leekleak.trafficlight.ui.components.HazeScaffold
 import com.leekleak.trafficlight.ui.navigation.NAVBAR_PADDING
+import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.util.iconToggleButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -59,6 +60,7 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun IperfScreen(
+    navigator: Navigator,
     viewModel: IperfScreenVM
 ) {
     val myIp by viewModel.ipFlow.collectAsStateWithLifecycle()
@@ -111,6 +113,7 @@ fun IperfScreen(
             AnimatedContent(showServer) {
                 if (!it) {
                     ClientScreen(
+                        navigator = navigator,
                         myIp = myIp
                     )
                 } else {
@@ -126,7 +129,7 @@ fun IperfScreen(
 
 @Composable
 fun PlayButton(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     arguments: Array<String>?,
     addData: (IperfEvent) -> Unit, // bytes/sec
     clearData: () -> Unit,

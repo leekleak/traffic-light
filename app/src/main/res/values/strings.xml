@@ -185,6 +185,7 @@
     <string name="direction">Direction</string>
     <string name="bandwidth">Bandwidth</string>
     <string name="parallel_streams">Parallel streams</string>
+    <string name="logs">Logs</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>
@@ -193,4 +194,26 @@
         <item quantity="one">Resets in %d hour</item>
         <item quantity="other">Resets in %d hours</item>
     </plurals>
+    <string name="test_configuration" translatable="false">Test Configuration</string>
+    <string name="test_summary" translatable="false">Test Summary</string>
+    <string name="tcp_interval_results" translatable="false">TCP Interval Results</string>
+    <string name="udp_interval_results" translatable="false">UDP Interval Results</string>
+    <string name="socket_id" translatable="false">ID</string>
+    <string name="interval" translatable="false">Interval</string>
+    <string name="transfer" translatable="false">Transfer</string>
+    <string name="retransmits" translatable="false">Retr</string>
+    <string name="rtt" translatable="false">RTT</string>
+    <string name="jitter" translatable="false">Jitter</string>
+    <string name="lost_total" translatable="false">Lost/Total</string>
+    <string name="sender" translatable="false">Sender</string>
+    <string name="receiver" translatable="false">Receiver</string>
+    <string name="host_cpu" translatable="false">Host CPU</string>
+    <string name="remote_cpu" translatable="false">Remote CPU</string>
+    <string name="congestion_control" translatable="false">Congestion Control</string>
+    <string name="cpu_utilization" translatable="false">CPU Utilization</string>
+    <string name="server_output" translatable="false">Server Output</string>
+    <string name="error_log" translatable="false">Error Log</string>
+    <string name="no_logs_available" translatable="false">No log events available</string>
+    <string name="block_sizes" translatable="false">Block Sizes:</string>
+    <string name="version">Version:</string>
 </resources>
