@@ -49,7 +49,6 @@ import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroupScope
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
@@ -234,7 +233,6 @@ fun LazyListScope.categoryTitle(text: @Composable (() -> String)){
 }
 
 val TOP_BAR_HEIGHT: Dp = 52.dp
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun CategoryTitleText(text: String, navigator: Navigator? = null) {
     Row (modifier = Modifier.padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically){
@@ -626,3 +624,5 @@ fun rememberIs24HourFormat(): State<Boolean> {
         awaitDispose { context.contentResolver.unregisterContentObserver(observer) }
     }
 }
+
+fun Any.toAnnotatedString(): AnnotatedString = AnnotatedString(this.toString())

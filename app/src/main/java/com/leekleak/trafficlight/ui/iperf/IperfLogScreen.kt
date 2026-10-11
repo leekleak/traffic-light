@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -24,12 +23,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -55,14 +58,14 @@ import com.leekleak.trafficlight.ui.theme.LocalSpeedMetric
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.CategoryTitleSmallText
 import com.leekleak.trafficlight.util.DataSize
-import kotlinx.serialization.json.JsonObject
+import com.leekleak.trafficlight.util.toAnnotatedString
 import java.util.Locale
 
 private val TcpColIdWidth = 50.dp
 private val TcpColIntervalWidth = 75.dp
 private val TcpColTransferWidth = 85.dp
 private val TcpColBandwidthWidth = 100.dp
-private val TcpColRetrWidth = 50.dp
+private val TcpColRetrWidth = 90.dp
 private val TcpColRttWidth = 80.dp
 
 private val UdpColIdWidth = 50.dp
@@ -156,7 +159,7 @@ fun IperfLogScreen(
                             is EndEvent -> EndEventCard(event.data)
                             is ErrorEvent -> ErrorEventCard(event.message)
                             is ServerOutputTextEvent -> ServerOutputTextCard(event.text)
-                            is ServerOutputJsonEvent -> ServerOutputJsonCard(event.json)
+                            is ServerOutputJsonEvent -> ServerOutputTextCard(event.json.toString())
                             is UnknownEvent -> UnknownEventCard(event)
                             else -> {}
                         }
@@ -320,14 +323,14 @@ private fun IntervalTableHeader(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 if (isUdp) {
-                    TableCell(stringResource(R.string.socket_id), UdpColIdWidth, TextAlign.Start, FontWeight.Bold)
+                    TableCell(stringResource(R.string.id), UdpColIdWidth, TextAlign.Start, FontWeight.Bold)
                     TableCell(stringResource(R.string.interval), UdpColIntervalWidth, TextAlign.End, FontWeight.Bold)
                     TableCell(stringResource(R.string.transfer), UdpColTransferWidth, TextAlign.End, FontWeight.Bold)
                     TableCell(stringResource(R.string.bandwidth), UdpColBandwidthWidth, TextAlign.End, FontWeight.Bold)
                     TableCell(stringResource(R.string.jitter), UdpColJitterWidth, TextAlign.End, FontWeight.Bold)
                     TableCell(stringResource(R.string.lost_total), UdpColLostWidth, TextAlign.End, FontWeight.Bold)
                 } else {
-                    TableCell(stringResource(R.string.socket_id), TcpColIdWidth, TextAlign.Start, FontWeight.Bold)
+                    TableCell(stringResource(R.string.id), TcpColIdWidth, TextAlign.Start, FontWeight.Bold)
                     TableCell(stringResource(R.string.interval), TcpColIntervalWidth, TextAlign.End, FontWeight.Bold)
                     TableCell(stringResource(R.string.transfer), TcpColTransferWidth, TextAlign.End, FontWeight.Bold)
                     TableCell(stringResource(R.string.bandwidth), TcpColBandwidthWidth, TextAlign.End, FontWeight.Bold)
@@ -424,25 +427,10 @@ private fun StartEventCard(data: StartData) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
-            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .card()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            InfoChip(label = data.testStart.protocol.uppercase())
-            data.testStart.numStreams?.let {
-                InfoChip(label = "$it ${if (it == 1) "stream" else "streams"}")
-            }
-            if (data.testStart.reverse == 1) {
-                InfoChip(label = stringResource(R.string.download))
-            } else {
-                InfoChip(label = stringResource(R.string.upload))
-            }
-        }
-
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
             val connecting = data.connectingTo
             val accepted = data.acceptedConnection
@@ -454,6 +442,19 @@ private fun StartEventCard(data: StartData) {
             serverHostPort?.let {
                 DetailRow(label = stringResource(R.string.server_address), value = it)
             }
+            DetailRow(label = stringResource(R.string.protocol), value = data.testStart.protocol.uppercase())
+            data.testStart.numStreams?.let {
+                DetailRow(
+                    label = stringResource(R.string.parallel_streams),
+                    value = pluralStringResource(R.plurals.parallel_streams_count, it, it)
+                )
+            }
+            val directionText = when {
+                data.testStart.bidir == 1 -> stringResource(R.string.bidirectional)
+                data.testStart.reverse == 1 -> stringResource(R.string.download)
+                else -> stringResource(R.string.upload)
+            }
+            DetailRow(label = stringResource(R.string.direction), value = directionText)
             data.testStart.duration?.let {
                 DetailRow(label = stringResource(R.string.time), value = "${it.toInt()} s")
             }
@@ -473,23 +474,23 @@ private fun StartEventCard(data: StartData) {
                 DetailRow(label = stringResource(R.string.time), value = it)
             }
         }
-
-        if (data.connected.isNotEmpty()) {
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-            Text(
-                text = "Connected Sockets",
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            data.connected.forEach { socket ->
-                Text(
-                    text = "[${socket.socket}] ${socket.localHost}:${socket.localPort} ➔ ${socket.remoteHost}:${socket.remotePort}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
+    }
+    data.connected.forEach { socket ->
+        BasicCard(
+            label = stringResource(R.string.socket_id, socket.socket),
+            value = buildAnnotatedString {
+                append("${socket.localHost}:")
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append("${socket.localPort}")
+                }
+                append(" ➔ ")
+                append("${socket.remoteHost}:")
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append("${socket.remotePort}")
+                }
+            },
+            subtitleStyle = MaterialTheme.typography.bodySmall
+        )
     }
 }
 
@@ -500,90 +501,84 @@ private fun EndEventCard(data: EndData) {
 
     if (data.sumSent == null) return
     CategoryTitleSmallText(stringResource(R.string.test_end))
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .card()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        data.sumSent?.let { sent ->
-            StatBlock(
-                title = stringResource(R.string.sender),
-                bytes = sent.bytes,
-                bitsPerSecond = sent.bitsPerSecond,
-                retransmits = sent.retransmits,
-                sizeMetric = sizeMetric,
-                speedMetric = speedMetric
-            )
-        }
-        data.sumReceived?.let { rcvd ->
-            StatBlock(
-                title = stringResource(R.string.receiver),
-                bytes = rcvd.bytes,
-                bitsPerSecond = rcvd.bitsPerSecond,
-                retransmits = null,
-                sizeMetric = sizeMetric,
-                speedMetric = speedMetric
-            )
-        }
-        data.sum?.let { udpSum ->
-            UdpStatBlock(
-                title = stringResource(R.string.test_end),
-                sum = udpSum,
-                sizeMetric = sizeMetric,
-                speedMetric = speedMetric
-            )
-        }
+    data.sumSent?.let { sent ->
+        StatBlock(
+            title = stringResource(R.string.sender),
+            bytes = sent.bytes,
+            bitsPerSecond = sent.bitsPerSecond,
+            retransmits = sent.retransmits,
+            sizeMetric = sizeMetric,
+            speedMetric = speedMetric
+        )
+    }
+    data.sumReceived?.let { rcvd ->
+        StatBlock(
+            title = stringResource(R.string.receiver),
+            bytes = rcvd.bytes,
+            bitsPerSecond = rcvd.bitsPerSecond,
+            retransmits = null,
+            sizeMetric = sizeMetric,
+            speedMetric = speedMetric
+        )
+    }
+    data.sum?.let { udpSum ->
+        UdpStatBlock(
+            title = stringResource(R.string.aggregate_stats),
+            sum = udpSum,
+            sizeMetric = sizeMetric,
+            speedMetric = speedMetric
+        )
+    }
 
-        if (data.senderTcpCongestion != null || data.receiverTcpCongestion != null) {
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+    if (data.senderTcpCongestion != null || data.receiverTcpCongestion != null) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .card()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             DetailRow(
                 label = stringResource(R.string.congestion_control),
-                value = listOfNotNull(data.senderTcpCongestion, data.receiverTcpCongestion).joinToString(" / ")
+                value = listOfNotNull(
+                    data.senderTcpCongestion,
+                    data.receiverTcpCongestion
+                ).joinToString(" / ")
             )
         }
-
-        data.cpuUtilizationPercent?.let { cpu ->
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+    }
+    data.cpuUtilizationPercent?.let { cpu ->
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .card()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             Text(
                 text = stringResource(R.string.cpu_utilization),
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurface
             )
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(R.string.host_cpu),
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = "${String.format(Locale.US, "%.1f", cpu.hostTotal)}% (User: ${String.format(Locale.US, "%.1f", cpu.hostUser)}%, Sys: ${String.format(Locale.US, "%.1f", cpu.hostSystem)}%)",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = stringResource(R.string.remote_cpu),
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = "${String.format(Locale.US, "%.1f", cpu.remoteTotal)}% (User: ${String.format(Locale.US, "%.1f", cpu.remoteUser)}%, Sys: ${String.format(Locale.US, "%.1f", cpu.remoteSystem)}%)",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
+            DetailRow(
+                stringResource(R.string.host_cpu),
+                stringResource(
+                    R.string.cpu_usage,
+                    String.format(Locale.US, "%.1f", cpu.hostTotal),
+                    String.format(Locale.US, "%.1f", cpu.hostUser),
+                    String.format(Locale.US, "%.1f", cpu.hostSystem)
+                ),
+            )
+            DetailRow(
+                stringResource(R.string.remote_cpu),
+                stringResource(
+                    R.string.cpu_usage,
+                    String.format(Locale.US, "%.1f", cpu.remoteTotal),
+                    String.format(Locale.US, "%.1f", cpu.remoteUser),
+                    String.format(Locale.US, "%.1f", cpu.remoteSystem)
+                ),
+            )
         }
     }
 }
@@ -599,45 +594,14 @@ private fun StatBlock(
 ) {
     val bytesText = DataSize(bytes).toString(speed = false, metric = sizeMetric)
     val bpsText = DataSize((bitsPerSecond / 8.0).toLong()).toString(speed = true, inBits = true, metric = speedMetric)
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                MaterialTheme.colorScheme.surfaceContainerHigh,
-                shape = MaterialTheme.shapes.small
-            )
-            .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "${stringResource(R.string.transfer)}: $bytesText",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = "${stringResource(R.string.bandwidth)}: $bpsText",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold
-            )
+    BasicCard(
+        label = title,
+        value = buildAnnotatedString {
+            append("${stringResource(R.string.transfer)}: $bytesText")
+            append("\n${stringResource(R.string.bandwidth)}: $bpsText")
+            retransmits?.let { append("\n${stringResource(R.string.retransmits)}: $it") }
         }
-        retransmits?.let {
-            Text(
-                text = "${stringResource(R.string.retransmits)}: $it",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
+    )
 }
 
 @Composable
@@ -650,50 +614,19 @@ private fun UdpStatBlock(
     val bytesText = DataSize(sum.bytes).toString(speed = false, metric = sizeMetric)
     val bpsText = DataSize((sum.bitsPerSecond / 8.0).toLong()).toString(speed = true, inBits = true, metric = speedMetric)
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                MaterialTheme.colorScheme.surfaceContainerHigh,
-                shape = MaterialTheme.shapes.small
-            )
-            .padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "${stringResource(R.string.transfer)}: $bytesText",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = "${stringResource(R.string.bandwidth)}: $bpsText",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold
-            )
+    BasicCard(
+        label = title,
+        value = buildAnnotatedString {
+            append("${stringResource(R.string.transfer)}: $bytesText")
+            append("\n${stringResource(R.string.bandwidth)}: $bpsText")
+            sum.jitterMs?.let {
+                append("\n${stringResource(R.string.jitter)}: ${String.format(Locale.US, "%.2f", it)} ms")
+            }
+            if (sum.lostPackets != null && sum.packets != null) {
+                append("\n${stringResource(R.string.lost_total)}: ${sum.lostPackets}/${sum.packets} (${String.format(Locale.US, "%.1f", sum.lostPercent ?: 0.0)}%)")
+            }
         }
-        sum.jitterMs?.let {
-            Text(
-                text = "${stringResource(R.string.jitter)}: ${String.format(Locale.US, "%.2f", it)} ms",
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
-        if (sum.lostPackets != null && sum.packets != null) {
-            Text(
-                text = "${stringResource(R.string.lost_total)}: ${sum.lostPackets}/${sum.packets} (${String.format(Locale.US, "%.1f", sum.lostPercent ?: 0.0)}%)",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
+    )
 }
 
 @Composable
@@ -701,8 +634,7 @@ private fun ErrorEventCard(message: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
-            .background(MaterialTheme.colorScheme.errorContainer)
+            .card(MaterialTheme.colorScheme.errorContainer)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -732,91 +664,20 @@ private fun ErrorEventCard(message: String) {
 
 @Composable
 private fun ServerOutputTextCard(text: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .card()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.server_output),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodySmall,
-            fontFamily = FontFamily.Monospace,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-    }
-}
-
-@Composable
-private fun ServerOutputJsonCard(json: JsonObject) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .card()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.server_output),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            text = json.toString(),
-            style = MaterialTheme.typography.bodySmall,
-            fontFamily = FontFamily.Monospace,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-    }
+    BasicCard(
+        label = stringResource(R.string.server_output),
+        value = text.toAnnotatedString()
+    )
 }
 
 @Composable
 private fun UnknownEventCard(event: UnknownEvent) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .card()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = "${stringResource(R.string.unknown)}: ${event.event}",
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Text(
-            text = event.data.toString(),
-            style = MaterialTheme.typography.bodySmall,
-            fontFamily = FontFamily.Monospace,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
+    BasicCard(
+        label = "${stringResource(R.string.unknown)}: ${event.event}",
+        value = event.data.toAnnotatedString()
+    )
 }
 
-@Composable
-private fun InfoChip(label: String) {
-    Surface(
-        color = MaterialTheme.colorScheme.primaryContainer,
-        shape = MaterialTheme.shapes.small
-    ) {
-        Text(
-            text = label,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
 
 @Composable
 private fun DetailRow(label: String, value: String) {
@@ -826,12 +687,12 @@ private fun DetailRow(label: String, value: String) {
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodySmall,
+            style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface
         )
@@ -840,6 +701,29 @@ private fun DetailRow(label: String, value: String) {
 
 private fun formatInterval(start: Double, end: Double): String {
     return String.format(Locale.US, "%.1f-%.1f s", start, end)
+}
+
+@Composable
+private fun BasicCard(label: String, value: AnnotatedString, subtitleStyle : TextStyle = MaterialTheme.typography.bodyMedium) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .card()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = value,
+            style = subtitleStyle,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
 }
 
 private fun formatRtt(rttUs: Long): String {

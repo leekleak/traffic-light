@@ -88,7 +88,7 @@ class IperfClientVM(
     private val speedData: Flow<List<Float>> = data.map { list ->
         list.mapNotNull { event ->
             if (event is IntervalEvent) {
-                event.data.sum?.bitsPerSecond?.toFloat()?.div(8f)
+                event.data.sum?.bitsPerSecond?.toFloat()
             } else {
                 null
             }

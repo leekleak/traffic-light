@@ -186,6 +186,10 @@
     <string name="bandwidth">Bandwidth</string>
     <string name="parallel_streams">Parallel streams</string>
     <string name="logs">Logs</string>
+    <plurals name="parallel_streams_count">
+        <item quantity="one">%d stream</item>
+        <item quantity="other">%d streams</item>
+    </plurals>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>
@@ -197,10 +201,10 @@
     <string name="test_configuration" translatable="false">Test Configuration</string>
     <string name="test_end" translatable="false">Test End</string>
     <string name="interval_results" translatable="false">Interval Results</string>
-    <string name="socket_id" translatable="false">ID</string>
+    <string name="id" translatable="false">ID</string>
     <string name="interval" translatable="false">Interval</string>
     <string name="transfer" translatable="false">Transfer</string>
-    <string name="retransmits" translatable="false">Retr</string>
+    <string name="retransmits" translatable="false">Retransmits</string>
     <string name="rtt" translatable="false">RTT</string>
     <string name="jitter" translatable="false">Jitter</string>
     <string name="lost_total" translatable="false">Lost/Total</string>
@@ -211,8 +215,12 @@
     <string name="congestion_control" translatable="false">Congestion Control</string>
     <string name="cpu_utilization" translatable="false">CPU Utilization</string>
     <string name="server_output" translatable="false">Server Output</string>
-    <string name="error_log" translatable="false">Error Log</string>
+    <string name="error_log" translatable="false">Error</string>
     <string name="no_logs_available" translatable="false">No log events available</string>
     <string name="block_sizes" translatable="false">Block Sizes</string>
     <string name="version">Version</string>
+    <string name="connected_sockets">Connected Sockets</string>
+    <string name="socket_id">Socket ID: %1$d</string>
+    <string name="cpu_usage" translatable="false">%1$s%% (User: %2$s%%, Sys: %3$s%%)</string>
+    <string name="aggregate_stats">Aggregate stats</string>
 </resources>

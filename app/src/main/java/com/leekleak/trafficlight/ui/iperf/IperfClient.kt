@@ -207,7 +207,7 @@ fun ClientScreen(
             exit = fadeOut()
         ) {
             val currentItem = uiState.speedData.lastOrNull() ?: return@AnimatedVisibility
-            val text = DataSize(byteValue = currentItem.toLong()).formattedParts(extraPrecision = true, speed = true)
+            val text = DataSize(byteValue = currentItem.toLong()/8).formattedParts(extraPrecision = true, speed = true, inBits = true)
 
             val interactionSource = remember { MutableInteractionSource() }
             val pressed by interactionSource.collectIsPressedAsState()

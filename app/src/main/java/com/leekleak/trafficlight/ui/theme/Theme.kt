@@ -76,7 +76,7 @@ enum class Theme {
 @Composable
 fun Modifier.card(backgroundColor: Color = colorScheme.surfaceContainer): Modifier {
     return this
-        .clip(MaterialTheme.shapes.large)
+        .clip(MaterialTheme.shapes.medium)
         .background(backgroundColor)
 }
 
