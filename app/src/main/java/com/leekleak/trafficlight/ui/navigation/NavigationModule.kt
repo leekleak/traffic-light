@@ -4,9 +4,12 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.history.History
+import com.leekleak.trafficlight.ui.iperf.IperfClientVM
 import com.leekleak.trafficlight.ui.iperf.IperfLogScreen
+import com.leekleak.trafficlight.ui.iperf.IperfLogViewModel
 import com.leekleak.trafficlight.ui.iperf.IperfScreen
 import com.leekleak.trafficlight.ui.iperf.IperfScreenVM
+import com.leekleak.trafficlight.ui.iperf.IperfServerVM
 import com.leekleak.trafficlight.ui.overview.Overview
 import com.leekleak.trafficlight.ui.plans.DataPlanConfig
 import com.leekleak.trafficlight.ui.plans.DataPlanConfigVM
@@ -49,7 +52,14 @@ val navigationModule = module {
         val viewModel: IperfScreenVM = koinViewModel()
         IperfScreen(get(), viewModel)
     }
-    navigation<IperfLogScreenKey> { key -> IperfLogScreen(get(), key.events, key.isServer) }
+    navigation<IperfLogScreenKey> { key ->
+        val viewModel: IperfLogViewModel = if (key.isServer) {
+            koinViewModel<IperfServerVM>()
+        } else {
+            koinViewModel<IperfClientVM>()
+        }
+        IperfLogScreen(get(), key.events, viewModel)
+    }
     navigation<SettingsKey> { Settings(get(), get(), get(), get(), get()) }
     navigation<UsagePermissionRequestKey> { UsagePermissionRequest(get(), get()) }
     navigation<PlanConfigKey> { key ->

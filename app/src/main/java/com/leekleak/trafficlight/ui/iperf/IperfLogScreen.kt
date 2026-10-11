@@ -55,7 +55,6 @@ import com.leekleak.trafficlight.ui.theme.LocalSpeedMetric
 import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.util.DataSize
 import kotlinx.serialization.json.JsonObject
-import org.koin.compose.viewmodel.koinViewModel
 import java.util.Locale
 
 private val TcpColIdWidth = 50.dp
@@ -112,11 +111,9 @@ private sealed interface IntervalTableRowData {
 fun IperfLogScreen(
     navigator: Navigator,
     events: List<IperfEvent>,
-    isServer: Boolean = false,
+    viewModel: IperfLogViewModel,
 ) {
-    val clientViewModel: IperfClientVM = koinViewModel()
-    val serverViewModel: IperfServerVM = koinViewModel()
-    val liveEvents by (if (isServer) serverViewModel.data else clientViewModel.data).collectAsStateWithLifecycle()
+    val liveEvents by viewModel.data.collectAsStateWithLifecycle()
     val displayEvents = liveEvents.ifEmpty { events }
     val sizeMetric = LocalSizeMetric.current
     val speedMetric = LocalSpeedMetric.current

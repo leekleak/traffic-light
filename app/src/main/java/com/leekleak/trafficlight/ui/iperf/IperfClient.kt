@@ -5,6 +5,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -242,8 +244,8 @@ fun ClientScreen(
         ) {
             AnimatedVisibility(
                 visible = !iPerfRunning,
-                enter = fadeIn(),
-                exit = fadeOut()
+                enter = fadeIn() + scaleIn(),
+                exit = fadeOut() + scaleOut()
             ) {
                 Button(onClick = { viewModel.setShowTestSettings(true) }) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -258,8 +260,8 @@ fun ClientScreen(
 
             AnimatedVisibility(
                 visible = data.isNotEmpty(),
-                enter = fadeIn(),
-                exit = fadeOut()
+                enter = fadeIn() + scaleIn(),
+                exit = fadeOut() + scaleOut()
             ) {
                 FilledTonalButton(
                     onClick = { navigator.goTo(IperfLogScreenKey(data, isServer = false)) },

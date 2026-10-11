@@ -15,9 +15,9 @@ import kotlinx.coroutines.withContext
 
 class IperfServerVM(
     val iPerf3Provider: IPerf3Provider,
-) : ViewModel() {
+) : ViewModel(), IperfLogViewModel {
 
-    val data: StateFlow<List<IperfEvent>>
+    override val data: StateFlow<List<IperfEvent>>
         field = MutableStateFlow(listOf())
 
     fun startTest(context: Context) {

@@ -3,7 +3,8 @@ package com.leekleak.trafficlight.ui.iperf
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -65,25 +66,21 @@ fun ServerScreen(
             onStopTest = { viewModel.stopTest() }
         )
 
-        Row(
+        AnimatedVisibility(
             modifier = Modifier.align(Alignment.BottomCenter),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            visible = data.isNotEmpty(),
+            enter = fadeIn() + scaleIn(),
+            exit = fadeOut() + scaleOut()
         ) {
-            AnimatedVisibility(
-                visible = data.isNotEmpty(),
-                enter = fadeIn(),
-                exit = fadeOut()
+            FilledTonalButton(
+                onClick = { navigator.goTo(IperfLogScreenKey(data, isServer = true)) },
             ) {
-                FilledTonalButton(
-                    onClick = { navigator.goTo(IperfLogScreenKey(data, isServer = true)) },
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(painterResource(R.drawable.text_snippet), null)
-                        Text(
-                            modifier = Modifier.padding(start = 8.dp),
-                            text = stringResource(R.string.logs)
-                        )
-                    }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(painterResource(R.drawable.text_snippet), null)
+                    Text(
+                        modifier = Modifier.padding(start = 8.dp),
+                        text = stringResource(R.string.logs)
+                    )
                 }
             }
         }

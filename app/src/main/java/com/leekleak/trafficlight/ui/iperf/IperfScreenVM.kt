@@ -10,7 +10,6 @@ import android.os.Build
 import android.text.format.Formatter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.leekleak.iperfintegration.IPerf3Provider
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,7 +20,6 @@ import kotlinx.coroutines.flow.stateIn
 class IperfScreenVM(
     private val connectivityManager: ConnectivityManager,
     private val wifiManager: WifiManager,
-    val iPerf3Provider: IPerf3Provider,
 ): ViewModel() {
     private val _showServer = MutableStateFlow(false)
     val showServer: StateFlow<Boolean> = _showServer

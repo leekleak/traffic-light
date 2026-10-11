@@ -63,9 +63,9 @@
     <string name="cancel">Cancel</string>
     <string name="no_apps">No apps</string>
     <string name="no_usage_detected">No usage detected</string>
-    <string name="day">Day:</string>
-    <string name="time">Time:</string>
-    <string name="length">Length:</string>
+    <string name="day">Day</string>
+    <string name="time">Time</string>
+    <string name="length">Length</string>
     <string name="days">days</string>
     <string name="add_widget">Add widget</string>
     <string name="configured_plans">Configured plans</string>
@@ -214,6 +214,6 @@
     <string name="server_output" translatable="false">Server Output</string>
     <string name="error_log" translatable="false">Error Log</string>
     <string name="no_logs_available" translatable="false">No log events available</string>
-    <string name="block_sizes" translatable="false">Block Sizes:</string>
-    <string name="version">Version:</string>
+    <string name="block_sizes" translatable="false">Block Sizes</string>
+    <string name="version">Version</string>
 </resources>

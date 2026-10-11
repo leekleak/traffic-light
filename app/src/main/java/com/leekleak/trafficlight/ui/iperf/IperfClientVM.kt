@@ -67,7 +67,7 @@ data class IperfClientUIState(
 class IperfClientVM(
     private val iPerfEntryDao: IPerfEntryDao,
     val iPerf3Provider: IPerf3Provider,
-) : ViewModel() {
+) : ViewModel(), IperfLogViewModel {
 
     private val selectedProtocol = MutableStateFlow(IperfProtocol.TCP)
     private val selectedDirection = MutableStateFlow(IperfDirection.UPLOAD)
@@ -80,7 +80,7 @@ class IperfClientVM(
     private val showEntryDeletion = MutableStateFlow(value = false)
     private val editEntry = MutableStateFlow<IPerfEntry?>(null)
 
-    val data: StateFlow<List<IperfEvent>>
+    override val data: StateFlow<List<IperfEvent>>
         field = MutableStateFlow(listOf())
 
     private val speedData: Flow<List<Float>> = data.map { list ->
