@@ -46,7 +46,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.iperfintegration.IPerf3Provider
-import com.leekleak.iperfintegration.IntervalEvent
 import com.leekleak.iperfintegration.IperfCallback
 import com.leekleak.iperfintegration.IperfEvent
 import com.leekleak.trafficlight.R
@@ -129,7 +128,7 @@ fun IperfScreen(
 fun PlayButton(
     modifier: Modifier,
     arguments: Array<String>?,
-    addData: (Float) -> Unit, // bytes/sec
+    addData: (IperfEvent) -> Unit, // bytes/sec
     clearData: () -> Unit,
     iPerf3Provider: IPerf3Provider,
 ) {
@@ -165,11 +164,7 @@ fun PlayButton(
                         arguments,
                         object : IperfCallback {
                             override fun onOutput(event: IperfEvent) {
-                                if (event is IntervalEvent) {
-                                    event.results.forEach { result ->
-                                        addData(result.bitsPerSecond.toFloat()/8f)
-                                    }
-                                }
+                                addData(event)
                             }
 
                             override fun onError(error: String) {

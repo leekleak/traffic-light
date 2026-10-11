@@ -184,6 +184,7 @@
     <string name="protocol">Protocol</string>
     <string name="direction">Direction</string>
     <string name="bandwidth">Bandwidth</string>
+    <string name="parallel_streams">Parallel streams</string>
     <plurals name="resets_in_days">
         <item quantity="one">Resets tomorrow</item>
         <item quantity="other">Resets in %d days</item>

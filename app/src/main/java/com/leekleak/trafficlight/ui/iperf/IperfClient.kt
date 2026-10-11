@@ -36,7 +36,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -140,6 +139,8 @@ fun ClientScreen(
             bandwidthUnit = uiState.bandwidthUnit,
             onBandwidthChanged = viewModel::setBandwidth,
             onBandwidthUnitChanged = viewModel::setBandwidthUnit,
+            parallelStreams = uiState.parallelStreams,
+            onParallelStreamsChanged = viewModel::setParallelStreams,
         )
     }
 
@@ -170,14 +171,13 @@ fun ClientScreen(
             }
         }
 
-        val data = remember { mutableStateListOf<Float>() }
         val iPerfRunning by viewModel.iPerf3Provider.running.collectAsStateWithLifecycle()
 
         SpeedGraph(
             modifier = Modifier
                 .fillMaxHeight(0.5f)
                 .align(Alignment.BottomCenter),
-            data = data,
+            data = uiState.speedData,
             running = iPerfRunning
         )
 
@@ -188,8 +188,8 @@ fun ClientScreen(
                 .align(alignment)
                 .padding(32.dp),
             arguments = uiState.arguments,
-            addData = data::add,
-            clearData = data::clear,
+            addData = viewModel::addIperfEvent,
+            clearData = viewModel::clearIperfEvents,
             iPerf3Provider = viewModel.iPerf3Provider
         )
 
@@ -199,7 +199,7 @@ fun ClientScreen(
             enter = fadeIn(),
             exit = fadeOut()
         ) {
-            val currentItem = data.lastOrNull() ?: return@AnimatedVisibility
+            val currentItem = uiState.speedData.lastOrNull() ?: return@AnimatedVisibility
             val text = DataSize(byteValue = currentItem.toLong()).formattedParts(extraPrecision = true, speed = true)
 
             val interactionSource = remember { MutableInteractionSource() }
@@ -443,6 +443,8 @@ private fun TestSettingsComponent(
     bandwidthUnit: DataSizeUnit,
     onBandwidthChanged: (Int) -> Unit,
     onBandwidthUnitChanged: (DataSizeUnit) -> Unit,
+    parallelStreams: Int,
+    onParallelStreamsChanged: (Int) -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
     val colorScheme = MaterialTheme.colorScheme
@@ -553,6 +555,31 @@ private fun TestSettingsComponent(
                         }
                     }
                 }
+            }
+
+            val parallelStreamsState = rememberTextFieldState(parallelStreams.toString())
+
+            LaunchedEffect(parallelStreamsState.text) {
+                parallelStreamsState.text.toString().toIntOrNull()?.let {
+                    if (it > 0) onParallelStreamsChanged(it)
+                }
+            }
+
+            Column {
+                CategoryTitleSmallText(stringResource(R.string.parallel_streams))
+                BasicTextField(
+                    state = parallelStreamsState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
+                        .card()
+                        .background(colorScheme.background)
+                        .padding(8.dp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    textStyle = typography.bodyLarge.copy(color = colorScheme.onSurface),
+                    cursorBrush = SolidColor(colorScheme.onSurface),
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                )
             }
         }
     }
