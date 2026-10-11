@@ -38,7 +38,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.leekleak.iperfintegration.IPerf3Provider
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.ui.components.BackAction
 import com.leekleak.trafficlight.ui.components.HazeScaffold
@@ -51,8 +50,9 @@ fun IperfScreen(
     navigator: Navigator,
     viewModel: IperfScreenVM
 ) {
-    val myIp by viewModel.ipFlow.collectAsStateWithLifecycle()
-    val showServer by viewModel.showServer.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val myIp = uiState.myIp
+    val showServer = uiState.showServer
 
     HazeScaffold(
         title = stringResource(R.string.iperf3) + " (Beta)",
@@ -116,18 +116,16 @@ fun IperfScreen(
 @Composable
 fun PlayButton(
     modifier: Modifier = Modifier,
-    iPerf3Provider: IPerf3Provider,
+    isIperfRunning: Boolean,
+    isIperfStopping: Boolean = false,
     onStartTest: () -> Unit,
-    onStopTest: () -> Unit = { iPerf3Provider.stopTest() },
+    onStopTest: () -> Unit,
 ) {
-    val iPerfRunning by iPerf3Provider.running.collectAsStateWithLifecycle()
-    val iPerfStopping by iPerf3Provider.stopping.collectAsStateWithLifecycle()
-
     val rotation = remember { Animatable(0f) }
-    val size by animateDpAsState(if (!iPerfRunning) 128.dp else 96.dp)
+    val size by animateDpAsState(if (!isIperfRunning) 128.dp else 96.dp)
 
-    LaunchedEffect(iPerfRunning) {
-        if (iPerfRunning) {
+    LaunchedEffect(isIperfRunning) {
+        if (isIperfRunning) {
             rotation.animateTo(
                 targetValue = rotation.value + 360f,
                 animationSpec = infiniteRepeatable(
@@ -142,13 +140,13 @@ fun PlayButton(
             .graphicsLayer { rotationZ = rotation.value }
             .size(size),
         onClick = {
-            if (!iPerfRunning) {
+            if (!isIperfRunning) {
                 onStartTest()
             } else {
                 onStopTest()
             }
         },
-        enabled = !iPerfStopping,
+        enabled = !isIperfStopping,
         shape = Cookie12Sided.toShape(),
     ) {
         val modifier = Modifier.size(56.dp)
@@ -156,7 +154,7 @@ fun PlayButton(
             .fillMaxSize()
             .graphicsLayer { rotationZ = -rotation.value }) {
             AnimatedContent(
-                targetState = iPerfRunning,
+                targetState = isIperfRunning,
                 modifier = Modifier.align(Alignment.Center),
                 transitionSpec =  { fadeIn().togetherWith(fadeOut()) }
             ) {

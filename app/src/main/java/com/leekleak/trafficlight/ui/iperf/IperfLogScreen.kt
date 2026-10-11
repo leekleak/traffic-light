@@ -53,6 +53,7 @@ import com.leekleak.trafficlight.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.theme.LocalSizeMetric
 import com.leekleak.trafficlight.ui.theme.LocalSpeedMetric
 import com.leekleak.trafficlight.ui.theme.card
+import com.leekleak.trafficlight.util.CategoryTitleSmallText
 import com.leekleak.trafficlight.util.DataSize
 import kotlinx.serialization.json.JsonObject
 import java.util.Locale
@@ -62,7 +63,7 @@ private val TcpColIntervalWidth = 75.dp
 private val TcpColTransferWidth = 85.dp
 private val TcpColBandwidthWidth = 100.dp
 private val TcpColRetrWidth = 50.dp
-private val TcpColRttWidth = 65.dp
+private val TcpColRttWidth = 80.dp
 
 private val UdpColIdWidth = 50.dp
 private val UdpColIntervalWidth = 75.dp
@@ -161,6 +162,7 @@ fun IperfLogScreen(
                         }
                     }
                     is LogBlock.IntervalGroup -> {
+                        CategoryTitleSmallText(stringResource(R.string.interval_results))
                         Column(
                             modifier = Modifier
                                 .clip(MaterialTheme.shapes.medium)
@@ -312,22 +314,7 @@ private fun IntervalTableHeader(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(if (isUdp) R.string.udp_interval_results else R.string.tcp_interval_results),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -433,6 +420,7 @@ private fun StartEventCard(data: StartData) {
     val sizeMetric = LocalSizeMetric.current
     val speedMetric = LocalSpeedMetric.current
 
+    CategoryTitleSmallText(stringResource(R.string.test_configuration))
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -441,21 +429,6 @@ private fun StartEventCard(data: StartData) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.discover_tune),
-                contentDescription = null,
-            )
-            Text(
-                text = stringResource(R.string.test_configuration),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -525,6 +498,8 @@ private fun EndEventCard(data: EndData) {
     val sizeMetric = LocalSizeMetric.current
     val speedMetric = LocalSpeedMetric.current
 
+    if (data.sumSent == null) return
+    CategoryTitleSmallText(stringResource(R.string.test_end))
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -532,21 +507,6 @@ private fun EndEventCard(data: EndData) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.text_snippet),
-                contentDescription = null,
-            )
-            Text(
-                text = stringResource(R.string.test_summary),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
         data.sumSent?.let { sent ->
             StatBlock(
                 title = stringResource(R.string.sender),
@@ -569,7 +529,7 @@ private fun EndEventCard(data: EndData) {
         }
         data.sum?.let { udpSum ->
             UdpStatBlock(
-                title = stringResource(R.string.test_summary),
+                title = stringResource(R.string.test_end),
                 sum = udpSum,
                 sizeMetric = sizeMetric,
                 speedMetric = speedMetric

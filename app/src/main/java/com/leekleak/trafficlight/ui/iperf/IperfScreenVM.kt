@@ -11,23 +11,30 @@ import android.text.format.Formatter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+
+data class IperfScreenUIState(
+    val showServer: Boolean = false,
+    val myIp: String? = null,
+)
 
 class IperfScreenVM(
     private val connectivityManager: ConnectivityManager,
     private val wifiManager: WifiManager,
 ): ViewModel() {
-    private val _showServer = MutableStateFlow(false)
-    val showServer: StateFlow<Boolean> = _showServer
+    private val showServer = MutableStateFlow(false)
 
     fun setShowServer(show: Boolean) {
-        _showServer.value = show
+        showServer.value = show
     }
-    val ipFlow: StateFlow<String?> = callbackFlow {
+
+    private val ipFlow: Flow<String?> = callbackFlow {
         var networkCallback: ConnectivityManager.NetworkCallback? = null
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -60,9 +67,19 @@ class IperfScreenVM(
         awaitClose {
             networkCallback?.let { connectivityManager.unregisterNetworkCallback(it) }
         }
+    }
+
+    val uiState: StateFlow<IperfScreenUIState> = combine(
+        showServer,
+        ipFlow
+    ) { showServer, myIp ->
+        IperfScreenUIState(
+            showServer = showServer,
+            myIp = myIp
+        )
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000L),
-        null
+        IperfScreenUIState()
     )
 }

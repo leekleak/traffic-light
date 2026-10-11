@@ -178,7 +178,7 @@ fun ClientScreen(
             }
         }
 
-        val iPerfRunning by viewModel.iPerf3Provider.running.collectAsStateWithLifecycle()
+        val iPerfRunning = uiState.isIperfRunning
         val data by viewModel.data.collectAsStateWithLifecycle()
 
         SpeedGraph(
@@ -194,7 +194,8 @@ fun ClientScreen(
         val context = LocalContext.current
         PlayButton(
             modifier = Modifier.padding(64.dp).align(alignment),
-            iPerf3Provider = viewModel.iPerf3Provider,
+            isIperfRunning = uiState.isIperfRunning,
+            isIperfStopping = uiState.isIperfStopping,
             onStartTest = { viewModel.startTest(context) },
             onStopTest = { viewModel.stopTest() }
         )

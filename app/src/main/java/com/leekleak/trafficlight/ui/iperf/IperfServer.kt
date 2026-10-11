@@ -38,6 +38,7 @@ fun ServerScreen(
     viewModel: IperfServerVM = koinViewModel(),
 ) {
     val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val data by viewModel.data.collectAsStateWithLifecycle()
 
     Box(
@@ -61,7 +62,8 @@ fun ServerScreen(
 
         PlayButton(
             modifier = Modifier.padding(32.dp).align(Alignment.Center),
-            iPerf3Provider = viewModel.iPerf3Provider,
+            isIperfRunning = uiState.isIperfRunning,
+            isIperfStopping = uiState.isIperfStopping,
             onStartTest = { viewModel.startTest(context) },
             onStopTest = { viewModel.stopTest() }
         )

@@ -195,9 +195,8 @@
         <item quantity="other">Resets in %d hours</item>
     </plurals>
     <string name="test_configuration" translatable="false">Test Configuration</string>
-    <string name="test_summary" translatable="false">Test Summary</string>
-    <string name="tcp_interval_results" translatable="false">TCP Interval Results</string>
-    <string name="udp_interval_results" translatable="false">UDP Interval Results</string>
+    <string name="test_end" translatable="false">Test End</string>
+    <string name="interval_results" translatable="false">Interval Results</string>
     <string name="socket_id" translatable="false">ID</string>
     <string name="interval" translatable="false">Interval</string>
     <string name="transfer" translatable="false">Transfer</string>

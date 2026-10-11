@@ -36,6 +36,8 @@ data class IperfClientUIState(
     val showEntryDeletion: Boolean = false,
     val editEntry: IPerfEntry? = null,
     val speedData: List<Float> = emptyList(),
+    val isIperfRunning: Boolean = false,
+    val isIperfStopping: Boolean = false,
 ) {
     val arguments: Array<String>?
         get() {
@@ -66,7 +68,7 @@ data class IperfClientUIState(
 
 class IperfClientVM(
     private val iPerfEntryDao: IPerfEntryDao,
-    val iPerf3Provider: IPerf3Provider,
+    private val iPerf3Provider: IPerf3Provider,
 ) : ViewModel(), IperfLogViewModel {
 
     private val selectedProtocol = MutableStateFlow(IperfProtocol.TCP)
@@ -104,7 +106,9 @@ class IperfClientVM(
         showEntryCreator,
         showEntryDeletion,
         editEntry,
-        speedData
+        speedData,
+        iPerf3Provider.running,
+        iPerf3Provider.stopping
     ) { flows ->
         @Suppress("UNCHECKED_CAST")
         val entries = flows[0] as List<IPerfEntry>
@@ -119,6 +123,8 @@ class IperfClientVM(
         val entryDeletion = flows[9] as Boolean
         val editing = flows[10] as IPerfEntry?
         val speedData = flows[11] as List<Float>
+        val isRunning = flows[12] as Boolean
+        val isStopping = flows[13] as Boolean
 
         IperfClientUIState(
             selectedEntry = entries.firstOrNull { it.selected },
@@ -133,7 +139,9 @@ class IperfClientVM(
             showEntryCreator = entryCreator,
             showEntryDeletion = entryDeletion,
             editEntry = editing,
-            speedData = speedData
+            speedData = speedData,
+            isIperfRunning = isRunning,
+            isIperfStopping = isStopping
         )
     }.stateIn(
         scope = viewModelScope,
