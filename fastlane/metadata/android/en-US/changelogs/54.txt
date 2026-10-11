@@ -1,0 +1,5 @@
+iPerf3:
+- Added several test options
+- Added the ability to see test logs
+- Added the ability to edit servers
+- Other UI improvements and bugfixes
