@@ -55,9 +55,9 @@
     <string name="add_widget">Ajouter un widget</string>
     <string name="configured_plans">Forfaits configurés</string>
     <string name="data_plan_widget_description">Suivez votre forfait de données sur votre écran d\'accueil</string>
-    <string name="day">Jour :</string>
-    <string name="time">Heure :</string>
-    <string name="length">Durée :</string>
+    <string name="day">Jour</string>
+    <string name="time">Heure</string>
+    <string name="length">Durée</string>
     <string name="days">jours</string>
     <string name="tethering">Point d\'accès mobile</string>
     <string name="removed_apps">Applications supprimées</string>
@@ -168,7 +168,6 @@
     <string name="blur_effects">Effets de floutage</string>
     <string name="set_as_default">Régler par défaut</string>
     <string name="search">Rechercher</string>
-    <string name="server_ip_address">Adresse IP</string>
     <string name="no_server_selected">Aucun serveur sélectionné</string>
     <string name="select_server">Sélectionner un serveur</string>
     <string name="add_server">Ajouter un serveur</string>
@@ -185,4 +184,19 @@
     <string name="client">Client</string>
     <string name="server">Serveur</string>
     <string name="server_address">Adresse du serveur</string>
+    <string name="edit">Éditer</string>
+    <string name="protocol">Protocole</string>
+    <string name="direction">Direction</string>
+    <string name="bandwidth">Bande passante</string>
+    <string name="parallel_streams">Flux parallèles</string>
+    <string name="logs">Journaux</string>
+    <plurals name="parallel_streams_count">
+        <item quantity="one">%d flux</item>
+        <item quantity="many">%d flux</item>
+        <item quantity="other">%d flux</item>
+    </plurals>
+    <string name="version">Version</string>
+    <string name="connected_sockets">Sockets connectés</string>
+    <string name="socket_id">ID de socket : %1$d</string>
+    <string name="aggregate_stats">Statistiques cumulées</string>
 </resources>

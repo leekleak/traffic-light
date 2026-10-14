@@ -173,4 +173,21 @@
     <string name="selected">مُحدّد</string>
     <string name="blur_effects">تأثيرات التمويه</string>
     <string name="set_as_default">عيّن كافتراضي</string>
+    <string name="search">ابحث</string>
+    <string name="no_server_selected">لم تحدد خادم</string>
+    <string name="select_server">حدّد خادم</string>
+    <string name="add_server">أضف خادم</string>
+    <string name="network_port">منفذ</string>
+    <string name="server_name">اسم الخادم</string>
+    <string name="my_server">خادمي</string>
+    <string name="name_cannot_be_empty">لا يمكن للخادم أن يكون فارغًا</string>
+    <string name="name_already_used">الاسم مستخدم بالفعل</string>
+    <string name="invalid_ip_address">عنوان IP غير صالح</string>
+    <string name="invalid_port">منفذ غير صالح</string>
+    <string name="remove_server">خادم بعيد</string>
+    <string name="remove_server_question">أمتأكد من رغبتك في إزالة هذا الخادم؟</string>
+    <string name="remove">أزِل</string>
+    <string name="client">العميل</string>
+    <string name="server">الخادم</string>
+    <string name="server_address">عنوان الخادم</string>
 </resources>

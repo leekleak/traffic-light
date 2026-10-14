@@ -45,9 +45,9 @@
     <string name="custom">自定义</string>
     <string name="this_month">本月</string>
     <string name="save">保存</string>
-    <string name="day">日期：</string>
-    <string name="time">时间：</string>
-    <string name="length">长度：</string>
+    <string name="day">日期</string>
+    <string name="time">时间</string>
+    <string name="length">长度</string>
     <string name="days">天</string>
     <string name="add_widget">添加小工具</string>
     <string name="configured_plans">设置计划</string>
@@ -164,7 +164,6 @@
     <string name="blur_effects">模糊效果</string>
     <string name="set_as_default">设置为默认</string>
     <string name="search">搜索</string>
-    <string name="server_ip_address">IP 地址</string>
     <string name="no_server_selected">尚未选择服务器</string>
     <string name="select_server">选择服务器</string>
     <string name="add_server">添加服务器</string>
@@ -181,4 +180,11 @@
     <string name="client">客户端</string>
     <string name="server">服务器</string>
     <string name="server_address">服务器地址</string>
+    <string name="edit">修改</string>
+    <string name="protocol">协议</string>
+    <string name="direction">方向</string>
+    <string name="bandwidth">带宽</string>
+    <string name="logs">日志</string>
+    <string name="version">版本</string>
+    <string name="socket_id">套接字编号：%1$d</string>
 </resources>
