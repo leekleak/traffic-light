@@ -16,11 +16,14 @@ Traffic Light is an open-source tool for tracking your network usage while ensur
 
 <table align="center" width="100%">
   <tr>
-    <th align="center" width="50%">
-      Full Flavor
+    <th align="center" width="40%">
+      Full
     </th>
-    <th align="center" width="50%">
-      Play Flavor
+    <th align="center" width="30%">
+      Play
+    </th>
+    <th align="center" width="30%">
+      Lite
     </th>
   </tr>
   <tr>
@@ -30,12 +33,16 @@ Traffic Light is an open-source tool for tracking your network usage while ensur
       <a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium%3A%2F%2Fapp%2F%7B%22id%22%3A%22com.leekleak.trafficlight%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fleekleak%2Ftraffic-light%22%2C%22author%22%3A%22leekleak%22%2C%22name%22%3A%22Traffic%20Light%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%7D%22%7D"><img alt="Obtainium" height="60" src="branding/badge_obtainium.png"></a>
     </td>
     <td align="center">
-      <a href="https://play.google.com/store/apps/details?id=com.leekleak.trafficlight"><img alt="Play Store" height="80" src="branding/badge_playstore.png"></a>
+      <a href="https://play.google.com/store/apps/details?id=com.leekleak.trafficlight"><img alt="Play Store" height="60" src="branding/badge_playstore.png"></a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/leekleak/traffic-light/releases"><img alt="GitHub" height="60" src="branding/badge_github.png"></a>
     </td>
   </tr>
   <tr>
     <td align="center">All features</td>
     <td align="center">No Shizuku (multi-SIM support)</td>
+    <td align="center">No Shizuku,<br>No iPerf3,<br>No 'Internet' permission</td>
   </tr>
   </tr>
 </table>
