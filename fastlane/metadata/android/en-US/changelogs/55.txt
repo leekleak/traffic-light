@@ -1,0 +1,4 @@
+Lite build:
+- Stripped down lite version of the app.
+- Does not include extra features such as iPerf3 speed tests and Shizuku data plan tracking
+- Comes without the 'Internet' permission
