@@ -45,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.ui.NavDisplay
+import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.R
 import org.koin.compose.navigation3.koinEntryProvider
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -95,7 +96,9 @@ fun NavigationManager(navigator: Navigator) {
                             NavigationButton(navigator, OverviewKey, stringResource(R.string.overview), R.drawable.overview)
                             NavigationButton(navigator, DataPlansKey, stringResource(R.string.plans), R.drawable.sim_card)
                             NavigationButton(navigator, HistoryKey, stringResource(R.string.history), R.drawable.history)
-                            NavigationButton(navigator, IperfScreenKey, stringResource(R.string.iperf3), R.drawable.speed)
+                            if (BuildConfig.IPERF) {
+                                NavigationButton(navigator, IperfScreenKey, stringResource(R.string.iperf3), R.drawable.speed)
+                            }
                         },
                     )
                 }

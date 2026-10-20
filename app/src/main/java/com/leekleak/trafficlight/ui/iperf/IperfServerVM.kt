@@ -22,15 +22,15 @@ data class IperfServerUIState(
 )
 
 class IperfServerVM(
-    private val iPerf3Provider: IPerf3Provider,
+    private val iPerf3Provider: IPerf3Provider? = null,
 ) : ViewModel(), IperfLogViewModel {
 
     override val data: StateFlow<List<IperfEvent>>
         field = MutableStateFlow(listOf())
 
     val uiState: StateFlow<IperfServerUIState> = combine(
-        iPerf3Provider.running,
-        iPerf3Provider.stopping
+        iPerf3Provider?.running ?: MutableStateFlow(false),
+        iPerf3Provider?.stopping ?: MutableStateFlow(false)
     ) { running, stopping ->
         IperfServerUIState(
             isIperfRunning = running,
@@ -43,10 +43,11 @@ class IperfServerVM(
     )
 
     fun startTest(context: Context) {
-        if (iPerf3Provider.running.value) return
+        val provider = iPerf3Provider ?: return
+        if (provider.running.value) return
         clearIperfEvents()
         viewModelScope.launch {
-            iPerf3Provider.runTest(
+            provider.runTest(
                 arrayOf("-s", "-p", "5201"),
                 object : IperfCallback {
                     override fun onOutput(event: IperfEvent) {
@@ -68,7 +69,7 @@ class IperfServerVM(
     }
 
     fun stopTest() {
-        iPerf3Provider.stopTest()
+        iPerf3Provider?.stopTest()
     }
 
     fun addIperfEvent(event: IperfEvent) {

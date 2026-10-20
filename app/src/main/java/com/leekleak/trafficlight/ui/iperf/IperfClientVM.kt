@@ -68,7 +68,7 @@ data class IperfClientUIState(
 
 class IperfClientVM(
     private val iPerfEntryDao: IPerfEntryDao,
-    private val iPerf3Provider: IPerf3Provider,
+    private val iPerf3Provider: IPerf3Provider? = null,
 ) : ViewModel(), IperfLogViewModel {
 
     private val selectedProtocol = MutableStateFlow(IperfProtocol.TCP)
@@ -107,8 +107,8 @@ class IperfClientVM(
         showEntryDeletion,
         editEntry,
         speedData,
-        iPerf3Provider.running,
-        iPerf3Provider.stopping
+        iPerf3Provider?.running ?: MutableStateFlow(false),
+        iPerf3Provider?.stopping ?: MutableStateFlow(false)
     ) { flows ->
         @Suppress("UNCHECKED_CAST")
         val entries = flows[0] as List<IPerfEntry>
@@ -215,11 +215,12 @@ class IperfClientVM(
     }
 
     fun startTest(context: Context) {
+        val provider = iPerf3Provider ?: return
         val args = uiState.value.arguments ?: return
-        if (iPerf3Provider.running.value) return
+        if (provider.running.value) return
         clearIperfEvents()
         viewModelScope.launch {
-            iPerf3Provider.runTest(
+            provider.runTest(
                 args,
                 object : IperfCallback {
                     override fun onOutput(event: IperfEvent) {
@@ -241,6 +242,6 @@ class IperfClientVM(
     }
 
     fun stopTest() {
-        iPerf3Provider.stopTest()
+        iPerf3Provider?.stopTest()
     }
 }

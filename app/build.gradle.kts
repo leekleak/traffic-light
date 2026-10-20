@@ -66,14 +66,22 @@ android {
             dimension = "version"
             buildConfigField("Boolean", "SHIZUKU", "true")
             buildConfigField("Boolean", "ADS", "false")
+            buildConfigField("Boolean", "IPERF", "true")
         }
         create("play") {
             dimension = "version"
             buildConfigField("Boolean", "SHIZUKU", "false")
             buildConfigField("Boolean", "ADS", "true")
+            buildConfigField("Boolean", "IPERF", "true")
             buildConfigField("String", "ADMOB_APP_ID", "\"$admobAppId\"")
             buildConfigField("String", "ADMOB_UNIT_ID_OVERVIEW", "\"$admobUnitIdOverview\"")
             manifestPlaceholders["admobAppId"] = admobAppId
+        }
+        create("lite") {
+            dimension = "version"
+            buildConfigField("Boolean", "SHIZUKU", "false")
+            buildConfigField("Boolean", "ADS", "false")
+            buildConfigField("Boolean", "IPERF", "false")
         }
     }
     androidResources {
