@@ -106,6 +106,8 @@ android {
             useLegacyPackaging = true
         }
     }
+
+    ndkVersion = "30.0.16248370" // Match with version in iperfIntegration
 }
 
 aboutLibraries {
