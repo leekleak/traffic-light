@@ -4,9 +4,9 @@ import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.leekleak.iperfintegration.IPerf3Provider
-import com.leekleak.iperfintegration.IperfCallback
-import com.leekleak.iperfintegration.IperfEvent
+import com.leekleak.trafficlight.integrations.iperf.IPerf3Provider
+import com.leekleak.trafficlight.integrations.iperf.IperfCallback
+import com.leekleak.trafficlight.integrations.iperf.IperfEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

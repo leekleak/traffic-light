@@ -1,4 +1,4 @@
-package com.leekleak.iperfintegration
+package com.leekleak.trafficlight.integrations.iperf
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

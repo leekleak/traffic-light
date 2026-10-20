@@ -36,20 +36,20 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.leekleak.iperfintegration.EndData
-import com.leekleak.iperfintegration.EndEvent
-import com.leekleak.iperfintegration.ErrorEvent
-import com.leekleak.iperfintegration.IntervalEvent
-import com.leekleak.iperfintegration.IperfEvent
-import com.leekleak.iperfintegration.ServerOutputJsonEvent
-import com.leekleak.iperfintegration.ServerOutputTextEvent
-import com.leekleak.iperfintegration.StartData
-import com.leekleak.iperfintegration.StartEvent
-import com.leekleak.iperfintegration.SumStats
-import com.leekleak.iperfintegration.TcpIntervalResult
-import com.leekleak.iperfintegration.UdpIntervalResult
-import com.leekleak.iperfintegration.UnknownEvent
 import com.leekleak.trafficlight.R
+import com.leekleak.trafficlight.integrations.iperf.EndData
+import com.leekleak.trafficlight.integrations.iperf.EndEvent
+import com.leekleak.trafficlight.integrations.iperf.ErrorEvent
+import com.leekleak.trafficlight.integrations.iperf.IntervalEvent
+import com.leekleak.trafficlight.integrations.iperf.IperfEvent
+import com.leekleak.trafficlight.integrations.iperf.ServerOutputJsonEvent
+import com.leekleak.trafficlight.integrations.iperf.ServerOutputTextEvent
+import com.leekleak.trafficlight.integrations.iperf.StartData
+import com.leekleak.trafficlight.integrations.iperf.StartEvent
+import com.leekleak.trafficlight.integrations.iperf.SumStats
+import com.leekleak.trafficlight.integrations.iperf.TcpIntervalResult
+import com.leekleak.trafficlight.integrations.iperf.UdpIntervalResult
+import com.leekleak.trafficlight.integrations.iperf.UnknownEvent
 import com.leekleak.trafficlight.ui.components.BackAction
 import com.leekleak.trafficlight.ui.components.HazeScaffold
 import com.leekleak.trafficlight.ui.navigation.Navigator
@@ -501,7 +501,7 @@ private fun EndEventCard(data: EndData) {
 
     if (data.sumSent == null) return
     CategoryTitleSmallText(stringResource(R.string.test_end))
-    data.sumSent?.let { sent ->
+    data.sumSent.let { sent ->
         StatBlock(
             title = stringResource(R.string.sender),
             bytes = sent.bytes,

@@ -1,8 +1,8 @@
 package com.leekleak.trafficlight.ui.navigation
 
 import androidx.navigation3.runtime.NavKey
-import com.leekleak.iperfintegration.IperfEvent
 import com.leekleak.trafficlight.database.DataPlan
+import com.leekleak.trafficlight.integrations.iperf.IperfEvent
 import kotlinx.serialization.Serializable
 
 /**

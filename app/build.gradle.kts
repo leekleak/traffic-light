@@ -168,8 +168,11 @@ dependencies {
     implementation(libs.haze.blur.materials)
     "playImplementation"(project(":playIntegration"))
     "playImplementation"(libs.ads.mobile.sdk)
+
     "fullImplementation"(project(":shizukuIntegration"))
-    implementation(project(":iperfIntegration"))
+
+    "fullImplementation"(project(":iperfIntegration"))
+    "playImplementation"(project(":iperfIntegration"))
 
     implementation(libs.aboutlibraries.core)
     implementation(libs.aboutlibraries.compose.core)

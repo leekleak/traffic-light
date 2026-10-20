@@ -4,12 +4,12 @@ import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.leekleak.iperfintegration.IPerf3Provider
-import com.leekleak.iperfintegration.IntervalEvent
-import com.leekleak.iperfintegration.IperfCallback
-import com.leekleak.iperfintegration.IperfEvent
 import com.leekleak.trafficlight.database.IPerfEntry
 import com.leekleak.trafficlight.database.IPerfEntryDao
+import com.leekleak.trafficlight.integrations.iperf.IPerf3Provider
+import com.leekleak.trafficlight.integrations.iperf.IntervalEvent
+import com.leekleak.trafficlight.integrations.iperf.IperfCallback
+import com.leekleak.trafficlight.integrations.iperf.IperfEvent
 import com.leekleak.trafficlight.util.DataSizeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
