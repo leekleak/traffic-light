@@ -55,3 +55,5 @@ target_compile_definitions(${IPERF_TARGET} PRIVATE HAVE_CONFIG_H HAVE_PTHREAD)
 set_target_properties(${IPERF_TARGET} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 target_link_libraries(${IPERF_TARGET} m log)
+
+target_link_options(${IPERF_TARGET} PRIVATE -Wl,--build-id=none) # f-droid repro
