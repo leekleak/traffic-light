@@ -28,6 +28,8 @@ android {
             useLegacyPackaging = true
         }
     }
+
+    ndkVersion = "30.0.16248370" // Required for iPerf repro, but has to be global for reasons
 }
 
 dependencies {
