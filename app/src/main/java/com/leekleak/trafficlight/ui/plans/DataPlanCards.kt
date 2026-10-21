@@ -2,6 +2,7 @@
 
 package com.leekleak.trafficlight.ui.plans
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,9 +12,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearWavyProgressIndicator
@@ -53,7 +57,7 @@ import com.leekleak.trafficlight.util.simIconRes
 import java.text.DecimalFormat
 
 @Composable
-fun ConfiguredDataPlan(plan: DataPlan, planSnapshot: DataPlanSnapshot, onConfigure: () -> Unit) {
+fun ConfiguredDataPlan(plan: DataPlan, planSnapshot: DataPlanSnapshot?, onConfigure: () -> Unit) {
     val haptic = LocalHapticFeedback.current
 
     BoxBackground(
@@ -63,19 +67,21 @@ fun ConfiguredDataPlan(plan: DataPlan, planSnapshot: DataPlanSnapshot, onConfigu
             onConfigure()
         }
     ) {
-        ConfiguredDataPlanContent(plan, planSnapshot)
+        AnimatedContent(
+            targetState = planSnapshot,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Box(Modifier.fillMaxSize()) {
+                if (it != null) ConfiguredDataPlanContent(plan, it)
+            }
+        }
     }
 }
 
 @Composable
-fun UnconfiguredDataPlan(plan: DataPlan, planSnapshot: DataPlanSnapshot, onConfigure: () -> Unit) {
+fun UnconfiguredDataPlan(plan: DataPlan, planSnapshot: DataPlanSnapshot?, onConfigure: () -> Unit) {
     val haptic = LocalHapticFeedback.current
-    val fontFamilyGoogleSans = remember { googleSansEmphasized() }
-    val fontFamilyDoHyeon = remember { doHyeonFont() }
 
-    val metric = LocalSizeMetric.current
-    val usage = DataSize(planSnapshot.mainDataUsed).getAsUnit(planSnapshot.mainDataSizeUnit, metric)
-    val formatter = remember { DecimalFormat("0.##") }
     BoxBackground(
         dataPlan = plan,
         onClick = {
@@ -83,28 +89,59 @@ fun UnconfiguredDataPlan(plan: DataPlan, planSnapshot: DataPlanSnapshot, onConfi
             onConfigure()
         }
     ) {
-        Box (Modifier.align(Alignment.Center)) {
-            Text(
-                fontFamily = fontFamilyDoHyeon,
-                textAlign = TextAlign.Center,
-                text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(fontSize = 64.sp, fontFamily = fontFamilyDoHyeon)) {
-                        append(formatter.format(usage))
-                    }
-                    withStyle(style = SpanStyle(fontSize = 36.sp, fontFamily = fontFamilyDoHyeon)) {
-                        appendLine(planSnapshot.mainDataSizeUnit.name)
-                    }
-                    withStyle(
-                        style = SpanStyle(
-                            fontSize = 18.sp,
-                            fontFamily = fontFamilyGoogleSans
-                        )
-                    ) {
-                        append(stringResource(R.string.this_month))
-                    }
-                }
-            )
+        AnimatedContent(
+            targetState = planSnapshot,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Box(Modifier.fillMaxSize()) {
+                if (it != null) UnconfiguredDataPlanContent(it)
+            }
         }
+    }
+}
+
+@Composable
+private fun BoxScope.UnconfiguredDataPlanContent(planSnapshot: DataPlanSnapshot) {
+    val fontFamilyGoogleSans = remember { googleSansEmphasized() }
+    val fontFamilyDoHyeon = remember { doHyeonFont() }
+
+    val metric = LocalSizeMetric.current
+    val formatter = remember { DecimalFormat("0.##") }
+    Box(Modifier.align(Alignment.Center)) {
+        val usage = DataSize(planSnapshot.mainDataUsed).getAsUnit(
+            planSnapshot.mainDataSizeUnit,
+            metric
+        )
+        Text(
+            fontFamily = fontFamilyDoHyeon,
+            textAlign = TextAlign.Center,
+            text = buildAnnotatedString {
+                withStyle(
+                    style = SpanStyle(
+                        fontSize = 64.sp,
+                        fontFamily = fontFamilyDoHyeon
+                    )
+                ) {
+                    append(formatter.format(usage))
+                }
+                withStyle(
+                    style = SpanStyle(
+                        fontSize = 36.sp,
+                        fontFamily = fontFamilyDoHyeon
+                    )
+                ) {
+                    appendLine(planSnapshot.mainDataSizeUnit.name)
+                }
+                withStyle(
+                    style = SpanStyle(
+                        fontSize = 18.sp,
+                        fontFamily = fontFamilyGoogleSans
+                    )
+                ) {
+                    append(stringResource(R.string.this_month))
+                }
+            }
+        )
     }
 }
 

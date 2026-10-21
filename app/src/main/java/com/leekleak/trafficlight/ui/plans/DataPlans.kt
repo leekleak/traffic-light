@@ -51,6 +51,7 @@ import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.charts.AppGraph
 import com.leekleak.trafficlight.charts.BarGraph
 import com.leekleak.trafficlight.charts.ExtraGraph
+import com.leekleak.trafficlight.charts.model.BarData
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanSnapshot
@@ -143,14 +144,12 @@ private fun DataPlanPager(
     ) { page ->
         if (page < activePlans.size) {
             val plan = activePlans[page]
-            val snapshot = uiState.planSnapshots[activePlans[page]]
+            val snapshot = uiState.planSnapshots[plan]
 
-            if (snapshot != null) {
-                if (plan.configured) {
-                    ConfiguredDataPlan(plan, snapshot) { goToPlanConfig(plan) }
-                } else {
-                    UnconfiguredDataPlan(plan, snapshot) { goToPlanConfig(plan) }
-                }
+            if (plan.configured) {
+                ConfiguredDataPlan(plan, snapshot) { goToPlanConfig(plan) }
+            } else {
+                UnconfiguredDataPlan(plan, snapshot) { goToPlanConfig(plan) }
             }
         } else {
             Column(
@@ -247,10 +246,10 @@ private fun DataPlanInsights(
             }
             if (plan.mainDataSize.byteValue > 0) usageInsights(uiState)
             extras(snapshot)
-            thisWeek(uiState)
+            uiState.weekUsage?.let { thisWeek(it) }
             if (uiState.adsEnabled) item { Ad(true, AdType.NativeBanner, colorScheme.surface) }
             if (plan.mainDataSize.byteValue > 0) budgetInsights(uiState)
-            topApps(uiState.topApps)
+            uiState.topApps?.let { topApps(it) }
         }
     }
 }
@@ -373,7 +372,7 @@ private fun LazyListScope.budgetInsights(uiState: DataPlansUiState) {
     }
 }
 
-private fun LazyListScope.thisWeek(uiState: DataPlansUiState) {
+private fun LazyListScope.thisWeek(weekUsage: List<BarData>) {
     item(key = "this_week") {
         Column(Modifier.animateItem()) {
             CategoryTitleText(stringResource(R.string.this_week))
@@ -383,7 +382,7 @@ private fun LazyListScope.thisWeek(uiState: DataPlansUiState) {
                     .background(colorScheme.surface)
                     .padding(6.dp)
             ) {
-                BarGraph(uiState.weekUsage)
+                BarGraph(weekUsage)
             }
         }
     }
