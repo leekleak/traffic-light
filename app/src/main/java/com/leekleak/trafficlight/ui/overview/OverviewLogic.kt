@@ -6,6 +6,7 @@ import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.model.NetworkUsageManager
+import com.leekleak.trafficlight.model.UsageData
 import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -21,8 +22,8 @@ class OverviewLogic(val networkUsageManager: NetworkUsageManager) {
         val hoursLeft = 23 - hour
         val nowStamp = LocalDateTime.now().toTimestamp()
         val last24HourUsage = networkUsageManager
-            .getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, DataType.Mobile)
-            .sumOf { it.total }
+            .getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, query.dataType)
+            .sumForQuery(query)
         val todayUsage =
             networkUsageManager.totalDayUsage(query, LocalDate.now())
 
@@ -35,15 +36,15 @@ class OverviewLogic(val networkUsageManager: NetworkUsageManager) {
                             pivotStamp,
                             pivotStamp + hoursLeft * 3_600_000,
                             null,
-                            DataType.Mobile
-                        ).sumOf { it.total }
+                            query.dataType
+                        ).sumForQuery(query)
                     val pastHours = networkUsageManager
                         .getNetworkDataForType(
                             pivotStamp - 24 * 3_600_000,
                             pivotStamp,
                             null,
-                            DataType.Mobile
-                        ).sumOf { it.total }
+                            query.dataType
+                        ).sumForQuery(query)
 
                     (pastHours) to (futureHours + pastHours)
                 }
@@ -93,5 +94,13 @@ class OverviewLogic(val networkUsageManager: NetworkUsageManager) {
             query2 = UsageQuery(DataType.None),
         )
         return todayUsage.filter { it.app != allApp }.take(3)
+    }
+
+    private fun List<UsageData>.sumForQuery(query: UsageQuery): Long = sumOf { usage ->
+        if (query.dataUID.uidQuery == null || usage.uid == query.dataUID.uid) {
+            usage.forDirection(query.dataDirection)
+        } else {
+            0L
+        }
     }
 }

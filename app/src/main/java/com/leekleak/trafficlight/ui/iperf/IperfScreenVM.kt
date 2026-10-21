@@ -42,7 +42,7 @@ class IperfScreenVM(
                 .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
                 .build()
             networkCallback =
-                object : ConnectivityManager.NetworkCallback(FLAG_INCLUDE_LOCATION_INFO) {
+                object : ConnectivityManager.NetworkCallback() {
                     override fun onLinkPropertiesChanged(
                         network: Network,
                         linkProperties: LinkProperties

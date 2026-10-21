@@ -96,6 +96,7 @@ class Widget: GlanceAppWidget() {
         val usageString = formatter.format(usageSize)
         val quotaString = formatter.format(dataMax)
         val unitString = dataPlanSnapshot.mainDataSizeUnit.name
+        val resetString = dataPlan.resetString(context)
 
         var stateChanged = false
 
@@ -107,6 +108,8 @@ class Widget: GlanceAppWidget() {
                 (mutable[LAST_MAX] == quotaString) &&
                 (mutable[BACKGROUND] == dataPlan.uiBackground) &&
                 (mutable[LAST_UNIT] == unitString) &&
+                (mutable[LAST_RESET] == resetString) &&
+                (mutable[LAST_CONFIGURED] == dataPlan.configured) &&
                 (mutable[FORCE_REFRESH] != true)
             ) {
                 Timber.i("Skipping widget refresh")
@@ -118,6 +121,8 @@ class Widget: GlanceAppWidget() {
                     this[LAST_MAX] = quotaString
                     this[BACKGROUND] = dataPlan.uiBackground
                     this[LAST_UNIT] = unitString
+                    this[LAST_RESET] = resetString
+                    this[LAST_CONFIGURED] = dataPlan.configured
                     this[FORCE_REFRESH] = false
                 }
             }
@@ -139,7 +144,7 @@ class Widget: GlanceAppWidget() {
                             unitString = unitString,
                             progress = usageSize / max(dataMax, 1.0),
                             dataMax = dataMax,
-                            resetString = dataPlan.resetString(context),
+                            resetString = resetString,
                         )
                     } else {
                         UnconfiguredWidgetContent(
@@ -359,6 +364,8 @@ class Widget: GlanceAppWidget() {
         val LAST_USAGE = stringPreferencesKey("last_usage")
         val LAST_MAX = stringPreferencesKey("last_max")
         val LAST_UNIT = stringPreferencesKey("last_unit")
+        val LAST_RESET = stringPreferencesKey("last_reset")
+        val LAST_CONFIGURED = booleanPreferencesKey("last_configured")
         val BACKGROUND = intPreferencesKey("ui_background")
         val FORCE_REFRESH = booleanPreferencesKey("force_refresh")
     }

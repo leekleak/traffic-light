@@ -18,29 +18,34 @@ class AutoStarter : BroadcastReceiver(), KoinComponent {
     private val applicationScope: CoroutineScope by inject()
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            val pendingResult = goAsync()
-            applicationScope.launch {
-                try {
-                    permissionManager.update()
-                } catch (e: Exception) {
-                    Timber.e(e, "Failed to update permissions")
-                }
+        when (intent.action) {
+            Intent.ACTION_BOOT_COMPLETED,
+            Intent.ACTION_MY_PACKAGE_REPLACED -> {
+                val pendingResult = goAsync()
+                applicationScope.launch {
+                    try {
+                        try {
+                            permissionManager.update()
+                        } catch (e: Exception) {
+                            Timber.e(e, "Failed to update permissions")
+                        }
 
-                try {
-                    NotificationService.startService(context)
-                } catch (e: Exception) {
-                    Timber.e(e, "Failed to start notification service")
-                }
+                        try {
+                            NotificationService.startService(context)
+                        } catch (e: Exception) {
+                            Timber.e(e, "Failed to start notification service")
+                        }
 
-                try {
-                    setForceUpdateWidgets(context)
-                    startAlarmManager(context)
-                } catch (e: Exception) {
-                    Timber.e(e, "Failed to start alarm manager service")
+                        try {
+                            setForceUpdateWidgets(context)
+                            startAlarmManager(context)
+                        } catch (e: Exception) {
+                            Timber.e(e, "Failed to start alarm manager service")
+                        }
+                    } finally {
+                        pendingResult.finish()
+                    }
                 }
-
-                pendingResult.finish()
             }
         }
     }
