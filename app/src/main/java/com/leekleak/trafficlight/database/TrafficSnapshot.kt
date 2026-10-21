@@ -93,7 +93,7 @@ class TrafficSnapshotManager(
 
     private suspend fun regularUpdateSnapshot(): TrafficSnapshot = withContext(Dispatchers.IO) {
         val inter = interfaces
-        return@withContext if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && permissionManager.internetPermission.value) {
+        return@withContext if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             TrafficSnapshot(
                 up = inter.sumOf { TrafficStats.getTxBytes(it).coerceAtLeast(0L) },
                 down = inter.sumOf { TrafficStats.getRxBytes(it).coerceAtLeast(0L) },

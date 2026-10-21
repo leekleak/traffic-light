@@ -18,7 +18,6 @@ import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.database.TrafficSnapshotManager
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.NetworkUsageManager
-import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.util.DataSize
 import com.leekleak.trafficlight.util.clipAndPad
 import com.leekleak.trafficlight.util.toKb
@@ -38,7 +37,6 @@ class SpeedNotification(
     private val connectivityManager: ConnectivityManager,
     private val appPreferenceRepo: AppPreferenceRepo,
     private val trafficSnapshotManager: TrafficSnapshotManager,
-    private val permissionManager: PermissionManager,
 ) : PersistentNotification(serviceScope, context, notificationManager, notificationId) {
 
     private var notificationBuilderSilent = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID_SILENT)
@@ -265,7 +263,6 @@ class SpeedNotification(
     private fun shouldGoSilent(): Boolean = (silentChannelTicks >= SILENT_CHANNEL_TICK_TARGET) && speedThreshold
 
     private fun isNetworkAvailable(): Boolean {
-        if (!permissionManager.internetPermission.value) return true
         return connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)?.run {
             hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
             hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||

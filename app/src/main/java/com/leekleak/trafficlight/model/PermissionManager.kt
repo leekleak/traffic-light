@@ -45,17 +45,6 @@ class PermissionManager(
     val shizukuPermission: StateFlow<Boolean>
         field = MutableStateFlow(false)
 
-    /**
-     * Technically internet permission should always be granted. Unfortunately, that's not necessarily
-     * the case in GrapheneOS. While the internet permission should not affect network counting at all,
-     * whenever the permission is rejected, GrapheneOS also spoofs all system calls such as available
-     * network interfaces and transport capabilities to indicate that no network is configured.
-     *
-     * In such cases we should just fall back and assume the device is connected.
-     */
-    val internetPermission: StateFlow<Boolean>
-        field = MutableStateFlow(true)
-
     init {
         scope.launch {
             combine(
@@ -119,8 +108,6 @@ class PermissionManager(
         val packageName: String? = context.packageName
         val pm = context.getSystemService(POWER_SERVICE) as PowerManager
         backgroundPermission.value = pm.isIgnoringBatteryOptimizations(packageName)
-
-        internetPermission.value = context.checkSelfPermission(android.Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED
 
         val appOpsManager = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
         val mode = appOpsManager.checkOpNoThrow(
