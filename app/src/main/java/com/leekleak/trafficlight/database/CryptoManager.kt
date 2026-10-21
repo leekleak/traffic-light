@@ -22,7 +22,7 @@ object CryptoManager {
 
     private fun getSecretKey(alias: String): SecretKey {
         return keyCache.computeIfAbsent(alias) { key ->
-            (keyStore.getEntry(key, null) as? KeyStore.SecretKeyEntry)?.secretKey ?: createKey(key)
+            (keyStore.getKey(key, null) as? SecretKey) ?: createKey(key)
         }
     }
 
