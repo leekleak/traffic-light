@@ -53,7 +53,7 @@ import org.koin.core.annotation.KoinExperimentalAPI
 val NAVBAR_PADDING = FloatingToolbarDefaults.ContainerSize + FloatingToolbarDefaults.ScreenOffset - 8.dp
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, KoinExperimentalAPI::class)
+@OptIn(KoinExperimentalAPI::class)
 @Composable
 fun NavigationManager(navigator: Navigator) {
     val backStack = navigator.backStack

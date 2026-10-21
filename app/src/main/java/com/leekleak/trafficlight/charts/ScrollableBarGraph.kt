@@ -45,7 +45,6 @@ import kotlin.math.roundToInt
 import kotlin.math.sign
 
 const val GOOD_BAR_SIZE = 92f
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ScrollableBarGraph(
     data: List<ScrollableBarData>,

@@ -70,7 +70,6 @@ import com.leekleak.trafficlight.util.MiniCardState
 import com.leekleak.trafficlight.util.TrendCard
 import com.leekleak.trafficlight.util.openLink
 import com.leekleak.trafficlight.util.shelfShape
-import timber.log.Timber
 
 @Composable
 fun DataPlans(

@@ -164,7 +164,6 @@ import kotlin.math.E
 import kotlin.math.max
 import kotlin.math.pow
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun DataPlanConfig(
     navigator: Navigator,
@@ -516,7 +515,6 @@ fun DataPlanConfig(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun LazyListScope.typeConfig(
     plan: DataPlan,
     onManualUsageChange: (Long) -> Unit,
@@ -696,7 +694,6 @@ private fun LazyListScope.typeConfig(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: LocalTime, multiplier: Int) -> Unit) {
     var selectedDate by remember { mutableStateOf(fromTimestamp(newPlan.startDate).toLocalDate()) }
     var selectedTime by remember { mutableStateOf(fromTimestamp(newPlan.startDate).toLocalTime()) }
@@ -1199,7 +1196,6 @@ private fun LazyListScope.extrasConfig(newPlan: DataPlan, onPlanChange: (plan: D
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddExtraDialog(
     onDismiss: () -> Unit,

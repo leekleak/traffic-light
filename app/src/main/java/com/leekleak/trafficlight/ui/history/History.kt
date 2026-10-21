@@ -124,7 +124,6 @@ import java.time.LocalTime
 const val MAX_DAYS = 90
 val imageWidth = 32.dp
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun History(viewModel: HistoryVM, appManager: AppManager) {
     val haptic = LocalHapticFeedback.current
@@ -371,7 +370,7 @@ private fun HistoryLegendItem(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryFilter(
     viewModel: HistoryVM,
@@ -502,7 +501,6 @@ fun HistoryFilter(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RowScope.HistoryItemSettings(
     viewModel: HistoryVM,

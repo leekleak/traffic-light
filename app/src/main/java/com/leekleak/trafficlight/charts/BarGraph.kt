@@ -41,7 +41,6 @@ fun BarGraph(
         )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun BarGraphImpl(
     xAxisData: List<String>,

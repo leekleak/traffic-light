@@ -18,7 +18,6 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
-    suspend fun getSnapshot(dataPlan: DataPlan): DataPlanSnapshot = dataPlan.getUsageSnapshot(networkUsageManager)
 
     fun getDataSafety(dataPlan: DataPlan, snapshot: DataPlanSnapshot): MiniCardState {
         val totalMax = dataPlan.mainDataSize.byteValue

@@ -15,7 +15,6 @@ fun doHyeonFont(): FontFamily {
     )
 }
 
-@OptIn(ExperimentalTextApi::class)
 fun googleSans(
     @FloatRange(100.0, 1000.0) weight: Float = 400f,
     @FloatRange(0.0, 100.0) grade: Float = 0f,

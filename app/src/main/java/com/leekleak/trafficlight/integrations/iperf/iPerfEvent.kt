@@ -289,9 +289,6 @@ class IntervalStreamParser {
         }
     }
 
-    fun parseLine(line: String): List<IntervalResult> =
-        (parseEvent(line) as? IntervalEvent)?.results ?: emptyList()
-
     private fun toResult(s: IntervalStream): IntervalResult =
         if (protocol == "udp") {
             UdpIntervalResult(

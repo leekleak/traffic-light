@@ -46,10 +46,4 @@ object GraphTheme {
 
     @Composable
     fun cellularShape() = remember { cellularShapes.random() }
-
-    @Composable
-    fun wifiIcon() = painterResource(R.drawable.wifi)
-
-    @Composable
-    fun cellularIcon() = painterResource(R.drawable.cellular)
 }
