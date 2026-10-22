@@ -1,0 +1,9 @@
+Enhancements:
+- Add test duration setting
+
+Bugfixes:
+- Fix iPerf3 on Android 17
+- Fix data plans not loading
+- Fix prediction ignoring the selected data type, app, and direction
+- Fix widget not updating when the plan reset date or configuration changes
+- Fix tracking not resuming after an app update

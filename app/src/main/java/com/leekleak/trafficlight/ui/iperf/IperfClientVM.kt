@@ -118,7 +118,6 @@ class IperfClientVM(
         iPerf3Provider?.running ?: MutableStateFlow(false),
         iPerf3Provider?.stopping ?: MutableStateFlow(false)
     ) { flows ->
-        @Suppress("UNCHECKED_CAST")
         val entries = flows[0] as List<IPerfEntry>
         val protocol = flows[1] as IperfProtocol
         val direction = flows[2] as IperfDirection
