@@ -30,6 +30,7 @@ data class IperfClientUIState(
     val bandwidth: Int = 1,
     val bandwidthUnit: DataSizeUnit = DataSizeUnit.MB,
     val parallelStreams: Int = 1,
+    val testDuration: Int = 10,
     val showTestSettings: Boolean = false,
     val showEntrySelector: Boolean = false,
     val showEntryCreator: Boolean = false,
@@ -42,7 +43,12 @@ data class IperfClientUIState(
     val arguments: Array<String>?
         get() {
             val entry = selectedEntry ?: return null
-            val args = mutableListOf("-c", entry.ip, "-p", entry.port, "-i", "0.5")
+            val args = mutableListOf(
+                "-c", entry.ip,
+                "-p", entry.port,
+                "-t", testDuration.toString(),
+                "-i", "0.5"
+            )
             if (parallelStreams > 1) {
                 args.addAll(listOf("-P", parallelStreams.toString()))
             }
@@ -76,6 +82,7 @@ class IperfClientVM(
     private val bandwidth = MutableStateFlow(1)
     private val bandwidthUnit = MutableStateFlow(DataSizeUnit.MB)
     private val parallelStreams = MutableStateFlow(1)
+    private val testDuration = MutableStateFlow(10)
     private val showTestSettings = MutableStateFlow(value = false)
     private val showEntrySelector = MutableStateFlow(value = false)
     private val showEntryCreator = MutableStateFlow(value = false)
@@ -101,6 +108,7 @@ class IperfClientVM(
         bandwidth,
         bandwidthUnit,
         parallelStreams,
+        testDuration,
         showTestSettings,
         showEntrySelector,
         showEntryCreator,
@@ -117,14 +125,15 @@ class IperfClientVM(
         val bw = flows[3] as Int
         val bwUnit = flows[4] as DataSizeUnit
         val streams = flows[5] as Int
-        val testSettings = flows[6] as Boolean
-        val entrySelector = flows[7] as Boolean
-        val entryCreator = flows[8] as Boolean
-        val entryDeletion = flows[9] as Boolean
-        val editing = flows[10] as IPerfEntry?
-        val speedData = flows[11] as List<Float>
-        val isRunning = flows[12] as Boolean
-        val isStopping = flows[13] as Boolean
+        val duration = flows[6] as Int
+        val testSettings = flows[7] as Boolean
+        val entrySelector = flows[8] as Boolean
+        val entryCreator = flows[9] as Boolean
+        val entryDeletion = flows[10] as Boolean
+        val editing = flows[11] as IPerfEntry?
+        val speedData = flows[12] as List<Float>
+        val isRunning = flows[13] as Boolean
+        val isStopping = flows[14] as Boolean
 
         IperfClientUIState(
             selectedEntry = entries.firstOrNull { it.selected },
@@ -134,6 +143,7 @@ class IperfClientVM(
             bandwidth = bw,
             bandwidthUnit = bwUnit,
             parallelStreams = streams,
+            testDuration = duration,
             showTestSettings = testSettings,
             showEntrySelector = entrySelector,
             showEntryCreator = entryCreator,
@@ -184,6 +194,10 @@ class IperfClientVM(
 
     fun setParallelStreams(parallelStreams: Int) {
         this.parallelStreams.value = parallelStreams
+    }
+
+    fun setTestDuration(testDuration: Int) {
+        this.testDuration.value = testDuration
     }
 
     fun setShowTestSettings(show: Boolean) {

@@ -185,6 +185,7 @@
     <string name="direction">Direction</string>
     <string name="bandwidth">Bandwidth</string>
     <string name="parallel_streams">Parallel streams</string>
+    <string name="test_duration">Test duration (seconds)</string>
     <string name="logs">Logs</string>
     <plurals name="parallel_streams_count">
         <item quantity="one">%d stream</item>

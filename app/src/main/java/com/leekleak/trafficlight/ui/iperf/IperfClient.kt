@@ -148,6 +148,8 @@ fun ClientScreen(
             onBandwidthUnitChanged = viewModel::setBandwidthUnit,
             parallelStreams = uiState.parallelStreams,
             onParallelStreamsChanged = viewModel::setParallelStreams,
+            testDuration = uiState.testDuration,
+            onTestDurationChanged = viewModel::setTestDuration,
         )
     }
 
@@ -477,6 +479,8 @@ private fun TestSettingsComponent(
     onBandwidthUnitChanged: (DataSizeUnit) -> Unit,
     parallelStreams: Int,
     onParallelStreamsChanged: (Int) -> Unit,
+    testDuration: Int,
+    onTestDurationChanged: (Int) -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
     val colorScheme = MaterialTheme.colorScheme
@@ -601,6 +605,31 @@ private fun TestSettingsComponent(
                 CategoryTitleSmallText(stringResource(R.string.parallel_streams))
                 BasicTextField(
                     state = parallelStreamsState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
+                        .card()
+                        .background(colorScheme.background)
+                        .padding(8.dp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    textStyle = typography.bodyLarge.copy(color = colorScheme.onSurface),
+                    cursorBrush = SolidColor(colorScheme.onSurface),
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                )
+            }
+
+            val testDurationState = rememberTextFieldState(testDuration.toString())
+
+            LaunchedEffect(testDurationState.text) {
+                testDurationState.text.toString().toIntOrNull()?.let {
+                    if (it > 0) onTestDurationChanged(it)
+                }
+            }
+
+            Column {
+                CategoryTitleSmallText(stringResource(R.string.test_duration))
+                BasicTextField(
+                    state = testDurationState,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 4.dp)

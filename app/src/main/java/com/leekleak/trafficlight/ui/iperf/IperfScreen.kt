@@ -2,6 +2,11 @@
 
 package com.leekleak.trafficlight.ui.iperf
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -33,10 +38,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.trafficlight.R
 import com.leekleak.trafficlight.ui.components.BackAction
@@ -123,6 +130,12 @@ fun PlayButton(
 ) {
     val rotation = remember { Animatable(0f) }
     val size by animateDpAsState(if (!isIperfRunning) 128.dp else 96.dp)
+    val context = LocalContext.current
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) onStartTest()
+    }
 
     LaunchedEffect(isIperfRunning) {
         if (isIperfRunning) {
@@ -141,7 +154,16 @@ fun PlayButton(
             .size(size),
         onClick = {
             if (!isIperfRunning) {
-                onStartTest()
+                val hasPermission = Build.VERSION.SDK_INT < Build.VERSION_CODES.CINNAMON_BUN ||
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_LOCAL_NETWORK
+                    ) == PackageManager.PERMISSION_GRANTED
+                if (hasPermission) {
+                    onStartTest()
+                } else {
+                    permissionLauncher.launch(Manifest.permission.ACCESS_LOCAL_NETWORK)
+                }
             } else {
                 onStopTest()
             }
