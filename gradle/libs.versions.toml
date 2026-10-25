@@ -17,7 +17,7 @@ material3 = "1.5.0-beta02"
 compose-ui = "1.12.1"
 
 nav3Core = "1.2.0"
-ads-mobile-sdk = "1.5.0"
+ads-mobile-sdk = "1.6.0"
 review = "2.0.2"
 reviewKtx = "2.0.2"
 room3 = "3.0.3"
