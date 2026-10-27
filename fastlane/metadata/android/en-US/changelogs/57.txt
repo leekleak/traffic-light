@@ -1,0 +1,2 @@
+Enhancements:
+- Reduced APK size
