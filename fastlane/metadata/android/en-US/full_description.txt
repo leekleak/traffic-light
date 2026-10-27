@@ -1,6 +1,7 @@
 Traffic Light is an open-source tool for tracking your network usage while ensuring total privacy. Inspired by Internet Speed Meter and GlassWire.
 
 Features:
+
 - Free and open source
 - Uses few permissions
 - Uses less battery
