@@ -31,8 +31,8 @@ android {
         applicationId = "com.leekleak.trafficlight"
         minSdk = 28
         targetSdk = 37
-        versionCode = 56
-        versionName = "3.4.2"
+        versionCode = 57
+        versionName = "3.4.3"
         base.archivesName = "$namespace-$versionName"
 
         manifestPlaceholders["admobAppId"] = "ca-app-pub-3940256099942544~3347511713"
@@ -82,6 +82,7 @@ android {
             buildConfigField("Boolean", "SHIZUKU", "false")
             buildConfigField("Boolean", "ADS", "false")
             buildConfigField("Boolean", "IPERF", "false")
+            applicationId = "com.leekleak.trafficlight.lite"
         }
     }
     androidResources {
