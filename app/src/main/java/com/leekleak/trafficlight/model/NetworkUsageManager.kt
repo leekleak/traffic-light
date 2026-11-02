@@ -284,11 +284,13 @@ class NetworkUsageManager(
             data.indices.map { i ->
                 async(Dispatchers.IO) {
                     val now = LocalDate.ofEpochDay(i + startDate.toEpochDay())
-                    val usage1 = usageQuery1?.let { totalDayUsage(it, now) }
-                    val usage2 = usageQuery2?.let { totalDayUsage(it, now) }
+                    val usages = listOf(
+                        async { usageQuery1?.let { totalDayUsage(it, now) } },
+                        async { usageQuery2?.let { totalDayUsage(it, now) } }
+                    ).awaitAll()
                     data[i] = data[i].copy(
-                        y1 = usage1 ?: 0L,
-                        y2 = usage2 ?: 0L,
+                        y1 = usages[0] ?: 0L,
+                        y2 = usages[1] ?: 0L,
                     )
                 }
             }.awaitAll()
