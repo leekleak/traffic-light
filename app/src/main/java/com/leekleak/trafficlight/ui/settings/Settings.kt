@@ -98,7 +98,7 @@ private fun AboutSettings(navigator: Navigator, appPreferenceRepo: AppPreference
             if (BuildConfig.ADS) R.string.supporter_ads_description
             else R.string.supporter_ads_disabled
         ),
-        icon = painterResource(R.drawable.celebration),
+        icon = R.drawable.celebration,
         value = ads,
         enabled = BuildConfig.ADS,
         onValueChanged = { scope.launch { appPreferenceRepo.setAds(it) } },
@@ -108,7 +108,7 @@ private fun AboutSettings(navigator: Navigator, appPreferenceRepo: AppPreference
         NavigatePreference(
             modifier = Modifier.weight(1f),
             title = stringResource(R.string.donate),
-            icon = painterResource(R.drawable.donate),
+            icon = R.drawable.donate,
             onClick = { openLink(activity, "https://github.com/sponsors/leekleak") },
             showControl = false
         )
@@ -164,7 +164,7 @@ private fun InterfaceSettings(appPreferenceRepo: AppPreferenceRepo) {
     }
     SwitchPreference(
         title = stringResource(R.string.blur_effects),
-        icon = painterResource(R.drawable.blur_on),
+        icon = R.drawable.blur_on,
         value = blur,
         onValueChanged = { scope.launch { appPreferenceRepo.setBlur(it) } },
     )
@@ -185,7 +185,7 @@ private fun BasesSettings(appPreferenceRepo: AppPreferenceRepo) {
         DialogItemSelectPreference(
             modifier = Modifier.weight(1f),
             title = stringResource(R.string.speed_unit),
-            icon = painterResource(R.drawable.network_check),
+            icon = R.drawable.network_check,
             value = speedMetric,
             values = values,
             onValueChanged = { scope.launch { appPreferenceRepo.setSpeedMetric(it) } },
@@ -193,7 +193,7 @@ private fun BasesSettings(appPreferenceRepo: AppPreferenceRepo) {
         DialogItemSelectPreference(
             modifier = Modifier.weight(1f),
             title = stringResource(R.string.size_unit),
-            icon = painterResource(R.drawable.database),
+            icon = R.drawable.database,
             value = sizeMetric,
             values = values,
             onValueChanged = { scope.launch { appPreferenceRepo.setSizeMetric(it) } },
@@ -224,7 +224,7 @@ private fun ShizukuSettings(
         summary = if (shizukuRunning) stringResource(R.string.shizuku_required) else stringResource(
             R.string.shizuku_not_running
         ),
-        icon = painterResource(R.drawable.version),
+        icon = R.drawable.version,
         value = shizukuTracking && shizukuPermission,
         enabled = shizukuRunning,
         onValueChanged = {
@@ -288,7 +288,7 @@ private fun NotificationSettings(
     SwitchPreference(
         title = stringResource(R.string.notifications),
         summary = stringResource(R.string.notification_description),
-        icon = painterResource(R.drawable.speed_notification),
+        icon = R.drawable.speed_notification,
         value = notification,
         enabled = notificationPermission,
         onValueChanged = {
@@ -304,7 +304,7 @@ private fun NotificationSettings(
     SlideAnimatedVisibility(notification) {
         NavigatePreference(
             title = stringResource(R.string.advanced_settings),
-            icon = painterResource(R.drawable.notification_settings),
+            icon = R.drawable.notification_settings,
             enabled = notificationPermission,
             onClick = { navigator.goTo(NotificationSettingsKey) }
         )

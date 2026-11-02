@@ -295,7 +295,7 @@ private fun EntrySelectorComponent(
     FancyDialog(
         onDismissRequest = onDismissRequest,
         title = stringResource(R.string.select_server),
-        icon = painterResource(R.drawable.language),
+        icon = R.drawable.language,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Spacer(Modifier)
@@ -378,7 +378,7 @@ private fun EntryCreatorComponent(
     FancyDialog(
         onDismissRequest = onDismissRequest,
         title = stringResource(R.string.add_server),
-        icon = painterResource(R.drawable.add),
+        icon = R.drawable.add,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         actionButton = {
             Button(onClick = {
@@ -451,7 +451,7 @@ private fun EntryDeletionComponent(
     FancyDialog(
         onDismissRequest = onDismissRequest,
         title = stringResource(R.string.remove_server),
-        icon = painterResource(R.drawable.deleted),
+        icon = R.drawable.deleted,
         actionButton = {
             Button(onClick = {
                 deleteEntry()

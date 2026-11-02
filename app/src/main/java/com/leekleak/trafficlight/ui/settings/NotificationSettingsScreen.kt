@@ -67,7 +67,7 @@ private fun NotificationChannelSettings(appPreferenceRepo: AppPreferenceRepo) {
     SwitchPreference(
         title = stringResource(R.string.speed_threshold),
         summary = stringResource(R.string.speed_threshold_description),
-        icon = painterResource(R.drawable.visibility_off),
+        icon = R.drawable.visibility_off,
         value = speedThreshold,
         onValueChanged = {
             scope.launch { appPreferenceRepo.setSpeedThreshold(it) }
@@ -117,7 +117,7 @@ private fun NotificationChannelSettings(appPreferenceRepo: AppPreferenceRepo) {
                 )
                 NavigatePreference(
                     title = stringResource(R.string.doesn_t_work),
-                    icon = painterResource(R.drawable.help),
+                    icon = R.drawable.help,
                     onClick = {
                         openLink(
                             activity,
@@ -140,7 +140,7 @@ private fun BehaviorSettings(appPreferenceRepo: AppPreferenceRepo) {
     SwitchPreference(
         title = stringResource(R.string.screen_off_update),
         summary = stringResource(R.string.screen_off_update_description),
-        icon = painterResource(R.drawable.aod),
+        icon = R.drawable.aod,
         value = modeAOD,
         onValueChanged = { scope.launch { appPreferenceRepo.setModeAOD(it) } }
     )
@@ -153,7 +153,7 @@ private fun BehaviorSettings(appPreferenceRepo: AppPreferenceRepo) {
         title = stringResource(R.string.force_fallback),
         summary = if (doesFallbackWork) stringResource(R.string.force_fallback_description)
         else stringResource(R.string.fallback_unsupported),
-        icon = painterResource(R.drawable.fallback),
+        icon = R.drawable.fallback,
         value = forceFallback,
         enabled = doesFallbackWork,
         onValueChanged = { scope.launch { appPreferenceRepo.setForceFallback(it) } }
@@ -174,7 +174,7 @@ private fun NotificationAppearanceSettings(viewModel: SettingsVM, appPreferenceR
     SwitchPreference(
         title = stringResource(R.string.separate_upload_and_download),
         summary = null,
-        icon = painterResource(R.drawable.speed_separate),
+        icon = R.drawable.speed_separate,
         value = separateUpDown,
         enabled = !liveNotification,
         onValueChanged = { scope.launch { appPreferenceRepo.setSeparateUpDown(it) } }
@@ -185,7 +185,7 @@ private fun NotificationAppearanceSettings(viewModel: SettingsVM, appPreferenceR
     SwitchPreference(
         title = stringResource(R.string.speed_in_bits),
         summary = null,
-        icon = painterResource(R.drawable.speed),
+        icon = R.drawable.speed,
         value = speedBits,
         onValueChanged = { scope.launch { appPreferenceRepo.setSpeedBits(it) } }
     )
@@ -205,7 +205,7 @@ private fun LiveNotificationSettings(viewModel: SettingsVM, appPreferenceRepo: A
         SwitchPreference(
             modifier = Modifier.weight(1f),
             title = stringResource(R.string.live_notification),
-            icon = painterResource(R.drawable.app_badging),
+            icon = R.drawable.app_badging,
             value = liveNotification,
             enabled = !separateUpDown,
             onValueChanged = { scope.launch { appPreferenceRepo.setLiveNotification(it) } }

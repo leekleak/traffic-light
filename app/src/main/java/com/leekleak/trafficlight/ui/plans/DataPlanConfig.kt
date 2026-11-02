@@ -185,7 +185,7 @@ fun DataPlanConfig(
         FancyDialog(
             onDismissRequest = { showDeleteDialog = false },
             title = stringResource(R.string.delete_plan),
-            icon = painterResource(R.drawable.deleted),
+            icon = R.drawable.deleted,
             content = {Text(stringResource(R.string.delete_plan_confirmation))},
             actionButton = {
                 TextButton(
@@ -411,7 +411,7 @@ fun DataPlanConfig(
                 SwitchPreference (
                     title = stringResource(R.string.notifications),
                     summary = stringResource(R.string.plan_notification_description),
-                    icon = painterResource(R.drawable.usage_notification),
+                    icon = R.drawable.usage_notification,
                     value = newPlan.notification,
                     enabled = notificationPermission,
                     onValueChanged = viewModel::onForegroundNotificationValueChanged,
@@ -424,7 +424,7 @@ fun DataPlanConfig(
                         SwitchPreference(
                             modifier = Modifier.weight(1f),
                             title = stringResource(R.string.live_notification),
-                            icon = painterResource(R.drawable.app_badging),
+                            icon = R.drawable.app_badging,
                             value = newPlan.liveNotification,
                             enabled = notificationPermission,
                             onValueChanged = viewModel::onLiveNotificationValueChanged
@@ -440,7 +440,7 @@ fun DataPlanConfig(
                 SwitchPreference(
                     title = stringResource(R.string.budget_overshoot_warning),
                     summary = stringResource(R.string.budget_overshoot_warning_description),
-                    icon = painterResource(R.drawable.warning),
+                    icon = R.drawable.warning,
                     value = newPlan.budgetWarning,
                     enabled = notificationPermission,
                     onValueChanged = viewModel::onBudgetNotificationValueChanged
@@ -448,7 +448,7 @@ fun DataPlanConfig(
                 SwitchPreference(
                     title = stringResource(R.string.safety_status_warning),
                     summary = stringResource(R.string.safety_status_warning_description),
-                    icon = painterResource(R.drawable.shield),
+                    icon = R.drawable.shield,
                     value = newPlan.safetyWarning,
                     enabled = notificationPermission,
                     onValueChanged = viewModel::onSafetyNotificationValueChanged
@@ -592,7 +592,7 @@ private fun LazyListScope.typeConfig(
                         SwitchPreference(
                             title = stringResource(R.string.rollover),
                             summary = stringResource(R.string.rollover_description),
-                            icon = painterResource(R.drawable.repeat),
+                            icon = R.drawable.repeat,
                             value = plan.recurring,
                             onValueChanged = { onPlanChange(plan.copy(recurring = it)) }
                         )
@@ -645,7 +645,7 @@ private fun LazyListScope.typeConfig(
 
             Preference(
                 title = stringResource(R.string.plan_usage),
-                icon = painterResource(R.drawable.data_usage),
+                icon = R.drawable.data_usage,
                 controls = {
                     Row(
                         modifier = Modifier.height(IntrinsicSize.Min),
@@ -1225,7 +1225,7 @@ private fun AddExtraDialog(
     FancyDialog(
         onDismissRequest = onDismiss,
         title = stringResource(R.string.add_extra),
-        icon = painterResource(R.drawable.add),
+        icon = R.drawable.add,
         actionButton = {
             Button(onClick = {
                 val amountValue = amountState.text.toString().toDoubleOrNull() ?: 1.0

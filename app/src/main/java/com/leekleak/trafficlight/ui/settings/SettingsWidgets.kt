@@ -1,5 +1,6 @@
 package com.leekleak.trafficlight.ui.settings
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
@@ -43,9 +44,11 @@ import androidx.compose.material3.rememberSliderState
 import androidx.compose.material3.toPath
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -87,7 +90,7 @@ fun NotificationWarningDialog(
     FancyDialog (
         onDismissRequest = onDismiss,
         title = stringResource(R.string.notification_aggregation_warning_title),
-        icon = painterResource(R.drawable.warning),
+        icon = R.drawable.warning,
         content = { Text(stringResource(R.string.notification_aggregation_warning_text)) },
     )
 }
@@ -97,7 +100,7 @@ fun Preference(
     modifier: Modifier = Modifier,
     title: String,
     summary: String? = null,
-    icon: Painter? = null,
+    @DrawableRes icon: Int? = null,
     onClick: () -> Unit = {},
     controls: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
@@ -124,12 +127,10 @@ fun Preference(
             ) {
                 Icon(
                     modifier = Modifier.size(24.dp),
-                    painter = icon,
+                    painter = painterResource(icon),
                     contentDescription = null,
                 )
             }
-        } else {
-            Box(modifier = Modifier.size(0.dp))
         }
         Column(
             modifier = Modifier
@@ -163,7 +164,7 @@ fun NavigatePreference(
     modifier: Modifier = Modifier,
     title: String,
     summary: String? = null,
-    icon: Painter? = null,
+    @DrawableRes icon: Int? = null,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
     showControl: Boolean = true
@@ -225,7 +226,7 @@ fun NavigatePreferenceIcon(
 fun SwitchPreference(
     modifier: Modifier = Modifier,
     title: String,
-    icon: Painter? = null,
+    @DrawableRes icon: Int? = null,
     summary: String? = null,
     value: Boolean,
     enabled: Boolean = true,
@@ -290,7 +291,7 @@ fun FancyDialog(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     title: String,
-    icon: Painter,
+    @DrawableRes icon: Int,
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(16.dp),
     actionButton: @Composable (RowScope.() -> Unit) = {},
     content: @Composable (ColumnScope.() -> Unit),
@@ -311,7 +312,7 @@ fun FancyDialog(
             ) {
                 Icon(
                     modifier = Modifier.size(32.dp),
-                    painter = icon,
+                    painter = painterResource(icon),
                     contentDescription = null,
                     tint = colorScheme.onSurface
                 )
@@ -341,11 +342,11 @@ fun DialogPreference(
     modifier: Modifier = Modifier,
     title: String,
     summary: String? = null,
-    icon: Painter,
+    @DrawableRes icon: Int,
     enabled: Boolean = true,
     content: @Composable (ColumnScope.() -> Unit),
 ) {
-    val expanded = remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
 
     Preference(
@@ -355,13 +356,13 @@ fun DialogPreference(
         icon = icon,
         enabled = enabled,
         onClick = {
-            expanded.value = true
+            expanded = true
             haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
         },
     )
-    if (expanded.value) {
+    if (expanded) {
         FancyDialog(
-            onDismissRequest = { expanded.value = false },
+            onDismissRequest = { expanded = false },
             title = title,
             icon = icon,
             content = {
@@ -376,7 +377,7 @@ fun <T> DialogItemSelectPreference(
     modifier: Modifier = Modifier,
     title: String,
     summary: String? = null,
-    icon: Painter,
+    @DrawableRes icon: Int,
     value: T,
     values: List<Pair<T, String>>,
     enabled: Boolean = true,
