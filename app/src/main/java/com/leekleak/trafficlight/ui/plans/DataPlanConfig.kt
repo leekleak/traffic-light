@@ -155,7 +155,6 @@ import com.leekleak.trafficlight.util.px
 import com.leekleak.trafficlight.util.toTimestamp
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
-import timber.log.Timber
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.time.LocalDate
@@ -620,24 +619,20 @@ private fun LazyListScope.typeConfig(
                 val unit = DataSize(plan.mainDataUsed).unit(metric)
                 mutableStateOf(if (unit == DataSizeUnit.GB) DataSizeUnit.GB else DataSizeUnit.MB)
             }
-            val textFieldState = rememberTextFieldState(
-                formatter.format(DataSize(plan.mainDataUsed).getAsUnit(displayUnit, metric))
+            val textFieldState = rememberSyncedSizeInput(
+                bytes = plan.mainDataUsed,
+                unit = displayUnit,
+                metric = metric,
+                formatter = formatter,
+                numberFormat = numberFormat,
             )
 
             LaunchedEffect(textFieldState.text) {
                 val text = textFieldState.text.toString()
-                if (text.isNotEmpty()) {
-                    val parsed = try { numberFormat.parse(text)?.toDouble() } catch (_: Exception) { null }
-                    if (parsed != null) {
-                        val base = if (metric) 1000.0 else 1024.0
-                        val newUsed = (parsed * displayUnit.toBits(base)).toLong()
+                val parsed = parseSizeNumber(text, numberFormat) ?: return@LaunchedEffect
 
-                        val currentValue = DataSize(plan.mainDataUsed).getAsUnit(displayUnit, metric)
-                        if (text != formatter.format(currentValue)) {
-                            Timber.e(newUsed.toString())
-                            onManualUsageChange(newUsed)
-                        }
-                    }
+                if (text != formatSizeValue(plan.mainDataUsed, displayUnit, metric, formatter)) {
+                    onManualUsageChange(sizeToBytes(parsed, displayUnit, metric))
                 }
             }
 
@@ -674,7 +669,11 @@ private fun LazyListScope.typeConfig(
                         }
                         Button(
                             onClick = {
-                                displayUnit = if (displayUnit == DataSizeUnit.GB) DataSizeUnit.MB else DataSizeUnit.GB
+                                val newUnit = if (displayUnit == DataSizeUnit.GB) DataSizeUnit.MB else DataSizeUnit.GB
+                                parseSizeNumber(textFieldState.text.toString(), numberFormat)?.let { value ->
+                                    onManualUsageChange(sizeToBytes(value, newUnit, metric))
+                                }
+                                displayUnit = newUnit
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             },
                             shape = MaterialTheme.shapes.medium,
