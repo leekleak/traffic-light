@@ -1,6 +1,7 @@
 package com.leekleak.trafficlight.util
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.database.ContentObserver
@@ -9,6 +10,7 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.text.format.DateFormat
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -385,12 +387,16 @@ inline fun <reified T : Enum<T>> valueOfOrNull(name: String): T? {
 }
 
 fun openLink(activity: Activity?, link: String) {
-    activity?.startActivity(
-        Intent(
-            Intent.ACTION_VIEW,
-            link.toUri()
+    try {
+        activity?.startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                link.toUri()
+            )
         )
-    )
+    } catch (_: ActivityNotFoundException) {
+        Toast.makeText(activity, R.string.no_web_browser_installed, Toast.LENGTH_LONG).show()
+    }
 }
 
 @DrawableRes
