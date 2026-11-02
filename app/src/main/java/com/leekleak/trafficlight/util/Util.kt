@@ -80,7 +80,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -94,7 +93,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -417,43 +415,6 @@ fun convertFontFamilyToTypeface(context: Context, fontFamily: FontFamily): Typef
 
     return result.value as Typeface
 }
-
-@Composable
-fun EqualHeightRow(
-    modifier: Modifier = Modifier,
-    spacing: Dp = 0.dp,
-    first: @Composable () -> Unit,
-    second: @Composable () -> Unit,
-) {
-    SubcomposeLayout(modifier) { constraints ->
-        val spacingPx = spacing.roundToPx()
-        val colWidth = (constraints.maxWidth - spacingPx) / 2
-        val colConstraints = constraints.copy(
-            minWidth = colWidth, maxWidth = colWidth,
-            minHeight = 0, maxHeight = Constraints.Infinity
-        )
-
-        // Pass 1: measure natural height
-        val firstHeight = subcompose("first_measure", first)
-            .sumOf { it.measure(colConstraints).height }
-        val secondHeight = subcompose("second_measure", second)
-            .sumOf { it.measure(colConstraints).height }
-        val maxHeight = maxOf(firstHeight, secondHeight)
-
-        // Pass 2: re-measure at equal height
-        val fixedConstraints = Constraints.fixed(colWidth, maxHeight)
-        val firstPlaceables = subcompose("first_place", first)
-            .map { it.measure(fixedConstraints) }
-        val secondPlaceables = subcompose("second_place", second)
-            .map { it.measure(fixedConstraints) }
-
-        layout(constraints.maxWidth, maxHeight) {
-            firstPlaceables.forEach { it.placeRelative(0, 0) }
-            secondPlaceables.forEach { it.placeRelative(colWidth + spacingPx, 0) }
-        }
-    }
-}
-
 
 enum class MiniCardState {
     POSITIVE,

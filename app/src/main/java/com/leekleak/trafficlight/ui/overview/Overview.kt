@@ -23,11 +23,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -79,7 +79,6 @@ import com.leekleak.trafficlight.ui.theme.card
 import com.leekleak.trafficlight.ui.theme.googleSans
 import com.leekleak.trafficlight.util.CategoryTitleText
 import com.leekleak.trafficlight.util.DataSize
-import com.leekleak.trafficlight.util.EqualHeightRow
 import com.leekleak.trafficlight.util.MiniCard
 import com.leekleak.trafficlight.util.MiniCardState
 import com.leekleak.trafficlight.util.TrendCard
@@ -117,21 +116,25 @@ fun Overview(
             }
         }
     ) {
-        if (windowSizeClass.isWidthAtLeastBreakpoint(400)) {
-            EqualHeightRow(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                first = {
-                    Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.SpaceBetween) {
-                        HeroItems(viewModel, scrollState)
-                    }
-                },
-                second = {
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OverviewItems(viewModel)
-                    }
-                },
-                spacing = 16.dp
-            )
+        if (windowSizeClass.isWidthAtLeastBreakpoint(600)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.Top,
+            ) {
+                Column(
+                    modifier = Modifier.widthIn(max = 400.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    HeroItems(viewModel, scrollState)
+                }
+                Column(
+                    modifier = Modifier.widthIn(max = 400.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    OverviewItems(viewModel)
+                }
+            }
         } else {
             HeroItems(viewModel, scrollState)
             OverviewItems(viewModel)
