@@ -19,14 +19,12 @@ import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.util.toTimestamp
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
@@ -37,7 +35,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDate
-import kotlin.time.Duration.Companion.milliseconds
 
 class HistoryVM(
     private val networkUsageManager: NetworkUsageManager,
@@ -66,7 +63,6 @@ class HistoryVM(
             query1.value = prefs.query1.first()
             query2.value = prefs.query2.first()
             listParam.value = prefs.listParam.first()
-            refresh()
         }
         forceHourList
             .onEach { forced ->
@@ -89,8 +85,8 @@ class HistoryVM(
         return base to now
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
-    val usageFlow = combine(refreshTrigger.debounce(300.milliseconds), queryFlow) { _, queries ->
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val usageFlow = combine(refreshTrigger, queryFlow) { _, queries ->
         queries
     }.flatMapLatest { queries ->
         val dates = getDatesForTimespan()
@@ -102,7 +98,7 @@ class HistoryVM(
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.Lazily,
+        started = SharingStarted.Eagerly,
         initialValue = List(MAX_DAYS) { ScrollableBarData(LocalDate.MIN) }
     )
 
