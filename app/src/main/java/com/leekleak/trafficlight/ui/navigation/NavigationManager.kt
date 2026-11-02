@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingToolbarDefaults
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
@@ -43,6 +42,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.ui.NavDisplay
 import com.leekleak.trafficlight.BuildConfig
@@ -110,11 +110,7 @@ fun NavigationManager(navigator: Navigator) {
             onBack = { navigator.goBack() },
             entryProvider = entryProvider,
             entryDecorators = listOf(
-                // scoping viewmodels per entry.
-                // currently disabling as our vms currently hold quite a lot of expensive data
-                // so clearing them is expensive, but this should be reconsidered in the future.
-                
-                // rememberViewModelStoreNavEntryDecorator()
+                rememberViewModelStoreNavEntryDecorator()
             ),
             transitionSpec = {
                 if (backStack.size == 1) fadeIn(tween()) togetherWith fadeOut(tween())
