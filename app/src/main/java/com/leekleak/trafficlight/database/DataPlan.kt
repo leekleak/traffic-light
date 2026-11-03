@@ -7,22 +7,18 @@ import androidx.room3.Entity
 import androidx.room3.Ignore
 import androidx.room3.PrimaryKey
 import com.leekleak.core.R
-import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.DataSizeUnit
 import com.leekleak.core.util.fromTimestamp
 import com.leekleak.core.util.toTimestamp
+import com.leekleak.trafficlight.model.NetworkUsageManager
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.min
 
 @Serializable
@@ -60,17 +56,14 @@ data class DataPlan(
     @ColumnInfo val lastSafetyState: Int = -1,
     @ColumnInfo val budgetOvershotNotified: Boolean = false,
 
-    /**
-     * TODO: All of these should be made immutable in the future
-     */
-    @ColumnInfo var mainDataSize: DataSize = DataSize(0),
-    @ColumnInfo var mainDataSizeUnit: DataSizeUnit = DataSizeUnit.GB,
-    @ColumnInfo var mainDataUsed: Long = 0,
-    @ColumnInfo var mainStartStamp: Long = startDate,
-    @ColumnInfo var mainExpiryStamp: Long = Long.MAX_VALUE,
+    @ColumnInfo val mainDataSize: DataSize = DataSize(0),
+    @ColumnInfo val mainDataSizeUnit: DataSizeUnit = DataSizeUnit.GB,
+    @ColumnInfo val mainDataUsed: Long = 0,
+    @ColumnInfo val mainStartStamp: Long = startDate,
+    @ColumnInfo val mainExpiryStamp: Long = Long.MAX_VALUE,
 
-    @ColumnInfo var extras: List<DataPlanExtra> = listOf(),
-    @ColumnInfo var lastUpdateStamp: Long = 0,
+    @ColumnInfo val extras: List<DataPlanExtra> = listOf(),
+    @ColumnInfo val lastUpdateStamp: Long = 0,
     /**
      * Customization
      */
@@ -78,29 +71,17 @@ data class DataPlan(
     @ColumnInfo val uiColor: Int = 0,
     @ColumnInfo val note: String = "",
 ) {
-    @Ignore
-    @Transient
-    private var _decryptedID: String? = null
-
-    @Ignore
-    @Transient
-    private var _decryptedIDInitialized = false
-
     init {
         require(intervalMultiplier > 0) {
             "intervalMultiplier must be positive, got $intervalMultiplier"
         }
     }
 
-    val decryptedID: String?
-        get() {
-            if (!_decryptedIDInitialized) {
-                val decrypted = CryptoManager.decrypt(encryptedSubscriberID)
-                _decryptedID = if (decrypted == NULL_SUBSCRIBER) null else decrypted
-                _decryptedIDInitialized = true
-            }
-            return _decryptedID
-        }
+    @get:Ignore
+    val decryptedID: String? by lazy {
+        val decrypted = CryptoManager.decrypt(encryptedSubscriberID)
+        if (decrypted == NULL_SUBSCRIBER) null else decrypted
+    }
 
     fun getRemainingDuration(): Duration {
         val now = LocalDateTime.now()
@@ -152,25 +133,36 @@ data class DataPlan(
         }
     }
 
-    suspend fun updateUsage(networkUsageManager: NetworkUsageManager): Long = withContext(Dispatchers.Default) {
-        mutexes.computeIfAbsent(hashedSubscriberID) { Mutex() }.withLock {
+    suspend fun updateUsage(networkUsageManager: NetworkUsageManager): DataPlan = withContext(Dispatchers.Default) {
+        computeUpdatedPlan(networkUsageManager)
+    }
+
+    suspend fun updateUsageAndSnapshot(networkUsageManager: NetworkUsageManager): Pair<DataPlan, DataPlanSnapshot> {
+        val updatedPlan = updateUsage(networkUsageManager)
+        return updatedPlan to updatedPlan.buildSnapshot(networkUsageManager)
+    }
+
+    suspend fun getUsageSnapshot(networkUsageManager: NetworkUsageManager): DataPlanSnapshot =
+        updateUsageAndSnapshot(networkUsageManager).second
+
+    private suspend fun computeUpdatedPlan(networkUsageManager: NetworkUsageManager): DataPlan {
+        var plan = this
         val now = LocalDateTime.now().toTimestamp()
 
-        val currentStart = getStartDate(false).toTimestamp()
-        val currentEnd = getStartDate(true).toTimestamp()
+        val currentStart = plan.getStartDate(false).toTimestamp()
+        val currentEnd = plan.getStartDate(true).toTimestamp()
 
-        if (lastUpdateStamp == 0L) {
-            lastUpdateStamp = currentStart
+        if (plan.lastUpdateStamp == 0L) {
+            plan = plan.copy(lastUpdateStamp = currentStart)
         }
 
-        if (mainExpiryStamp == Long.MAX_VALUE || mainExpiryStamp == 0L) {
-            mainStartStamp = currentStart
-            mainExpiryStamp = currentEnd
+        if (plan.mainExpiryStamp == Long.MAX_VALUE || plan.mainExpiryStamp == 0L) {
+            plan = plan.copy(mainStartStamp = currentStart, mainExpiryStamp = currentEnd)
         }
 
-        val usageBuckets = networkUsageManager.queryDetails(DataType.Mobile.queryIndex!!, decryptedID, lastUpdateStamp, now)
+        val usageBuckets = networkUsageManager.queryDetails(DataType.Mobile.queryIndex!!, plan.decryptedID, plan.lastUpdateStamp, now)
 
-        var bestEnd = lastUpdateStamp
+        var bestEnd = plan.lastUpdateStamp
         while (usageBuckets.hasNextBucket()) {
             val bucket = NetworkStats.Bucket()
             usageBuckets.getNextBucket(bucket)
@@ -184,39 +176,38 @@ data class DataPlan(
 
         val timelineEnd = maxOf(bestEnd, currentStart)
 
-        if (timelineEnd > lastUpdateStamp) {
-            val stamps = mutableSetOf(lastUpdateStamp, timelineEnd)
-            for (extra in extras) {
+        if (timelineEnd > plan.lastUpdateStamp) {
+            val stamps = mutableSetOf(plan.lastUpdateStamp, timelineEnd)
+            for (extra in plan.extras) {
                 if (!extra.expired) {
-                    if (extra.startStamp in (lastUpdateStamp + 1)..<timelineEnd) {
+                    if (extra.startStamp in (plan.lastUpdateStamp + 1)..<timelineEnd) {
                         stamps.add(extra.startStamp)
                     }
-                    if (extra.expiryStamp in (lastUpdateStamp + 1)..<timelineEnd) {
+                    if (extra.expiryStamp in (plan.lastUpdateStamp + 1)..<timelineEnd) {
                         stamps.add(extra.expiryStamp)
                     }
                 }
             }
 
-            var nextReset = mainExpiryStamp
-            while (nextReset in lastUpdateStamp..timelineEnd) {
+            var nextReset = plan.mainExpiryStamp
+            while (nextReset in plan.lastUpdateStamp..timelineEnd) {
                 stamps.add(nextReset)
-                nextReset = calculateNextReset(nextReset)
+                nextReset = plan.calculateNextReset(nextReset)
             }
 
             val sortedStamps = stamps.sorted()
 
             for (i in 0 until sortedStamps.size - 1) {
-                processInterval(networkUsageManager, sortedStamps[i], sortedStamps[i + 1])
+                plan = plan.processInterval(networkUsageManager, sortedStamps[i], sortedStamps[i + 1])
             }
 
-            lastUpdateStamp = timelineEnd
+            plan = plan.copy(lastUpdateStamp = timelineEnd)
         }
 
-        markExpiredExtras(now)
-        lastUpdateStamp
-    } }
+        return plan.markExpiredExtras(now)
+    }
 
-    private fun markExpiredExtras(now: Long) {
+    private fun markExpiredExtras(now: Long): DataPlan = copy(
         extras = extras.map { extra ->
             if (!extra.expired && extra.expiryStamp <= now) {
                 extra.copy(expired = true)
@@ -224,19 +215,17 @@ data class DataPlan(
                 extra
             }
         }
-    }
+    )
 
-    suspend fun getUsageSnapshot(networkUsageManager: NetworkUsageManager): DataPlanSnapshot {
-        updateUsage(networkUsageManager)
-
+    private suspend fun buildSnapshot(networkUsageManager: NetworkUsageManager): DataPlanSnapshot {
         val now = LocalDateTime.now().toTimestamp()
         val tomorrow = LocalDate.now().plusDays(1).atStartOfDay().toTimestamp()
         var mainUsed = mainDataUsed
-        val snapshotExtras = extras.map { it.copy() }.toMutableList()
+        val snapshotExtras = extras.toMutableList()
 
         if (now > lastUpdateStamp) {
             val volatileUsage = getFilteredUsage(networkUsageManager, lastUpdateStamp, tomorrow, decryptedID)
-            
+
             var usageToDistribute = volatileUsage
 
             val activeIndices = snapshotExtras.indices.filter { idx ->
@@ -260,38 +249,44 @@ data class DataPlan(
         )
     }
 
-    private suspend fun processInterval(networkUsageManager: NetworkUsageManager, start: Long, end: Long) {
+    private suspend fun processInterval(networkUsageManager: NetworkUsageManager, start: Long, end: Long): DataPlan {
+        var plan = this
         var currentStart = start
-        while (end > mainExpiryStamp || (currentStart < mainExpiryStamp && end == mainExpiryStamp)) {
-            val usageBeforeReset = getFilteredUsage(networkUsageManager, currentStart, mainExpiryStamp, decryptedID)
-            distributeUsage(usageBeforeReset, currentStart, mainExpiryStamp)
+        while (end > plan.mainExpiryStamp || (currentStart < plan.mainExpiryStamp && end == plan.mainExpiryStamp)) {
+            val usageBeforeReset = plan.getFilteredUsage(networkUsageManager, currentStart, plan.mainExpiryStamp, plan.decryptedID)
+            plan = plan.distributeUsage(usageBeforeReset, currentStart, plan.mainExpiryStamp)
 
-            val nextExpiry = calculateNextReset(mainExpiryStamp)
-            if (recurring) {
-                val remaining = mainDataSize.byteValue - mainDataUsed
+            val nextExpiry = plan.calculateNextReset(plan.mainExpiryStamp)
+            if (plan.recurring) {
+                val remaining = plan.mainDataSize.byteValue - plan.mainDataUsed
                 if (remaining > 0) {
-                    extras = extras + DataPlanExtra(
-                        dataAmount = DataSize(remaining),
-                        unit = mainDataSizeUnit,
-                        startStamp = mainExpiryStamp,
-                        expiryStamp = nextExpiry
+                    plan = plan.copy(
+                        extras = plan.extras + DataPlanExtra(
+                            dataAmount = DataSize(remaining),
+                            unit = plan.mainDataSizeUnit,
+                            startStamp = plan.mainExpiryStamp,
+                            expiryStamp = nextExpiry
+                        )
                     )
                 }
             }
-            extras = extras.filter { it.expiryStamp > mainExpiryStamp }
-            mainDataUsed = 0
-            mainStartStamp = mainExpiryStamp
-            mainExpiryStamp = nextExpiry
-            currentStart = mainStartStamp
+            plan = plan.copy(
+                extras = plan.extras.filter { it.expiryStamp > plan.mainExpiryStamp },
+                mainDataUsed = 0,
+                mainStartStamp = plan.mainExpiryStamp,
+                mainExpiryStamp = nextExpiry
+            )
+            currentStart = plan.mainStartStamp
         }
 
         if (end > currentStart) {
-            val usage = getFilteredUsage(networkUsageManager, currentStart, end, decryptedID)
-            distributeUsage(usage, currentStart, end)
+            val usage = plan.getFilteredUsage(networkUsageManager, currentStart, end, plan.decryptedID)
+            plan = plan.distributeUsage(usage, currentStart, end)
         }
+        return plan
     }
 
-    private fun distributeUsage(usage: Long, start: Long, end: Long) {
+    private fun distributeUsage(usage: Long, start: Long, end: Long): DataPlan {
         var usageToDistribute = usage
 
         val updatedExtras = extras.toMutableList()
@@ -306,8 +301,10 @@ data class DataPlan(
             usageToDistribute -= used
             updatedExtras[idx] = extra.copy(dataUsed = extra.dataUsed + used)
         }
-        mainDataUsed += usageToDistribute
-        extras = updatedExtras
+        return copy(
+            mainDataUsed = mainDataUsed + usageToDistribute,
+            extras = updatedExtras
+        )
     }
 
     private suspend fun getFilteredUsage(networkUsageManager: NetworkUsageManager, start: Long, end: Long, id: String?): Long {
@@ -317,6 +314,5 @@ data class DataPlan(
 
     companion object {
         const val NULL_SUBSCRIBER = "__shizuku_disabled_sim_fallback__"
-        private val mutexes = ConcurrentHashMap<String, Mutex>()
     }
 }

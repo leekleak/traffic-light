@@ -68,10 +68,10 @@ class DataPlanTest {
             lastUpdateStamp = 0L
         )
 
-        plan.updateUsage(networkUsageManager)
+        val updated = plan.updateUsage(networkUsageManager)
 
         val expectedStart = LocalDate.of(2023, 10, 1).atStartOfDay().toTimestamp()
-        assertEquals("Initial sync failed", expectedStart, plan.lastUpdateStamp)
+        assertEquals("Initial sync failed", expectedStart, updated.lastUpdateStamp)
     }
 
     @Test
@@ -109,10 +109,10 @@ class DataPlanTest {
             UsageData(upload = 500L, download = 1000L)
         )
 
-        plan.updateUsage(networkUsageManager)
+        val updated = plan.updateUsage(networkUsageManager)
 
-        assertEquals("Extra usage attribution failed", 1000L, plan.extras[0].dataUsed)
-        assertEquals("Main usage attribution failed", 500L, plan.mainDataUsed)
+        assertEquals("Extra usage attribution failed", 1000L, updated.extras[0].dataUsed)
+        assertEquals("Main usage attribution failed", 500L, updated.mainDataUsed)
     }
 
     @Test
@@ -135,9 +135,9 @@ class DataPlanTest {
         coEvery { networkUsageManager.queryDetails(any(), any(), any(), any()) } returns mockStats
         every { mockStats.hasNextBucket() } returns false
 
-        plan.updateUsage(networkUsageManager)
+        val updated = plan.updateUsage(networkUsageManager)
 
-        assertTrue("Extra should be expired", plan.extras[0].expired)
+        assertTrue("Extra should be expired", updated.extras[0].expired)
     }
 
     @Test
@@ -161,13 +161,16 @@ class DataPlanTest {
         coEvery { networkUsageManager.queryDetails(any(), any(), any(), any()) } returns mockStats
         every { mockStats.hasNextBucket() } returns false
 
-        plan.updateUsage(networkUsageManager)
+        val updated = plan.updateUsage(networkUsageManager)
 
         val novStart = LocalDate.of(2023, 11, 1).atStartOfDay().toTimestamp()
-        assertEquals("Cycle start mismatch", novStart, plan.mainStartStamp)
-        assertEquals("Cycle usage not cleared", 0L, plan.mainDataUsed)
-        assertEquals("Should not have added extras when recurring is false", 0, plan.extras.size)
-        assertTrue("lastUpdateStamp not moved forward", plan.lastUpdateStamp >= novStart)
+        assertEquals("Cycle start mismatch", novStart, updated.mainStartStamp)
+        assertEquals("Cycle usage not cleared", 0L, updated.mainDataUsed)
+        assertEquals("Should not have added extras when recurring is false", 0, updated.extras.size)
+        assertTrue("lastUpdateStamp not moved forward", updated.lastUpdateStamp >= novStart)
+
+        assertEquals("Original plan must stay immutable", octStart, plan.mainStartStamp)
+        assertEquals("Original plan must stay immutable", 2000L, plan.mainDataUsed)
     }
 
     @Test
@@ -206,14 +209,14 @@ class DataPlanTest {
         
         coEvery { networkUsageManager.getNetworkDataForType(any(), any(), any(), any()) } returns emptyList()
 
-        plan.updateUsage(networkUsageManager)
+        val updated = plan.updateUsage(networkUsageManager)
 
-        assertEquals("Usage should be reset", 0L, plan.mainDataUsed)
-        assertEquals("Start stamp should be updated", novStart, plan.mainStartStamp)
-        assertEquals("Expiry stamp should be updated", decStart, plan.mainExpiryStamp)
-        
-        assertEquals("One extra should be added", 1, plan.extras.size)
-        val extra = plan.extras[0]
+        assertEquals("Usage should be reset", 0L, updated.mainDataUsed)
+        assertEquals("Start stamp should be updated", novStart, updated.mainStartStamp)
+        assertEquals("Expiry stamp should be updated", decStart, updated.mainExpiryStamp)
+
+        assertEquals("One extra should be added", 1, updated.extras.size)
+        val extra = updated.extras[0]
         assertEquals("Rollover amount mismatch", 3000L, extra.dataAmount.byteValue)
         assertEquals("Rollover start stamp mismatch", novStart, extra.startStamp)
         assertEquals("Rollover expiry stamp mismatch", decStart, extra.expiryStamp)
@@ -283,10 +286,10 @@ class DataPlanTest {
             UsageData(upload = 750L, download = 750L)
         )
 
-        plan.updateUsage(networkUsageManager)
+        val updated = plan.updateUsage(networkUsageManager)
 
-        val sooner = plan.extras.find { it.id == "sooner" }!!
-        val later = plan.extras.find { it.id == "later" }!!
+        val sooner = updated.extras.find { it.id == "sooner" }!!
+        val later = updated.extras.find { it.id == "later" }!!
         
         assertEquals("Sooner extra mismatch", 1000L, sooner.dataUsed)
         assertEquals("Later extra mismatch", 500L, later.dataUsed)
@@ -304,7 +307,7 @@ class DataPlanTest {
         val extraA = DataPlanExtra(id = "extraA", dataAmount = DataSize(1000L), dataUsed = 0L, startStamp = startOct.toTimestamp(), expiryStamp = LocalDateTime.of(2023, 10, 20, 12, 0).toTimestamp())
         val extraB = DataPlanExtra(id = "extraB", dataAmount = DataSize(2000L), dataUsed = 0L, startStamp = startOct.toTimestamp(), expiryStamp = LocalDateTime.of(2023, 11, 5, 12, 0).toTimestamp())
 
-        val plan = DataPlan(
+        var plan = DataPlan(
             hashedSubscriberID = "hash",
             encryptedSubscriberID = "enc",
             startDate = startOct.toTimestamp(),
@@ -336,7 +339,7 @@ class DataPlanTest {
             UsageData(upload = 200L, download = 400L)
         )
 
-        plan.updateUsage(networkUsageManager)
+        plan = plan.updateUsage(networkUsageManager)
 
         assertEquals("Update 1: Extra A should have taken usage", 600L, plan.extras.find { it.id == "extraA" }?.dataUsed)
         assertEquals("Update 1: mainDataUsed should be unchanged", 500L, plan.mainDataUsed)
@@ -364,7 +367,7 @@ class DataPlanTest {
             UsageData(upload = 200L, download = 400L)
         )
 
-        plan.updateUsage(networkUsageManager)
+        plan = plan.updateUsage(networkUsageManager)
 
         val updatedExtraA = plan.extras.find { it.id == "extraA" }!!
         val updatedExtraB = plan.extras.find { it.id == "extraB" }!!
@@ -393,7 +396,7 @@ class DataPlanTest {
             UsageData(upload = 100L, download = 200L)
         )
 
-        plan.updateUsage(networkUsageManager)
+        plan = plan.updateUsage(networkUsageManager)
 
         assertEquals("Update 3: mainDataUsed should be reset", 0L, plan.mainDataUsed)
         assertEquals("Update 3: mainStartStamp should be Nov 1", startNov.toTimestamp(), plan.mainStartStamp)
@@ -440,9 +443,10 @@ class DataPlanTest {
         assertEquals("Volatile usage should fill extra first", 1000L, snapshot.extras[0].dataUsed)
         assertEquals("Remaining volatile usage should go to main plan", 1500L, snapshot.mainDataUsed) // 1000L initial + 500L remaining volatile
         
-        // Ensure original plan is NOT modified beyond the updateUsage call (which doesn't move lastUpdateStamp here)
+        // Ensure the original plan is never mutated
         assertEquals("Original plan extra usage should be unchanged", 0L, plan.extras[0].dataUsed)
         assertEquals("Original plan main usage should be unchanged", 1000L, plan.mainDataUsed)
+        assertEquals("Original plan lastUpdateStamp should be unchanged", lastUpdate, plan.lastUpdateStamp)
     }
 
     private fun setBucketFields(bucket: NetworkStats.Bucket, uid: Int = 0, txBytes: Long = 0, rxBytes: Long = 0, startTime: Long = 0, endTime: Long = 0) {

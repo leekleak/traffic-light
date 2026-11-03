@@ -68,8 +68,8 @@ class WidgetUpdateReceiver: BroadcastReceiver(), KoinComponent {
     private suspend fun checkWarnings(context: Context) {
         val plans = dataPlanDao.getActivePlans()
         val updatedPlans = plans.map { plan ->
-            var currentPlan = plan
-            val snapshot = plan.getUsageSnapshot(networkUsageManager)
+            val (updatedPlan, snapshot) = plan.updateUsageAndSnapshot(networkUsageManager)
+            var currentPlan = updatedPlan
 
             if (currentPlan.budgetWarning) {
                 val remainingBudget = dataPlanLogic.getRemainingDailyBudgetToday(currentPlan, snapshot)

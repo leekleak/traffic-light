@@ -52,15 +52,11 @@ class DataPlanConfigVM (
     init {
         viewModelScope.launch {
             withContext(Dispatchers.Default) {
-                val lastUpdateStamp = newPlan.value.updateUsage(networkUsageManager)
-                val planToCalculate = newPlan.value.copy()
-                val snapshot = planToCalculate.getUsageSnapshot(networkUsageManager)
-
+                val (updatedPlan, snapshot) = newPlan.value.updateUsageAndSnapshot(networkUsageManager)
                 updatePlan {
-                    planToCalculate.copy(
+                    updatedPlan.copy(
                         mainDataUsed = snapshot.mainDataUsed,
-                        extras = snapshot.extras,
-                        lastUpdateStamp = lastUpdateStamp
+                        extras = snapshot.extras
                     )
                 }
             }
@@ -70,19 +66,17 @@ class DataPlanConfigVM (
 
     fun onCalculateUsage() {
         viewModelScope.launch {
-            val planToCalculate = newPlan.value.copy()
+            val zeroedPlan = newPlan.value.copy(
+                mainDataUsed = 0,
+                lastUpdateStamp = 0,
+                extras = newPlan.value.extras.map { it.copy(dataUsed = 0) }
+            )
             withContext(Dispatchers.Default) {
-                planToCalculate.mainDataUsed = 0
-                planToCalculate.lastUpdateStamp = 0
-                planToCalculate.extras = planToCalculate.extras.map { it.copy(dataUsed = 0) }
-
-                val snapshot = planToCalculate.getUsageSnapshot(networkUsageManager)
-
+                val (updatedPlan, snapshot) = zeroedPlan.updateUsageAndSnapshot(networkUsageManager)
                 updatePlan {
-                    planToCalculate.copy(
+                    updatedPlan.copy(
                         mainDataUsed = snapshot.mainDataUsed,
-                        extras = snapshot.extras,
-                        lastUpdateStamp = planToCalculate.lastUpdateStamp
+                        extras = snapshot.extras
                     )
                 }
             }
@@ -98,17 +92,16 @@ class DataPlanConfigVM (
 
     fun save() {
         viewModelScope.launch(Dispatchers.IO) {
-            val planToSnapshot = newPlan.value.copy()
-            val snapshot = planToSnapshot.getUsageSnapshot(networkUsageManager)
+            val (updatedPlan, snapshot) = newPlan.value.updateUsageAndSnapshot(networkUsageManager)
 
-            val volatileMain = snapshot.mainDataUsed - planToSnapshot.mainDataUsed
-            val volatileExtras = snapshot.extras.associate { it.id to (it.dataUsed - (planToSnapshot.extras.find { e -> e.id == it.id }?.dataUsed ?: 0L)) }
+            val volatileMain = snapshot.mainDataUsed - updatedPlan.mainDataUsed
+            val volatileExtras = snapshot.extras.associate { it.id to (it.dataUsed - (updatedPlan.extras.find { e -> e.id == it.id }?.dataUsed ?: 0L)) }
             val expiry = newPlan.value.getStartDate(true)
 
             val planToSave = newPlan.value.copy(
                 mainDataUsed = newPlan.value.mainDataUsed - volatileMain,
                 extras = newPlan.value.extras.map { it.copy(dataUsed = it.dataUsed - (volatileExtras[it.id] ?: 0L)) },
-                lastUpdateStamp = planToSnapshot.lastUpdateStamp,
+                lastUpdateStamp = updatedPlan.lastUpdateStamp,
                 lastSafetyState = -1,
                 mainExpiryStamp = expiry.toTimestamp(),
                 budgetOvershotNotified = false,
