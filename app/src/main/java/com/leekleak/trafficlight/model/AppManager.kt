@@ -2,7 +2,10 @@ package com.leekleak.trafficlight.model
 
 import android.app.usage.NetworkStats.Bucket.UID_REMOVED
 import android.app.usage.NetworkStats.Bucket.UID_TETHERING
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.foundation.Image
@@ -13,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.core.content.ContextCompat
 import coil3.ImageLoader
 import coil3.asImage
 import coil3.compose.rememberAsyncImagePainter
@@ -22,35 +26,133 @@ import coil3.fetch.Fetcher
 import coil3.fetch.ImageFetchResult
 import coil3.request.Options
 import com.leekleak.core.R
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 
-class AppManager(context: Context, scope: CoroutineScope) {
-    private val packageManager: PackageManager = context.packageManager
-    
-    private val allAppsDeferred: Deferred<List<DataUIDApp>> by lazy {
-        scope.async(Dispatchers.IO) {
-            val installed = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                packageManager.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0L))
-            } else {
-                packageManager.getInstalledApplications(0)
+class AppManager(context: Context) {
+    private val appContext = context.applicationContext
+    private val packageManager: PackageManager = appContext.packageManager
+
+    @Volatile
+    private var cachedApps: List<DataUIDApp>? = null
+    private val cacheMutex = Mutex()
+    private val cacheLock = Any()
+    private var cacheGeneration = 0
+    private val refreshScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    @Volatile
+    private var refreshJob: Job? = null
+
+    private val packageReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                Intent.ACTION_PACKAGE_ADDED,
+                Intent.ACTION_PACKAGE_REMOVED,
+                Intent.ACTION_PACKAGE_CHANGED,
+                Intent.ACTION_PACKAGE_REPLACED,
+                Intent.ACTION_LOCALE_CHANGED -> invalidateCache()
             }
-
-            installed.distinctBy { it.uid }.map { appInfo ->
-                async {
-                    DataUIDApp(
-                        uid = appInfo.uid,
-                        packageName = appInfo.packageName,
-                        label = appInfo.loadLabel(packageManager).toString()
-                    )
-                }
-            }.awaitAll()
         }
     }
-    suspend fun getAllApps(): List<DataUIDApp> = allAppsDeferred.await()
+
+    init {
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_PACKAGE_ADDED)
+            addAction(Intent.ACTION_PACKAGE_REMOVED)
+            addAction(Intent.ACTION_PACKAGE_CHANGED)
+            addAction(Intent.ACTION_PACKAGE_REPLACED)
+            addAction(Intent.ACTION_LOCALE_CHANGED)
+            addDataScheme("package")
+        }
+        runCatching {
+            ContextCompat.registerReceiver(
+                appContext,
+                packageReceiver,
+                filter,
+                ContextCompat.RECEIVER_NOT_EXPORTED,
+            )
+        }.onFailure {
+            Timber.e(it, "Failed to register package change receiver")
+        }
+    }
+
+    suspend fun getAllApps(): List<DataUIDApp> {
+        cachedApps?.let { return it }
+        return cacheMutex.withLock {
+            cachedApps?.let { return@withLock it }
+
+            val generation = synchronized(cacheLock) { cacheGeneration }
+            val apps = loadApps()
+            synchronized(cacheLock) {
+                // Apparently it's possible to race if the receiver fires during app loading.
+                if (generation == cacheGeneration) {
+                    cachedApps = apps
+                }
+            }
+            apps
+        }
+    }
+
+    private fun invalidateCache() {
+        synchronized(cacheLock) {
+            cacheGeneration++
+            cachedApps = null
+        }
+
+        // Refill the cache immediately so the next lookup doesn't pay the load cost.
+        refreshJob?.cancel()
+        refreshJob = refreshScope.launch { refreshCache() }
+    }
+
+    private suspend fun refreshCache() {
+        cacheMutex.withLock {
+            if (cachedApps != null) return@withLock
+
+            val generation = synchronized(cacheLock) { cacheGeneration }
+            val apps = try {
+                loadApps()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to refresh app list")
+                return@withLock
+            }
+
+            synchronized(cacheLock) {
+                if (generation == cacheGeneration) {
+                    cachedApps = apps
+                }
+            }
+        }
+    }
+
+    private suspend fun loadApps(): List<DataUIDApp> = withContext(Dispatchers.IO) {
+        val installed = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            packageManager.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0L))
+        } else {
+            packageManager.getInstalledApplications(0)
+        }
+
+        installed.distinctBy { it.uid }.map { appInfo ->
+            async {
+                DataUIDApp(
+                    uid = appInfo.uid,
+                    packageName = appInfo.packageName,
+                    label = appInfo.loadLabel(packageManager).toString()
+                )
+            }
+        }.awaitAll()
+    }
 
     suspend fun getAppForUID(uid: Int): DataUID {
         return getAllApps().plus(specialApps).find { it.uid == uid } ?: DataUIDService(uid = uid)
