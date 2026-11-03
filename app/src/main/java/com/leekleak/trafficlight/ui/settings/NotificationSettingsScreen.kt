@@ -29,17 +29,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.leekleak.trafficlight.R
+import com.leekleak.core.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.TrafficSnapshotManager
 import com.leekleak.trafficlight.services.notifications.SpeedNotification
-import com.leekleak.trafficlight.ui.components.BackAction
-import com.leekleak.trafficlight.ui.components.HazeScaffold
-import com.leekleak.trafficlight.ui.navigation.Navigator
-import com.leekleak.trafficlight.ui.theme.LocalSpeedMetric
-import com.leekleak.trafficlight.util.CategoryTitleSmallText
-import com.leekleak.trafficlight.util.DataSize
-import com.leekleak.trafficlight.util.openLink
+import com.leekleak.core.ui.components.BackAction
+import com.leekleak.core.ui.components.HazeScaffold
+import com.leekleak.core.ui.navigation.Navigator
+import com.leekleak.core.ui.theme.LocalSpeedMetric
+import com.leekleak.core.util.CategoryTitleSmallText
+import com.leekleak.core.util.DataSize
+import com.leekleak.core.util.openLink
 import kotlinx.coroutines.launch
 import kotlin.math.pow
 

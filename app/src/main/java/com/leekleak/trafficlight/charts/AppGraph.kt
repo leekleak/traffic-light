@@ -29,13 +29,13 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.leekleak.trafficlight.R
+import com.leekleak.core.R
 import com.leekleak.trafficlight.database.AppUsage
-import com.leekleak.trafficlight.ui.theme.googleSans
-import com.leekleak.trafficlight.ui.theme.googleSansEmphasized
-import com.leekleak.trafficlight.util.DataSize
-import com.leekleak.trafficlight.util.formatted
-import com.leekleak.trafficlight.util.toSp
+import com.leekleak.core.ui.theme.googleSans
+import com.leekleak.core.ui.theme.googleSansEmphasized
+import com.leekleak.core.util.DataSize
+import com.leekleak.core.util.formatted
+import com.leekleak.core.util.toSp
 
 @Composable
 fun AppGraph(

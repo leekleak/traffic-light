@@ -64,27 +64,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.leekleak.trafficlight.R
+import com.leekleak.core.R
 import com.leekleak.trafficlight.charts.AppGraph
-import com.leekleak.trafficlight.charts.BarGraph
+import com.leekleak.core.charts.BarGraph
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.integrations.Ad
 import com.leekleak.trafficlight.integrations.AdType
-import com.leekleak.trafficlight.ui.components.BackAction
-import com.leekleak.trafficlight.ui.components.HazeScaffold
-import com.leekleak.trafficlight.ui.navigation.NAVBAR_PADDING
-import com.leekleak.trafficlight.ui.navigation.Navigator
+import com.leekleak.core.ui.components.BackAction
+import com.leekleak.core.ui.components.HazeScaffold
+import com.leekleak.core.ui.navigation.NAVBAR_PADDING
+import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.SettingsKey
-import com.leekleak.trafficlight.ui.theme.card
-import com.leekleak.trafficlight.ui.theme.googleSans
-import com.leekleak.trafficlight.util.CategoryTitleText
-import com.leekleak.trafficlight.util.DataSize
-import com.leekleak.trafficlight.util.MiniCard
-import com.leekleak.trafficlight.util.MiniCardState
-import com.leekleak.trafficlight.util.TrendCard
-import com.leekleak.trafficlight.util.formattedParts
-import com.leekleak.trafficlight.util.iconToggleButton
-import com.leekleak.trafficlight.util.px
+import com.leekleak.core.ui.theme.card
+import com.leekleak.core.ui.theme.googleSans
+import com.leekleak.core.util.CategoryTitleText
+import com.leekleak.core.util.DataSize
+import com.leekleak.core.util.MiniCard
+import com.leekleak.core.util.MiniCardState
+import com.leekleak.core.util.TrendCard
+import com.leekleak.core.util.formattedParts
+import com.leekleak.core.util.iconToggleButton
+import com.leekleak.core.util.px
 
 
 @Composable

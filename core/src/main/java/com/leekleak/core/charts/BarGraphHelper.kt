@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.charts
+package com.leekleak.core.charts
 
 import android.graphics.Paint
 import androidx.compose.animation.core.Animatable
@@ -15,8 +15,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.leekleak.trafficlight.util.DataSize
-import com.leekleak.trafficlight.util.NetworkType
+import com.leekleak.core.util.DataSize
+import com.leekleak.core.util.NetworkType
 import kotlin.math.max
 
 internal data class BarGraphMetrics(

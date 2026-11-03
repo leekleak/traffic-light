@@ -10,7 +10,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.ui.history.ListParam
-import com.leekleak.trafficlight.util.valueOfOrNull
+import com.leekleak.core.util.valueOfOrNull
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map

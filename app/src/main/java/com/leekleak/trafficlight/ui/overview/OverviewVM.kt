@@ -6,7 +6,7 @@ import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.NetworkUsageManager
-import com.leekleak.trafficlight.util.DataSize
+import com.leekleak.core.util.DataSize
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted

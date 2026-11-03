@@ -16,7 +16,7 @@ import com.leekleak.trafficlight.integrations.PlayServicesProvider
 import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.services.notifications.NotificationService
 import com.leekleak.trafficlight.ui.app.App
-import com.leekleak.trafficlight.ui.navigation.Navigator
+import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.theme.AppTheme
 import com.leekleak.trafficlight.widget.WidgetReceiver
 import kotlinx.coroutines.Dispatchers

@@ -6,12 +6,12 @@ import androidx.room3.ColumnInfo
 import androidx.room3.Entity
 import androidx.room3.Ignore
 import androidx.room3.PrimaryKey
-import com.leekleak.trafficlight.R
+import com.leekleak.core.R
 import com.leekleak.trafficlight.model.NetworkUsageManager
-import com.leekleak.trafficlight.util.DataSize
-import com.leekleak.trafficlight.util.DataSizeUnit
-import com.leekleak.trafficlight.util.fromTimestamp
-import com.leekleak.trafficlight.util.toTimestamp
+import com.leekleak.core.util.DataSize
+import com.leekleak.core.util.DataSizeUnit
+import com.leekleak.core.util.fromTimestamp
+import com.leekleak.core.util.toTimestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

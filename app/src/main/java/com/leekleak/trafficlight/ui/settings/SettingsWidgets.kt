@@ -72,14 +72,14 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.charts.GraphTheme
-import com.leekleak.trafficlight.ui.theme.Theme
-import com.leekleak.trafficlight.ui.theme.card
-import com.leekleak.trafficlight.ui.theme.googleSans
-import com.leekleak.trafficlight.util.CategoryTitleSmallText
-import com.leekleak.trafficlight.util.clearFocusOnTap
-import com.leekleak.trafficlight.util.px
+import com.leekleak.core.R
+import com.leekleak.core.charts.GraphTheme
+import com.leekleak.core.ui.theme.Theme
+import com.leekleak.core.ui.theme.card
+import com.leekleak.core.ui.theme.googleSans
+import com.leekleak.core.util.CategoryTitleSmallText
+import com.leekleak.core.util.clearFocusOnTap
+import com.leekleak.core.util.px
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 

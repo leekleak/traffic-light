@@ -9,8 +9,8 @@ import androidx.compose.ui.unit.Density
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.IconCompat
 import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.ui.theme.googleSans
-import com.leekleak.trafficlight.util.convertFontFamilyToTypeface
+import com.leekleak.core.ui.theme.googleSans
+import com.leekleak.core.util.convertFontFamilyToTypeface
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 

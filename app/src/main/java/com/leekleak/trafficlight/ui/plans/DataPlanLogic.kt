@@ -1,6 +1,6 @@
 package com.leekleak.trafficlight.ui.plans
 
-import com.leekleak.trafficlight.charts.model.BarData
+import com.leekleak.core.charts.model.BarData
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanSnapshot
@@ -9,8 +9,8 @@ import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.model.NetworkUsageManager
-import com.leekleak.trafficlight.util.MiniCardState
-import com.leekleak.trafficlight.util.toTimestamp
+import com.leekleak.core.util.MiniCardState
+import com.leekleak.core.util.toTimestamp
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime

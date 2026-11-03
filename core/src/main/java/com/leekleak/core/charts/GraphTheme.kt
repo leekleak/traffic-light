@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.charts
+package com.leekleak.core.charts
 
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialShapes.Companion.Arch
@@ -23,8 +23,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.util.px
+import com.leekleak.core.R
+import com.leekleak.core.util.px
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 object GraphTheme {

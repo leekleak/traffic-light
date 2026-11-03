@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.charts
+package com.leekleak.core.charts
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,10 +16,10 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.leekleak.trafficlight.ui.theme.historyItemFont
-import com.leekleak.trafficlight.util.DataSize
-import com.leekleak.trafficlight.util.formatted
-import com.leekleak.trafficlight.util.px
+import com.leekleak.core.ui.theme.historyItemFont
+import com.leekleak.core.util.DataSize
+import com.leekleak.core.util.formatted
+import com.leekleak.core.util.px
 import kotlin.math.max
 import kotlin.math.min
 

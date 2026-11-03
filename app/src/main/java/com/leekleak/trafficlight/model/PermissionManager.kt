@@ -14,7 +14,7 @@ import android.os.Process.myUid
 import android.provider.Settings
 import android.widget.Toast
 import androidx.core.net.toUri
-import com.leekleak.trafficlight.R
+import com.leekleak.core.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.integrations.ShizukuServicesProvider
 import kotlinx.coroutines.CoroutineScope

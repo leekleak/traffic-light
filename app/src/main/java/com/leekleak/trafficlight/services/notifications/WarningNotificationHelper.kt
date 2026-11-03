@@ -6,9 +6,9 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.leekleak.trafficlight.MainActivity
-import com.leekleak.trafficlight.R
+import com.leekleak.core.R
 import com.leekleak.trafficlight.database.DataPlan
-import com.leekleak.trafficlight.util.MiniCardState
+import com.leekleak.core.util.MiniCardState
 import timber.log.Timber
 
 object WarningNotificationHelper {

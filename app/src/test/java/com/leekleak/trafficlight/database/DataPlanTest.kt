@@ -4,8 +4,8 @@ import android.app.usage.NetworkStats
 import android.os.SystemClock
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.model.UsageData
-import com.leekleak.trafficlight.util.DataSize
-import com.leekleak.trafficlight.util.toTimestamp
+import com.leekleak.core.util.DataSize
+import com.leekleak.core.util.toTimestamp
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk

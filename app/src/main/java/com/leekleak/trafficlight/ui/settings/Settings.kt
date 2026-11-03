@@ -29,22 +29,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.trafficlight.BuildConfig
-import com.leekleak.trafficlight.R
+import com.leekleak.core.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.integrations.ShizukuServicesProvider
 import com.leekleak.trafficlight.model.PermissionManager
-import com.leekleak.trafficlight.ui.components.BackAction
-import com.leekleak.trafficlight.ui.components.HazeScaffold
+import com.leekleak.core.ui.components.BackAction
+import com.leekleak.core.ui.components.HazeScaffold
 import com.leekleak.trafficlight.ui.navigation.LibraryLicenseScreen
-import com.leekleak.trafficlight.ui.navigation.Navigator
+import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.navigation.NotificationSettingsKey
-import com.leekleak.trafficlight.ui.theme.Theme
-import com.leekleak.trafficlight.ui.theme.card
-import com.leekleak.trafficlight.ui.theme.googleSans
-import com.leekleak.trafficlight.util.CategoryTitleSmallText
-import com.leekleak.trafficlight.util.SlideAnimatedVisibility
-import com.leekleak.trafficlight.util.openLink
-import com.leekleak.trafficlight.util.px
+import com.leekleak.core.ui.theme.Theme
+import com.leekleak.core.ui.theme.card
+import com.leekleak.core.ui.theme.googleSans
+import com.leekleak.core.util.CategoryTitleSmallText
+import com.leekleak.core.util.SlideAnimatedVisibility
+import com.leekleak.core.util.openLink
+import com.leekleak.core.util.px
 import kotlinx.coroutines.launch
 
 @Composable

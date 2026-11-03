@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.ui.components
+package com.leekleak.core.ui.components
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
@@ -30,9 +30,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.leekleak.trafficlight.ui.navigation.Navigator
-import com.leekleak.trafficlight.util.PageTitle
-import com.leekleak.trafficlight.util.TOP_BAR_HEIGHT
+import com.leekleak.core.ui.navigation.Navigator
+import com.leekleak.core.util.PageTitle
+import com.leekleak.core.util.TOP_BAR_HEIGHT
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState

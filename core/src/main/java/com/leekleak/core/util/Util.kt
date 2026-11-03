@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.util
+package com.leekleak.core.util
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
@@ -98,12 +98,12 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
-import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.ui.components.BackAction
-import com.leekleak.trafficlight.ui.navigation.Navigator
-import com.leekleak.trafficlight.ui.theme.LocalBlurEnabled
-import com.leekleak.trafficlight.ui.theme.card
-import com.leekleak.trafficlight.ui.theme.googleSans
+import com.leekleak.core.R
+import com.leekleak.core.ui.components.BackAction
+import com.leekleak.core.ui.navigation.Navigator
+import com.leekleak.core.ui.theme.LocalBlurEnabled
+import com.leekleak.core.ui.theme.card
+import com.leekleak.core.ui.theme.googleSans
 import dev.chrisbanes.haze.HazeInput
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState

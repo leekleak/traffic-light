@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.ui.navigation
+package com.leekleak.core.ui.navigation
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.Snapshot

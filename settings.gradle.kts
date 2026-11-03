@@ -22,6 +22,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "Traffic Light"
 include(":app")
+include(":core")
 include(":playIntegration")
 include(":shizukuIntegration")
 include(":iperfIntegration")

@@ -45,12 +45,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.ui.components.BackAction
-import com.leekleak.trafficlight.ui.components.HazeScaffold
-import com.leekleak.trafficlight.ui.navigation.NAVBAR_PADDING
-import com.leekleak.trafficlight.ui.navigation.Navigator
-import com.leekleak.trafficlight.util.iconToggleButton
+import com.leekleak.core.R
+import com.leekleak.core.ui.components.BackAction
+import com.leekleak.core.ui.components.HazeScaffold
+import com.leekleak.core.ui.navigation.NAVBAR_PADDING
+import com.leekleak.core.ui.navigation.Navigator
+import com.leekleak.core.util.iconToggleButton
 
 @Composable
 fun IperfScreen(

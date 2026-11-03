@@ -9,8 +9,8 @@ import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.leekleak.trafficlight.BuildConfig
-import com.leekleak.trafficlight.ui.theme.Theme
-import com.leekleak.trafficlight.util.valueOfOrNull
+import com.leekleak.core.ui.theme.Theme
+import com.leekleak.core.util.valueOfOrNull
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map

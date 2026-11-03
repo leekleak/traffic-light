@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.charts
+package com.leekleak.core.charts
 
 import android.graphics.Paint
 import androidx.compose.animation.core.Animatable
@@ -24,9 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.toPath
-import com.leekleak.trafficlight.charts.model.ScrollableBarData
-import com.leekleak.trafficlight.util.DataSize
-import com.leekleak.trafficlight.util.getName
+import com.leekleak.core.charts.model.ScrollableBarData
+import com.leekleak.core.util.DataSize
+import com.leekleak.core.util.getName
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.time.temporal.WeekFields

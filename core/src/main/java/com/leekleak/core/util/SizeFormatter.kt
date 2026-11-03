@@ -1,8 +1,8 @@
-package com.leekleak.trafficlight.util
+package com.leekleak.core.util
 
 import androidx.compose.runtime.Composable
-import com.leekleak.trafficlight.ui.theme.LocalSizeMetric
-import com.leekleak.trafficlight.ui.theme.LocalSpeedMetric
+import com.leekleak.core.ui.theme.LocalSizeMetric
+import com.leekleak.core.ui.theme.LocalSpeedMetric
 import kotlinx.serialization.Serializable
 import java.math.BigDecimal
 import kotlin.math.ceil

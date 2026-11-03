@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.charts.model
+package com.leekleak.core.charts.model
 
 import java.time.LocalDate
 

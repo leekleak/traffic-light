@@ -1,11 +1,11 @@
-package com.leekleak.trafficlight.ui.theme
+package com.leekleak.core.ui.theme
 
 import androidx.annotation.FloatRange
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
-import com.leekleak.trafficlight.R
+import com.leekleak.core.R
 
 fun doHyeonFont(): FontFamily {
     return FontFamily(

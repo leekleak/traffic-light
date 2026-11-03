@@ -2,14 +2,14 @@ package com.leekleak.trafficlight.ui.plans
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.leekleak.trafficlight.charts.model.BarData
+import com.leekleak.core.charts.model.BarData
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.DataPlanSnapshot
 import com.leekleak.trafficlight.model.NetworkUsageManager
-import com.leekleak.trafficlight.util.MiniCardState
+import com.leekleak.core.util.MiniCardState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

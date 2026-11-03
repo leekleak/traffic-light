@@ -2,6 +2,7 @@ package com.leekleak.trafficlight.ui.navigation
 
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.history.History

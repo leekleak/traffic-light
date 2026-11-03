@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.ui.theme
+package com.leekleak.core.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.background
@@ -16,7 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.leekleak.trafficlight.R
+import com.leekleak.core.R
 
 enum class Theme {
     AutoMaterial,
@@ -79,9 +79,6 @@ fun Modifier.card(backgroundColor: Color = colorScheme.surfaceContainer): Modifi
         .clip(MaterialTheme.shapes.medium)
         .background(backgroundColor)
 }
-
-val backgrounds = listOf(null, R.drawable.background_1, R.drawable.background_2, R.drawable.background_3, R.drawable.background_4)
-
 
 internal val lightScheme = lightColorScheme(
     primary = PrimaryLight,

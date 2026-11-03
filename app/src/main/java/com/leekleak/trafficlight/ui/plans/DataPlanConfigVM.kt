@@ -11,7 +11,7 @@ import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.DataUIDApp
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.model.PermissionManager
-import com.leekleak.trafficlight.util.toTimestamp
+import com.leekleak.core.util.toTimestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

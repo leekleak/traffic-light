@@ -2,8 +2,8 @@ package com.leekleak.trafficlight.model
 
 import android.app.usage.NetworkStats
 import android.app.usage.NetworkStatsManager
-import com.leekleak.trafficlight.charts.model.BarData
-import com.leekleak.trafficlight.charts.model.ScrollableBarData
+import com.leekleak.core.charts.model.BarData
+import com.leekleak.core.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DataDirection.Bidirectional
@@ -18,10 +18,10 @@ import com.leekleak.trafficlight.model.AppManager.Companion.otherUsersApp
 import com.leekleak.trafficlight.model.AppManager.Companion.specialUIDs
 import com.leekleak.trafficlight.model.AppManager.Companion.unknownApp
 import com.leekleak.trafficlight.ui.history.DateParams
-import com.leekleak.trafficlight.util.fromTimestamp
-import com.leekleak.trafficlight.util.getName
-import com.leekleak.trafficlight.util.overlapRatio
-import com.leekleak.trafficlight.util.toTimestamp
+import com.leekleak.core.util.fromTimestamp
+import com.leekleak.core.util.getName
+import com.leekleak.core.util.overlapRatio
+import com.leekleak.core.util.toTimestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

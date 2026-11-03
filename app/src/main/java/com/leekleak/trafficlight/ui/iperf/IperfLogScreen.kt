@@ -36,7 +36,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.leekleak.trafficlight.R
+import com.leekleak.core.R
 import com.leekleak.trafficlight.integrations.iperf.EndData
 import com.leekleak.trafficlight.integrations.iperf.EndEvent
 import com.leekleak.trafficlight.integrations.iperf.ErrorEvent
@@ -50,15 +50,15 @@ import com.leekleak.trafficlight.integrations.iperf.SumStats
 import com.leekleak.trafficlight.integrations.iperf.TcpIntervalResult
 import com.leekleak.trafficlight.integrations.iperf.UdpIntervalResult
 import com.leekleak.trafficlight.integrations.iperf.UnknownEvent
-import com.leekleak.trafficlight.ui.components.BackAction
-import com.leekleak.trafficlight.ui.components.HazeScaffold
-import com.leekleak.trafficlight.ui.navigation.Navigator
-import com.leekleak.trafficlight.ui.theme.LocalSizeMetric
-import com.leekleak.trafficlight.ui.theme.LocalSpeedMetric
-import com.leekleak.trafficlight.ui.theme.card
-import com.leekleak.trafficlight.util.CategoryTitleSmallText
-import com.leekleak.trafficlight.util.DataSize
-import com.leekleak.trafficlight.util.toAnnotatedString
+import com.leekleak.core.ui.components.BackAction
+import com.leekleak.core.ui.components.HazeScaffold
+import com.leekleak.core.ui.navigation.Navigator
+import com.leekleak.core.ui.theme.LocalSizeMetric
+import com.leekleak.core.ui.theme.LocalSpeedMetric
+import com.leekleak.core.ui.theme.card
+import com.leekleak.core.util.CategoryTitleSmallText
+import com.leekleak.core.util.DataSize
+import com.leekleak.core.util.toAnnotatedString
 import java.util.Locale
 
 private val TcpColIdWidth = 50.dp

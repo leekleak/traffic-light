@@ -24,7 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
-import com.leekleak.trafficlight.R
+import com.leekleak.core.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.DataPlanSnapshot
@@ -32,8 +32,8 @@ import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.ui.plans.ConfiguredDataPlan
 import com.leekleak.trafficlight.ui.plans.UnconfiguredDataPlan
 import com.leekleak.trafficlight.ui.theme.AppTheme
-import com.leekleak.trafficlight.util.categoryTitle
-import com.leekleak.trafficlight.util.categoryTitleSmall
+import com.leekleak.core.util.categoryTitle
+import com.leekleak.core.util.categoryTitleSmall
 import com.leekleak.trafficlight.widget.Widget.Companion.CARRIER_NAME
 import com.leekleak.trafficlight.widget.Widget.Companion.SIM_NUMBER
 import com.leekleak.trafficlight.widget.Widget.Companion.SUBSCRIBER_ID_HASH

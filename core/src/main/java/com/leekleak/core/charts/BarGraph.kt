@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.charts
+package com.leekleak.core.charts
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -20,9 +20,9 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
-import com.leekleak.trafficlight.charts.model.BarData
-import com.leekleak.trafficlight.ui.theme.LocalSizeMetric
-import com.leekleak.trafficlight.util.px
+import com.leekleak.core.charts.model.BarData
+import com.leekleak.core.ui.theme.LocalSizeMetric
+import com.leekleak.core.util.px
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

@@ -26,9 +26,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.leekleak.trafficlight.R
+import com.leekleak.core.R
 import com.leekleak.trafficlight.ui.navigation.IperfLogScreenKey
-import com.leekleak.trafficlight.ui.navigation.Navigator
+import com.leekleak.core.ui.navigation.Navigator
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

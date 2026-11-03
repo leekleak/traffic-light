@@ -45,12 +45,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.ui.NavDisplay
+import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.trafficlight.BuildConfig
-import com.leekleak.trafficlight.R
+import com.leekleak.core.R
 import org.koin.compose.navigation3.koinEntryProvider
 import org.koin.core.annotation.KoinExperimentalAPI
-
-val NAVBAR_PADDING = FloatingToolbarDefaults.ContainerSize + FloatingToolbarDefaults.ScreenOffset - 8.dp
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(KoinExperimentalAPI::class)

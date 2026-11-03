@@ -10,7 +10,7 @@ import android.os.DeadSystemException
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.leekleak.trafficlight.MainActivity
-import com.leekleak.trafficlight.R
+import com.leekleak.core.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DayUsage
@@ -18,9 +18,9 @@ import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.database.TrafficSnapshotManager
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.NetworkUsageManager
-import com.leekleak.trafficlight.util.DataSize
-import com.leekleak.trafficlight.util.clipAndPad
-import com.leekleak.trafficlight.util.toKb
+import com.leekleak.core.util.DataSize
+import com.leekleak.core.util.clipAndPad
+import com.leekleak.core.util.toKb
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.InjectedParam

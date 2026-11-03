@@ -1,7 +1,7 @@
 package com.leekleak.trafficlight.database
 
 import com.leekleak.trafficlight.model.DataUID
-import com.leekleak.trafficlight.util.toLocaleHourString
+import com.leekleak.core.util.toLocaleHourString
 import java.time.LocalDate
 import java.time.LocalDateTime
 

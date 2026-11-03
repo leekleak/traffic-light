@@ -56,8 +56,8 @@ import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdLoaderCallba
 import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdRequest
 import com.google.android.libraries.ads.mobile.sdk.nativead.NativeAdView
 import com.leekleak.trafficlight.BuildConfig
-import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.ui.theme.card
+import com.leekleak.core.R
+import com.leekleak.core.ui.theme.card
 import timber.log.Timber
 
 val LocalNativeAdView = compositionLocalOf<NativeAdView?> { null }

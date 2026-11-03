@@ -32,12 +32,13 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.leekleak.core.R as CoreR
 import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.ui.components.BackAction
-import com.leekleak.trafficlight.ui.components.HazeScaffold
-import com.leekleak.trafficlight.ui.navigation.Navigator
-import com.leekleak.trafficlight.ui.theme.card
-import com.leekleak.trafficlight.ui.theme.googleSans
+import com.leekleak.core.ui.components.BackAction
+import com.leekleak.core.ui.components.HazeScaffold
+import com.leekleak.core.ui.navigation.Navigator
+import com.leekleak.core.ui.theme.card
+import com.leekleak.core.ui.theme.googleSans
 import com.mikepenz.aboutlibraries.entity.Library
 import com.mikepenz.aboutlibraries.ui.compose.android.produceLibraries
 
@@ -54,7 +55,7 @@ fun LibraryLicenseScreen(navigator: Navigator) {
     val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     HazeScaffold(
-        title = stringResource(R.string.licenses),
+        title = stringResource(CoreR.string.licenses),
         backAction = BackAction.Normal(navigator),
         scrollState = null,
     ) { paddingValues ->

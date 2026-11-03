@@ -1,13 +1,13 @@
 package com.leekleak.trafficlight.ui.overview
 
-import com.leekleak.trafficlight.charts.model.BarData
+import com.leekleak.core.charts.model.BarData
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.model.UsageData
-import com.leekleak.trafficlight.util.toTimestamp
+import com.leekleak.core.util.toTimestamp
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope

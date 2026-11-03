@@ -10,7 +10,7 @@ import com.leekleak.trafficlight.integrations.iperf.IPerf3Provider
 import com.leekleak.trafficlight.integrations.iperf.IntervalEvent
 import com.leekleak.trafficlight.integrations.iperf.IperfCallback
 import com.leekleak.trafficlight.integrations.iperf.IperfEvent
-import com.leekleak.trafficlight.util.DataSizeUnit
+import com.leekleak.core.util.DataSizeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

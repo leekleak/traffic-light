@@ -9,8 +9,8 @@ import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
 import androidx.room3.RoomDatabase
 import com.leekleak.trafficlight.database.DataPlan.Companion.NULL_SUBSCRIBER
-import com.leekleak.trafficlight.util.DataSize
-import com.leekleak.trafficlight.util.DataSizeUnit
+import com.leekleak.core.util.DataSize
+import com.leekleak.core.util.DataSizeUnit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json

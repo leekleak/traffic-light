@@ -8,8 +8,8 @@ import androidx.annotation.IntRange
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.leekleak.trafficlight.R
-import com.leekleak.trafficlight.charts.model.ScrollableBarData
+import com.leekleak.core.R
+import com.leekleak.core.charts.model.ScrollableBarData
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.HistoryPreferenceRepo
@@ -17,7 +17,7 @@ import com.leekleak.trafficlight.database.HourUsage
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.NetworkUsageManager
-import com.leekleak.trafficlight.util.toTimestamp
+import com.leekleak.core.util.toTimestamp
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

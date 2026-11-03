@@ -6,12 +6,12 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import com.leekleak.trafficlight.MainActivity
-import com.leekleak.trafficlight.R
+import com.leekleak.core.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.model.NetworkUsageManager
-import com.leekleak.trafficlight.util.DataSize
-import com.leekleak.trafficlight.util.simIconRes
+import com.leekleak.core.util.DataSize
+import com.leekleak.core.util.simIconRes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

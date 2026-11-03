@@ -7,7 +7,7 @@ import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.ui.history.DateParams
-import com.leekleak.trafficlight.util.toTimestamp
+import com.leekleak.core.util.toTimestamp
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot

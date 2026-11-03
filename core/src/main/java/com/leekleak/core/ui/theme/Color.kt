@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.ui.theme
+package com.leekleak.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

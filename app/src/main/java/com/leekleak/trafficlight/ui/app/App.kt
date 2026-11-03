@@ -7,7 +7,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.NavigationManager
-import com.leekleak.trafficlight.ui.navigation.Navigator
+import com.leekleak.core.ui.navigation.Navigator
 
 @Composable
 fun App(

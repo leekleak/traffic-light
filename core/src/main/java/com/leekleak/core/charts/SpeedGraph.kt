@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.charts
+package com.leekleak.core.charts
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Canvas

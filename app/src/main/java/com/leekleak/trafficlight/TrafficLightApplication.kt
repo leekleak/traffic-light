@@ -9,6 +9,7 @@ import android.app.NotificationManager.IMPORTANCE_LOW
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import android.os.StrictMode.VmPolicy
+import com.leekleak.core.R
 import com.leekleak.trafficlight.database.databaseModule
 import com.leekleak.trafficlight.integrations.integrationsModule
 import com.leekleak.trafficlight.model.managerModule
