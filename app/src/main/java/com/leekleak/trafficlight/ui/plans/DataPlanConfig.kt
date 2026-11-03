@@ -128,7 +128,7 @@ import com.leekleak.trafficlight.model.DataUID
 import com.leekleak.trafficlight.model.search
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.navigation.Navigator
-import com.leekleak.trafficlight.ui.settings.FancyDialog
+import com.leekleak.core.ui.components.FancyDialog
 import com.leekleak.trafficlight.ui.settings.IconPreference
 import com.leekleak.trafficlight.ui.settings.NotificationWarningDialog
 import com.leekleak.trafficlight.ui.settings.PermissionCard

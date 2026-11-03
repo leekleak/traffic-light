@@ -85,6 +85,10 @@ android {
             applicationId = "com.leekleak.trafficlight.lite"
         }
     }
+    sourceSets {
+        getByName("full").kotlin.srcDir("src/iperf/java")
+        getByName("play").kotlin.srcDir("src/iperf/java")
+    }
     androidResources {
         generateLocaleConfig = true
     }

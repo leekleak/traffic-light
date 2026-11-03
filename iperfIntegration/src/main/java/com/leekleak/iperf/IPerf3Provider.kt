@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.integrations.iperf
+package com.leekleak.iperf
 
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope

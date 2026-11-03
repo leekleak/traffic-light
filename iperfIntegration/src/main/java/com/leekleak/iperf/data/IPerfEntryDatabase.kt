@@ -1,7 +1,6 @@
-package com.leekleak.trafficlight.database
+package com.leekleak.iperf.data
 
 import androidx.room3.ColumnInfo
-import androidx.room3.ColumnTypeConverters
 import androidx.room3.Dao
 import androidx.room3.Database
 import androidx.room3.Delete
@@ -36,7 +35,6 @@ interface IPerfEntryDao {
 }
 
 @Database(entities = [IPerfEntry::class], version = 1, exportSchema = true)
-@ColumnTypeConverters(Converters::class)
 abstract class IPerfEntryDatabase : RoomDatabase() {
     abstract fun iPerfEntryDao(): IPerfEntryDao
 }

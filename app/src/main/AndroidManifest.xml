@@ -11,17 +11,8 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission  android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
     <uses-permission  android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
-
-    <!--
-        Following permissions are only used on Android 11 and under to get local IP address
-        for the iperf3 integration
-    -->
-    <uses-permission android:maxSdkVersion="30" android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:maxSdkVersion="30" android:name="android.permission.ACCESS_FINE_LOCATION"
-        tools:ignore="CoarseFineLocation" />
 
     <queries>
         <intent>

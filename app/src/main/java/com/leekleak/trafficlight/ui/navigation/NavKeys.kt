@@ -2,7 +2,6 @@ package com.leekleak.trafficlight.ui.navigation
 
 import androidx.navigation3.runtime.NavKey
 import com.leekleak.trafficlight.database.DataPlan
-import com.leekleak.trafficlight.integrations.iperf.IperfEvent
 import kotlinx.serialization.Serializable
 
 /**
@@ -19,11 +18,6 @@ data object DataPlansKey : NavKey
 data object HistoryKey : NavKey
 @Serializable
 data object IperfScreenKey : NavKey
-@Serializable
-data class IperfLogScreenKey(
-    val events: List<IperfEvent>,
-    val isServer: Boolean = false
-) : NavKey
 
 @Serializable
 data object SettingsKey : NavKey

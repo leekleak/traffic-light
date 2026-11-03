@@ -74,6 +74,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.leekleak.core.R
 import com.leekleak.core.charts.GraphTheme
+import com.leekleak.core.ui.components.FancyDialog
 import com.leekleak.core.ui.theme.Theme
 import com.leekleak.core.ui.theme.card
 import com.leekleak.core.ui.theme.googleSans
@@ -284,57 +285,6 @@ fun SliderPreference(
        enabled = enabled,
        onValueChanged = onValueChanged
    )
-}
-
-@Composable
-fun FancyDialog(
-    onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
-    title: String,
-    @DrawableRes icon: Int,
-    verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(16.dp),
-    actionButton: @Composable (RowScope.() -> Unit) = {},
-    content: @Composable (ColumnScope.() -> Unit),
-) {
-    Dialog(onDismissRequest = onDismissRequest) {
-        Column(
-            modifier = modifier
-                .fillMaxWidth()
-                .card(colorScheme.surfaceContainerLow)
-                .padding(16.dp)
-                .clearFocusOnTap(),
-            verticalArrangement = verticalArrangement
-        ) {
-            val font = remember { googleSans(weight = 600f) }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(
-                    modifier = Modifier.size(32.dp),
-                    painter = painterResource(icon),
-                    contentDescription = null,
-                    tint = colorScheme.onSurface
-                )
-                Text(
-                    text = title,
-                    fontFamily = font,
-                    fontSize = 20.sp,
-                    color = colorScheme.onSurface
-                )
-            }
-            content()
-            Row(
-                modifier = Modifier.align(Alignment.End),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                TextButton(onClick = onDismissRequest) {
-                    Text(stringResource(R.string.close))
-                }
-                actionButton()
-            }
-        }
-    }
 }
 
 @Composable

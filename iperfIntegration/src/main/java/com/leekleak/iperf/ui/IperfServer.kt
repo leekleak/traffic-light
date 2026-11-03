@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.ui.iperf
+package com.leekleak.iperf.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -27,7 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.core.R
-import com.leekleak.trafficlight.ui.navigation.IperfLogScreenKey
+import com.leekleak.iperf.ui.IperfLogScreenKey
 import com.leekleak.core.ui.navigation.Navigator
 import org.koin.compose.viewmodel.koinViewModel
 

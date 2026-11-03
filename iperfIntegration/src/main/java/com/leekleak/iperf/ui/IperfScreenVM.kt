@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.ui.iperf
+package com.leekleak.iperf.ui
 
 import android.net.ConnectivityManager
 import android.net.LinkProperties

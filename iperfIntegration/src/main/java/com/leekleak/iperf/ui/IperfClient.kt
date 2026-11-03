@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.ui.iperf
+package com.leekleak.iperf.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -61,10 +61,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.core.R
 import com.leekleak.core.charts.SpeedGraph
-import com.leekleak.trafficlight.database.IPerfEntry
-import com.leekleak.trafficlight.ui.navigation.IperfLogScreenKey
+import com.leekleak.iperf.data.IPerfEntry
+import com.leekleak.iperf.ui.IperfLogScreenKey
 import com.leekleak.core.ui.navigation.Navigator
-import com.leekleak.trafficlight.ui.settings.FancyDialog
+import com.leekleak.core.ui.components.FancyDialog
 import com.leekleak.core.ui.theme.card
 import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.core.util.CategoryTitleSmallText

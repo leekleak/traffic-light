@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 
-package com.leekleak.trafficlight.ui.iperf
+package com.leekleak.iperf.ui
 
 import android.Manifest
 import android.content.pm.PackageManager

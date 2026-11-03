@@ -28,15 +28,4 @@ val databaseModule = module {
     }
     single<DataPlanDao> { get<AppDatabase>().dataPlanDao() }
     single<DataPlanRepository>()
-
-    single<IPerfEntryDatabase> {
-        Room.databaseBuilder(
-            androidContext(),
-            IPerfEntryDatabase::class.java,
-            "iperf_servers"
-        )
-            .addMigrations()
-            .build()
-    }
-    single<IPerfEntryDao> { get<IPerfEntryDatabase>().iPerfEntryDao() }
 }

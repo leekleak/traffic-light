@@ -1,6 +1,6 @@
-package com.leekleak.trafficlight.ui.iperf
+package com.leekleak.iperf.ui
 
-import com.leekleak.trafficlight.integrations.iperf.IperfEvent
+import com.leekleak.iperf.IperfEvent
 import kotlinx.coroutines.flow.StateFlow
 
 interface IperfLogViewModel {
