@@ -1,0 +1,12 @@
+This is the lite version of Traffic Light and it exists to provide a minimal experience without any features that depend on the internet and Shizuku permissions.
+
+Traffic Light is an open-source tool for tracking your network usage while ensuring total privacy. Inspired by Internet Speed Meter and GlassWire.
+
+Features:
+
+- Free and open source
+- Uses few permissions
+- Uses less battery
+- No tracking
+- Beautiful UI
+- Fast and modern
