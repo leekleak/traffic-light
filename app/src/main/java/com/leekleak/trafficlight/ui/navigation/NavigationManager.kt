@@ -236,7 +236,7 @@ private fun SideNavigationRail(
     hazeState: HazeState,
     modifier: Modifier = Modifier,
 ) {
-    val shape = MaterialTheme.shapes.large
+    val shape = MaterialTheme.shapes.extraLarge
 
     Box(
         modifier = modifier

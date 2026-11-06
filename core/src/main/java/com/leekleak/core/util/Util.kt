@@ -184,15 +184,16 @@ fun PageTitle(
         modifier = Modifier
             .fillMaxWidth()
             .then(
-                hazeState?.let {
-                    Modifier.hazeBlur(
-                        input = HazeInput.Sources(it),
+                when {
+                    hazeState == null -> Modifier
+                    blurEnabled -> Modifier.hazeBlur(
+                        input = HazeInput.Sources(hazeState),
                         style = HazeMaterials.ultraThin().then {
                             progressive(HazeProgressive.verticalGradient(startIntensity = 1f, endIntensity = 0f))
-                            blurEnabled(blurEnabled)
                         }
                     )
-                } ?: Modifier
+                    else -> Modifier.background(MaterialTheme.colorScheme.surface)
+                }
             )
     ) {
         Row(
