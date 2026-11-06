@@ -26,6 +26,9 @@ enum class Theme {
     Light,
     Dark;
 
+    val isMaterial: Boolean
+        get() = this == AutoMaterial || this == LightMaterial || this == DarkMaterial
+
     @Composable
     fun getColors(): ColorScheme {
         val context = LocalContext.current

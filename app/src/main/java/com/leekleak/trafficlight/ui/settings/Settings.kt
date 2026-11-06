@@ -5,7 +5,6 @@ import android.os.Build
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -17,34 +16,35 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.core.R
-import com.leekleak.trafficlight.database.AppPreferenceRepo
-import com.leekleak.trafficlight.integrations.ShizukuServicesProvider
-import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
-import com.leekleak.trafficlight.ui.navigation.LibraryLicenseScreen
 import com.leekleak.core.ui.navigation.Navigator
-import com.leekleak.trafficlight.ui.navigation.NotificationSettingsKey
-import com.leekleak.core.ui.theme.Theme
 import com.leekleak.core.ui.theme.card
 import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.core.util.CategoryTitleSmallText
 import com.leekleak.core.util.SlideAnimatedVisibility
 import com.leekleak.core.util.openLink
-import com.leekleak.core.util.px
+import com.leekleak.trafficlight.BuildConfig
+import com.leekleak.trafficlight.database.AppPreferenceRepo
+import com.leekleak.trafficlight.integrations.ShizukuServicesProvider
+import com.leekleak.trafficlight.model.PermissionManager
+import com.leekleak.trafficlight.ui.navigation.LibraryLicenseScreen
+import com.leekleak.trafficlight.ui.navigation.NotificationSettingsKey
 import kotlinx.coroutines.launch
 
 @Composable
@@ -141,14 +141,19 @@ private fun InterfaceSettings(appPreferenceRepo: AppPreferenceRepo) {
     val scope = rememberCoroutineScope()
 
     CategoryTitleSmallText(stringResource(R.string.ui))
-    val theme by appPreferenceRepo.theme.collectAsState(Theme.AutoMaterial)
+    val theme by appPreferenceRepo.theme.collectAsState()
     val blur by appPreferenceRepo.blur.collectAsState(true)
     val scroll = rememberScrollState(0)
 
-    val panelWidth =
-        272.dp.px.toInt() // Just a guess lol. Calculate the actual size if I ever add more themes
-    LaunchedEffect(theme) {
-        scroll.animateScrollTo(panelWidth * (theme.ordinal / 3), tween())
+    val spacing = 8.dp
+    val spacingPx = with(LocalDensity.current) { spacing.roundToPx() }
+    var panelWidth by remember { mutableIntStateOf(0) }
+    var aligned by remember { mutableStateOf(false) }
+
+    LaunchedEffect(panelWidth) {
+        if (panelWidth == 0) return@LaunchedEffect
+        scroll.scrollTo(if (theme.isMaterial) 0 else panelWidth + spacingPx)
+        aligned = true
     }
     Row(
         modifier = Modifier
@@ -157,9 +162,13 @@ private fun InterfaceSettings(appPreferenceRepo: AppPreferenceRepo) {
             .card()
             .horizontalScroll(scroll)
             .padding(start = 8.dp, end = 8.dp, bottom = 8.dp, top = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(spacing)
     ) {
-        ThemePreferenceContainer(theme, true) { scope.launch { appPreferenceRepo.setTheme(it) } }
+        ThemePreferenceContainer(
+            currentTheme = theme,
+            material = true,
+            modifier = Modifier.onSizeChanged { panelWidth = it.width },
+        ) { scope.launch { appPreferenceRepo.setTheme(it) } }
         ThemePreferenceContainer(theme, false) { scope.launch { appPreferenceRepo.setTheme(it) } }
     }
     SwitchPreference(

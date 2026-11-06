@@ -8,18 +8,25 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.core.ui.theme.Theme
 import com.leekleak.core.util.valueOfOrNull
+import com.leekleak.trafficlight.BuildConfig
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 private val Context.appPreferences: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class AppPreferenceRepo (
     private val context: Context,
 ) {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val dataStore get() = context.appPreferences
     private val data get() = dataStore.data
 
@@ -53,7 +60,11 @@ class AppPreferenceRepo (
     val sizeMetric: Flow<Boolean> = data.map { it[SIZE_METRIC] ?: false }.distinctUntilChanged()
     suspend fun setSizeMetric(value: Boolean) = dataStore.edit { it[SIZE_METRIC] = value }
     
-    val theme: Flow<Theme> = data.map { prefs -> prefs[THEME]?.let { valueOfOrNull<Theme>(it) } ?: Theme.AutoMaterial }.distinctUntilChanged()
+    // important setting, so force load asap.
+    val theme: StateFlow<Theme> = data
+        .map { prefs -> prefs[THEME]?.let { valueOfOrNull<Theme>(it) } ?: Theme.AutoMaterial }
+        .distinctUntilChanged()
+        .stateIn(scope, SharingStarted.Eagerly, Theme.AutoMaterial)
     suspend fun setTheme(value: Theme) = dataStore.edit { it[THEME] = value.name }
 
     val blur: Flow<Boolean> = data.map { prefs -> prefs[BLUR] ?: true }.distinctUntilChanged()

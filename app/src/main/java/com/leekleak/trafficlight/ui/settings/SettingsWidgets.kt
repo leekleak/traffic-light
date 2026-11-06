@@ -504,11 +504,16 @@ fun IconPreference(
 }
 
 @Composable
-fun ThemePreferenceContainer(currentTheme: Theme, material: Boolean, onThemeChanged: (Theme) -> Unit) {
+fun ThemePreferenceContainer(
+    currentTheme: Theme,
+    material: Boolean,
+    modifier: Modifier = Modifier,
+    onThemeChanged: (Theme) -> Unit
+) {
     val themeLight = if (material) Theme.LightMaterial else Theme.Light
     val themeDark = if (material) Theme.DarkMaterial else Theme.Dark
     val themeAuto = if (material) Theme.AutoMaterial else Theme.Auto
-    Column {
+    Column(modifier = modifier) {
         CategoryTitleSmallText(if (material) stringResource(R.string.material_theme) else stringResource(R.string.default_theme))
         Column(
             modifier = Modifier
