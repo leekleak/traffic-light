@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -106,7 +108,7 @@ import com.leekleak.trafficlight.model.DataUIDApp
 import com.leekleak.trafficlight.model.search
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
-import com.leekleak.core.ui.navigation.NAVBAR_PADDING
+import com.leekleak.core.ui.navigation.LocalNavigationBarPadding
 import com.leekleak.trafficlight.ui.plans.AppSelector
 import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.core.ui.theme.historyItemFont
@@ -144,20 +146,31 @@ fun History(viewModel: HistoryVM, appManager: AppManager) {
         scrollState = null,
         hazeState = null,
         backAction = BackAction.None,
-        extraPadding = PaddingValues(bottom = NAVBAR_PADDING),
+        extraPadding = LocalNavigationBarPadding.current,
         actions = {
             HistoryLegendItem(usageQueries.first, colorScheme.primary, colorScheme.onPrimary)
             Spacer(Modifier.width(8.dp))
             HistoryLegendItem(usageQueries.second, colorScheme.tertiary, colorScheme.onTertiary)
         }
     ) { paddingValues ->
-        val sidePadding = remember(paddingValues) { paddingValues.calculateLeftPadding(LayoutDirection.Ltr) }
-        val listContentPadding = PaddingValues(sidePadding, sidePadding, sidePadding, paddingValues.calculateBottomPadding())
+        val layoutDirection = LocalLayoutDirection.current
+        val startPadding = remember(paddingValues, layoutDirection) {
+            paddingValues.calculateStartPadding(layoutDirection)
+        }
+        val endPadding = remember(paddingValues, layoutDirection) {
+            paddingValues.calculateEndPadding(layoutDirection)
+        }
+        val listContentPadding = PaddingValues(
+            start = 16.dp,
+            top = 16.dp,
+            end = 16.dp,
+            bottom = paddingValues.calculateBottomPadding()
+        )
         Column (
             modifier = Modifier
                 .padding(
-                    start = sidePadding,
-                    end = sidePadding,
+                    start = startPadding,
+                    end = endPadding,
                     top = paddingValues.calculateTopPadding()
                 ),
             verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -226,7 +239,10 @@ fun History(viewModel: HistoryVM, appManager: AppManager) {
 }
 
 @Composable
-private fun AppList(viewModel: HistoryVM, paddingValues: PaddingValues) {
+private fun AppList(
+    viewModel: HistoryVM,
+    contentPadding: PaddingValues,
+) {
     val context = LocalContext.current
 
     val appList by remember { viewModel.appList }.collectAsStateWithLifecycle()
@@ -240,7 +256,7 @@ private fun AppList(viewModel: HistoryVM, paddingValues: PaddingValues) {
             .clip(shelfShape)
             .background(colorScheme.surfaceContainer)
             .fillMaxSize(),
-        contentPadding = paddingValues,
+        contentPadding = contentPadding,
         verticalArrangement = Arrangement.spacedBy(6.dp),
         state = listState
     ) {
@@ -264,7 +280,10 @@ private fun AppList(viewModel: HistoryVM, paddingValues: PaddingValues) {
 }
 
 @Composable
-private fun HourList(viewModel: HistoryVM, paddingValues: PaddingValues) {
+private fun HourList(
+    viewModel: HistoryVM,
+    contentPadding: PaddingValues,
+) {
     val hourList by remember { viewModel.hourList }.collectAsStateWithLifecycle()
     var hourSelected by remember { mutableIntStateOf(-1) }
     val maximum by remember { derivedStateOf { hourList.sumOf { it.usage.totalUsage } } }
@@ -285,7 +304,7 @@ private fun HourList(viewModel: HistoryVM, paddingValues: PaddingValues) {
             .clip(shelfShape)
             .background(colorScheme.surfaceContainer)
             .fillMaxSize(),
-        contentPadding = paddingValues,
+        contentPadding = contentPadding,
         verticalArrangement = Arrangement.spacedBy(6.dp),
         state = listState
     ) {

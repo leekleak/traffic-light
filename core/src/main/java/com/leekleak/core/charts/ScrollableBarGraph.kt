@@ -13,6 +13,7 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,14 +31,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.leekleak.core.charts.model.ScrollableBarData
 import com.leekleak.core.ui.theme.LocalSizeMetric
 import com.leekleak.core.util.DataSize
-import com.leekleak.core.util.px
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -50,11 +51,25 @@ fun ScrollableBarGraph(
     data: List<ScrollableBarData>,
     onSelect: (i: Int) -> Unit,
 ) {
+    BoxWithConstraints {
+        ScrollableBarGraphContent(
+            data = data,
+            onSelect = onSelect,
+            availableWidth = maxWidth,
+        )
+    }
+}
+
+@Composable
+private fun ScrollableBarGraphContent(
+    data: List<ScrollableBarData>,
+    onSelect: (i: Int) -> Unit,
+    availableWidth: Dp,
+) {
     val scope = rememberCoroutineScope()
     val textMeasurer = rememberTextMeasurer()
     val haptic = LocalHapticFeedback.current
-    val displayMetrics = LocalResources.current.displayMetrics
-    val paddingPx = 64.dp.px
+    val density = LocalDensity.current
 
     val primaryColor = GraphTheme.primaryColor
     val secondaryColor = GraphTheme.secondaryColor
@@ -67,8 +82,9 @@ fun ScrollableBarGraph(
     var selectorOffset by remember { mutableFloatStateOf(0f) }
     val selectorOffsetSnapped = remember { Animatable(0f) }
 
-    val canvasWidth by remember { derivedStateOf { displayMetrics.widthPixels - paddingPx } }
-    val barWidth by remember { derivedStateOf {
+    // The canvas has 20dp of horizontal padding on each side.
+    val canvasWidth = with(density) { (availableWidth - 40.dp).toPx() }
+    val barWidth by remember(canvasWidth) { derivedStateOf {
         var barCount = (canvasWidth / GOOD_BAR_SIZE).roundToInt()
         barCount += if (barCount % 2 == 0) 1 else 0
         canvasWidth / barCount

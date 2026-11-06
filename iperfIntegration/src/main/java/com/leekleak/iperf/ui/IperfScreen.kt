@@ -19,7 +19,8 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -39,16 +40,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.core.R
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
-import com.leekleak.core.ui.navigation.NAVBAR_PADDING
+import com.leekleak.core.ui.navigation.LocalNavigationBarPadding
 import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.util.iconToggleButton
 
@@ -65,10 +66,12 @@ fun IperfScreen(
         title = stringResource(R.string.iperf3) + " (Beta)",
         backAction = BackAction.None,
         scrollState = null,
-        extraPadding = PaddingValues(bottom = NAVBAR_PADDING),
+        extraPadding = LocalNavigationBarPadding.current,
     ) { contentPadding ->
         val topPadding = contentPadding.calculateTopPadding()
-        val sidePadding = contentPadding.calculateLeftPadding(LayoutDirection.Ltr)
+        val layoutDirection = LocalLayoutDirection.current
+        val startPadding = contentPadding.calculateStartPadding(layoutDirection)
+        val endPadding = contentPadding.calculateEndPadding(layoutDirection)
         val bottomPadding = contentPadding.calculateBottomPadding()
         Column(
             modifier = Modifier.padding(top = topPadding, bottom = bottomPadding),
@@ -76,7 +79,7 @@ fun IperfScreen(
         ) {
             ButtonGroup(
                 modifier = Modifier
-                    .padding(start = sidePadding, end = sidePadding)
+                    .padding(start = startPadding, end = endPadding)
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(
                     4.dp,

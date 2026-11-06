@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.aspectRatio
@@ -65,16 +64,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.core.R
-import com.leekleak.trafficlight.charts.AppGraph
 import com.leekleak.core.charts.BarGraph
-import com.leekleak.trafficlight.database.DataType
-import com.leekleak.trafficlight.integrations.Ad
-import com.leekleak.trafficlight.integrations.AdType
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
-import com.leekleak.core.ui.navigation.NAVBAR_PADDING
+import com.leekleak.core.ui.navigation.LocalNavigationBarPadding
 import com.leekleak.core.ui.navigation.Navigator
-import com.leekleak.trafficlight.ui.navigation.SettingsKey
 import com.leekleak.core.ui.theme.card
 import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.core.util.CategoryTitleText
@@ -85,6 +79,11 @@ import com.leekleak.core.util.TrendCard
 import com.leekleak.core.util.formattedParts
 import com.leekleak.core.util.iconToggleButton
 import com.leekleak.core.util.px
+import com.leekleak.trafficlight.charts.AppGraph
+import com.leekleak.trafficlight.database.DataType
+import com.leekleak.trafficlight.integrations.Ad
+import com.leekleak.trafficlight.integrations.AdType
+import com.leekleak.trafficlight.ui.navigation.SettingsKey
 
 
 @Composable
@@ -104,7 +103,7 @@ fun Overview(
     HazeScaffold(
         title = stringResource(R.string.today),
         backAction = BackAction.None,
-        extraPadding = PaddingValues(bottom = NAVBAR_PADDING),
+        extraPadding = LocalNavigationBarPadding.current,
         actions = {
             IconButton(
                 onClick = {

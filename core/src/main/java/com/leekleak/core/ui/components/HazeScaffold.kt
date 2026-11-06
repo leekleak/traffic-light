@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
@@ -27,8 +29,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.util.PageTitle
@@ -71,10 +73,21 @@ fun HazeScaffold(
     actions: @Composable RowScope.() -> Unit = {},
     content: @Composable ColumnScope.(PaddingValues) -> Unit,
 ) {
-    val paddingSide = 16.dp + extraPadding.calculateLeftPadding(LayoutDirection.Ltr)
+    val layoutDirection = LocalLayoutDirection.current
+    val extraStart = extraPadding.calculateStartPadding(layoutDirection)
+    val extraEnd = extraPadding.calculateEndPadding(layoutDirection)
+    val contentSidePadding = 16.dp
+    val outerStart = extraStart + if (scrollState != null) contentSidePadding else 0.dp
+    val outerEnd = extraEnd + if (scrollState != null) contentSidePadding else 0.dp
+    val contentStart = if (scrollState != null) 0.dp else contentSidePadding
+    val contentEnd = if (scrollState != null) 0.dp else contentSidePadding
     val paddingTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + TOP_BAR_HEIGHT + 6.dp + extraPadding.calculateTopPadding()
     val paddingBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 8.dp + extraPadding.calculateBottomPadding()
-    val paddingValues = if (scrollState != null) PaddingValues() else PaddingValues(paddingSide, paddingTop, paddingSide, paddingBottom)
+    val paddingValues = if (scrollState != null) {
+        PaddingValues()
+    } else {
+        PaddingValues(start = contentStart, top = paddingTop, end = contentEnd, bottom = paddingBottom)
+    }
     Scaffold(
         contentWindowInsets = WindowInsets()
     ) {
@@ -86,7 +99,7 @@ fun HazeScaffold(
                     .then(
                         hazeState?.let { Modifier.hazeSource(it) } ?: Modifier
                     )
-                    .padding(horizontal = if (scrollState != null) paddingSide else 0.dp)
+                    .padding(start = outerStart, end = outerEnd)
                     .then(if (scrollState != null) Modifier.verticalScroll(scrollState) else Modifier),
             ) {
                 if (scrollState != null) Spacer(Modifier.height((paddingTop).coerceAtLeast(0.dp)))

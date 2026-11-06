@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -35,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -43,7 +46,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -59,7 +61,7 @@ import com.leekleak.trafficlight.integrations.Ad
 import com.leekleak.trafficlight.integrations.AdType
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
-import com.leekleak.core.ui.navigation.NAVBAR_PADDING
+import com.leekleak.core.ui.navigation.LocalNavigationBarPadding
 import com.leekleak.trafficlight.ui.settings.InfoCard
 import com.leekleak.core.ui.theme.LocalSizeMetric
 import com.leekleak.core.ui.theme.card
@@ -89,15 +91,23 @@ fun DataPlans(
         hazeState = null,
         scrollState = null,
         backAction = BackAction.None,
-        extraPadding = PaddingValues(bottom = NAVBAR_PADDING),
+        extraPadding = LocalNavigationBarPadding.current,
     ) { paddingValues ->
-        val paddingSide = paddingValues.calculateLeftPadding(LayoutDirection.Ltr)
+        val layoutDirection = LocalLayoutDirection.current
+        val paddingStart = paddingValues.calculateStartPadding(layoutDirection)
+        val paddingEnd = paddingValues.calculateEndPadding(layoutDirection)
         val paddingTop = paddingValues.calculateTopPadding()
         val paddingBottom = paddingValues.calculateBottomPadding()
-        val listContentPadding = PaddingValues(paddingSide, 0.dp, paddingSide, paddingBottom)
+        val listContentPadding = PaddingValues(
+            start = 16.dp,
+            top = 0.dp,
+            end = 16.dp,
+            bottom = paddingBottom
+        )
         Spacer(Modifier.height(paddingTop))
         DataPlanPager(
-            horizontalPadding = paddingSide + 8.dp,
+            startPadding = paddingStart + 8.dp,
+            endPadding = paddingEnd + 8.dp,
             uiState = uiState,
             selectDataPlan = selectDataPlan,
             disableShizukuHint = disableShizukuHint,
@@ -109,7 +119,8 @@ fun DataPlans(
 
 @Composable
 private fun DataPlanPager(
-    horizontalPadding: Dp,
+    startPadding: Dp,
+    endPadding: Dp,
     uiState: DataPlansUiState,
     selectDataPlan: (DataPlan?) -> Unit,
     disableShizukuHint: () -> Unit,
@@ -136,8 +147,8 @@ private fun DataPlanPager(
     HorizontalPager(
         modifier = Modifier.height(220.dp),
         state = pagerState,
-        contentPadding = PaddingValues(horizontal = horizontalPadding),
-        pageSpacing = horizontalPadding / 2,
+        contentPadding = PaddingValues(start = startPadding, end = endPadding),
+        pageSpacing = 12.dp,
         snapPosition = SnapPosition.Center,
         pageSize = PageSize.Fill
     ) { page ->
