@@ -2,33 +2,34 @@ package com.leekleak.trafficlight.ui.navigation
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FloatingToolbarDefaults
@@ -48,6 +49,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
@@ -64,58 +69,68 @@ import com.leekleak.core.ui.navigation.LocalNavigationBarPadding
 import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.ui.navigation.SIDE_NAVBAR_PADDING
 import com.leekleak.core.ui.navigation.SIDE_NAVBAR_WIDTH
+import com.leekleak.core.ui.theme.LocalBlurEnabled
 import com.leekleak.trafficlight.BuildConfig
+import dev.chrisbanes.haze.HazeInput
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.blur.HazeBlurStyle
+import dev.chrisbanes.haze.blur.HazeColorEffect
+import dev.chrisbanes.haze.blur.hazeBlur
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 import org.koin.compose.navigation3.koinEntryProvider
 import org.koin.core.annotation.KoinExperimentalAPI
 
 private const val WIDESCREEN_BREAKPOINT = 600
 
+private val PillOutlineWidth = 1.dp
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(KoinExperimentalAPI::class)
 @Composable
 fun NavigationManager(navigator: Navigator) {
-    val backStack = navigator.backStack
-
-    var showBottomBar by remember { mutableStateOf(false) }
     val currentEntry = navigator.backStack.lastOrNull()
+
+    var showBottomBar by remember { mutableStateOf(mainScreens.contains(currentEntry)) }
 
     LaunchedEffect(currentEntry) {
         showBottomBar = mainScreens.contains(currentEntry)
     }
 
-    val entryProvider = koinEntryProvider<Any>()
-
     val isWidescreen = currentWindowAdaptiveInfoV2()
         .windowSizeClass
         .isWidthAtLeastBreakpoint(WIDESCREEN_BREAKPOINT)
 
-    val navBarPadding = remember(isWidescreen) {
-        if (isWidescreen) {
-            PaddingValues(end = SIDE_NAVBAR_PADDING)
-        } else {
-            PaddingValues(bottom = BOTTOM_NAVBAR_PADDING)
-        }
-    }
+    val navigationBarHaze = rememberHazeState()
 
-    CompositionLocalProvider(LocalNavigationBarPadding provides navBarPadding) {
+    CompositionLocalProvider(
+        LocalNavigationBarPadding provides remember(isWidescreen) {
+            if (isWidescreen) {
+                PaddingValues(end = SIDE_NAVBAR_PADDING)
+            } else {
+                PaddingValues(bottom = BOTTOM_NAVBAR_PADDING)
+            }
+        }
+    ) {
         Scaffold(
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
             bottomBar = {
                 if (!isWidescreen) {
-                    BottomNavigationBar(navigator, showBottomBar)
+                    BottomNavigationBar(navigator, showBottomBar, navigationBarHaze)
                 }
             }
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 NavDisplay(
                     backStack = navigator.backStack,
+                    modifier = Modifier.hazeSource(navigationBarHaze),
                     onBack = { navigator.goBack() },
-                    entryProvider = entryProvider,
+                    entryProvider = koinEntryProvider<Any>(),
                     entryDecorators = listOf(
                         rememberViewModelStoreNavEntryDecorator()
                     ),
                     transitionSpec = {
-                        if (backStack.size == 1) fadeIn(tween()) togetherWith fadeOut(tween())
+                        if (navigator.backStack.size == 1) fadeIn(tween()) togetherWith fadeOut(tween())
                         else {
                             slideInHorizontally { it } togetherWith
                             slideOutHorizontally { -it / 2 } + scaleOut(targetScale = 0.7f) + fadeOut()
@@ -133,6 +148,7 @@ fun NavigationManager(navigator: Navigator) {
                 SideNavigationRail(
                     navigator = navigator,
                     visible = isWidescreen && showBottomBar,
+                    hazeState = navigationBarHaze,
                     modifier = Modifier.align(Alignment.BottomEnd),
                 )
             }
@@ -141,7 +157,13 @@ fun NavigationManager(navigator: Navigator) {
 }
 
 @Composable
-private fun BottomNavigationBar(navigator: Navigator, visible: Boolean) {
+private fun BottomNavigationBar(
+    navigator: Navigator,
+    visible: Boolean,
+    hazeState: HazeState,
+) {
+    val shape = CircleShape
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -155,17 +177,27 @@ private fun BottomNavigationBar(navigator: Navigator, visible: Boolean) {
             exit = slideOutVertically { it } + fadeOut(tween())
         ) {
             HorizontalFloatingToolbar(
-                modifier = Modifier.border(
-                    width = 1.5.dp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
-                    MaterialTheme.shapes.extraLargeIncreased
-                ),
+                modifier = Modifier
+                    .height(64.dp)
+                    .pillGlass(hazeState, shape)
+                    .border(PillOutlineWidth, navBarBorderColor(), shape),
                 expanded = true,
                 colors = FloatingToolbarDefaults.standardFloatingToolbarColors().copy(
-                    toolbarContainerColor = MaterialTheme.colorScheme.background,
+                    toolbarContainerColor = Color.Transparent,
                 ),
+                shape = shape,
+                contentPadding = PaddingValues(6.dp),
                 content = {
-                    NavigationItems(navigator, vertical = false)
+                    navigationItems().forEach { item ->
+                        NavigationButton(
+                            navigator = navigator,
+                            route = item.route,
+                            name = item.name,
+                            icon = item.icon,
+                            vertical = false,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
                 },
             )
         }
@@ -173,11 +205,39 @@ private fun BottomNavigationBar(navigator: Navigator, visible: Boolean) {
 }
 
 @Composable
+private fun Modifier.pillGlass(hazeState: HazeState, shape: Shape): Modifier {
+    val screen = MaterialTheme.colorScheme.background
+    val tint = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+    val solid = tint.compositeOver(screen)
+
+    if (!LocalBlurEnabled.current) return clip(shape).background(solid, shape)
+
+    return clip(shape).hazeBlur(
+        HazeInput.Sources(hazeState),
+        remember(tint, screen) {
+            HazeBlurStyle {
+                backgroundColor(screen)
+                colorEffects(listOf(HazeColorEffect.tint(solid.copy(alpha = 0.55f))))
+                fallbackColorEffect(HazeColorEffect.tint(solid))
+            }
+        },
+    )
+}
+
+@Composable
+private fun navBarBorderColor(): Color {
+    return MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+}
+
+@Composable
 private fun SideNavigationRail(
     navigator: Navigator,
     visible: Boolean,
+    hazeState: HazeState,
     modifier: Modifier = Modifier,
 ) {
+    val shape = MaterialTheme.shapes.large
+
     Box(
         modifier = modifier
             .navigationBarsPadding()
@@ -191,20 +251,26 @@ private fun SideNavigationRail(
             VerticalFloatingToolbar(
                 modifier = Modifier
                     .width(SIDE_NAVBAR_WIDTH)
-                    .border(
-                        width = 1.5.dp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
-                        MaterialTheme.shapes.extraLargeIncreased
-                    ),
+                    .pillGlass(hazeState, shape)
+                    .border(PillOutlineWidth, navBarBorderColor(), shape),
                 expanded = true,
                 colors = FloatingToolbarDefaults.standardFloatingToolbarColors().copy(
-                    toolbarContainerColor = MaterialTheme.colorScheme.background,
+                    toolbarContainerColor = Color.Transparent,
                 ),
+                shape = shape,
                 content = {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
-                        NavigationItems(navigator, vertical = true)
+                        navigationItems().forEach { item ->
+                            NavigationButton(
+                                navigator = navigator,
+                                route = item.route,
+                                name = item.name,
+                                icon = item.icon,
+                                vertical = true,
+                            )
+                        }
                     }
                 },
             )
@@ -212,18 +278,26 @@ private fun SideNavigationRail(
     }
 }
 
+private class NavigationItemSpec(
+    val route: NavKey,
+    val name: String,
+    val icon: Int,
+)
+
 @Composable
-private fun NavigationItems(navigator: Navigator, vertical: Boolean) {
-    NavigationButton(navigator, OverviewKey, stringResource(R.string.overview), R.drawable.overview, vertical)
-    NavigationButton(navigator, DataPlansKey, stringResource(R.string.plans), R.drawable.sim_card, vertical)
-    NavigationButton(navigator, HistoryKey, stringResource(R.string.history), R.drawable.history, vertical)
-    if (BuildConfig.IPERF) {
-        NavigationButton(navigator, IperfScreenKey, stringResource(R.string.iperf3), R.drawable.speed, vertical)
-    }
+private fun navigationItems(): List<NavigationItemSpec> = listOf(
+    NavigationItemSpec(OverviewKey, stringResource(R.string.overview), R.drawable.overview),
+    NavigationItemSpec(DataPlansKey, stringResource(R.string.plans), R.drawable.sim_card),
+    NavigationItemSpec(HistoryKey, stringResource(R.string.history), R.drawable.history),
+) + if (BuildConfig.IPERF) {
+    listOf(NavigationItemSpec(IperfScreenKey, stringResource(R.string.iperf3), R.drawable.speed))
+} else {
+    emptyList()
 }
 
 @Composable
 fun NavigationButton(
+    modifier: Modifier = Modifier,
     navigator: Navigator,
     route: NavKey,
     name: String,
@@ -231,63 +305,57 @@ fun NavigationButton(
     vertical: Boolean = false,
 ) {
     val selected = navigator.current == route
-    val horizontalPadding by animateDpAsState(if (selected) 24.dp else 12.dp)
-    val verticalPadding by animateDpAsState(if (selected) 12.dp else 8.dp)
     val haptic = LocalHapticFeedback.current
 
     Button(
-        modifier = if (vertical) Modifier.fillMaxWidth() else Modifier,
-        colors =
-            if (selected) {
-                ButtonDefaults.filledTonalButtonColors()
+        modifier = modifier
+            .then(if (vertical) Modifier.fillMaxWidth() else Modifier)
+            .height(52.dp),
+        shape = CircleShape,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (selected) {
+                MaterialTheme.colorScheme.primaryContainer.copy(
+                    alpha = 0.72f
+                )
             } else {
-                ButtonDefaults.textButtonColors()
+                Color.Transparent
             },
+            contentColor = if (selected) {
+                MaterialTheme.colorScheme.onPrimaryContainer
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+        ),
+        border = if (selected) {
+            BorderStroke(
+                PillOutlineWidth,
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.45f),
+            )
+        } else {
+            null
+        },
         onClick = {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             navigator.setTo(route)
         },
-        contentPadding = if (vertical) {
-            PaddingValues(horizontal = 4.dp, vertical = verticalPadding)
-        } else {
-            PaddingValues(horizontal = horizontalPadding, vertical = 8.dp)
-        }
+        contentPadding = PaddingValues(horizontal = 4.dp),
     ) {
-        if (vertical) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    painter = painterResource(icon),
-                    contentDescription = if (selected) null else name
-                )
-                AnimatedVisibility(
-                    visible = selected,
-                    enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(tween()),
-                    exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(tween())
-                ) {
-                    Text(
-                        modifier = Modifier.padding(top = 4.dp),
-                        style = MaterialTheme.typography.labelMedium,
-                        textAlign = TextAlign.Center,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        text = name
-                    )
-                }
-            }
-        } else {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    painter = painterResource(icon),
-                    contentDescription = if (selected) null else name
-                )
-                AnimatedVisibility(visible = selected) {
-                    Text(
-                        modifier = Modifier.padding(start = 4.dp),
-                        maxLines = 1,
-                        text = name
-                    )
-                }
-            }
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = null,
+                modifier = Modifier.size(22.dp),
+            )
+            Text(
+                text = name,
+                style = MaterialTheme.typography.labelSmall,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
     }
 }
