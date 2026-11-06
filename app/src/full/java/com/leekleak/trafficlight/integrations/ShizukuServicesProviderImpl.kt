@@ -5,15 +5,13 @@ import android.telephony.SubscriptionInfo
 import com.leekleak.shizukuintegration.ShizukuHelper
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.database.AppPreferenceRepo
-import com.leekleak.trafficlight.database.DataPlanDao
-import com.leekleak.trafficlight.database.DataPlanRepository
+import com.leekleak.trafficlight.model.DataPlanManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class ShizukuServicesProviderImpl(
-    private val dataPlanDao: DataPlanDao,
-    private val dataPlanRepository: DataPlanRepository,
+    private val dataPlanManager: DataPlanManager,
     private val appPreferenceRepo: AppPreferenceRepo,
     private val scope: CoroutineScope,
 ): ShizukuServicesProvider {
@@ -34,21 +32,21 @@ class ShizukuServicesProviderImpl(
         if (appPreferenceRepo.shizukuTracking.first() && shizukuRunning() && shizukuPermission() == PERMISSION_GRANTED) {
             val infos = getSubscriptionInfos().sortedBy { it.simSlotIndex }
             val activeSubscriberIDs = infos.map { getSubscriberID(it.subscriptionId) }
-            val plans = dataPlanDao.getAll().map { plan ->
+            val plans = dataPlanManager.getPlans().map { plan ->
                 plan.copy(simIndex = activeSubscriberIDs.indexOf(plan.decryptedID))
             }
             activeSubscriberIDs.forEachIndexed { index, activeID ->
                 if (activeID !in plans.map { it.decryptedID } && activeID != null) {
-                    dataPlanRepository.savePlan(
-                        activeID,
-                        infos[index].simSlotIndex,
-                        infos[index].carrierName?.toString() ?: ""
+                    dataPlanManager.createPlan(
+                        plainSubscriberID = activeID,
+                        simIndex = infos[index].simSlotIndex,
+                        carrierName = infos[index].carrierName?.toString() ?: ""
                     )
                 }
             }
-            dataPlanDao.addAll(plans)
+            dataPlanManager.addPlans(plans)
         } else {
-            updateSimDataBasic(dataPlanRepository)
+            updateSimDataBasic(dataPlanManager)
         }
     }
 

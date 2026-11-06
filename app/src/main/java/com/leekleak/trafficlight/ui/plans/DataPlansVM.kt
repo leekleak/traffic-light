@@ -6,11 +6,9 @@ import com.leekleak.core.charts.model.BarData
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataPlan
-import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.DataPlanSnapshot
-import com.leekleak.trafficlight.model.NetworkUsageManager
+import com.leekleak.trafficlight.model.DataPlanManager
 import com.leekleak.core.util.MiniCardState
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,9 +16,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.concurrent.ConcurrentHashMap
+import timber.log.Timber
 
 data class DataPlansUiState(
     val activePlans: List<DataPlan> = emptyList(),
@@ -38,71 +35,40 @@ data class DataPlansUiState(
 )
 
 class DataPlansVM(
-    val dataPlansLogic: DataPlanLogic,
-    val networkUsageManager: NetworkUsageManager,
-    val appPreferenceRepo: AppPreferenceRepo,
-    dataPlanDao: DataPlanDao,
+    private val dataPlansLogic: DataPlanLogic,
+    private val appPreferenceRepo: AppPreferenceRepo,
+    private val dataPlanManager: DataPlanManager,
 ): ViewModel() {
     private val selectedDataPlan = MutableStateFlow<DataPlan?>(null)
     fun selectDataPlan(dataPlan: DataPlan?) {
         selectedDataPlan.value = dataPlan
     }
 
-    val planSnapshotFlow: StateFlow<Map<String, DataPlanSnapshot?>>
-        field = MutableStateFlow<Map<String, DataPlanSnapshot?>>(emptyMap())
-
-    private var currentActivePlans: List<DataPlan> = emptyList()
-    private val calculationJobs = ConcurrentHashMap<String, Job>()
-
     init {
         viewModelScope.launch {
-            dataPlanDao.activePlansFlow.collect { plans ->
-                currentActivePlans = plans
+            dataPlanManager.activePlans.collect { plans ->
                 updateSelectedDataPlan(plans)
 
-                val activeHashes = plans.map { it.hashedSubscriberID }.toSet()
-
-                planSnapshotFlow.update { current ->
-                    current.filterKeys { it in activeHashes }
-                }
-
                 val missingSnapshotPlans = plans.filter { plan ->
-                    !planSnapshotFlow.value.containsKey(plan.hashedSubscriberID) || planSnapshotFlow.value[plan.hashedSubscriberID] == null
+                    dataPlanManager.snapshots.value[plan.hashedSubscriberID] == null
                 }
-
-                for (plan in missingSnapshotPlans) {
-                    planSnapshotFlow.update { current ->
-                        if (!current.containsKey(plan.hashedSubscriberID)) current + (plan.hashedSubscriberID to null) else current
+                if (missingSnapshotPlans.isNotEmpty()) {
+                    try {
+                        dataPlanManager.getSnapshots(missingSnapshotPlans)
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to load data plan snapshots")
                     }
-                    loadSnapshotForPlan(plan)
                 }
             }
         }
     }
 
     fun refresh() {
-        val plans = currentActivePlans
-        if (plans.isEmpty()) return
-
-        planSnapshotFlow.update { current ->
-            current + plans.associate { it.hashedSubscriberID to null }
-        }
-
-        for (plan in plans) {
-            loadSnapshotForPlan(plan)
-        }
-    }
-
-    private fun loadSnapshotForPlan(plan: DataPlan) {
-        calculationJobs[plan.hashedSubscriberID]?.cancel()
-        calculationJobs[plan.hashedSubscriberID] = viewModelScope.launch {
-            val snapshot = try {
-                plan.getUsageSnapshot(networkUsageManager)
+        viewModelScope.launch {
+            try {
+                dataPlanManager.refresh()
             } catch (e: Exception) {
-                DataPlanSnapshot()
-            }
-            planSnapshotFlow.update { current ->
-                current + (plan.hashedSubscriberID to snapshot)
+                Timber.e(e, "Failed to refresh data plans")
             }
         }
     }
@@ -119,7 +85,7 @@ class DataPlansVM(
         }
     }
 
-    private val planFlow = combine(selectedDataPlan, planSnapshotFlow) { plan, snapshots ->
+    private val planFlow = combine(selectedDataPlan, dataPlanManager.snapshots) { plan, snapshots ->
         val snapshot = plan?.hashedSubscriberID?.let { snapshots[it] }
         if (plan != null && snapshot != null) {
             plan to snapshot
@@ -153,8 +119,8 @@ class DataPlansVM(
 
     @Suppress("UNCHECKED_CAST")
     val uiState = combine(
-        dataPlanDao.activePlansFlow,
-        planSnapshotFlow,
+        dataPlanManager.activePlans,
+        dataPlanManager.snapshots,
         selectedDataPlan,
         dataSafetyFlow,
         trendFlow,
@@ -167,7 +133,7 @@ class DataPlansVM(
         appPreferenceRepo.shizukuTracking
     ) { flows ->
         val activePlans = flows[0] as List<DataPlan>
-        val snapshotsByHash = flows[1] as Map<String, DataPlanSnapshot?>
+        val snapshotsByHash = flows[1] as Map<String, DataPlanSnapshot>
         val planSnapshots = activePlans.associateWith { plan -> snapshotsByHash[plan.hashedSubscriberID] }
         val plan = flows[2] as DataPlan?
         val safety = flows[3] as MiniCardState? ?: MiniCardState.NEUTRAL

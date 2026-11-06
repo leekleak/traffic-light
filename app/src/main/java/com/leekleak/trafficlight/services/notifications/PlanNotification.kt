@@ -8,8 +8,7 @@ import androidx.core.app.NotificationCompat
 import com.leekleak.trafficlight.MainActivity
 import com.leekleak.core.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
-import com.leekleak.trafficlight.database.DataPlan
-import com.leekleak.trafficlight.model.NetworkUsageManager
+import com.leekleak.trafficlight.model.DataPlanManager
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.simIconRes
 import kotlinx.coroutines.CoroutineScope
@@ -22,8 +21,8 @@ class PlanNotification(
     context: Context,
     notificationManager: NotificationManager,
     notificationId: Int,
-    val dataPlan: DataPlan,
-    private val networkUsageManager: NetworkUsageManager,
+    val hashedSubscriberID: String,
+    private val dataPlanManager: DataPlanManager,
     private val appPreferenceRepo: AppPreferenceRepo,
 ) : PersistentNotification(serviceScope, context, notificationManager, notificationId) {
 
@@ -54,7 +53,8 @@ class PlanNotification(
     }
 
     private suspend fun updateNotification() {
-        val snapshot = dataPlan.getUsageSnapshot(networkUsageManager)
+        val dataPlan = dataPlanManager.getPlan(hashedSubscriberID) ?: return
+        val snapshot = dataPlanManager.getSnapshot(dataPlan)
         val dataSize = DataSize(snapshot.mainDataUsed)
         val dataSizeMax = dataPlan.mainDataSize
         val progress = if (dataSizeMax.byteValue != 0L) dataSize.byteValue.toDouble() / dataSizeMax.byteValue.toDouble() else 0.0
@@ -66,7 +66,7 @@ class PlanNotification(
         notification =
             (
                 if (dataPlan.liveNotification) {
-                    buildForChannel(NOTIFICATION_CHANNEL_ID)
+                    buildForChannel(NOTIFICATION_CHANNEL_ID, promoted = true)
                 } else {
                     notificationBuilder
                 }
@@ -91,12 +91,15 @@ class PlanNotification(
         notifySafely(notificationId, notification)
     }
 
-    private fun buildForChannel(channel: String): NotificationCompat.Builder = NotificationCompat.Builder(context, channel)
+    private fun buildForChannel(
+        channel: String,
+        promoted: Boolean = false
+    ): NotificationCompat.Builder = NotificationCompat.Builder(context, channel)
         .setSmallIcon(R.drawable.notification)
         .setContentTitle(context.getString(R.string.app_name_short))
         .setOngoing(true)
         .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-        .setRequestPromotedOngoing(dataPlan.liveNotification)
+        .setRequestPromotedOngoing(promoted)
         .setSilent(true)
         .setLocalOnly(true)
         .setOnlyAlertOnce(true)

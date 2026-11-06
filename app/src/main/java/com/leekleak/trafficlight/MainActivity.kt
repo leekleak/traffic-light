@@ -11,8 +11,8 @@ import androidx.lifecycle.lifecycleScope
 import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
 import com.leekleak.trafficlight.database.AppPreferenceRepo
-import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.integrations.PlayServicesProvider
+import com.leekleak.trafficlight.model.DataPlanManager
 import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.services.notifications.NotificationService
 import com.leekleak.trafficlight.ui.app.App
@@ -32,7 +32,7 @@ import kotlin.time.Duration.Companion.seconds
 class MainActivity : ComponentActivity() {
 
     private val appPreferenceRepo: AppPreferenceRepo by inject()
-    private val dataPlanDao: DataPlanDao by inject()
+    private val dataPlanManager: DataPlanManager by inject()
     private val playServicesProvider: PlayServicesProvider? by injectOrNull(PlayServicesProvider::class.java)
     private val imageLoader: ImageLoader by inject()
     private val navigator: Navigator by inject()
@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
         }
 
         lifecycleScope.launch {
-            dataPlanDao.getActivePlansWithNotificationsFlow().combine(appPreferenceRepo.notification) { _, _ ->
+            dataPlanManager.activePlansWithNotifications.combine(appPreferenceRepo.notification) { _, _ ->
             }.collectLatest {
                 NotificationService.startService(applicationContext)
             }

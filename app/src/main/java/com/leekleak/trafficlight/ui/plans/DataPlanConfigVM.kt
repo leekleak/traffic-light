@@ -5,13 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataPlan
-import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.integrations.ShizukuServicesProvider
 import com.leekleak.trafficlight.model.AppManager
+import com.leekleak.trafficlight.model.DataPlanManager
 import com.leekleak.trafficlight.model.DataUIDApp
-import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.model.PermissionManager
-import com.leekleak.core.util.toTimestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,14 +19,12 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.core.annotation.InjectedParam
 
 class DataPlanConfigVM (
     val appManager: AppManager,
-    val dataPlanDao: DataPlanDao,
+    val dataPlanManager: DataPlanManager,
     val appPreferenceRepo: AppPreferenceRepo,
-    val networkUsageManager: NetworkUsageManager,
     val shizukuServicesProvider: ShizukuServicesProvider,
     permissionManager: PermissionManager,
     @InjectedParam initialPlan: DataPlan,
@@ -51,63 +47,38 @@ class DataPlanConfigVM (
 
     init {
         viewModelScope.launch {
-            withContext(Dispatchers.Default) {
-                val (updatedPlan, snapshot) = newPlan.value.updateUsageAndSnapshot(networkUsageManager)
-                updatePlan {
-                    updatedPlan.copy(
-                        mainDataUsed = snapshot.mainDataUsed,
-                        extras = snapshot.extras
-                    )
-                }
+            val refresh = dataPlanManager.computeUsage(newPlan.value)
+            updatePlan {
+                refresh.plan.copy(
+                    mainDataUsed = refresh.snapshot.mainDataUsed,
+                    extras = refresh.snapshot.extras
+                )
             }
         }
-
     }
 
     fun onCalculateUsage() {
         viewModelScope.launch {
-            val zeroedPlan = newPlan.value.copy(
-                mainDataUsed = 0,
-                lastUpdateStamp = 0,
-                extras = newPlan.value.extras.map { it.copy(dataUsed = 0) }
-            )
-            withContext(Dispatchers.Default) {
-                val (updatedPlan, snapshot) = zeroedPlan.updateUsageAndSnapshot(networkUsageManager)
-                updatePlan {
-                    updatedPlan.copy(
-                        mainDataUsed = snapshot.mainDataUsed,
-                        extras = snapshot.extras
-                    )
-                }
+            val refresh = dataPlanManager.computeUsage(newPlan.value, resetUsage = true)
+            updatePlan {
+                refresh.plan.copy(
+                    mainDataUsed = refresh.snapshot.mainDataUsed,
+                    extras = refresh.snapshot.extras
+                )
             }
         }
     }
 
     fun delete() {
         viewModelScope.launch(Dispatchers.IO) {
-            dataPlanDao.delete(newPlan.value.hashedSubscriberID)
+            dataPlanManager.deletePlan(newPlan.value.hashedSubscriberID)
             shizukuServicesProvider.updateSimData()
         }
     }
 
     fun save() {
         viewModelScope.launch(Dispatchers.IO) {
-            val (updatedPlan, snapshot) = newPlan.value.updateUsageAndSnapshot(networkUsageManager)
-
-            val volatileMain = snapshot.mainDataUsed - updatedPlan.mainDataUsed
-            val volatileExtras = snapshot.extras.associate { it.id to (it.dataUsed - (updatedPlan.extras.find { e -> e.id == it.id }?.dataUsed ?: 0L)) }
-            val expiry = newPlan.value.getStartDate(true)
-
-            val planToSave = newPlan.value.copy(
-                mainDataUsed = newPlan.value.mainDataUsed - volatileMain,
-                extras = newPlan.value.extras.map { it.copy(dataUsed = it.dataUsed - (volatileExtras[it.id] ?: 0L)) },
-                lastUpdateStamp = updatedPlan.lastUpdateStamp,
-                lastSafetyState = -1,
-                mainExpiryStamp = expiry.toTimestamp(),
-                budgetOvershotNotified = false,
-                configured = true
-            )
-            dataPlanDao.add(planToSave)
+            dataPlanManager.saveConfiguredPlan(newPlan.value)
             shizukuServicesProvider.updateSimData()
         }
     }
@@ -118,7 +89,7 @@ class DataPlanConfigVM (
         if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
             viewModelScope.launch {
                 val speedNotif = appPreferenceRepo.notification.first()
-                val activePlanNotifs = dataPlanDao.getActivePlansWithNotificationsCountFlow().first()
+                val activePlanNotifs = dataPlanManager.activePlanNotificationsCount.first()
                 val anotherPlanHasIt = if (newPlan.value.notification) activePlanNotifs > 1 else activePlanNotifs > 0
                 if (speedNotif || anotherPlanHasIt) {
                     showForegroundNotificationWarning.update { true }

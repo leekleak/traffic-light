@@ -26,9 +26,8 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import com.leekleak.core.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
-import com.leekleak.trafficlight.database.DataPlanDao
 import com.leekleak.trafficlight.database.DataPlanSnapshot
-import com.leekleak.trafficlight.model.NetworkUsageManager
+import com.leekleak.trafficlight.model.DataPlanManager
 import com.leekleak.trafficlight.ui.plans.ConfiguredDataPlan
 import com.leekleak.trafficlight.ui.plans.UnconfiguredDataPlan
 import com.leekleak.trafficlight.ui.theme.AppTheme
@@ -42,8 +41,7 @@ import org.koin.android.ext.android.inject
 
 class WidgetConfigureActivity : ComponentActivity() {
     private val appPreferenceRepo: AppPreferenceRepo by inject()
-    private val dataPlanDao: DataPlanDao by inject()
-    private val networkUsageManager: NetworkUsageManager by inject()
+    private val dataPlanManager: DataPlanManager by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,7 +69,7 @@ class WidgetConfigureActivity : ComponentActivity() {
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
 
-        val activePlans by remember { dataPlanDao.activePlansFlow }.collectAsState(listOf())
+        val activePlans by remember { dataPlanManager.activePlans }.collectAsState(listOf())
 
         LazyColumn (
             modifier = Modifier.padding(horizontal = 16.dp),
@@ -98,7 +96,7 @@ class WidgetConfigureActivity : ComponentActivity() {
                         finish()
                     }
                 }
-                val snapshot by produceState(DataPlanSnapshot()) { value = it.getUsageSnapshot(networkUsageManager) }
+                val snapshot by produceState(DataPlanSnapshot()) { value = dataPlanManager.getSnapshot(it) }
                 if (it.configured) ConfiguredDataPlan(it, snapshot) { onSelect() }
                 else UnconfiguredDataPlan(it, snapshot) { onSelect() }
             }

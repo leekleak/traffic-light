@@ -25,8 +25,25 @@ import kotlin.math.min
 data class DataPlanSnapshot(
     val mainDataUsed: Long = 0,
     val mainDataSizeUnit: DataSizeUnit = DataSizeUnit.GB,
-    val extras: List<DataPlanExtra> = emptyList()
-)
+    val extras: List<DataPlanExtra> = emptyList(),
+    val computedAt: Long = 0
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DataPlanSnapshot) return false
+
+        return mainDataUsed == other.mainDataUsed &&
+            mainDataSizeUnit == other.mainDataSizeUnit &&
+            extras == other.extras
+    }
+
+    override fun hashCode(): Int {
+        var result = mainDataUsed.hashCode()
+        result = 31 * result + mainDataSizeUnit.hashCode()
+        result = 31 * result + extras.hashCode()
+        return result
+    }
+}
 
 @Serializable
 @Entity
@@ -245,7 +262,8 @@ data class DataPlan(
         return DataPlanSnapshot(
             mainDataUsed = mainUsed,
             mainDataSizeUnit = mainDataSizeUnit,
-            extras = snapshotExtras
+            extras = snapshotExtras,
+            computedAt = now
         )
     }
 

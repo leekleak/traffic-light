@@ -7,7 +7,7 @@ import android.content.IntentFilter
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.leekleak.trafficlight.database.AppPreferenceRepo
-import com.leekleak.trafficlight.database.DataPlanDao
+import com.leekleak.trafficlight.model.DataPlanManager
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class NotificationService : LifecycleService() {
     private val appPreferenceRepo: AppPreferenceRepo by inject()
-    private val dataPlanDao: DataPlanDao by inject()
+    private val dataPlanManager: DataPlanManager by inject()
     private var foregroundNotification: PersistentNotification? = null
     private var notificationIDCounter = AtomicInteger(1)
     private val activeNotifications = Collections.synchronizedList(mutableListOf<PersistentNotification>())
@@ -63,20 +63,21 @@ class NotificationService : LifecycleService() {
             }
         }
         lifecycleScope.launch {
-            dataPlanDao.getActivePlansWithNotificationsFlow().collect { list ->
+            dataPlanManager.activePlansWithNotifications.collect { list ->
                 val activePlanNotifications = activeNotifications.filterIsInstance<PlanNotification>()
+                val activeHashes = list.map { it.hashedSubscriberID }.toSet()
                 list.forEach { plan ->
-                    val notification = activePlanNotifications.find { it.dataPlan == plan }
+                    val notification = activePlanNotifications.find { it.hashedSubscriberID == plan.hashedSubscriberID }
                     if (notification != null || !plan.notification) return@forEach
 
                     val id = notificationIDCounter.getAndIncrement()
-                    val notif = get<PlanNotification> { parametersOf(lifecycleScope, id, plan) }
+                    val notif = get<PlanNotification> { parametersOf(lifecycleScope, id, plan.hashedSubscriberID) }
                     activeNotifications.add(notif)
                     notif.start()
                     updateForegroundNotification()
                 }
                 activePlanNotifications.forEach { notification ->
-                    if (!list.contains(notification.dataPlan)) {
+                    if (notification.hashedSubscriberID !in activeHashes) {
                         activeNotifications.remove(notification)
                         updateForegroundNotification()
                         notification.cancel()

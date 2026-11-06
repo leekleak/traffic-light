@@ -8,7 +8,6 @@ import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
 import androidx.room3.RoomDatabase
-import com.leekleak.trafficlight.database.DataPlan.Companion.NULL_SUBSCRIBER
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.DataSizeUnit
 import kotlinx.coroutines.flow.Flow
@@ -42,6 +41,9 @@ interface DataPlanDao {
 
     @Query("SELECT * FROM dataplan WHERE hashedSubscriberID = :hashedID")
     suspend fun getByHash(hashedID: String): DataPlan?
+
+    @get:Query("SELECT * FROM dataplan ORDER BY simIndex ASC")
+    val allPlansFlow: Flow<List<DataPlan>>
 
     @get:Query("SELECT * FROM dataplan WHERE simIndex != -1 ORDER BY simIndex ASC")
     val activePlansFlow: Flow<List<DataPlan>>
@@ -115,16 +117,4 @@ class Converters {
 @ColumnTypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun dataPlanDao(): DataPlanDao
-}
-
-class DataPlanRepository(val dao: DataPlanDao) {
-    suspend fun savePlan(plainSubscriberID: String?, simIndex: Int, carrierName: String) {
-        val plan = DataPlan(
-            hashedSubscriberID = CryptoManager.hashIdentifier(plainSubscriberID ?: NULL_SUBSCRIBER),
-            encryptedSubscriberID = CryptoManager.encrypt(plainSubscriberID ?: NULL_SUBSCRIBER),
-            simIndex = simIndex,
-            carrierName = carrierName
-        )
-        dao.add(plan)
-    }
 }

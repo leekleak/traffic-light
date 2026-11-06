@@ -46,13 +46,10 @@ import com.leekleak.trafficlight.MainActivity
 import com.leekleak.core.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataPlan
-import com.leekleak.trafficlight.database.DataPlanDao
-import com.leekleak.trafficlight.model.NetworkUsageManager
+import com.leekleak.trafficlight.model.DataPlanManager
 import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.core.util.DataSize
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withContext
 import org.koin.mp.KoinPlatform
 import timber.log.Timber
 import java.text.DecimalFormat
@@ -71,21 +68,18 @@ class Widget: GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val koinInstance = KoinPlatform.getKoin()
-        val networkUsageManager: NetworkUsageManager = koinInstance.get()
-        val dataPlanDao: DataPlanDao = koinInstance.get()
+        val dataPlanManager: DataPlanManager = koinInstance.get()
         val appPreferenceRepo: AppPreferenceRepo = koinInstance.get()
 
         val state = getAppWidgetState(context, stateDefinition, id)
 
-        val dataPlan = withContext(Dispatchers.IO) {
-            state[SUBSCRIBER_ID_HASH]?.let { dataPlanDao.getByHash(it) }
-        }
+        val dataPlan = state[SUBSCRIBER_ID_HASH]?.let { dataPlanManager.getPlan(it) }
         if (dataPlan == null){
             Timber.i("Data plan is null in widget")
             return
         }
 
-        val dataPlanSnapshot = dataPlan.getUsageSnapshot(networkUsageManager)
+        val dataPlanSnapshot = dataPlanManager.getSnapshot(dataPlan)
 
         val sizeMetric = appPreferenceRepo.sizeMetric.first()
         val usage = dataPlanSnapshot.mainDataUsed

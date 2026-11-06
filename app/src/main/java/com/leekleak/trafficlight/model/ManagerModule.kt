@@ -2,6 +2,7 @@ package com.leekleak.trafficlight.model
 
 import coil3.ImageLoader
 import coil3.request.crossfade
+import com.leekleak.trafficlight.database.AppDatabase
 import com.leekleak.trafficlight.ui.plans.DataPlanLogic
 import org.koin.dsl.module
 import org.koin.plugin.module.dsl.single
@@ -20,5 +21,11 @@ val managerModule = module {
 
     single<PermissionManager>()
     single<NetworkUsageManager>()
+    single {
+        DataPlanManager(
+            dao = get<AppDatabase>().dataPlanDao(),
+            networkUsageManager = get(),
+        )
+    }
     single<DataPlanLogic>()
 }
