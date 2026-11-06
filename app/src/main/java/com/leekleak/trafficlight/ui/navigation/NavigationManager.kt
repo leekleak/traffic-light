@@ -3,12 +3,10 @@ package com.leekleak.trafficlight.ui.navigation
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
@@ -168,13 +166,13 @@ private fun BottomNavigationBar(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(8.dp),
+            .padding(vertical = 8.dp, horizontal = 16.dp),
         contentAlignment = Alignment.Center
     ) {
         AnimatedVisibility(
             visible = visible,
-            enter = slideInVertically { it } + fadeIn(tween()),
-            exit = slideOutVertically { it } + fadeOut(tween())
+            enter = slideInVertically { it } + fadeIn(tween()) + scaleIn(tween(), 0.7f),
+            exit = slideOutVertically { it } + fadeOut(tween()) + scaleOut(tween(), 0.7f)
         ) {
             HorizontalFloatingToolbar(
                 modifier = Modifier
@@ -190,12 +188,12 @@ private fun BottomNavigationBar(
                 content = {
                     navigationItems().forEach { item ->
                         NavigationButton(
+                            modifier = Modifier.weight(1f),
                             navigator = navigator,
                             route = item.route,
                             name = item.name,
                             icon = item.icon,
                             vertical = false,
-                            modifier = Modifier.weight(1f),
                         )
                     }
                 },
@@ -245,8 +243,8 @@ private fun SideNavigationRail(
     ) {
         AnimatedVisibility(
             visible = visible,
-            enter = expandHorizontally(expandFrom = Alignment.End) + fadeIn(tween()),
-            exit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut(tween()),
+            enter = slideInHorizontally { it } + fadeIn(tween()) + scaleIn(tween(), 0.7f),
+            exit = slideOutHorizontally { it } + fadeOut(tween()) + scaleOut(tween(), 0.7f)
         ) {
             VerticalFloatingToolbar(
                 modifier = Modifier
