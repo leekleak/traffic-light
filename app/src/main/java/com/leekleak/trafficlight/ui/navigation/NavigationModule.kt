@@ -14,6 +14,7 @@ import com.leekleak.trafficlight.ui.settings.LibraryLicenseScreen
 import com.leekleak.trafficlight.ui.settings.NotificationSettingsScreen
 import com.leekleak.trafficlight.ui.settings.Settings
 import com.leekleak.trafficlight.ui.settings.UsagePermissionRequest
+import com.leekleak.trafficlight.ui.tools.Tools
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.core.parameter.parametersOf
@@ -43,6 +44,7 @@ val navigationModule = module {
         )
     }
     navigation<HistoryKey> { History(get(), get()) }
+    navigation<ToolsKey> { Tools(get()) }
     navigation<SettingsKey> { Settings(get(), get(), get(), get(), get()) }
     navigation<UsagePermissionRequestKey> { UsagePermissionRequest(get(), get()) }
     navigation<PlanConfigKey> { key ->

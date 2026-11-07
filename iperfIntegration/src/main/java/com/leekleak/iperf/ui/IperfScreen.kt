@@ -49,7 +49,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.core.R
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
-import com.leekleak.core.ui.navigation.LocalNavigationBarPadding
 import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.util.iconToggleButton
 
@@ -64,9 +63,8 @@ fun IperfScreen(
 
     HazeScaffold(
         title = stringResource(R.string.iperf3) + " (Beta)",
-        backAction = BackAction.None,
+        backAction = BackAction.Normal(navigator),
         scrollState = null,
-        extraPadding = LocalNavigationBarPadding.current,
     ) { contentPadding ->
         val topPadding = contentPadding.calculateTopPadding()
         val layoutDirection = LocalLayoutDirection.current

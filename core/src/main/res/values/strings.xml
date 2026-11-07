@@ -83,6 +83,8 @@
     <string name="go_back">Go back</string>
     <string name="disconnected">Disconnected</string>
     <string name="overview">Overview</string>
+    <string name="tools">Tools</string>
+    <string name="reliability">Reliability</string>
     <string name="multi_sim_tracking">Multi-SIM tracking</string>
     <string name="shizuku_required">Shizuku required</string>
     <string name="close">Close</string>

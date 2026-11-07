@@ -68,7 +68,6 @@ import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.ui.navigation.SIDE_NAVBAR_PADDING
 import com.leekleak.core.ui.navigation.SIDE_NAVBAR_WIDTH
 import com.leekleak.core.ui.theme.LocalBlurEnabled
-import com.leekleak.trafficlight.BuildConfig
 import dev.chrisbanes.haze.HazeInput
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.blur.HazeBlurStyle
@@ -287,11 +286,8 @@ private fun navigationItems(): List<NavigationItemSpec> = listOf(
     NavigationItemSpec(OverviewKey, stringResource(R.string.overview), R.drawable.overview),
     NavigationItemSpec(DataPlansKey, stringResource(R.string.plans), R.drawable.sim_card),
     NavigationItemSpec(HistoryKey, stringResource(R.string.history), R.drawable.history),
-) + if (BuildConfig.IPERF) {
-    listOf(NavigationItemSpec(IperfScreenKey, stringResource(R.string.iperf3), R.drawable.speed))
-} else {
-    emptyList()
-}
+    NavigationItemSpec(ToolsKey, stringResource(R.string.tools), R.drawable.handyman),
+)
 
 @Composable
 fun NavigationButton(
