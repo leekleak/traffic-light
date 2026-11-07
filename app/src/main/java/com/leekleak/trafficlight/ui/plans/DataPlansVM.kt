@@ -11,7 +11,6 @@ import com.leekleak.trafficlight.model.DataPlanManager
 import com.leekleak.core.util.MiniCardState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -22,7 +21,7 @@ import timber.log.Timber
 data class DataPlansUiState(
     val activePlans: List<DataPlan> = emptyList(),
     val planSnapshots: Map<DataPlan, DataPlanSnapshot?> = emptyMap(),
-    val plan: DataPlan? = null,
+    val selectedPlan: DataPlan? = null,
     val dataSafety: MiniCardState = MiniCardState.NEUTRAL,
     val trend: Int = 0,
     val todayBudget: Long = 0,
@@ -148,7 +147,7 @@ class DataPlansVM(
 
         DataPlansUiState(
             activePlans = activePlans,
-            plan = plan,
+            selectedPlan = plan,
             planSnapshots = planSnapshots,
             dataSafety = safety,
             trend = trend,

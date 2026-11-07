@@ -28,8 +28,7 @@ import com.leekleak.core.R
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataPlanSnapshot
 import com.leekleak.trafficlight.model.DataPlanManager
-import com.leekleak.trafficlight.ui.plans.ConfiguredDataPlan
-import com.leekleak.trafficlight.ui.plans.UnconfiguredDataPlan
+import com.leekleak.trafficlight.ui.plans.DataPlanCard
 import com.leekleak.trafficlight.ui.theme.AppTheme
 import com.leekleak.core.util.categoryTitle
 import com.leekleak.core.util.categoryTitleSmall
@@ -97,8 +96,7 @@ class WidgetConfigureActivity : ComponentActivity() {
                     }
                 }
                 val snapshot by produceState(DataPlanSnapshot()) { value = dataPlanManager.getSnapshot(it) }
-                if (it.configured) ConfiguredDataPlan(it, snapshot) { onSelect() }
-                else UnconfiguredDataPlan(it, snapshot) { onSelect() }
+                DataPlanCard(it, snapshot) { onSelect() }
             }
         }
     }

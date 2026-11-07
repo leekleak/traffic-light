@@ -8,10 +8,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,24 +19,31 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -50,19 +57,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.leekleak.core.R
-import com.leekleak.trafficlight.charts.AppGraph
 import com.leekleak.core.charts.BarGraph
-import com.leekleak.trafficlight.charts.ExtraGraph
 import com.leekleak.core.charts.model.BarData
-import com.leekleak.trafficlight.database.AppUsage
-import com.leekleak.trafficlight.database.DataPlan
-import com.leekleak.trafficlight.database.DataPlanSnapshot
-import com.leekleak.trafficlight.integrations.Ad
-import com.leekleak.trafficlight.integrations.AdType
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
 import com.leekleak.core.ui.navigation.LocalNavigationBarPadding
-import com.leekleak.trafficlight.ui.settings.InfoCard
 import com.leekleak.core.ui.theme.LocalSizeMetric
 import com.leekleak.core.ui.theme.card
 import com.leekleak.core.util.CategoryTitleText
@@ -72,6 +71,18 @@ import com.leekleak.core.util.MiniCardState
 import com.leekleak.core.util.TrendCard
 import com.leekleak.core.util.openLink
 import com.leekleak.core.util.shelfShape
+import com.leekleak.trafficlight.charts.AppGraph
+import com.leekleak.trafficlight.charts.ExtraGraph
+import com.leekleak.trafficlight.database.AppUsage
+import com.leekleak.trafficlight.database.DataPlan
+import com.leekleak.trafficlight.database.DataPlanSnapshot
+import com.leekleak.trafficlight.integrations.Ad
+import com.leekleak.trafficlight.integrations.AdType
+import com.leekleak.trafficlight.ui.settings.InfoCard
+import kotlinx.coroutines.launch
+
+private val DataPlansUiState.showShizukuHint: Boolean
+    get() = shizukuHint && !shizukuTracking
 
 @Composable
 fun DataPlans(
@@ -86,34 +97,120 @@ fun DataPlans(
         onPauseOrDispose {}
     }
 
+    val isWidescreen = currentWindowAdaptiveInfoV2()
+        .windowSizeClass
+        .isWidthAtLeastBreakpoint(600)
+
     HazeScaffold(
         title = stringResource(R.string.data_plans),
-        hazeState = null,
         scrollState = null,
         backAction = BackAction.None,
         extraPadding = LocalNavigationBarPadding.current,
     ) { paddingValues ->
-        val layoutDirection = LocalLayoutDirection.current
-        val paddingStart = paddingValues.calculateStartPadding(layoutDirection)
-        val paddingEnd = paddingValues.calculateEndPadding(layoutDirection)
-        val paddingTop = paddingValues.calculateTopPadding()
-        val paddingBottom = paddingValues.calculateBottomPadding()
-        val listContentPadding = PaddingValues(
-            start = 16.dp,
-            top = 0.dp,
-            end = 16.dp,
-            bottom = paddingBottom
-        )
-        Spacer(Modifier.height(paddingTop))
+        if (isWidescreen) {
+            DataPlansTwoPane(
+                paddingValues = paddingValues,
+                uiState = uiState,
+                selectDataPlan = selectDataPlan,
+                disableShizukuHint = disableShizukuHint,
+                goToPlanConfig = goToPlanConfig,
+            )
+        } else {
+            DataPlansSinglePane(
+                paddingValues = paddingValues,
+                uiState = uiState,
+                selectDataPlan = selectDataPlan,
+                disableShizukuHint = disableShizukuHint,
+                goToPlanConfig = goToPlanConfig,
+            )
+        }
+    }
+}
+
+@Composable
+private fun DataPlansSinglePane(
+    paddingValues: PaddingValues,
+    uiState: DataPlansUiState,
+    selectDataPlan: (DataPlan?) -> Unit,
+    disableShizukuHint: () -> Unit,
+    goToPlanConfig: (DataPlan) -> Unit,
+) {
+    val layoutDirection = LocalLayoutDirection.current
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Spacer(Modifier.height(paddingValues.calculateTopPadding()))
         DataPlanPager(
-            startPadding = paddingStart + 8.dp,
-            endPadding = paddingEnd + 8.dp,
+            startPadding = paddingValues.calculateStartPadding(layoutDirection) + 8.dp,
+            endPadding = paddingValues.calculateEndPadding(layoutDirection) + 8.dp,
             uiState = uiState,
             selectDataPlan = selectDataPlan,
-            disableShizukuHint = disableShizukuHint,
-            goToPlanConfig = goToPlanConfig
+            disableShizukuHint = disableShizukuHint
         )
-        DataPlanInsights(listContentPadding, uiState)
+        DataPlanInsights(
+            bottomPadding = paddingValues.calculateBottomPadding(),
+            uiState = uiState,
+            onConfigurePlan = goToPlanConfig
+        )
+    }
+}
+
+@Composable
+private fun DataPlansTwoPane(
+    paddingValues: PaddingValues,
+    uiState: DataPlansUiState,
+    selectDataPlan: (DataPlan?) -> Unit,
+    disableShizukuHint: () -> Unit,
+    goToPlanConfig: (DataPlan) -> Unit,
+) {
+    val layoutDirection = LocalLayoutDirection.current
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(
+                start = paddingValues.calculateStartPadding(layoutDirection),
+                end = paddingValues.calculateEndPadding(layoutDirection),
+            ),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+            contentPadding = PaddingValues(
+                top = paddingValues.calculateTopPadding(),
+                bottom = paddingValues.calculateBottomPadding(),
+            ),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(uiState.activePlans, key = { it.hashedSubscriberID }) { plan ->
+                val planSnapshot = uiState.planSnapshots[plan]
+                Box(Modifier.animateItem()) {
+                    DataPlanCard(plan, planSnapshot, plan == uiState.selectedPlan) { selectDataPlan(plan) }
+                }
+            }
+            if (uiState.showShizukuHint) {
+                item(key = "shizuku_hint") {
+                    ShizukuHintCard(disableShizukuHint, Modifier.animateItem())
+                }
+            }
+        }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
+        ) {
+            Spacer(Modifier.height(paddingValues.calculateTopPadding()))
+            DataPlanInsights(
+                uiState = uiState,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(bottom = paddingValues.calculateBottomPadding()),
+                shape = MaterialTheme.shapes.large,
+                onConfigurePlan = goToPlanConfig
+            )
+        }
     }
 }
 
@@ -124,14 +221,13 @@ private fun DataPlanPager(
     uiState: DataPlansUiState,
     selectDataPlan: (DataPlan?) -> Unit,
     disableShizukuHint: () -> Unit,
-    goToPlanConfig: (DataPlan) -> Unit,
 ) {
-    val activity = LocalActivity.current
+    val scope = rememberCoroutineScope()
 
     val activePlans = uiState.activePlans
 
     val pagerState = rememberPagerState(pageCount = {
-        activePlans.size + if (uiState.shizukuHint && !uiState.shizukuTracking) 1 else 0
+        activePlans.size + if (uiState.showShizukuHint) 1 else 0
     })
 
     LaunchedEffect(activePlans.size, pagerState.currentPage) {
@@ -154,57 +250,58 @@ private fun DataPlanPager(
     ) { page ->
         if (page < activePlans.size) {
             val plan = activePlans[page]
-            val snapshot = uiState.planSnapshots[plan]
-
-            if (plan.configured) {
-                ConfiguredDataPlan(plan, snapshot) { goToPlanConfig(plan) }
-            } else {
-                UnconfiguredDataPlan(plan, snapshot) { goToPlanConfig(plan) }
+            DataPlanCard(plan, uiState.planSnapshots[plan], page == pagerState.currentPage) {
+                scope.launch { pagerState.animateScrollToPage(page) }
             }
         } else {
-            Column(
-                modifier = Modifier
-                    .height(200.dp)
-                    .card()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.End
+            ShizukuHintCard(disableShizukuHint)
+        }
+    }
+}
+
+@Composable
+private fun ShizukuHintCard(
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val activity = LocalActivity.current
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .card()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.End
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(painterResource(R.drawable.warning), null)
+            Text(modifier = Modifier.fillMaxWidth(), fontWeight = FontWeight.Bold, text = stringResource(R.string.shizuku_hint))
+        }
+        Text(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.shizuku_hint_description))
+        Row(
+            modifier = Modifier.fillMaxHeight(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.Bottom
+        ) {
+            Button(
+                colors = ButtonDefaults.filledTonalButtonColors(),
+                shape = MaterialTheme.shapes.large,
+                onClick = { openLink(activity, "https://github.com/leekleak/traffic-light/wiki/Setting-up-Shizuku-for-multi%E2%80%90SIM-tracking") },
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(painterResource(R.drawable.warning), null)
-                    Text(modifier = Modifier.fillMaxWidth(), fontWeight = FontWeight.Bold, text = stringResource(R.string.shizuku_hint))
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Icon(painterResource(R.drawable.help), null)
+                    Text(stringResource(R.string.help))
                 }
-                Text(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.shizuku_hint_description))
-                Row(
-                    modifier = Modifier.fillMaxHeight(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    Button(
-                        colors = ButtonDefaults.filledTonalButtonColors(),
-                        shape = MaterialTheme.shapes.large,
-                        onClick = {
-                            openLink(
-                                activity,
-                                "https://github.com/leekleak/traffic-light/wiki/Setting-up-Shizuku-for-multi%E2%80%90SIM-tracking"
-                            )
-                        },
-                    ) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Icon(painterResource(R.drawable.help), null)
-                            Text(stringResource(R.string.help))
-                        }
-                    }
-                    Button(
-                        onClick = disableShizukuHint
-                    ) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Icon(painterResource(R.drawable.close), null)
-                            Text(stringResource(R.string.close))
-                        }
-                    }
+            }
+            Button(
+                onClick = onDismiss
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Icon(painterResource(R.drawable.close), null)
+                    Text(stringResource(R.string.close))
                 }
             }
         }
@@ -213,15 +310,23 @@ private fun DataPlanPager(
 
 @Composable
 private fun DataPlanInsights(
-    contentPadding: PaddingValues,
-    uiState: DataPlansUiState
+    modifier: Modifier = Modifier,
+    bottomPadding: Dp = 16.dp,
+    uiState: DataPlansUiState,
+    onConfigurePlan: (DataPlan) -> Unit,
+    shape: Shape = shelfShape
 ) {
+    val contentPadding = PaddingValues(
+        start = 16.dp,
+        top = 0.dp,
+        end = 16.dp,
+        bottom = bottomPadding
+    )
     val listState = rememberLazyListState()
 
     LazyColumn(
-        modifier = Modifier
-            .padding(top = 8.dp)
-            .clip(shelfShape)
+        modifier = modifier
+            .clip(shape)
             .background(colorScheme.surfaceContainer)
             .fillMaxSize(),
         contentPadding = contentPadding,
@@ -229,18 +334,9 @@ private fun DataPlanInsights(
         state = listState
     ) {
         item{}
-        val plan = uiState.plan
+        val plan = uiState.selectedPlan
         val snapshot = uiState.planSnapshots[plan]
-        if (plan != null && plan.mainDataSize.byteValue == 0L) {
-            item {
-                InfoCard(
-                    title = stringResource(R.string.hint),
-                    description = stringResource(R.string.press_the_card_to_configure_plan_data),
-                    icon = painterResource(R.drawable.info),
-                    backgroundColor = colorScheme.surface
-                )
-            }
-        }
+        if (plan?.configured == false) configurePlanItem(plan, onConfigurePlan)
         if (plan != null && snapshot != null) {
             if (plan.note.isNotEmpty()) {
                 item(key = "note") {
@@ -260,6 +356,30 @@ private fun DataPlanInsights(
             if (uiState.adsEnabled) item { Ad(true, AdType.NativeBanner, colorScheme.surface) }
             if (plan.mainDataSize.byteValue > 0) budgetInsights(uiState)
             uiState.topApps?.let { topApps(it) }
+        }
+        if (plan?.configured == true) configurePlanItem(plan, onConfigurePlan)
+    }
+}
+
+private fun LazyListScope.configurePlanItem(
+    plan: DataPlan,
+    onConfigurePlan: (DataPlan) -> Unit
+) {
+    item(key = "configure") {
+        val haptic = LocalHapticFeedback.current
+        FilledTonalButton(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.large,
+            onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                onConfigurePlan(plan)
+            }
+        ) {
+            Icon(painterResource(R.drawable.edit), contentDescription = null)
+            Text(
+                modifier = Modifier.padding(start = 8.dp),
+                text = stringResource(R.string.configure_plan)
+            )
         }
     }
 }

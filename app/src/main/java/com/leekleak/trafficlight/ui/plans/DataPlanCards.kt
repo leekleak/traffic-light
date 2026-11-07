@@ -52,14 +52,20 @@ import com.leekleak.core.util.simIconRes
 import java.text.DecimalFormat
 
 @Composable
-fun ConfiguredDataPlan(plan: DataPlan, planSnapshot: DataPlanSnapshot?, onConfigure: () -> Unit) {
+fun DataPlanCard(
+    plan: DataPlan,
+    planSnapshot: DataPlanSnapshot?,
+    selected: Boolean = true,
+    onClick: () -> Unit
+) {
     val haptic = LocalHapticFeedback.current
 
     BoxBackground(
         dataPlan = plan,
+        selected = selected,
         onClick = {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-            onConfigure()
+            onClick()
         }
     ) {
         AnimatedContent(
@@ -67,29 +73,10 @@ fun ConfiguredDataPlan(plan: DataPlan, planSnapshot: DataPlanSnapshot?, onConfig
             modifier = Modifier.fillMaxSize()
         ) {
             Box(Modifier.fillMaxSize()) {
-                if (it != null) ConfiguredDataPlanContent(plan, it)
-            }
-        }
-    }
-}
-
-@Composable
-fun UnconfiguredDataPlan(plan: DataPlan, planSnapshot: DataPlanSnapshot?, onConfigure: () -> Unit) {
-    val haptic = LocalHapticFeedback.current
-
-    BoxBackground(
-        dataPlan = plan,
-        onClick = {
-            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-            onConfigure()
-        }
-    ) {
-        AnimatedContent(
-            targetState = planSnapshot,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Box(Modifier.fillMaxSize()) {
-                if (it != null) UnconfiguredDataPlanContent(it)
+                if (it != null) {
+                    if (plan.configured) ConfiguredDataPlanContent(plan, it)
+                    else UnconfiguredDataPlanContent(it)
+                }
             }
         }
     }
@@ -143,18 +130,21 @@ private fun BoxScope.UnconfiguredDataPlanContent(planSnapshot: DataPlanSnapshot)
 @Composable
 private fun BoxBackground(
     dataPlan: DataPlan,
+    selected: Boolean,
     onClick: () -> Unit,
     content: @Composable BoxScope.() -> Unit
 ) {
     val fontFamilyCarrier = remember { carrierFont() }
     val background = backgrounds.getOrNull(dataPlan.uiBackground)
+    val borderColor = if (selected) MaterialTheme.colorScheme.primary
+        else MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
     Box (modifier = Modifier
         .fillMaxWidth()
         .height(200.dp)
         .background(MaterialTheme.colorScheme.surface)
         .clip(MaterialTheme.shapes.medium)
         .clickable { onClick() }
-        .border(1.5.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium)
+        .border(1.5.dp, borderColor, MaterialTheme.shapes.medium)
         .padding(8.dp)
     ) {
         background?.let { background ->
