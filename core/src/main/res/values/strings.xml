@@ -70,6 +70,7 @@
     <string name="add_widget">Add widget</string>
     <string name="configured_plans">Configured plans</string>
     <string name="data_plan_widget_description">Track your data plans on your home screen</string>
+    <string name="data_plan_unavailable">This plan is no longer available.\nOpen Traffic Light to set up tracking.</string>
     <string name="tethering">Tethering</string>
     <string name="removed_apps">Removed apps</string>
     <string name="all_apps">All apps</string>
@@ -150,6 +151,10 @@
     <string name="amount">Amount</string>
     <string name="expiry">Expiry</string>
     <string name="start">Start</string>
+    <string name="invalid_extra_amount">Amount must be greater than zero</string>
+    <string name="invalid_extra_usage">Usage must not exceed the amount</string>
+    <string name="invalid_extra_usage_value">Enter a valid usage</string>
+    <string name="invalid_extra_expiry">Expiry must be after the start</string>
     <string name="doesn_t_work">Doesn\'t work?</string>
     <string name="trend_tooltip">Usage of the last 24 hours compared against the last 7 days.</string>
     <string name="prediction_tooltip">Prediction based on your historical usage at this time of the week.</string>

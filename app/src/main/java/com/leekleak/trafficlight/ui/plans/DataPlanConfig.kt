@@ -441,7 +441,7 @@ fun DataPlanConfig(
                     summary = stringResource(R.string.budget_overshoot_warning_description),
                     icon = R.drawable.warning,
                     value = newPlan.budgetWarning,
-                    enabled = notificationPermission,
+                    enabled = notificationPermission && newPlan.mainDataSize.byteValue > 0,
                     onValueChanged = viewModel::onBudgetNotificationValueChanged
                 )
                 SwitchPreference(
@@ -449,7 +449,7 @@ fun DataPlanConfig(
                     summary = stringResource(R.string.safety_status_warning_description),
                     icon = R.drawable.shield,
                     value = newPlan.safetyWarning,
-                    enabled = notificationPermission,
+                    enabled = notificationPermission && newPlan.mainDataSize.byteValue > 0,
                     onValueChanged = viewModel::onSafetyNotificationValueChanged
                 )
             }
@@ -1020,7 +1020,7 @@ fun PlanSizeConfig(
         }
 
         LaunchedEffect(fieldState.text) {
-            val number = try { numberFormat.parse(fieldState.text.toString()) } catch (_: Exception) { null }
+            val number = parseSizeNumber(fieldState.text.toString(), numberFormat)
             if (number != null) {
                 onSizeUpdate((number.toFloat() * unit.toBits(if (metric) 1000.0 else 1024.0)).toLong())
                 scale.animateTo(
@@ -1204,10 +1204,32 @@ private fun AddExtraDialog(
     val metric = LocalSizeMetric.current
     val amountState = rememberTextFieldState("1")
     val usageState = rememberTextFieldState("0")
+    val numberFormat = remember { NumberFormat.getInstance() }
     var amountUnit by remember { mutableStateOf(DataSizeUnit.GB) }
     var usageUnit by remember { mutableStateOf(DataSizeUnit.GB) }
     var startDate by remember { mutableLongStateOf(LocalDate.now().toTimestamp()) }
     var expiryDate by remember { mutableLongStateOf(startDate + 30L * 24 * 60 * 60 * 1000) }
+
+    val base = if (metric) 1000.0 else 1024.0
+    val amount = parseSizeNumber(amountState.text.toString(), numberFormat)
+    val usageText = usageState.text.toString()
+    val usage = if (usageText.isBlank()) 0.0 else parseSizeNumber(usageText, numberFormat)
+    val amountBytes = amount?.let { (it * amountUnit.toBits(base)).toLong() }
+    val usageBytes = usage?.let { (it * usageUnit.toBits(base)).toLong() }
+    val amountError = if (amountBytes == null || amountBytes <= 0L) {
+        R.string.invalid_extra_amount
+    } else {
+        null
+    }
+    val usageError = if (usageBytes == null) {
+        R.string.invalid_extra_usage_value
+    } else if (amountBytes != null && amountBytes > 0L && usageBytes > amountBytes) {
+        R.string.invalid_extra_usage
+    } else {
+        null
+    }
+    val expiryError = if (expiryDate <= startDate) R.string.invalid_extra_expiry else null
+    val isValid = amountError == null && usageError == null && expiryError == null
 
     val startDatePickerState = rememberDatePickerState(initialSelectedDateMillis = startDate)
     val startTimePickerState = rememberTimePickerState(
@@ -1226,24 +1248,26 @@ private fun AddExtraDialog(
         title = stringResource(R.string.add_extra),
         icon = R.drawable.add,
         actionButton = {
-            Button(onClick = {
-                val amountValue = amountState.text.toString().toDoubleOrNull() ?: 1.0
-                val usageValue = usageState.text.toString().toDoubleOrNull() ?: 0.0
-                val base = if (metric) 1000.0 else 1024.0
-                val amountBytes = (amountValue * amountUnit.toBits(base)).toLong()
-                val usageBytes = (usageValue * usageUnit.toBits(base)).toLong()
-                onConfirm(
-                    DataPlanExtra(
-                        dataAmount = DataSize(amountBytes),
-                        unit = amountUnit,
-                        dataUsed = usageBytes,
-                        startStamp = startDate,
-                        expiryStamp = expiryDate,
-                        expired = false
-                    )
-                )
-                onDismiss()
-            }) {
+            Button(
+                enabled = isValid,
+                onClick = {
+                    val validAmount = amountBytes
+                    val validUsage = usageBytes
+                    if (validAmount != null && validUsage != null) {
+                        onConfirm(
+                            DataPlanExtra(
+                                dataAmount = DataSize(validAmount),
+                                unit = amountUnit,
+                                dataUsed = validUsage,
+                                startStamp = startDate,
+                                expiryStamp = expiryDate,
+                                expired = false
+                            )
+                        )
+                        onDismiss()
+                    }
+                }
+            ) {
                 Text(stringResource(R.string.save))
             }
         }
@@ -1280,6 +1304,13 @@ private fun AddExtraDialog(
                     Text(amountUnit.name)
                 }
             }
+            amountError?.let { error ->
+                Text(
+                    text = stringResource(error),
+                    style = typography.bodyMedium,
+                    color = colorScheme.error
+                )
+            }
 
             Text(stringResource(R.string.usage), style = typography.titleMedium, color = colorScheme.tertiary)
             Row(
@@ -1308,6 +1339,13 @@ private fun AddExtraDialog(
                 ) {
                     Text(usageUnit.name)
                 }
+            }
+            usageError?.let { error ->
+                Text(
+                    text = stringResource(error),
+                    style = typography.bodyMedium,
+                    color = colorScheme.error
+                )
             }
 
             Text(stringResource(R.string.start), style = typography.titleMedium, color = colorScheme.tertiary)
@@ -1345,6 +1383,13 @@ private fun AddExtraDialog(
                         date.atStartOfDay().toTimestamp() + time.toSecondOfDay() * 1000
                 }
             )
+            expiryError?.let { error ->
+                Text(
+                    text = stringResource(error),
+                    style = typography.bodyMedium,
+                    color = colorScheme.error
+                )
+            }
         }
     }
 }

@@ -31,7 +31,11 @@ data class DataPlanExtra(
     val expired: Boolean = false
 ) {
     val dataRemaining: Long
-        get() = if (dataAmount.byteValue <= 0) Long.MAX_VALUE else dataAmount.byteValue - dataUsed
+        get() = if (dataAmount.byteValue <= 0) {
+            Long.MAX_VALUE
+        } else {
+            (dataAmount.byteValue - dataUsed).coerceAtLeast(0L)
+        }
 }
 
 @Dao

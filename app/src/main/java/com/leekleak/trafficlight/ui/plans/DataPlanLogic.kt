@@ -19,6 +19,12 @@ import kotlin.math.roundToInt
 
 class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
 
+    private suspend fun getFilteredUsage(dataPlan: DataPlan, startStamp: Long, endStamp: Long): Long =
+        networkUsageManager
+            .getNetworkDataForType(startStamp, endStamp, dataPlan.decryptedID, DataType.Mobile)
+            .filter { usage -> usage.uid?.let { it in dataPlan.excludedApps } != true }
+            .sumOf { it.total }
+
     fun getDataSafety(dataPlan: DataPlan, snapshot: DataPlanSnapshot): MiniCardState {
         val totalMax = dataPlan.mainDataSize.byteValue
         if (totalMax <= 0L) return MiniCardState.NEUTRAL
@@ -39,17 +45,12 @@ class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
 
     suspend fun getTrend(dataPlan: DataPlan): Int {
         val nowStamp = LocalDateTime.now().toTimestamp()
-        val hourAverage24 = networkUsageManager
-            .getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, dataPlan.decryptedID, DataType.Mobile)
-            .sumOf { it.total } / 24.0
-        val weekAverage = networkUsageManager
-            .getNetworkDataForType(
-                nowStamp - 168 * 3_600_000,
-                nowStamp - 24 * 3_600_000,
-                dataPlan.decryptedID,
-                DataType.Mobile
-            )
-            .sumOf { it.total } / 144.0
+        val hourAverage24 = getFilteredUsage(dataPlan, nowStamp - 24 * 3_600_000, nowStamp) / 24.0
+        val weekAverage = getFilteredUsage(
+            dataPlan,
+            nowStamp - 168 * 3_600_000,
+            nowStamp - 24 * 3_600_000,
+        ) / 144.0
 
         return ((hourAverage24 / max(weekAverage, 1.0) - 1) * 100.0).roundToInt()
     }
@@ -63,16 +64,23 @@ class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
     suspend fun getRemainingDailyBudgetToday(dataPlan: DataPlan, snapshot: DataPlanSnapshot): Long {
         val dailyBudget = getRemainingDailyBudget(dataPlan, snapshot)
         if (dataPlan.interval == TimeInterval.DAY && dataPlan.intervalMultiplier == 1) return dailyBudget
+        val today = LocalDate.now()
         val todayUsage = networkUsageManager.totalDayUsage(
             query = UsageQuery(dataType = DataType.Mobile),
-            startDate = LocalDate.now(),
-            subscriberId = dataPlan.decryptedID
+            startDate = today,
+            subscriberId = dataPlan.decryptedID,
+            endDate = today.plusDays(1),
+            excludedApps = dataPlan.excludedApps.toSet(),
         )
         val remaining = max(dailyBudget - todayUsage, 0L)
         return remaining
     }
 
-    suspend fun getWeekUsage(dataPlan: DataPlan): List<BarData> = networkUsageManager.getWeekUsage(dataPlan.decryptedID, DataType.Mobile)
+    suspend fun getWeekUsage(dataPlan: DataPlan): List<BarData> = networkUsageManager.getWeekUsage(
+        subscriberId = dataPlan.decryptedID,
+        dataType = DataType.Mobile,
+        excludedApps = dataPlan.excludedApps.toSet(),
+    )
 
     suspend fun getTopAppUsage(dataPlan: DataPlan): List<AppUsage> {
         val todayUsage = networkUsageManager.getAllAppUsage(
@@ -82,6 +90,8 @@ class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
             query2 = UsageQuery(DataType.None),
             subscriberId = dataPlan.decryptedID
         )
-        return todayUsage.filter { it.app != allApp }.take(3)
+        return todayUsage
+            .filter { it.app != allApp && it.app.uid !in dataPlan.excludedApps }
+            .take(3)
     }
 }

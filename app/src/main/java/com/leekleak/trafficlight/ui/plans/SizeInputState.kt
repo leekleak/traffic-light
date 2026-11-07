@@ -8,15 +8,26 @@ import androidx.compose.runtime.LaunchedEffect
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.DataSizeUnit
 import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
+import java.text.ParsePosition
 
 fun parseSizeNumber(text: String, numberFormat: NumberFormat): Double? {
-    if (text.isBlank()) return null
-    return try {
-        numberFormat.parse(text)?.toDouble()
-    } catch (_: Exception) {
-        null
-    }
+    val trimmed = text.trim()
+    if (trimmed.isEmpty()) return null
+
+    val symbols = (numberFormat as? DecimalFormat)?.decimalFormatSymbols
+        ?: DecimalFormatSymbols.getInstance()
+    val decimalSeparator = symbols.decimalSeparator
+    val alternateSeparator = if (decimalSeparator == '.') ',' else '.'
+    val normalized =
+        if (trimmed.contains(decimalSeparator)) trimmed
+        else trimmed.replace(alternateSeparator, decimalSeparator)
+
+    val position = ParsePosition(0)
+    val value = numberFormat.parse(normalized, position) ?: return null
+    if (position.index != normalized.length) return null
+    return value.toDouble().takeIf { it.isFinite() && it >= 0.0 }
 }
 
 fun sizeToBytes(value: Double, unit: DataSizeUnit, metric: Boolean): Long {

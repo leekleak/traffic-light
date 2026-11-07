@@ -69,7 +69,7 @@ class WidgetUpdateReceiver: BroadcastReceiver(), KoinComponent {
         val updatedPlans = refreshedPlans.mapNotNull { refreshedPlan ->
             var currentPlan = refreshedPlan.plan
 
-            if (currentPlan.budgetWarning) {
+            if (currentPlan.budgetWarning && currentPlan.mainDataSize.byteValue > 0) {
                 val remainingBudget = dataPlanLogic.getRemainingDailyBudgetToday(currentPlan, refreshedPlan.snapshot)
                 if (remainingBudget <= 0L && !currentPlan.budgetOvershotNotified) {
                     WarningNotificationHelper.showBudgetWarning(context, currentPlan)
@@ -79,7 +79,7 @@ class WidgetUpdateReceiver: BroadcastReceiver(), KoinComponent {
                 }
             }
 
-            if (currentPlan.safetyWarning) {
+            if (currentPlan.safetyWarning && currentPlan.mainDataSize.byteValue > 0) {
                 val safetyState = dataPlanLogic.getDataSafety(currentPlan, refreshedPlan.snapshot)
                 val stateInt = safetyState.ordinal
                 if (currentPlan.lastSafetyState != stateInt) {

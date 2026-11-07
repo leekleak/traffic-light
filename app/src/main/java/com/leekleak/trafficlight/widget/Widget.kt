@@ -76,6 +76,11 @@ class Widget: GlanceAppWidget() {
         val dataPlan = state[SUBSCRIBER_ID_HASH]?.let { dataPlanManager.getPlan(it) }
         if (dataPlan == null){
             Timber.i("Data plan is null in widget")
+            provideContent {
+                GlanceTheme {
+                    MissingPlanWidgetContent()
+                }
+            }
             return
         }
 
@@ -282,6 +287,28 @@ class Widget: GlanceAppWidget() {
                 style = TextStyle(
                     color = GlanceTheme.colors.onSurface,
                     fontSize = 18.sp,
+                ),
+            )
+        }
+    }
+
+    @Composable
+    private fun MissingPlanWidgetContent() {
+        Box(
+            modifier = GlanceModifier
+                .fillMaxSize()
+                .background(GlanceTheme.colors.surface)
+                .cornerRadius(24.dp)
+                .padding(16.dp)
+                .clickable(actionStartActivity<MainActivity>()),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = LocalContext.current.getString(R.string.data_plan_unavailable),
+                style = TextStyle(
+                    color = GlanceTheme.colors.onSurface,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
                 ),
             )
         }

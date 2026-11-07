@@ -108,13 +108,20 @@ data class DataPlan(
 
     fun resetString(context: Context): String {
         val remaining = getRemainingDuration()
+        val minutes = remaining.toMinutes().coerceAtLeast(0L)
+        val minutesInHour = 60L
+        val minutesInDay = 24 * minutesInHour
 
-        val days = remaining.toDays().toInt() + 1
-        return if (days == 1) {
-            val hours = remaining.toHours().toInt() + 1
-            context.resources.getQuantityString(R.plurals.resets_in_hours, hours, hours)
+        return if (minutes < minutesInDay) {
+            val hours = ((minutes + minutesInHour - 1) / minutesInHour).coerceAtLeast(1L)
+            if (hours >= 24) {
+                context.resources.getQuantityString(R.plurals.resets_in_days, 1, 1)
+            } else {
+                context.resources.getQuantityString(R.plurals.resets_in_hours, hours.toInt(), hours)
+            }
         } else {
-            context.resources.getQuantityString(R.plurals.resets_in_days, days,days)
+            val days = ((minutes + minutesInDay - 1) / minutesInDay).toInt()
+            context.resources.getQuantityString(R.plurals.resets_in_days, days, days)
         }
     }
 

@@ -62,14 +62,17 @@ class NetworkUsageManager(
         startDate: LocalDate,
         subscriberId: String? = null,
         endDate: LocalDate = startDate.plusDays(1),
+        excludedApps: Set<Int> = emptySet(),
     ): Long {
         val startStamp = startDate.toTimestamp()
         val endStamp = endDate.toTimestamp()
-        return getNetworkDataForType(startStamp, endStamp, subscriberId, query.dataType).sumOf {
-            if (it.uid == query.dataUID.uid || query.dataUID.uidQuery == null) {
-                it.forDirection(query.dataDirection)
-            } else {
-                0L
+        return getNetworkDataForType(startStamp, endStamp, subscriberId, query.dataType).sumOf { usage ->
+            val uid = usage.uid
+            when {
+                uid != null && uid in excludedApps -> 0L
+                uid == query.dataUID.uid || query.dataUID.uidQuery == null ->
+                    usage.forDirection(query.dataDirection)
+                else -> 0L
             }
         }
     }
@@ -298,7 +301,11 @@ class NetworkUsageManager(
         emit(data.toList())
     }
 
-    suspend fun getWeekUsage(subscriberId: String?, dataType: DataType = DataType.Mobile): List<BarData> {
+    suspend fun getWeekUsage(
+        subscriberId: String?,
+        dataType: DataType = DataType.Mobile,
+        excludedApps: Set<Int> = emptySet(),
+    ): List<BarData> {
         val field = WeekFields.of(Locale.getDefault())
         val firstDay = field.firstDayOfWeek
         val data: MutableList<BarData> = MutableList(7) { i ->
@@ -313,7 +320,12 @@ class NetworkUsageManager(
                 async {
                     val now = now.minusDays(daysPassed.toLong() - i)
                     val isWifi = dataType == DataType.Wifi
-                    val usage = totalDayUsage(UsageQuery(dataType), now, subscriberId)
+                    val usage = totalDayUsage(
+                        UsageQuery(dataType),
+                        now,
+                        subscriberId,
+                        excludedApps = excludedApps,
+                    )
                     data[i] = data[i].copy(y1 = if (isWifi) 0 else usage, y2 = if (isWifi) usage else 0)
                 }
             }.awaitAll()

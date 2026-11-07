@@ -79,6 +79,7 @@ class DataPlanManager(
         val volatileExtras = snapshot.extras.associate { extra ->
             extra.id to (extra.dataUsed - (updatedPlan.extras.find { it.id == extra.id }?.dataUsed ?: 0L))
         }
+        val start = plan.getStartDate(false)
         val expiry = plan.getStartDate(true)
 
         val planToSave = plan.copy(
@@ -88,6 +89,7 @@ class DataPlanManager(
             },
             lastUpdateStamp = updatedPlan.lastUpdateStamp,
             lastSafetyState = -1,
+            mainStartStamp = start.toTimestamp(),
             mainExpiryStamp = expiry.toTimestamp(),
             budgetOvershotNotified = false,
             configured = true
@@ -102,7 +104,9 @@ class DataPlanManager(
             plan.copy(
                 mainDataUsed = 0,
                 lastUpdateStamp = 0,
-                extras = plan.extras.map { it.copy(dataUsed = 0) }
+                extras = plan.extras.map { it.copy(dataUsed = 0) },
+                mainStartStamp = plan.getStartDate(false).toTimestamp(),
+                mainExpiryStamp = plan.getStartDate(true).toTimestamp(),
             )
         } else {
             plan
