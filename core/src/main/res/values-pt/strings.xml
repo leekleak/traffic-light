@@ -12,7 +12,6 @@
     <string name="battery_optimization_description">Deve ser desativada para evitar que o telemóvel encerre o serviço em segundo plano após algum tempo.</string>
     <string name="usage_statistics">Estatísticas de utilização</string>
     <string name="usage_statistics_description">Necessário para a monitorização da utilização de dados a longo prazo.</string>
-    <string name="notifications">Notificação</string>
     <string name="screen_off_update">Atualizar quando o ecrã estiver desligado</string>
     <string name="screen_off_update_description">Permite acompanhar a utilização no AOD, mas tem impactos na bateria.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
