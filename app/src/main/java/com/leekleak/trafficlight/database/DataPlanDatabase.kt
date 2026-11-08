@@ -117,7 +117,7 @@ class Converters {
     }
 }
 
-@Database(entities = [DataPlan::class], version = 4, exportSchema = true)
+@Database(entities = [DataPlan::class], version = 5, exportSchema = true)
 @ColumnTypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun dataPlanDao(): DataPlanDao

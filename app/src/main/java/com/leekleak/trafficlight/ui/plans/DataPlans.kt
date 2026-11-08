@@ -36,8 +36,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,13 +60,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.leekleak.core.R
-import com.leekleak.core.charts.BarGraph
-import com.leekleak.core.charts.model.BarData
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
 import com.leekleak.core.ui.navigation.LocalNavigationBarPadding
 import com.leekleak.core.ui.theme.LocalSizeMetric
 import com.leekleak.core.ui.theme.card
+import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.core.util.CategoryTitleText
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.MiniCard
@@ -71,6 +73,8 @@ import com.leekleak.core.util.MiniCardState
 import com.leekleak.core.util.TrendCard
 import com.leekleak.core.util.openLink
 import com.leekleak.core.util.shelfShape
+import com.leekleak.trafficlight.charts.ActivityDay
+import com.leekleak.trafficlight.charts.ActivityGraph
 import com.leekleak.trafficlight.charts.AppGraph
 import com.leekleak.trafficlight.charts.ExtraGraph
 import com.leekleak.trafficlight.database.AppUsage
@@ -80,6 +84,8 @@ import com.leekleak.trafficlight.integrations.Ad
 import com.leekleak.trafficlight.integrations.AdType
 import com.leekleak.trafficlight.ui.settings.InfoCard
 import kotlinx.coroutines.launch
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 private val DataPlansUiState.showShizukuHint: Boolean
     get() = shizukuHint && !shizukuTracking
@@ -352,10 +358,10 @@ private fun DataPlanInsights(
             }
             if (plan.mainDataSize.byteValue > 0) usageInsights(uiState)
             extras(snapshot)
-            uiState.weekUsage?.let { thisWeek(it) }
+            uiState.topApps?.let { topApps(it) }
             if (uiState.adsEnabled) item { Ad(true, AdType.NativeBanner, colorScheme.surface) }
             if (plan.mainDataSize.byteValue > 0) budgetInsights(uiState)
-            uiState.topApps?.let { topApps(it) }
+            uiState.activityUsage?.let { activity(it, plan) }
         }
         if (plan?.configured == true) configurePlanItem(plan, onConfigurePlan)
     }
@@ -502,17 +508,61 @@ private fun LazyListScope.budgetInsights(uiState: DataPlansUiState) {
     }
 }
 
-private fun LazyListScope.thisWeek(weekUsage: List<BarData>) {
-    item(key = "this_week") {
+private fun LazyListScope.activity(days: List<ActivityDay>, plan: DataPlan) {
+    item(key = "daily_activity") {
         Column(Modifier.animateItem()) {
-            CategoryTitleText(stringResource(R.string.this_week))
-            Box(
-                modifier = Modifier
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(colorScheme.surface)
-                    .padding(6.dp)
-            ) {
-                BarGraph(weekUsage)
+            CategoryTitleText(stringResource(R.string.activity))
+            val metric = LocalSizeMetric.current
+            val font = remember { googleSans(weight = 700f) }
+            var selectedEpochDay by rememberSaveable(plan.hashedSubscriberID) {
+                mutableStateOf<Long?>(null)
+            }
+
+            val lastEpochDay = days.lastOrNull()?.date?.toEpochDay()
+            LaunchedEffect(days) {
+                val selected = selectedEpochDay
+                if (selected == null || days.none { it.date.toEpochDay() == selected }) {
+                    selectedEpochDay = lastEpochDay
+                }
+            }
+
+            val selectedDay = days.firstOrNull { it.date.toEpochDay() == selectedEpochDay }
+
+            Column(Modifier.card(colorScheme.surface)) {
+                ActivityGraph(
+                    data = days,
+                    periodStart = plan.getStartDate().toLocalDate().takeIf { plan.configured },
+                    selectedDate = selectedDay?.date,
+                    onSelectDate = { selectedEpochDay = it.toEpochDay() },
+                )
+
+                selectedDay?.let { day ->
+                    val date = remember(day.date) {
+                        day.date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+                    }
+                    val usage = DataSize(day.usage).toString(metric = metric)
+                    Row(
+                        modifier = Modifier.padding(8.dp).fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .background(colorScheme.primary, MaterialTheme.shapes.small)
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                            text = date,
+                            fontFamily = font,
+                            color = colorScheme.onPrimary,
+                        )
+                        Text(
+                            modifier = Modifier
+                                .background(colorScheme.secondary, MaterialTheme.shapes.small)
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                            text = usage,
+                            fontFamily = font,
+                            color = colorScheme.onSecondary,
+                        )
+                    }
+                }
             }
         }
     }

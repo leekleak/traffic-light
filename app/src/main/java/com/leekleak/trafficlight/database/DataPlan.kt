@@ -57,6 +57,7 @@ data class DataPlan(
     @ColumnInfo val carrierName: String = "",
     @ColumnInfo val configured: Boolean = false,
 
+    @ColumnInfo val createdAt: Long = System.currentTimeMillis(),
     @ColumnInfo val startDate: Long = LocalDate.now().withDayOfMonth(1).atStartOfDay().toTimestamp(),
     @ColumnInfo val interval: TimeInterval = TimeInterval.MONTH,
     @ColumnInfo val intervalMultiplier: Int = 1, // Intended only for use when TimeInterval.DAY. Otherwise should be ignored.

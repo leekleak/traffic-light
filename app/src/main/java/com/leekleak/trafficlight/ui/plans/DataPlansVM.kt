@@ -2,13 +2,13 @@ package com.leekleak.trafficlight.ui.plans
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.leekleak.core.charts.model.BarData
+import com.leekleak.core.util.MiniCardState
+import com.leekleak.trafficlight.charts.ActivityDay
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanSnapshot
 import com.leekleak.trafficlight.model.DataPlanManager
-import com.leekleak.core.util.MiniCardState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -26,7 +26,7 @@ data class DataPlansUiState(
     val trend: Int = 0,
     val todayBudget: Long = 0,
     val remainingDailyBudget: Long = 0,
-    val weekUsage: List<BarData>? = null,
+    val activityUsage: List<ActivityDay>? = null,
     val topApps: List<AppUsage>? = null,
     val adsEnabled: Boolean = false,
     val shizukuHint: Boolean = false,
@@ -108,8 +108,8 @@ class DataPlansVM(
         pair?.let { (plan, _) -> dataPlansLogic.getTrend(plan) }
     }.distinctUntilChanged()
 
-    private val weekUsageFlow = planFlow.map { pair ->
-        pair?.let { (plan, _) -> dataPlansLogic.getWeekUsage(plan) }
+    private val activityUsageFlow = planFlow.map { pair ->
+        pair?.let { (plan, _) -> dataPlansLogic.getActivityUsage(plan) }
     }.distinctUntilChanged()
 
     private val topAppsFlow = planFlow.map { pair ->
@@ -125,7 +125,7 @@ class DataPlansVM(
         trendFlow,
         todayBudgetFlow,
         remainingDailyBudgetFlow,
-        weekUsageFlow,
+        activityUsageFlow,
         topAppsFlow,
         appPreferenceRepo.ads,
         appPreferenceRepo.shizukuHint,
@@ -139,7 +139,7 @@ class DataPlansVM(
         val trend = flows[4] as Int? ?: 0
         val today = flows[5] as Long? ?: 0L
         val remaining = flows[6] as Long? ?: 0L
-        val week = flows[7] as List<BarData>?
+        val activityUsage = flows[7] as List<ActivityDay>?
         val apps = flows[8] as List<AppUsage>?
         val adsEnabled = flows[9] as Boolean
         val shizukuHint = flows[10] as Boolean
@@ -153,7 +153,7 @@ class DataPlansVM(
             trend = trend,
             todayBudget = today,
             remainingDailyBudget = remaining,
-            weekUsage = week,
+            activityUsage = activityUsage,
             topApps = apps,
             adsEnabled = adsEnabled,
             shizukuHint = shizukuHint,

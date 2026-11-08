@@ -1,6 +1,9 @@
 package com.leekleak.trafficlight.ui.plans
 
-import com.leekleak.core.charts.model.BarData
+import com.leekleak.core.util.MiniCardState
+import com.leekleak.core.util.fromTimestamp
+import com.leekleak.core.util.toTimestamp
+import com.leekleak.trafficlight.charts.ActivityDay
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanSnapshot
@@ -9,11 +12,13 @@ import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.model.NetworkUsageManager
-import com.leekleak.core.util.MiniCardState
-import com.leekleak.core.util.toTimestamp
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -76,11 +81,66 @@ class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
         return remaining
     }
 
-    suspend fun getWeekUsage(dataPlan: DataPlan): List<BarData> = networkUsageManager.getWeekUsage(
-        subscriberId = dataPlan.decryptedID,
-        dataType = DataType.Mobile,
-        excludedApps = dataPlan.excludedApps.toSet(),
-    )
+    suspend fun getActivityUsage(
+        dataPlan: DataPlan,
+        maxDays: Int = 90,
+        today: LocalDate = LocalDate.now(),
+    ): List<ActivityDay> = coroutineScope {
+        val earliest = today.minusDays(maxDays - 1L)
+
+        val periodStart = dataPlan.getStartDate().toLocalDate()
+        val periodEnd = dataPlan.getStartDate(next = true).toLocalDate()
+        val periodDays = ChronoUnit.DAYS.between(periodStart, periodEnd).coerceAtLeast(1)
+
+        val hasConfiguredBudget = dataPlan.configured && dataPlan.mainDataSize.byteValue > 0L
+        val createdDate = dataPlan.createdAt
+            .takeIf { it > 0L }
+            ?.let { fromTimestamp(it).toLocalDate() }
+
+        val startDate = if (hasConfiguredBudget) {
+            val from = createdDate?.let { minOf(it, periodStart) } ?: earliest
+            from.coerceAtLeast(earliest)
+        } else {
+            earliest
+        }
+        val days = (ChronoUnit.DAYS.between(startDate, today).toInt() + 1).coerceAtLeast(1)
+        val excludedApps = dataPlan.excludedApps.toSet()
+
+        val usages = (0 until days).map { offset ->
+            async {
+                val date = startDate.plusDays(offset.toLong())
+                networkUsageManager.totalDayUsage(
+                    query = UsageQuery(dataType = DataType.Mobile),
+                    startDate = date,
+                    subscriberId = dataPlan.decryptedID,
+                    endDate = date.plusDays(1),
+                    excludedApps = excludedApps,
+                )
+            }
+        }.awaitAll()
+
+        val dailyBudget = if (hasConfiguredBudget) {
+            dataPlan.mainDataSize.byteValue / periodDays
+        } else {
+            percentileBudget(usages)
+        }
+
+        usages.mapIndexed { index, usage ->
+            ActivityDay(
+                date = startDate.plusDays(index.toLong()),
+                usage = usage,
+                budget = dailyBudget,
+            )
+        }
+    }
+
+    private fun percentileBudget(usages: List<Long>): Long {
+        if (usages.isEmpty()) return 0L
+        val sorted = usages.sortedDescending()
+        val topCount = ((sorted.size + 9) / 10).coerceAtLeast(1)
+        val threshold = sorted[(topCount - 1).coerceAtMost(sorted.lastIndex)]
+        return if (threshold > 0L) threshold else sorted.first()
+    }
 
     suspend fun getTopAppUsage(dataPlan: DataPlan): List<AppUsage> {
         val todayUsage = networkUsageManager.getAllAppUsage(
