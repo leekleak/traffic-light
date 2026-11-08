@@ -142,7 +142,6 @@
     <string name="notification_permission">Notification Permission</string>
     <string name="allow_app_to_send_notifications">Allow app to send notifications</string>
     <string name="hint">Hint</string>
-    <string name="press_the_card_to_configure_plan_data">Press the card to configure plan data.</string>
     <string name="extras">Extras</string>
     <string name="speed_threshold">Silence notification</string>
     <string name="speed_threshold_description">Silence notification when below a threshold.</string>
@@ -163,7 +162,7 @@
     <string name="safety_tooltip">Plan usage ratio compared with time passed.</string>
     <string name="sizes">Sizes</string>
     <string name="plan_usage">Plan usage</string>
-    <string name="calculate_usage">Calculate usage</string>
+    <string name="estimate_usage">Estimate usage</string>
     <string name="system_service">System service %1$d</string>
     <string name="up_down" translatable="false">"↑: %1$s   ↓: %2$s"</string>
     <string name="selected">Selected</string>
@@ -178,8 +177,6 @@
     <string name="server_name">Server name</string>
     <string name="my_server">My server</string>
     <string name="name_cannot_be_empty">Name cannot be empty</string>
-    <string name="name_already_used">Name already used</string>
-    <string name="invalid_ip_address">Invalid IP address</string>
     <string name="invalid_port">Invalid port</string>
     <string name="iperf3" translatable="false">iPerf3</string>
     <string name="remove_server">Remove server</string>
@@ -227,7 +224,6 @@
     <string name="no_logs_available" translatable="false">No log events available</string>
     <string name="block_sizes" translatable="false">Block Sizes</string>
     <string name="version">Version</string>
-    <string name="connected_sockets">Connected Sockets</string>
     <string name="socket_id">Socket ID: %1$d</string>
     <string name="cpu_usage" translatable="false">%1$s%% (User: %2$s%%, Sys: %3$s%%)</string>
     <string name="aggregate_stats">Aggregate stats</string>

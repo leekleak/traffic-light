@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,6 +56,7 @@ import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -119,28 +121,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.core.R
-import com.leekleak.trafficlight.charts.ExtraGraph
 import com.leekleak.core.charts.GraphTheme.wifiShape
-import com.leekleak.trafficlight.database.DataPlan
-import com.leekleak.trafficlight.database.DataPlanExtra
-import com.leekleak.trafficlight.database.TimeInterval
-import com.leekleak.trafficlight.model.DataUID
-import com.leekleak.trafficlight.model.search
 import com.leekleak.core.ui.components.BackAction
-import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.ui.components.FancyDialog
-import com.leekleak.trafficlight.ui.settings.IconPreference
-import com.leekleak.trafficlight.ui.settings.NotificationWarningDialog
-import com.leekleak.trafficlight.ui.settings.PermissionCard
-import com.leekleak.trafficlight.ui.settings.Preference
-import com.leekleak.trafficlight.ui.settings.SliderComponent
-import com.leekleak.trafficlight.ui.settings.SwitchPreference
+import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.ui.theme.LocalSizeMetric
-import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.core.ui.theme.card
 import com.leekleak.core.ui.theme.doHyeonFont
 import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.core.ui.theme.googleSansEmphasized
+import com.leekleak.core.util.CategoryTitleSmallText
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.DataSizeUnit
 import com.leekleak.core.util.PageTitle
@@ -153,6 +143,19 @@ import com.leekleak.core.util.fromTimestamp
 import com.leekleak.core.util.openLink
 import com.leekleak.core.util.px
 import com.leekleak.core.util.toTimestamp
+import com.leekleak.trafficlight.charts.ExtraGraph
+import com.leekleak.trafficlight.database.DataPlan
+import com.leekleak.trafficlight.database.DataPlanExtra
+import com.leekleak.trafficlight.database.TimeInterval
+import com.leekleak.trafficlight.model.DataUID
+import com.leekleak.trafficlight.model.search
+import com.leekleak.trafficlight.ui.settings.IconPreference
+import com.leekleak.trafficlight.ui.settings.NotificationWarningDialog
+import com.leekleak.trafficlight.ui.settings.PermissionCard
+import com.leekleak.trafficlight.ui.settings.Preference
+import com.leekleak.trafficlight.ui.settings.SliderComponent
+import com.leekleak.trafficlight.ui.settings.SwitchPreference
+import com.leekleak.trafficlight.ui.theme.backgrounds
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import java.text.DecimalFormat
@@ -173,6 +176,7 @@ fun DataPlanConfig(
     val activity = LocalActivity.current
 
     val newPlan by viewModel.newPlan.collectAsStateWithLifecycle()
+    val canEstimate by viewModel.canEstimate.collectAsStateWithLifecycle()
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     val showForegroundNotificationWarning by viewModel.showForegroundNotificationWarning.collectAsStateWithLifecycle()
@@ -205,54 +209,19 @@ fun DataPlanConfig(
     Scaffold(
         modifier = Modifier.clearFocusOnTap(),
         bottomBar = {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally))
-            {
-                Row(
-                    modifier = Modifier
-                        .navigationBarsPadding()
-                        .clip(MaterialTheme.shapes.extraLargeIncreased)
-                        .background(colorScheme.surface)
-                        .border(
-                            width = 1.5.dp,
-                            color = colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
-                            shape = MaterialTheme.shapes.extraLargeIncreased
-                        )
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    TextButton(
-                        onClick = {
-                            viewModel.onCalculateUsage()
-                            haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-                        },
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.magic),
-                            contentDescription = null
-                        )
-                        Text(
-                            modifier = Modifier.padding(start = 8.dp),
-                            text = stringResource(R.string.calculate_usage)
-                        )
-                    }
-
-                    Button(onClick = {
+            Box(Modifier.fillMaxWidth().navigationBarsPadding()) {
+                FloatingActionButton(
+                    modifier = Modifier.padding(16.dp).align(Alignment.BottomEnd),
+                    onClick = {
                         viewModel.save()
                         haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                         navigator.goBack()
-                    }) {
-                        Icon(
-                            painter = painterResource(R.drawable.save),
-                            contentDescription = stringResource(R.string.save)
-                        )
-                        Text(
-                            modifier = Modifier.padding(start = 8.dp),
-                            text = stringResource(R.string.save)
-                        )
                     }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.save),
+                        contentDescription = stringResource(R.string.save)
+                    )
                 }
             }
         }
@@ -288,18 +257,38 @@ fun DataPlanConfig(
             categoryTitleSmall { stringResource(R.string.type) }
             typeConfig(
                 plan = newPlan,
-                onManualUsageChange = { usage ->
-                    viewModel.updatePlan {
-                        it.copy(
-                            mainDataUsed = usage,
-                        )
-                    }
-                },
             ) { plan ->
                 viewModel.updatePlan { plan }
             }
-            categoryTitleSmall { stringResource(R.string.extras) }
-            extrasConfig(newPlan) { plan -> viewModel.updatePlan { it.copy(extras = plan.extras) } }
+            item {
+                Row(verticalAlignment = Alignment.Bottom) {
+                    CategoryTitleSmallText(stringResource(R.string.usage))
+                    Spacer(modifier = Modifier.weight(1f))
+
+                }
+            }
+            item {
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.medium,
+                    enabled = canEstimate,
+                    onClick = {
+                        viewModel.onCalculateUsage()
+                        haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                    },
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.magic),
+                        contentDescription = null
+                    )
+                    Text(
+                        modifier = Modifier.padding(start = 8.dp),
+                        text = stringResource(R.string.estimate_usage)
+                    )
+                }
+                UsageInputPreference(newPlan) { usage -> viewModel.updatePlan { it.copy(mainDataUsed = usage) } }
+                ExtrasConfig(newPlan) { plan -> viewModel.updatePlan { it.copy(extras = plan.extras) } }
+            }
             categoryTitleSmall { stringResource(R.string.zero_rated_apps) }
             item {
                 val suspiciousApps by viewModel.suspiciousApps.collectAsStateWithLifecycle()
@@ -516,7 +505,6 @@ fun DataPlanConfig(
 
 private fun LazyListScope.typeConfig(
     plan: DataPlan,
-    onManualUsageChange: (Long) -> Unit,
     onPlanChange: (plan: DataPlan) -> Unit
 ) {
     item {
@@ -610,86 +598,97 @@ private fun LazyListScope.typeConfig(
                     )
                 }
             }
-            
-            val font = remember { googleSans(weight = 600f) }
-            val metric = LocalSizeMetric.current
-            val formatter = remember { DecimalFormat("0.##") }
-            val numberFormat = remember { NumberFormat.getInstance() }
-            var displayUnit by remember {
-                val unit = DataSize(plan.mainDataUsed).unit(metric)
-                mutableStateOf(if (unit == DataSizeUnit.GB) DataSizeUnit.GB else DataSizeUnit.MB)
-            }
-            val textFieldState = rememberSyncedSizeInput(
-                bytes = plan.mainDataUsed,
-                unit = displayUnit,
-                metric = metric,
-                formatter = formatter,
-                numberFormat = numberFormat,
-            )
-
-            LaunchedEffect(textFieldState.text) {
-                val text = textFieldState.text.toString()
-                val parsed = parseSizeNumber(text, numberFormat) ?: return@LaunchedEffect
-
-                if (text != formatSizeValue(plan.mainDataUsed, displayUnit, metric, formatter)) {
-                    onManualUsageChange(sizeToBytes(parsed, displayUnit, metric))
-                }
-            }
-
-            HorizontalDivider()
-
-            Preference(
-                title = stringResource(R.string.plan_usage),
-                icon = R.drawable.data_usage,
-                controls = {
-                    Row(
-                        modifier = Modifier.height(IntrinsicSize.Min),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .padding(vertical = 4.dp)
-                                .background(colorScheme.primaryContainer, MaterialTheme.shapes.medium)
-                                .padding(horizontal = 8.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            BasicTextField(
-                                modifier = Modifier.width(IntrinsicSize.Min).height(IntrinsicSize.Min),
-                                state = textFieldState,
-                                textStyle = TextStyle(
-                                    fontFamily = font,
-                                    color = colorScheme.onPrimaryContainer,
-                                    fontSize = 22.sp,
-                                    textAlign = TextAlign.End,
-                                ),
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                            )
-                        }
-                        Button(
-                            onClick = {
-                                val newUnit = if (displayUnit == DataSizeUnit.GB) DataSizeUnit.MB else DataSizeUnit.GB
-                                parseSizeNumber(textFieldState.text.toString(), numberFormat)?.let { value ->
-                                    onManualUsageChange(sizeToBytes(value, newUnit, metric))
-                                }
-                                displayUnit = newUnit
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            },
-                            shape = MaterialTheme.shapes.medium,
-                            contentPadding = PaddingValues(horizontal = 12.dp)
-                        ) {
-                            Text(
-                                text = displayUnit.name,
-                                fontFamily = font,
-                                fontSize = 16.sp,
-                            )
-                        }
-                    }
-                }
-            )
         }
     }
+}
+
+@Composable
+private fun UsageInputPreference(
+    plan: DataPlan,
+    onManualUsageChange: (Long) -> Unit,
+) {
+    val font = remember { googleSans(weight = 600f) }
+    val metric = LocalSizeMetric.current
+    val haptic = LocalHapticFeedback.current
+    val formatter = remember { DecimalFormat("0.##") }
+    val numberFormat = remember { NumberFormat.getInstance() }
+    var displayUnit by remember {
+        val unit = DataSize(plan.mainDataUsed).unit(metric)
+        mutableStateOf(if (unit == DataSizeUnit.GB) DataSizeUnit.GB else DataSizeUnit.MB)
+    }
+    val textFieldState = rememberSyncedSizeInput(
+        bytes = plan.mainDataUsed,
+        unit = displayUnit,
+        metric = metric,
+        formatter = formatter,
+        numberFormat = numberFormat,
+    )
+
+    LaunchedEffect(textFieldState.text) {
+        val text = textFieldState.text.toString()
+        val parsed = parseSizeNumber(text, numberFormat) ?: return@LaunchedEffect
+
+        if (text != formatSizeValue(plan.mainDataUsed, displayUnit, metric, formatter)) {
+            onManualUsageChange(sizeToBytes(parsed, displayUnit, metric))
+        }
+    }
+
+    Preference(
+        title = stringResource(R.string.plan_usage),
+        icon = R.drawable.data_usage,
+        controls = {
+            Row(
+                modifier = Modifier.height(IntrinsicSize.Min),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(vertical = 4.dp)
+                        .background(colorScheme.primaryContainer, MaterialTheme.shapes.medium)
+                        .padding(horizontal = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    BasicTextField(
+                        modifier = Modifier
+                            .width(IntrinsicSize.Min)
+                            .height(IntrinsicSize.Min),
+                        state = textFieldState,
+                        textStyle = TextStyle(
+                            fontFamily = font,
+                            color = colorScheme.onPrimaryContainer,
+                            fontSize = 22.sp,
+                            textAlign = TextAlign.End,
+                        ),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+                }
+                Button(
+                    onClick = {
+                        val newUnit =
+                            if (displayUnit == DataSizeUnit.GB) DataSizeUnit.MB else DataSizeUnit.GB
+                        parseSizeNumber(
+                            textFieldState.text.toString(),
+                            numberFormat
+                        )?.let { value ->
+                            onManualUsageChange(sizeToBytes(value, newUnit, metric))
+                        }
+                        displayUnit = newUnit
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    },
+                    shape = MaterialTheme.shapes.medium,
+                    contentPadding = PaddingValues(horizontal = 12.dp)
+                ) {
+                    Text(
+                        text = displayUnit.name,
+                        fontFamily = font,
+                        fontSize = 16.sp,
+                    )
+                }
+            }
+        }
+    )
 }
 
 @Composable
@@ -1101,19 +1100,26 @@ fun PlanSizeConfig(
     }
 }
 
-private fun LazyListScope.extrasConfig(newPlan: DataPlan, onPlanChange: (plan: DataPlan) -> Unit) {
+@Composable
+private fun ExtrasConfig(
+    newPlan: DataPlan,
+    modifier: Modifier = Modifier,
+    onPlanChange: (plan: DataPlan) -> Unit
+) {
+    val haptic = LocalHapticFeedback.current
+    var showAddExtraDialog by remember { mutableStateOf(false) }
+
     val extrasWithAdd = newPlan.extras.map { it as Any? } + listOf(null)
-    extrasWithAdd.chunked(2).forEach { chunk ->
-        item {
-            val haptic = LocalHapticFeedback.current
+    Column(modifier = modifier) {
+        extrasWithAdd.chunked(2).forEach { chunk ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                chunk.forEach { item ->
-                    if (item is DataPlanExtra) {
+                chunk.forEach { extra ->
+                    if (extra is DataPlanExtra) {
                         Box(modifier = Modifier.weight(1f)) {
                             ExtraGraph(
                                 modifier = Modifier
@@ -1122,13 +1128,13 @@ private fun LazyListScope.extrasConfig(newPlan: DataPlan, onPlanChange: (plan: D
                                         colorScheme.surfaceContainer,
                                         MaterialTheme.shapes.medium
                                     ),
-                                extra = item,
+                                extra = extra,
                                 showOnlyMax = false
                             )
                             FilledIconButton(
                                 onClick = {
                                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    onPlanChange(newPlan.copy(extras = newPlan.extras.filter { it.id != item.id }))
+                                    onPlanChange(newPlan.copy(extras = newPlan.extras.filter { it.id != extra.id }))
                                 },
                                 modifier = Modifier
                                     .align(Alignment.TopEnd)
@@ -1148,7 +1154,6 @@ private fun LazyListScope.extrasConfig(newPlan: DataPlan, onPlanChange: (plan: D
                             }
                         }
                     } else {
-                        var showAddExtraDialog by remember { mutableStateOf(false) }
                         if (showAddExtraDialog) {
                             AddExtraDialog(
                                 onDismiss = { showAddExtraDialog = false },
@@ -1251,14 +1256,12 @@ private fun AddExtraDialog(
             Button(
                 enabled = isValid,
                 onClick = {
-                    val validAmount = amountBytes
-                    val validUsage = usageBytes
-                    if (validAmount != null && validUsage != null) {
+                    if (amountBytes != null && usageBytes != null) {
                         onConfirm(
                             DataPlanExtra(
-                                dataAmount = DataSize(validAmount),
+                                dataAmount = DataSize(amountBytes),
                                 unit = amountUnit,
-                                dataUsed = validUsage,
+                                dataUsed = usageBytes,
                                 startStamp = startDate,
                                 expiryStamp = expiryDate,
                                 expired = false

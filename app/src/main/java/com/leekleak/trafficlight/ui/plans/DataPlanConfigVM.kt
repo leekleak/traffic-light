@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataPlan
+import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.integrations.ShizukuServicesProvider
 import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.DataPlanManager
@@ -14,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
@@ -35,6 +37,21 @@ class DataPlanConfigVM (
     val showForegroundNotificationWarning: StateFlow<Boolean>
         field = MutableStateFlow(false)
 
+    private val estimationBaseline = MutableStateFlow(initialPlan.estimationParams)
+    private val isEstimating = MutableStateFlow(false)
+
+    val canEstimate: StateFlow<Boolean> = combine(
+        newPlan,
+        estimationBaseline,
+        isEstimating
+    ) { plan, baseline, estimating ->
+        !estimating && plan.estimationParams != baseline
+    }.stateIn(
+        viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
+
     val suspiciousApps: StateFlow<List<DataUIDApp>> = flow {
         emit(appManager.getAllApps())
     }.stateIn(
@@ -54,17 +71,26 @@ class DataPlanConfigVM (
                     extras = refresh.snapshot.extras
                 )
             }
+            // The usage shown on screen open is already an estimate; require a parameter change
+            // before the button becomes usable again.
+            estimationBaseline.value = newPlan.value.estimationParams
         }
     }
 
     fun onCalculateUsage() {
         viewModelScope.launch {
-            val refresh = dataPlanManager.computeUsage(newPlan.value, resetUsage = true)
-            updatePlan {
-                refresh.plan.copy(
-                    mainDataUsed = refresh.snapshot.mainDataUsed,
-                    extras = refresh.snapshot.extras
-                )
+            isEstimating.value = true
+            try {
+                val refresh = dataPlanManager.computeUsage(newPlan.value, resetUsage = true)
+                updatePlan {
+                    refresh.plan.copy(
+                        mainDataUsed = refresh.snapshot.mainDataUsed,
+                        extras = refresh.snapshot.extras
+                    )
+                }
+                estimationBaseline.value = newPlan.value.estimationParams
+            } finally {
+                isEstimating.value = false
             }
         }
     }
@@ -111,3 +137,36 @@ class DataPlanConfigVM (
         showForegroundNotificationWarning.update { false }
     }
 }
+
+private data class UsageEstimationParams(
+    val encryptedSubscriberID: String,
+    val startDate: Long,
+    val interval: TimeInterval,
+    val intervalMultiplier: Int,
+    val excludedApps: List<Int>,
+    val extras: List<ExtraParams>,
+) {
+    data class ExtraParams(
+        val dataAmount: Long,
+        val startStamp: Long,
+        val expiryStamp: Long,
+    )
+}
+
+private val DataPlan.estimationParams: UsageEstimationParams
+    get() = UsageEstimationParams(
+        encryptedSubscriberID = encryptedSubscriberID,
+        startDate = startDate,
+        interval = interval,
+        intervalMultiplier = if (interval == TimeInterval.DAY) intervalMultiplier else 1,
+        excludedApps = excludedApps.sorted(),
+        extras = extras
+            .map {
+                UsageEstimationParams.ExtraParams(
+                    dataAmount = it.dataAmount.byteValue,
+                    startStamp = it.startStamp,
+                    expiryStamp = it.expiryStamp
+                )
+            }
+            .sortedWith(compareBy({ it.startStamp }, { it.expiryStamp }, { it.dataAmount })),
+    )
