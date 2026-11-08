@@ -114,7 +114,7 @@ private fun NotificationSettings(
     SwitchPreference(
         title = stringResource(R.string.notification),
         summary = stringResource(R.string.notification_description),
-        icon = R.drawable.speed_notification,
+        iconContent = { SpeedIconPreview() },
         value = notification && notificationPermission,
         onValueChanged = { enabled ->
             if (enabled && !notificationPermission) {
@@ -250,7 +250,7 @@ private fun NotificationAppearanceSettings(viewModel: SettingsVM, appPreferenceR
     SwitchPreference(
         title = stringResource(R.string.separate_upload_and_download),
         summary = null,
-        icon = R.drawable.speed_separate,
+        iconContent = { SeparateSpeedIconPreview() },
         value = separateUpDown,
         enabled = !liveNotification,
         onValueChanged = { scope.launch { appPreferenceRepo.setSeparateUpDown(it) } }

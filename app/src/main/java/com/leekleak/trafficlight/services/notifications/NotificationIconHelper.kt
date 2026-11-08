@@ -4,90 +4,48 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Paint
 import androidx.compose.ui.unit.Density
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.IconCompat
 import com.leekleak.trafficlight.R
-import com.leekleak.core.ui.theme.googleSans
-import com.leekleak.core.util.convertFontFamilyToTypeface
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 class NotificationIconHelper(private val context: Context) {
-    private val multiplier = 24 * Density(context).density / 96f
-    private val paintValue by lazy {
-        Paint().apply {
-            typeface = convertFontFamilyToTypeface(context, googleSans(weight = 600f, width = 60f))
-            textSize = 72f * multiplier
-            color = context.getColor(R.color.white)
-            textAlign = Paint.Align.CENTER
-            letterSpacing = 0f
-            isSubpixelText = true
-            isAntiAlias = true
-        }
-    }
-    private val paintUnit by lazy {
-        Paint().apply {
-            typeface = convertFontFamilyToTypeface(context, googleSans(weight = 600f, width = 80f))
-            textSize = 46f * multiplier
-            color = context.getColor(R.color.white)
-            textAlign = Paint.Align.CENTER
-            letterSpacing = 0f
-            isSubpixelText = true
-            isAntiAlias = true
-        }
-    }
-    private val paintSeparate by lazy {
-        Paint().apply {
-            typeface = convertFontFamilyToTypeface(context, googleSans(weight = 600f, width = 50f))
-            textAlign = Paint.Align.RIGHT
-            textSize = 56f * multiplier
-            color = context.getColor(R.color.white)
-            textAlign = Paint.Align.RIGHT
-            letterSpacing = 0f
-            isSubpixelText = true
-            isAntiAlias = true
-        }
-    }
-    private val height = (96 * multiplier).toInt()
+    private val renderer = NotificationIconRenderer(context)
+    private val sizePx = 24 * Density(context).density
+    private val height = sizePx.toInt()
     private var bitmap: Bitmap = createBitmap(height, height, Bitmap.Config.ARGB_8888)
     private val bitmapMutex = Mutex()
+
     suspend fun createIcon(speed: String, unit: String): IconCompat {
-
         bitmapMutex.withLock {
-            if (bitmap.height != height) {
-                bitmap = createBitmap(height, height, Bitmap.Config.ARGB_8888)
-            } else {
-                bitmap.eraseColor(Color.TRANSPARENT)
-            }
-
-            val canvas = Canvas(bitmap)
-
-            canvas.drawText(speed, 48f * multiplier, 54f * multiplier, paintValue)
-            canvas.drawText(unit, 48f * multiplier, 94f * multiplier, paintUnit)
-
+            val bitmap = prepareBitmap()
+            renderer.draw(Canvas(bitmap), sizePx, speed, unit, context.getColor(R.color.white))
             return IconCompat.createWithBitmap(bitmap.copy(Bitmap.Config.ARGB_8888, false))
         }
     }
 
     suspend fun createIconSeparate(speed1: String, speed2: String): IconCompat {
-        val height = (96 * multiplier).toInt()
-
         bitmapMutex.withLock {
-            if (bitmap.height != height) {
-                bitmap = createBitmap(height, height, Bitmap.Config.ARGB_8888)
-            } else {
-                bitmap.eraseColor(Color.TRANSPARENT)
-            }
-
-            val canvas = Canvas(bitmap)
-
-            val string1 = if (speed1.length >= 5) speed1.replace(" ", "") else speed1
-            val string2 = if (speed2.length >= 5) speed2.replace(" ", "") else speed2
-            canvas.drawText(string1, 96f * multiplier, 48f * multiplier, paintSeparate)
-            canvas.drawText(string2, 96f * multiplier, 96f * multiplier, paintSeparate)
+            val bitmap = prepareBitmap()
+            renderer.drawSeparate(
+                Canvas(bitmap),
+                sizePx,
+                speed1,
+                speed2,
+                context.getColor(R.color.white),
+            )
             return IconCompat.createWithBitmap(bitmap.copy(Bitmap.Config.ARGB_8888, false))
         }
+    }
+
+    private fun prepareBitmap(): Bitmap {
+        if (bitmap.height != height) {
+            bitmap = createBitmap(height, height, Bitmap.Config.ARGB_8888)
+        } else {
+            bitmap.eraseColor(Color.TRANSPARENT)
+        }
+        return bitmap
     }
 }

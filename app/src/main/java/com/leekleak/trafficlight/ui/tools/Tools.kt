@@ -15,7 +15,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
@@ -32,6 +31,7 @@ import com.leekleak.core.util.CategoryTitleSmallText
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.ui.navigation.IperfScreenKey
 import com.leekleak.trafficlight.ui.navigation.NotificationSettingsKey
+import com.leekleak.trafficlight.ui.settings.SpeedIconPreview
 
 private val ToolCardMinWidth = 152.dp
 private val ToolGridSpacing = 8.dp
@@ -39,7 +39,7 @@ private val ToolCardHeight = 104.dp
 
 private class Tool(
     val title: String,
-    val icon: Int,
+    val icon: @Composable () -> Unit,
     val onClick: () -> Unit,
 )
 
@@ -55,7 +55,7 @@ fun Tools(navigator: Navigator) {
             tools = listOf(
                 Tool(
                     title = stringResource(R.string.notification),
-                    icon = R.drawable.speed_notification,
+                    icon = { SpeedIconPreview(modifier = Modifier.size(28.dp)) },
                     onClick = { navigator.goTo(NotificationSettingsKey) },
                 )
             )
@@ -66,7 +66,13 @@ fun Tools(navigator: Navigator) {
                 tools = listOf(
                     Tool(
                         title = stringResource(R.string.iperf3),
-                        icon = R.drawable.speed,
+                        icon = {
+                            Icon(
+                                modifier = Modifier.size(28.dp),
+                                painter = painterResource(R.drawable.speed),
+                                contentDescription = null,
+                            )
+                        },
                         onClick = { navigator.goTo(IperfScreenKey) },
                     )
                 )
@@ -95,7 +101,7 @@ private fun ToolGrid(tools: List<Tool>) {
                         ToolCard(
                             modifier = Modifier.weight(1f),
                             title = tool.title,
-                            icon = painterResource(tool.icon),
+                            icon = tool.icon,
                             onClick = tool.onClick,
                         )
                     }
@@ -112,7 +118,7 @@ private fun ToolGrid(tools: List<Tool>) {
 private fun ToolCard(
     modifier: Modifier = Modifier,
     title: String,
-    icon: Painter,
+    icon: @Composable () -> Unit,
     onClick: () -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
@@ -128,11 +134,7 @@ private fun ToolCard(
             .padding(16.dp),
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
-        Icon(
-            modifier = Modifier.size(28.dp),
-            painter = icon,
-            contentDescription = null,
-        )
+        icon()
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,

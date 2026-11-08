@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,7 +38,6 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSliderState
 import androidx.compose.material3.toPath
 import androidx.compose.runtime.Composable
@@ -70,8 +68,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import com.leekleak.core.R
 import com.leekleak.core.charts.GraphTheme
 import com.leekleak.core.ui.components.FancyDialog
@@ -79,7 +75,6 @@ import com.leekleak.core.ui.theme.Theme
 import com.leekleak.core.ui.theme.card
 import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.core.util.CategoryTitleSmallText
-import com.leekleak.core.util.clearFocusOnTap
 import com.leekleak.core.util.px
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -102,6 +97,7 @@ fun Preference(
     title: String,
     summary: String? = null,
     @DrawableRes icon: Int? = null,
+    iconContent: (@Composable () -> Unit)? = null, // TODO: currently only used for passing speed notification icons; however they'll be moved out of settings containers in the future and this should be removed then.
     onClick: () -> Unit = {},
     controls: @Composable (() -> Unit)? = null,
     enabled: Boolean = true,
@@ -114,23 +110,27 @@ fun Preference(
             .card()
             .clickable(enabled = enabled, onClick = onClick)
             .padding(
-                start = if (icon != null) 8.dp else 16.dp,
+                start = if (icon != null || iconContent != null) 8.dp else 16.dp,
                 end = 16.dp,
             )
             .alpha(if (enabled) 1f else 0.38f),
     ) {
-        if (icon != null) {
+        if (icon != null || iconContent != null) {
             Box(
                 modifier = Modifier
                     .width(56.dp)
                     .padding(end = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    painter = painterResource(icon),
-                    contentDescription = null,
-                )
+                if (iconContent != null) {
+                    iconContent()
+                } else {
+                    Icon(
+                        modifier = Modifier.size(24.dp),
+                        painter = painterResource(icon!!),
+                        contentDescription = null,
+                    )
+                }
             }
         }
         Column(
@@ -228,6 +228,7 @@ fun SwitchPreference(
     modifier: Modifier = Modifier,
     title: String,
     @DrawableRes icon: Int? = null,
+    iconContent: (@Composable () -> Unit)? = null,
     summary: String? = null,
     value: Boolean,
     enabled: Boolean = true,
@@ -244,6 +245,7 @@ fun SwitchPreference(
         modifier = modifier,
         title = title,
         icon = icon,
+        iconContent = iconContent,
         summary = summary,
         enabled = enabled,
         onClick = {
