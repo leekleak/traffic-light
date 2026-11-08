@@ -88,6 +88,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -151,7 +152,6 @@ import com.leekleak.trafficlight.model.DataUID
 import com.leekleak.trafficlight.model.search
 import com.leekleak.trafficlight.ui.settings.IconPreference
 import com.leekleak.trafficlight.ui.settings.NotificationWarningDialog
-import com.leekleak.trafficlight.ui.settings.PermissionCard
 import com.leekleak.trafficlight.ui.settings.Preference
 import com.leekleak.trafficlight.ui.settings.SliderComponent
 import com.leekleak.trafficlight.ui.settings.SwitchPreference
@@ -165,6 +165,13 @@ import java.time.LocalTime
 import kotlin.math.E
 import kotlin.math.max
 import kotlin.math.pow
+
+private enum class PendingNotificationSetting {
+    Foreground,
+    Live,
+    Budget,
+    Safety,
+}
 
 @Composable
 fun DataPlanConfig(
@@ -379,32 +386,65 @@ fun DataPlanConfig(
             categoryTitleSmall { stringResource(R.string.notifications) }
             item {
                 val notificationPermission by viewModel.notificationPermission.collectAsStateWithLifecycle()
-                val notificationPermissionCallback = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
-
-                SlideAnimatedVisibility(!notificationPermission) {
-                    PermissionCard(
-                        title = stringResource(R.string.notification_permission),
-                        description = stringResource(R.string.allow_app_to_send_notifications),
-                        icon = painterResource(R.drawable.notification),
-                        onClick = {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                notificationPermissionCallback.launch(
-                                    Manifest.permission.POST_NOTIFICATIONS
-                                )
-                            }
+                var pendingNotification by rememberSaveable {
+                    mutableStateOf<PendingNotificationSetting?>(null)
+                }
+                val notificationPermissionCallback = rememberLauncherForActivityResult(
+                    ActivityResultContracts.RequestPermission()
+                ) { granted ->
+                    if (!granted) pendingNotification = null
+                }
+                LaunchedEffect(notificationPermission) {
+                    val pending = pendingNotification
+                    if (notificationPermission && pending != null) {
+                        pendingNotification = null
+                        when (pending) {
+                            PendingNotificationSetting.Foreground ->
+                                viewModel.onForegroundNotificationValueChanged(true)
+                            PendingNotificationSetting.Live ->
+                                viewModel.onLiveNotificationValueChanged(true)
+                            PendingNotificationSetting.Budget ->
+                                viewModel.onBudgetNotificationValueChanged(true)
+                            PendingNotificationSetting.Safety ->
+                                viewModel.onSafetyNotificationValueChanged(true)
                         }
-                    )
+                    }
+                }
+
+                fun onNotificationValueChanged(
+                    enabled: Boolean,
+                    pending: PendingNotificationSetting,
+                    apply: (Boolean) -> Unit
+                ) {
+                    if (enabled && !notificationPermission) {
+                        pendingNotification = pending
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            notificationPermissionCallback.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    } else {
+                        pendingNotification = null
+                        apply(enabled)
+                    }
                 }
 
                 SwitchPreference (
                     title = stringResource(R.string.notifications),
                     summary = stringResource(R.string.plan_notification_description),
                     icon = R.drawable.usage_notification,
-                    value = newPlan.notification,
-                    enabled = notificationPermission,
-                    onValueChanged = viewModel::onForegroundNotificationValueChanged,
+                    value = newPlan.notification && notificationPermission,
+                    onValueChanged = { enabled ->
+                        onNotificationValueChanged(
+                            enabled,
+                            PendingNotificationSetting.Foreground,
+                            viewModel::onForegroundNotificationValueChanged
+                        )
+                    },
                 )
-                SlideAnimatedVisibility(newPlan.notification && Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+                SlideAnimatedVisibility(
+                    newPlan.notification &&
+                        notificationPermission &&
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
+                ) {
                     Row (
                         modifier = Modifier.height(IntrinsicSize.Min),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -413,14 +453,18 @@ fun DataPlanConfig(
                             modifier = Modifier.weight(1f),
                             title = stringResource(R.string.live_notification),
                             icon = R.drawable.app_badging,
-                            value = newPlan.liveNotification,
-                            enabled = notificationPermission,
-                            onValueChanged = viewModel::onLiveNotificationValueChanged
+                            value = newPlan.liveNotification && notificationPermission,
+                            onValueChanged = { enabled ->
+                                onNotificationValueChanged(
+                                    enabled,
+                                    PendingNotificationSetting.Live,
+                                    viewModel::onLiveNotificationValueChanged
+                                )
+                            }
                         )
                         IconPreference(
                             title = stringResource(R.string.help),
                             painter = painterResource(R.drawable.help),
-                            enabled = notificationPermission,
                             onClick = { openLink(activity, "https://github.com/leekleak/traffic-light/wiki/Troubleshooting#notifications") },
                         )
                     }
@@ -429,17 +473,29 @@ fun DataPlanConfig(
                     title = stringResource(R.string.budget_overshoot_warning),
                     summary = stringResource(R.string.budget_overshoot_warning_description),
                     icon = R.drawable.warning,
-                    value = newPlan.budgetWarning,
-                    enabled = notificationPermission && newPlan.mainDataSize.byteValue > 0,
-                    onValueChanged = viewModel::onBudgetNotificationValueChanged
+                    value = newPlan.budgetWarning && notificationPermission,
+                    enabled = newPlan.mainDataSize.byteValue > 0,
+                    onValueChanged = { enabled ->
+                        onNotificationValueChanged(
+                            enabled,
+                            PendingNotificationSetting.Budget,
+                            viewModel::onBudgetNotificationValueChanged
+                        )
+                    }
                 )
                 SwitchPreference(
                     title = stringResource(R.string.safety_status_warning),
                     summary = stringResource(R.string.safety_status_warning_description),
                     icon = R.drawable.shield,
-                    value = newPlan.safetyWarning,
-                    enabled = notificationPermission && newPlan.mainDataSize.byteValue > 0,
-                    onValueChanged = viewModel::onSafetyNotificationValueChanged
+                    value = newPlan.safetyWarning && notificationPermission,
+                    enabled = newPlan.mainDataSize.byteValue > 0,
+                    onValueChanged = { enabled ->
+                        onNotificationValueChanged(
+                            enabled,
+                            PendingNotificationSetting.Safety,
+                            viewModel::onSafetyNotificationValueChanged
+                        )
+                    }
                 )
             }
             categoryTitleSmall { stringResource(R.string.notes) }

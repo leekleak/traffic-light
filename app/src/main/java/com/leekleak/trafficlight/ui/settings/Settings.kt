@@ -276,36 +276,46 @@ private fun NotificationSettings(
     val notification by viewModel.notification.collectAsStateWithLifecycle()
     val activePlanNotificationsCount by viewModel.activePlanNotificationsCount.collectAsStateWithLifecycle()
     val notificationPermission by permissionManager.notificationPermission.collectAsStateWithLifecycle()
-    val notificationPermissionCallback =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {}
 
-    SlideAnimatedVisibility(!notificationPermission) {
-        PermissionCard(
-            title = stringResource(R.string.notification_permission),
-            description = stringResource(R.string.allow_app_to_send_notifications),
-            icon = painterResource(R.drawable.notification),
-            onClick = {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    notificationPermissionCallback.launch(
-                        Manifest.permission.POST_NOTIFICATIONS
-                    )
-                }
-            }
-        )
+    var expectingNotificationPermission by remember { mutableStateOf(false) }
+
+    fun setNotificationsEnabled(enabled: Boolean) {
+        if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA && activePlanNotificationsCount > 0) {
+            showWarning()
+        }
+        scope.launch {
+            appPreferenceRepo.setNotification(enabled)
+        }
+    }
+
+    val notificationPermissionCallback =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (!granted) expectingNotificationPermission = false
+        }
+
+    LaunchedEffect(notificationPermission) {
+        if (notificationPermission && expectingNotificationPermission) {
+            expectingNotificationPermission = false
+            setNotificationsEnabled(true)
+        }
     }
 
     SwitchPreference(
         title = stringResource(R.string.notifications),
         summary = stringResource(R.string.notification_description),
         icon = R.drawable.speed_notification,
-        value = notification,
-        enabled = notificationPermission,
-        onValueChanged = {
-            if (it && Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA && activePlanNotificationsCount > 0) {
-                showWarning()
-            }
-            scope.launch {
-                appPreferenceRepo.setNotification(it)
+        value = notification && notificationPermission,
+        onValueChanged = { enabled ->
+            if (enabled && !notificationPermission) {
+                expectingNotificationPermission = true
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    notificationPermissionCallback.launch(
+                        Manifest.permission.POST_NOTIFICATIONS
+                    )
+                }
+            } else {
+                expectingNotificationPermission = false
+                setNotificationsEnabled(enabled)
             }
         },
     )
@@ -314,7 +324,6 @@ private fun NotificationSettings(
         NavigatePreference(
             title = stringResource(R.string.advanced_settings),
             icon = R.drawable.notification_settings,
-            enabled = notificationPermission,
             onClick = { navigator.goTo(NotificationSettingsKey) }
         )
     }
