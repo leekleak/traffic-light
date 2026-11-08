@@ -9,7 +9,6 @@
     <string name="battery_optimization_description">Отключение оптимизации батареи позволит приложению работать в фоновом режиме без прерываний.</string>
     <string name="usage_statistics">Разрешение использования</string>
     <string name="usage_statistics_description">Требуется для долгосрочного отслеживания использования сети.</string>
-    <string name="notifications">Уведомление</string>
     <string name="settings">Настройки</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Сотовая связь: %1$s</string>
