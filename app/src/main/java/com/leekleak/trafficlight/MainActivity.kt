@@ -16,7 +16,6 @@ import com.leekleak.trafficlight.model.DataPlanManager
 import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.services.notifications.NotificationService
 import com.leekleak.trafficlight.ui.app.App
-import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.trafficlight.ui.theme.AppTheme
 import com.leekleak.trafficlight.widget.WidgetReceiver
 import kotlinx.coroutines.Dispatchers
@@ -35,12 +34,12 @@ class MainActivity : ComponentActivity() {
     private val dataPlanManager: DataPlanManager by inject()
     private val playServicesProvider: PlayServicesProvider? by injectOrNull(PlayServicesProvider::class.java)
     private val imageLoader: ImageLoader by inject()
-    private val navigator: Navigator by inject()
     private val permissionManager: PermissionManager by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        permissionManager.update()
         enableEdgeToEdge()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
@@ -67,10 +66,7 @@ class MainActivity : ComponentActivity() {
             setSingletonImageLoaderFactory { imageLoader }
 
             AppTheme(appPreferenceRepo) {
-                App(
-                    navigator = navigator,
-                    permissionManager = permissionManager
-                )
+                App(permissionManager = permissionManager)
             }
         }
     }

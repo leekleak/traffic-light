@@ -2,8 +2,7 @@ package com.leekleak.trafficlight.ui.navigation
 
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.leekleak.core.ui.navigation.Navigator
-import com.leekleak.trafficlight.model.PermissionManager
+import com.leekleak.core.ui.navigation.LocalNavigator
 import com.leekleak.trafficlight.ui.history.History
 import com.leekleak.trafficlight.ui.overview.Overview
 import com.leekleak.trafficlight.ui.plans.DataPlanConfig
@@ -24,16 +23,10 @@ import org.koin.dsl.navigation3.navigation
 @OptIn(KoinExperimentalAPI::class)
 val navigationModule = module {
 
-    single {
-        val permissionManager: PermissionManager = get()
-        permissionManager.update()
-        val destination = if (permissionManager.usagePermission.value) OverviewKey else UsagePermissionRequestKey
-        Navigator(startDestination = destination)
-    }
-    navigation<OverviewKey> { Overview(get(), get()) }
+    navigation<OverviewKey> { Overview(LocalNavigator.current, get()) }
     navigation<DataPlansKey> {
         val viewModel: DataPlansVM = koinViewModel<DataPlansVM>()
-        val navigator: Navigator = get()
+        val navigator = LocalNavigator.current
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
         DataPlans(
             uiState = uiState,
@@ -44,13 +37,13 @@ val navigationModule = module {
         )
     }
     navigation<HistoryKey> { History(get(), get()) }
-    navigation<ToolsKey> { Tools(get()) }
-    navigation<SettingsKey> { Settings(get(), get(), get(), get()) }
-    navigation<UsagePermissionRequestKey> { UsagePermissionRequest(get(), get()) }
+    navigation<ToolsKey> { Tools(LocalNavigator.current) }
+    navigation<SettingsKey> { Settings(LocalNavigator.current, get(), get(), get()) }
+    navigation<UsagePermissionRequestKey> { UsagePermissionRequest(LocalNavigator.current, get()) }
     navigation<PlanConfigKey> { key ->
         val viewModel: DataPlanConfigVM = koinViewModel(key = key.dataPlan.hashedSubscriberID) { parametersOf(key.dataPlan) }
-        DataPlanConfig(get(), viewModel)
+        DataPlanConfig(LocalNavigator.current, viewModel)
     }
-    navigation<NotificationSettingsKey> { NotificationSettingsScreen(get(), get(), get(), get()) }
-    navigation<LibraryLicenseScreen> { LibraryLicenseScreen(get()) }
+    navigation<NotificationSettingsKey> { NotificationSettingsScreen(LocalNavigator.current, get(), get(), get()) }
+    navigation<LibraryLicenseScreen> { LibraryLicenseScreen(LocalNavigator.current) }
 }

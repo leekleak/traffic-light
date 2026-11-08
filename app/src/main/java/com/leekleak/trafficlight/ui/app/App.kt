@@ -1,17 +1,22 @@
 package com.leekleak.trafficlight.ui.app
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.navigation3.runtime.rememberNavBackStack
+import com.leekleak.core.ui.navigation.LocalNavigator
+import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.NavigationManager
-import com.leekleak.core.ui.navigation.Navigator
+import com.leekleak.trafficlight.ui.navigation.OverviewKey
+import com.leekleak.trafficlight.ui.navigation.UsagePermissionRequestKey
 
 @Composable
 fun App(
-    navigator: Navigator,
     permissionManager: PermissionManager
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -25,5 +30,12 @@ fun App(
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
-    NavigationManager(navigator)
+
+    val startDestination = if (permissionManager.usagePermission.value) OverviewKey else UsagePermissionRequestKey
+    val backStack = rememberNavBackStack(startDestination)
+    val navigator = remember(backStack) { Navigator(backStack) }
+
+    CompositionLocalProvider(LocalNavigator provides navigator) {
+        NavigationManager(navigator)
+    }
 }

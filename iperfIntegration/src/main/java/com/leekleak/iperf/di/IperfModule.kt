@@ -2,6 +2,7 @@ package com.leekleak.iperf.di
 
 import android.content.Context
 import androidx.room3.Room
+import com.leekleak.core.ui.navigation.LocalNavigator
 import com.leekleak.iperf.IPerf3Provider
 import com.leekleak.iperf.data.IPerfEntryDao
 import com.leekleak.iperf.data.IPerfEntryDatabase
@@ -43,6 +44,6 @@ val iperfModule = module {
         } else {
             koinViewModel<IperfClientVM>()
         }
-        IperfLogScreen(get(), key.events, viewModel)
+        IperfLogScreen(LocalNavigator.current, key.events, viewModel)
     }
 }

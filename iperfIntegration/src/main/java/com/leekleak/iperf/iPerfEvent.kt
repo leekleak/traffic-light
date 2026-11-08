@@ -197,25 +197,34 @@ data class CpuUtilization(
     @SerialName("remote_system") val remoteSystem: Double
 )
 
+@Serializable
 sealed interface IperfEvent
 
+@Serializable
 data class StartEvent(val data: StartData) : IperfEvent
 
+@Serializable
 data class IntervalEvent(
     val data: IntervalData,
     val results: List<IntervalResult>
 ) : IperfEvent
 
+@Serializable
 data class EndEvent(val data: EndData) : IperfEvent
 
+@Serializable
 data class ErrorEvent(val message: String) : IperfEvent
 
+@Serializable
 data class ServerOutputTextEvent(val text: String) : IperfEvent
 
+@Serializable
 data class ServerOutputJsonEvent(val json: JsonObject) : IperfEvent
 
+@Serializable
 data class UnknownEvent(val event: String, val data: JsonElement) : IperfEvent
 
+@Serializable
 sealed interface IntervalResult {
     val protocol: String
     val socket: Int
@@ -227,6 +236,7 @@ sealed interface IntervalResult {
     val omitted: Boolean
 }
 
+@Serializable
 data class TcpIntervalResult(
     override val protocol: String = "tcp",
     override val socket: Int,
@@ -240,6 +250,7 @@ data class TcpIntervalResult(
     val rtt: Long?
 ) : IntervalResult
 
+@Serializable
 data class UdpIntervalResult(
     override val protocol: String = "udp",
     override val socket: Int,

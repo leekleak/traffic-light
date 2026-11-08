@@ -1,5 +1,6 @@
 package com.leekleak.trafficlight.iperf
 
+import com.leekleak.core.ui.navigation.LocalNavigator
 import com.leekleak.iperf.ui.IperfScreen
 import com.leekleak.iperf.ui.IperfScreenVM
 import com.leekleak.trafficlight.ui.navigation.IperfScreenKey
@@ -12,6 +13,6 @@ import org.koin.dsl.navigation3.navigation
 val iperfNavigationModule = module {
     navigation<IperfScreenKey> {
         val viewModel: IperfScreenVM = koinViewModel()
-        IperfScreen(get(), viewModel)
+        IperfScreen(LocalNavigator.current, viewModel)
     }
 }
