@@ -13,7 +13,6 @@
     <string name="battery_optimization_description">Va disabilitata per impedire al telefono di chiudere il servizio in background dopo un po\'.</string>
     <string name="usage_statistics">Accesso ai dati di utilizzo</string>
     <string name="usage_statistics_description">Richiesto per il monitoraggio a lungo termine dei dati.</string>
-    <string name="notifications">Notifica</string>
     <string name="screen_off_update">Aggiornamento a schermo spento</string>
     <string name="screen_off_update_description">Permette il monitoraggio nell\'Always-On Display, ma incide sul consumo della batteria.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
