@@ -12,7 +12,6 @@
     <string name="battery_optimization_description">Užtikrina procesas nebus sustabdytas</string>
     <string name="usage_statistics">Naudojimo statistikos prieiga</string>
     <string name="usage_statistics_description">Reikalinga istorinių duomenų rinkimui.</string>
-    <string name="notifications">Pranešimas</string>
     <string name="screen_off_update">Atnaujinti išjungus ekraną</string>
     <string name="screen_off_update_description">Leidžia sekti duomenų naudojimą \"AOD\" režime.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
@@ -132,10 +131,7 @@
     <string name="plan_warning_notification">Plano įspėjamasis pranešimas</string>
     <string name="notification_aggregation_warning_title">Keli pranešimai</string>
     <string name="notification_aggregation_warning_text">Android 16 ir naujesnėse versijose sistema sujungia nuolatinius pranešimus, tad jų ikonos gali nebeveikti.</string>
-    <string name="notification_permission">Pranešimų leidimas</string>
-    <string name="allow_app_to_send_notifications">Leisti programėlei siųsti pranešimus</string>
     <string name="hint">Užuomina</string>
-    <string name="press_the_card_to_configure_plan_data">Paspauskite kortelę ir sukonfigūruokite plano duomenis.</string>
     <string name="extras">Papildai</string>
     <string name="speed_threshold">Užtildyti pranešimą</string>
     <string name="speed_threshold_description">Užtildyti pranešimą kai greitis neviršija ribos.</string>
@@ -152,7 +148,6 @@
     <string name="safety_tooltip">Suvartota plano duomenų dalis palyginta su praėjusio laiko santykiu.</string>
     <string name="sizes">Dydžiai</string>
     <string name="plan_usage">Plano suvartojimas</string>
-    <string name="calculate_usage">Apskaičiuoti kiek suvartota</string>
     <string name="system_service">Sistemos servisas %1$d</string>
     <string name="disconnected">Atsijungta</string>
     <string name="budget_overshoot_warning">Biudžeto įspėjimas</string>
@@ -177,8 +172,6 @@
     <string name="server_name">Serverio pavadinimas</string>
     <string name="my_server">Mano serveris</string>
     <string name="name_cannot_be_empty">Pavadinimas negali būti tuščias</string>
-    <string name="name_already_used">Pavadinimas jau naudojamas</string>
-    <string name="invalid_ip_address">Neteisingas IP adresas</string>
     <string name="invalid_port">Neteisingas prievadas</string>
     <string name="remove_server">Panaikinti serverį</string>
     <string name="remove_server_question">Ar jūs tikrai norite panaikinti šį serverį?</string>
@@ -186,4 +179,20 @@
     <string name="client">Klientas</string>
     <string name="server">Serveris</string>
     <string name="server_address">Serverio adresas</string>
+    <string name="direction">Kryptis</string>
+    <string name="protocol">Protokolas</string>
+    <string name="bandwidth">Tinklo pralaidumas</string>
+    <string name="parallel_streams">Lygiagretūs srautai</string>
+    <string name="test_duration">Testo trukmė (sekundės)</string>
+    <string name="logs">Įvykių užrašai</string>
+    <plurals name="parallel_streams_count">
+        <item quantity="one">%d srautas</item>
+        <item quantity="few">%d srautai</item>
+        <item quantity="many">%d srautų</item>
+        <item quantity="other">%d srautų</item>
+    </plurals>
+    <string name="version">Versija</string>
+    <string name="socket_id">Lizdo ID: %1$d</string>
+    <string name="aggregate_stats">Agerguota statistika</string>
+    <string name="no_web_browser_installed">Trūksta interneto naršyklės</string>
 </resources>
