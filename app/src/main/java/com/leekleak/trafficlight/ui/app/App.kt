@@ -14,6 +14,7 @@ import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.NavigationManager
 import com.leekleak.trafficlight.ui.navigation.OverviewKey
 import com.leekleak.trafficlight.ui.navigation.UsagePermissionRequestKey
+import androidx.compose.runtime.collectAsState
 
 @Composable
 fun App(
@@ -31,7 +32,7 @@ fun App(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    val startDestination = if (permissionManager.usagePermission.value) OverviewKey else UsagePermissionRequestKey
+    val startDestination = if (permissionManager.usagePermission.collectAsState().value) OverviewKey else UsagePermissionRequestKey
     val backStack = rememberNavBackStack(startDestination)
     val navigator = remember(backStack) { Navigator(backStack) }
 
