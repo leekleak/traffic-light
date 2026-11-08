@@ -383,7 +383,7 @@ fun DataPlanConfig(
 
                 }
             }
-            categoryTitleSmall { stringResource(R.string.notifications) }
+            categoryTitleSmall { stringResource(R.string.notification) }
             item {
                 val notificationPermission by viewModel.notificationPermission.collectAsStateWithLifecycle()
                 var pendingNotification by rememberSaveable {
@@ -428,7 +428,7 @@ fun DataPlanConfig(
                 }
 
                 SwitchPreference (
-                    title = stringResource(R.string.notifications),
+                    title = stringResource(R.string.notification),
                     summary = stringResource(R.string.plan_notification_description),
                     icon = R.drawable.usage_notification,
                     value = newPlan.notification && notificationPermission,

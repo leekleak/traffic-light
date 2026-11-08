@@ -31,6 +31,7 @@ import com.leekleak.core.ui.theme.card
 import com.leekleak.core.util.CategoryTitleSmallText
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.ui.navigation.IperfScreenKey
+import com.leekleak.trafficlight.ui.navigation.NotificationSettingsKey
 
 private val ToolCardMinWidth = 152.dp
 private val ToolGridSpacing = 8.dp
@@ -49,6 +50,16 @@ fun Tools(navigator: Navigator) {
         backAction = BackAction.None,
         extraPadding = LocalNavigationBarPadding.current,
     ) {
+        CategoryTitleSmallText(stringResource(R.string.speed_tracking))
+        ToolGrid(
+            tools = listOf(
+                Tool(
+                    title = stringResource(R.string.notification),
+                    icon = R.drawable.speed_notification,
+                    onClick = { navigator.goTo(NotificationSettingsKey) },
+                )
+            )
+        )
         if (BuildConfig.IPERF) {
             CategoryTitleSmallText(stringResource(R.string.reliability))
             ToolGrid(

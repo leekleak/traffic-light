@@ -1,10 +1,6 @@
 package com.leekleak.trafficlight.ui.settings
 
-import android.Manifest
-import android.os.Build
 import androidx.activity.compose.LocalActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -44,34 +40,21 @@ import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.integrations.ShizukuServicesProvider
 import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.LibraryLicenseScreen
-import com.leekleak.trafficlight.ui.navigation.NotificationSettingsKey
 import kotlinx.coroutines.launch
 
 @Composable
 fun Settings(
     navigator: Navigator,
-    viewModel: SettingsVM,
     appPreferenceRepo: AppPreferenceRepo,
     permissionManager: PermissionManager,
     shizukuServicesProvider: ShizukuServicesProvider,
 ) {
-    var showWarning by remember { mutableStateOf(false) }
-    if (showWarning) {
-        NotificationWarningDialog(onDismiss = { showWarning = false })
-    }
-
     HazeScaffold(
         title = stringResource(R.string.settings),
         verticalArrangement = Arrangement.Top,
         backAction = BackAction.Normal(navigator),
     ) {
         BackgroundPermissionPrompt(permissionManager)
-        NotificationSettings(
-            navigator = navigator,
-            viewModel = viewModel,
-            permissionManager = permissionManager,
-            appPreferenceRepo = appPreferenceRepo,
-        ) { showWarning = true }
         if (BuildConfig.SHIZUKU) {
             ShizukuSettings(
                 appPreferenceRepo = appPreferenceRepo,
@@ -258,73 +241,6 @@ private fun BackgroundPermissionPrompt(permissionManager: PermissionManager) {
             description = stringResource(R.string.battery_optimization_description),
             icon = painterResource(R.drawable.battery),
             onClick = { permissionManager.askBackgroundPermission(activity) }
-        )
-    }
-}
-
-@Composable
-private fun NotificationSettings(
-    navigator: Navigator,
-    viewModel: SettingsVM,
-    permissionManager: PermissionManager,
-    appPreferenceRepo: AppPreferenceRepo,
-    showWarning: () -> Unit
-) {
-    val scope = rememberCoroutineScope()
-
-    CategoryTitleSmallText(stringResource(R.string.notifications))
-    val notification by viewModel.notification.collectAsStateWithLifecycle()
-    val activePlanNotificationsCount by viewModel.activePlanNotificationsCount.collectAsStateWithLifecycle()
-    val notificationPermission by permissionManager.notificationPermission.collectAsStateWithLifecycle()
-
-    var expectingNotificationPermission by remember { mutableStateOf(false) }
-
-    fun setNotificationsEnabled(enabled: Boolean) {
-        if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA && activePlanNotificationsCount > 0) {
-            showWarning()
-        }
-        scope.launch {
-            appPreferenceRepo.setNotification(enabled)
-        }
-    }
-
-    val notificationPermissionCallback =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (!granted) expectingNotificationPermission = false
-        }
-
-    LaunchedEffect(notificationPermission) {
-        if (notificationPermission && expectingNotificationPermission) {
-            expectingNotificationPermission = false
-            setNotificationsEnabled(true)
-        }
-    }
-
-    SwitchPreference(
-        title = stringResource(R.string.notifications),
-        summary = stringResource(R.string.notification_description),
-        icon = R.drawable.speed_notification,
-        value = notification && notificationPermission,
-        onValueChanged = { enabled ->
-            if (enabled && !notificationPermission) {
-                expectingNotificationPermission = true
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    notificationPermissionCallback.launch(
-                        Manifest.permission.POST_NOTIFICATIONS
-                    )
-                }
-            } else {
-                expectingNotificationPermission = false
-                setNotificationsEnabled(enabled)
-            }
-        },
-    )
-
-    SlideAnimatedVisibility(notification) {
-        NavigatePreference(
-            title = stringResource(R.string.advanced_settings),
-            icon = R.drawable.notification_settings,
-            onClick = { navigator.goTo(NotificationSettingsKey) }
         )
     }
 }

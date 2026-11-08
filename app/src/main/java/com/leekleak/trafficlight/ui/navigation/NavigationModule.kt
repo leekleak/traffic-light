@@ -45,12 +45,12 @@ val navigationModule = module {
     }
     navigation<HistoryKey> { History(get(), get()) }
     navigation<ToolsKey> { Tools(get()) }
-    navigation<SettingsKey> { Settings(get(), get(), get(), get(), get()) }
+    navigation<SettingsKey> { Settings(get(), get(), get(), get()) }
     navigation<UsagePermissionRequestKey> { UsagePermissionRequest(get(), get()) }
     navigation<PlanConfigKey> { key ->
         val viewModel: DataPlanConfigVM = koinViewModel(key = key.dataPlan.hashedSubscriberID) { parametersOf(key.dataPlan) }
         DataPlanConfig(get(), viewModel)
     }
-    navigation<NotificationSettingsKey> { NotificationSettingsScreen(get(), get(), get()) }
+    navigation<NotificationSettingsKey> { NotificationSettingsScreen(get(), get(), get(), get()) }
     navigation<LibraryLicenseScreen> { LibraryLicenseScreen(get()) }
 }

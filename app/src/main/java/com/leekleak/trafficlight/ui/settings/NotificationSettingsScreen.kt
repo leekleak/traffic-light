@@ -1,9 +1,12 @@
 package com.leekleak.trafficlight.ui.settings
 
+import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -19,20 +22,20 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.core.R
-import com.leekleak.trafficlight.database.AppPreferenceRepo
-import com.leekleak.trafficlight.database.TrafficSnapshotManager
-import com.leekleak.trafficlight.services.notifications.SpeedNotification
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
 import com.leekleak.core.ui.navigation.Navigator
@@ -40,20 +43,93 @@ import com.leekleak.core.ui.theme.LocalSpeedMetric
 import com.leekleak.core.util.CategoryTitleSmallText
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.openLink
+import com.leekleak.trafficlight.database.AppPreferenceRepo
+import com.leekleak.trafficlight.database.TrafficSnapshotManager
+import com.leekleak.trafficlight.model.PermissionManager
+import com.leekleak.trafficlight.services.notifications.SpeedNotification
 import kotlinx.coroutines.launch
 import kotlin.math.pow
 
 @Composable
-fun NotificationSettingsScreen(navigator: Navigator, viewModel: SettingsVM, appPreferenceRepo: AppPreferenceRepo) {
+fun NotificationSettingsScreen(
+    navigator: Navigator,
+    viewModel: SettingsVM,
+    appPreferenceRepo: AppPreferenceRepo,
+    permissionManager: PermissionManager,
+) {
     HazeScaffold(
-        title = stringResource(R.string.notifications),
+        title = stringResource(R.string.notification),
         backAction = BackAction.Normal(navigator),
         verticalArrangement = Arrangement.Top
     ) {
+        NotificationSettings(viewModel, appPreferenceRepo, permissionManager)
         NotificationAppearanceSettings(viewModel, appPreferenceRepo)
         BehaviorSettings(appPreferenceRepo)
         NotificationChannelSettings(appPreferenceRepo)
     }
+}
+
+@Composable
+private fun NotificationSettings(
+    viewModel: SettingsVM,
+    appPreferenceRepo: AppPreferenceRepo,
+    permissionManager: PermissionManager,
+) {
+    val scope = rememberCoroutineScope()
+
+    CategoryTitleSmallText(stringResource(R.string.notification))
+
+    var showWarning by remember { mutableStateOf(false) }
+    if (showWarning) {
+        NotificationWarningDialog(onDismiss = { showWarning = false })
+    }
+
+    val notification by viewModel.notification.collectAsStateWithLifecycle()
+    val activePlanNotificationsCount by viewModel.activePlanNotificationsCount.collectAsStateWithLifecycle()
+    val notificationPermission by permissionManager.notificationPermission.collectAsStateWithLifecycle()
+
+    var expectingNotificationPermission by remember { mutableStateOf(false) }
+
+    fun setNotificationsEnabled(enabled: Boolean) {
+        if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA && activePlanNotificationsCount > 0) {
+            showWarning = true
+        }
+        scope.launch {
+            appPreferenceRepo.setNotification(enabled)
+        }
+    }
+
+    val notificationPermissionCallback =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (!granted) expectingNotificationPermission = false
+        }
+
+    LaunchedEffect(notificationPermission) {
+        if (notificationPermission && expectingNotificationPermission) {
+            expectingNotificationPermission = false
+            setNotificationsEnabled(true)
+        }
+    }
+
+    SwitchPreference(
+        title = stringResource(R.string.notification),
+        summary = stringResource(R.string.notification_description),
+        icon = R.drawable.speed_notification,
+        value = notification && notificationPermission,
+        onValueChanged = { enabled ->
+            if (enabled && !notificationPermission) {
+                expectingNotificationPermission = true
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    notificationPermissionCallback.launch(
+                        Manifest.permission.POST_NOTIFICATIONS
+                    )
+                }
+            } else {
+                expectingNotificationPermission = false
+                setNotificationsEnabled(enabled)
+            }
+        },
+    )
 }
 
 @Composable
