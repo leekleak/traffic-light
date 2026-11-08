@@ -12,7 +12,6 @@
     <string name="battery_optimization_description">Stelle sicher, dass das System den Dienst nicht stoppt</string>
     <string name="usage_statistics">Nutzungsberechtigung</string>
     <string name="usage_statistics_description">Wird zur langfristigen Erfassung der Datennutzung benötigt.</string>
-    <string name="notifications">Benachrichtigung</string>
     <string name="screen_off_update">Aktualisieren wenn Bildschirm aus ist</string>
     <string name="screen_off_update_description">Ermöglicht die Nachverfolgung der Nutzung auf dem AOD, wirkt sich jedoch auf den Akku aus.</string>
     <string name="wi_fi">WLAN: %1$s</string>
@@ -133,10 +132,7 @@
     <string name="persistent_notification_silent">Dauerhafte Benachrichtigung (Stumm)</string>
     <string name="plan_notification">Plan Benachrichtigung</string>
     <string name="plan_warning_notification">Plan Warnung Benachrichtigung</string>
-    <string name="notification_permission">Benachrichtigungsberechtigung</string>
-    <string name="allow_app_to_send_notifications">App erlauben, Benachrichtigungen zu senden</string>
     <string name="hint">Hinweis</string>
-    <string name="press_the_card_to_configure_plan_data">Tippe auf die Karte, um die Plandaten zu konfigurieren.</string>
     <string name="extras">Extras</string>
     <string name="speed_threshold">Benachrichtigung stummschalten</string>
     <string name="speed_threshold_description">Benachrichtigung stummschalten, wenn ein Schwellenwert unterschritten wird.</string>
@@ -158,7 +154,6 @@
     <string name="base_1000">Basis 1000</string>
     <string name="sizes">Größen</string>
     <string name="plan_usage">Plannutzung</string>
-    <string name="calculate_usage">Verbrauch berechnen</string>
     <string name="system_service">Systemdienst %1$d</string>
     <string name="rollover">Datenübertrag</string>
     <string name="rollover_description">Füge nicht verbrauchtes Datenvolumen am Ende des Abrechnungszeitraums als Zusatzpaket hinzu.</string>
