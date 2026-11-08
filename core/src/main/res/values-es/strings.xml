@@ -12,7 +12,6 @@
     <string name="battery_optimization_description">Asegúrese que el sistema no detenga el servicio</string>
     <string name="usage_statistics">Permiso de uso</string>
     <string name="usage_statistics_description">Necesario para el seguimiento de datos a largo plazo.</string>
-    <string name="notifications">Notificacioń</string>
     <string name="screen_off_update">Actualizar mientras la pantalla este apagada</string>
     <string name="screen_off_update_description">Permite el seguimiento en la pantalla siempre encendida (AOD), pero afecta a la batería.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
@@ -136,10 +135,7 @@
     <string name="plan_warning_notification">Plan de aviso de notificación</string>
     <string name="notification_aggregation_warning_title">Multiples notificaciones</string>
     <string name="notification_aggregation_warning_text">En Android 16 y superior, notificaciones de múltiples fondos son unidos, significando sus iconos no son más visibles separadamente.</string>
-    <string name="notification_permission">Permisos de notificación</string>
-    <string name="allow_app_to_send_notifications">Concede a las app enviar notificaciones</string>
     <string name="hint">Consejo</string>
-    <string name="press_the_card_to_configure_plan_data">Presione la carta para configurar el plan de datos.</string>
     <string name="extras">Adicionales</string>
     <string name="speed_threshold">Notificación silenciosa</string>
     <string name="speed_threshold_description">Notificación silenciosa cuando bajo un umbral.</string>
@@ -156,7 +152,6 @@
     <string name="safety_tooltip">Uso de plan de tipo comparado con el tiempo trascurrido.</string>
     <string name="sizes">Tamaños</string>
     <string name="plan_usage">Uso planificado</string>
-    <string name="calculate_usage">Calcular empleo</string>
     <string name="system_service">Servicio del sistema %1$d</string>
     <plurals name="resets_in_hours">
         <item quantity="one">Restablece en %d hora</item>
