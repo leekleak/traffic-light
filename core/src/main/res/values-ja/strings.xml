@@ -11,7 +11,6 @@
     <string name="battery_optimization_description">一定時間後にスマホがバックグラウンドサービスを強制終了するのを防ぐためには、無効にする必要があります。</string>
     <string name="usage_statistics">使用許可</string>
     <string name="usage_statistics_description">長期的なデータ使用量の追跡に必要です。</string>
-    <string name="notifications">通知</string>
     <string name="screen_off_update">画面がオフのときに更新する</string>
     <string name="screen_off_update_description">常時表示ディスプレイでの使用状況の追跡は可能ですが、バッテリー消費に影響します。</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
