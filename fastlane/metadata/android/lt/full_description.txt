@@ -1,6 +1,7 @@
 Šviesoforas yra atviro kodo įrankis skirtas duomenų suvartojimo sekimui, užtikrinant vartotojo privatumą. Įkvėptas Internet Speed Meter bei GlassWire.
 
 Privalumai:
+
 - Atviras kodas
 - Reikalauja nedaug leidimų
 - Naudoja mažai akumuliatoriaus
