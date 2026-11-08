@@ -12,7 +12,6 @@
     <string name="battery_optimization_description">Sistemin hizmeti durdurmamasını sağlar</string>
     <string name="usage_statistics">Kullanım İzni</string>
     <string name="usage_statistics_description">Uzun vadeli veri kullanım takibi için gereklidir.</string>
-    <string name="notifications">Bildirim</string>
     <string name="screen_off_update">Ekran kapandığında güncelle</string>
     <string name="screen_off_update_description">Always-on-Display\'de takibe olanak sağlar ama pil tüketimini arttırır.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
@@ -133,10 +132,7 @@
     <string name="persistent_notification_silent">Kalıcı Bildirim (Sessiz)</string>
     <string name="plan_notification">Plan Bildirimi</string>
     <string name="plan_warning_notification">Plan Uyarı Bildirimi</string>
-    <string name="notification_permission">Bildirim İzni</string>
-    <string name="allow_app_to_send_notifications">Uygulamanın bildirim göndermesine izin ver</string>
     <string name="hint">İpucu</string>
-    <string name="press_the_card_to_configure_plan_data">Plan ayarlarını yapmak için karta basın.</string>
     <string name="extras">Ekstralar</string>
     <string name="speed_threshold">Bildirimi sessizleştir</string>
     <string name="speed_threshold_description">Eşik değerinin altında olduğunda bildirimleri sessize al.</string>
@@ -158,7 +154,6 @@
     <string name="safety_tooltip">Geçen süreye göre plan kullanım oranı.</string>
     <string name="sizes">Boyutlar</string>
     <string name="plan_usage">Plan kullanımı</string>
-    <string name="calculate_usage">Kullanımı ölç</string>
     <string name="system_service">Sistem servisi %1$d</string>
     <string name="rollover">Devretme</string>
     <string name="rollover_description">Dönem sonunda kullanılmayan verileri bir ek hesaba aktarın.</string>
@@ -173,8 +168,6 @@
     <string name="server_name">Sunucu adı</string>
     <string name="my_server">Sunucum</string>
     <string name="name_cannot_be_empty">Ad boş olamaz</string>
-    <string name="name_already_used">Ad zaten kullanılıyor</string>
-    <string name="invalid_ip_address">Geçersiz IP adresi</string>
     <string name="invalid_port">Geçersiz bağlantı noktası</string>
     <string name="remove_server">Sunucuyu kaldır</string>
     <string name="remove_server_question">Bu sunucuyu kaldırmak istediğinizden emin misiniz?</string>
