@@ -12,7 +12,6 @@
     <string name="battery_optimization_description">Pastikan sistem tidak menghentikan layanan</string>
     <string name="usage_statistics">Izin Penggunaan</string>
     <string name="usage_statistics_description">Diperlukan untuk pemantauan penggunaan data jangka panjang.</string>
-    <string name="notifications">Notifikasi</string>
     <string name="screen_off_update">Perbarui ketika layar mati</string>
     <string name="screen_off_update_description">Izinkan pemantauan penggunaan pada AOD, tetapi berdampak pada daya baterai.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
@@ -120,10 +119,7 @@
     <string name="persistent_notification">Notifikasi Persisten</string>
     <string name="plan_notification">Notifikasi Paket</string>
     <string name="plan_warning_notification">Notifikasi Peringatan Paket</string>
-    <string name="notification_permission">Izin Notifikasi</string>
-    <string name="allow_app_to_send_notifications">Izinkan aplikasi mengirim notifikasi</string>
     <string name="hint">Petunjuk</string>
-    <string name="press_the_card_to_configure_plan_data">Tekan kartu untuk mengatur data paket.</string>
     <plurals name="resets_in_hours">
         <item quantity="other">Direset dalam %d jam</item>
     </plurals>
@@ -156,7 +152,6 @@
     <string name="sizes">Ukuran</string>
     <string name="plan_usage">Penggunaan paket</string>
     <string name="size_unit">Satuan ukuran</string>
-    <string name="calculate_usage">Hitung penggunaan</string>
     <string name="system_service">Layanan sistem %1$d</string>
     <string name="rollover">Rollover</string>
     <string name="rollover_description">Tambahkan data yang belum terpakai pada bagian tambahan di akhir periode.</string>
