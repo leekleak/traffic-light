@@ -1,6 +1,11 @@
-<img width="100%" src="https://raw.githubusercontent.com/leekleak/traffic-light/refs/heads/main/fastlane/metadata/android/en-US/images/featureGraphic.png" alt="Logo">
+<div align="center">
+  <img src="branding/icon/icon.svg" width="160" alt="Traffic Light icon"/>
+  <br>
+  <h1>Traffic Light</h1> 
+  <h3>Advanced network monitor</h3> 
+  <br>
+</div>
 
-# Traffic Light
 Traffic Light is an open-source tool for tracking your network usage while ensuring total privacy. Inspired by Internet Speed Meter and GlassWire.
 
 ## Features
