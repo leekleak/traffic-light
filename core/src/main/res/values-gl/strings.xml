@@ -12,7 +12,6 @@
     <string name="battery_optimization_description">Asegúrate de co sistema non deteña o servizo</string>
     <string name="usage_statistics">Permiso de uso</string>
     <string name="usage_statistics_description">Preciso para o seguimento do uso de datos a longo prazo.</string>
-    <string name="notifications">Notificacioń</string>
     <string name="screen_off_update">Actualizar cando a pantalla está apagada</string>
     <string name="screen_off_update_description">Permite facer seguimento do uso na pantalla sempre activa (AOD), pero afecta á batería.</string>
     <string name="wi_fi">Sen fíos: %1$s</string>
@@ -136,10 +135,7 @@
     <string name="plan_warning_notification">Notificación de aviso do plan</string>
     <string name="notification_aggregation_warning_title">Notificacións múltiples</string>
     <string name="notification_aggregation_warning_text">En Android 16 e versións posteriores, as notificacións en primeiro plano múltiples combínanse, o que significa cas súas iconas xa non son visibles por separado.</string>
-    <string name="notification_permission">Permiso de notificacións</string>
-    <string name="allow_app_to_send_notifications">Permitir ca aplicación envíe notificacións</string>
     <string name="hint">Consello</string>
-    <string name="press_the_card_to_configure_plan_data">Preme a tarxeta para configurar os datos do plan.</string>
     <string name="extras">Extras</string>
     <string name="speed_threshold">Acalar notificación</string>
     <string name="speed_threshold_description">Acalar a notificación cando estea por debaixo dun limiar.</string>
@@ -156,7 +152,6 @@
     <string name="safety_tooltip">Proporción de uso do plan en comparación co tempo transcorrido.</string>
     <string name="sizes">Tamaños</string>
     <string name="plan_usage">Uso do plan</string>
-    <string name="calculate_usage">Calcular o consumo</string>
     <string name="system_service">Servizo do sistema %1$d</string>
     <string name="selected">Seleccionado</string>
     <string name="blur_effects">Efectos de desenfoque</string>
