@@ -12,7 +12,6 @@
     <string name="battery_optimization_description">சிஸ்டம் சேவையை நிறுத்தாமல் இருப்பதை உறுதிசெய்யவும்</string>
     <string name="usage_statistics">பயன்பாட்டு அனுமதி</string>
     <string name="usage_statistics_description">நீண்ட கால தரவு பயன்பாட்டைக் கண்காணிக்க இது தேவைப்படுகிறது.</string>
-    <string name="notifications">அறிவிப்பு</string>
     <string name="screen_off_update">திரை அணைந்திருக்கும்போது புதுப்பிக்கவும்</string>
     <string name="screen_off_update_description">AOD-இல் பயன்பாட்டைக் கண்காணிக்க அனுமதிக்கும், ஆனால் பேட்டரி பயன்பாடு அதிகரிக்கும்.</string>
     <string name="speed_in_bits">வேகத்தை பிட்களில் காட்டவும்</string>
@@ -132,10 +131,7 @@
     <string name="plan_warning_notification">திட்ட எச்சரிக்கை அறிவிப்பு</string>
     <string name="notification_aggregation_warning_title">பல அறிவிப்புகள்</string>
     <string name="notification_aggregation_warning_text">Android 16 மற்றும் அதற்கு மேற்பட்ட பதிப்புகளில், பல முன்னணி அறிவிப்புகள் ஒன்றிணைக்கப்படுவதால், அவற்றின் ஐகான்கள் தனித்தனியாகத் தெரிவதில்லை.</string>
-    <string name="notification_permission">அறிவிப்பு அனுமதி</string>
-    <string name="allow_app_to_send_notifications">செயலி அறிவிப்புகளை அனுப்ப அனுமதிக்கவும்</string>
     <string name="hint">சிறு குறிப்ப</string>
-    <string name="press_the_card_to_configure_plan_data">திட்டத் தரவை உள்ளமைக்க அட்டையை அழுத்தவும்.</string>
     <string name="extras">கூடுதல் அம்சங்கள்</string>
     <string name="speed_threshold">அறிவிப்பை அமைதிப்படுத்து</string>
     <string name="speed_threshold_description">அளவுக்குக் குறைவாக இருக்கும்போது அறிவிப்பை அமைதிப்படுத்தவும்.</string>
@@ -152,7 +148,6 @@
     <string name="safety_tooltip">கடந்த நேரத்துடன் ஒப்பிடும்போது திட்டப் பயன்பாட்டு விகிதம்.</string>
     <string name="sizes">அளவுகள்</string>
     <string name="plan_usage">திட்டப் பயன்பாடு</string>
-    <string name="calculate_usage">பயன்பாட்டைக் கணக்கிடுங்கள்</string>
     <string name="system_service">அமைப்புச் சேவை %1$d</string>
     <string name="selected">தேர்ந்தெடுக்கப்பட்டது</string>
     <string name="blur_effects">மங்கல் விளைவுகள்</string>
