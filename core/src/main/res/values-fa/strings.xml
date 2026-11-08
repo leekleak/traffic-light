@@ -12,7 +12,6 @@
     <string name="usage_statistics">مجوز استفاده</string>
     <string name="battery_optimization_description">اطمینان حاصل کنید که سیستم سرویس‌دهی را متوقف نمی‌کند</string>
     <string name="usage_statistics_description">برای ردیابی بلندمدت مصرف داده نیاز است.</string>
-    <string name="notifications">اعلان</string>
     <string name="screen_off_update">وقتی صفحه خاموشه آپدیت کن</string>
     <string name="wi_fi">وای فای: %1$s</string>
     <string name="mobile">موبایل: %1$s</string>
@@ -132,10 +131,7 @@
     <string name="plan_warning_notification">اعلان اخطار بسته</string>
     <string name="notification_aggregation_warning_title">اعلان‌های متعدد</string>
     <string name="notification_aggregation_warning_text">در اندروید ۱۶ و نسخه‌های بالاتر، چند اعلان پیش‌زمینه با هم ادغام می‌شوند و در نتیجه، نمادهای آن‌ها دیگر به‌صورت جداگانه نمایش داده نمی‌شوند.</string>
-    <string name="notification_permission">مجوز اعلان‌ها</string>
-    <string name="allow_app_to_send_notifications">اجازه دهید برنامه اعلان ارسال کند</string>
     <string name="hint">راهنما</string>
-    <string name="press_the_card_to_configure_plan_data">برای تنظیم اطلاعات بسته، روی کارت ضربه بزنید.</string>
     <string name="extras">حجم اضافی</string>
     <string name="speed_threshold">بی‌صدا کردن اعلان</string>
     <string name="speed_threshold_description">وقتی مصرف کمتر از حد آستانه است، اعلان را بی‌صدا کنید.</string>
@@ -152,7 +148,6 @@
     <string name="safety_tooltip">نسبت مصرف بسته در مقایسه با زمان سپری‌شده.</string>
     <string name="sizes">اندازه‌ها</string>
     <string name="plan_usage">مصرف بسته</string>
-    <string name="calculate_usage">محاسبه مصرف</string>
     <string name="system_service">سرویس سیستمی %1$d</string>
     <string name="selected">انتخاب‌شده</string>
     <string name="blur_effects">جلوه‌ تار</string>
