@@ -12,7 +12,6 @@
     <string name="battery_optimization_description">Zorgt ervoor dat het systeem niet de service stopt</string>
     <string name="usage_statistics">Gebruiksmachtiging</string>
     <string name="usage_statistics_description">Nodig voor het langdurig volgen van het datagebruik.</string>
-    <string name="notifications">Melding</string>
     <string name="screen_off_update">Updaten wanneer het scherm uit is</string>
     <string name="screen_off_update_description">Staat volgen van gebruik toe op de AOD, maar kan invloed hebben op de batterij.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
@@ -125,10 +124,7 @@
     <string name="persistent_notification">Blijvende melding</string>
     <string name="plan_notification">Bundelmelding</string>
     <string name="plan_warning_notification">Waarschuwingsmelding van bundel</string>
-    <string name="notification_permission">Meldingsmachtigingen</string>
-    <string name="allow_app_to_send_notifications">Sta de app toe om meldingen te sturen</string>
     <string name="hint">Hint</string>
-    <string name="press_the_card_to_configure_plan_data">Druk op de kaart om de bundeldata in te stellen.</string>
     <string name="extras">Extra\'s</string>
     <string name="speed_unit">Snelheidseenheid</string>
     <string name="size_unit">Grootte-eenheid</string>
@@ -158,7 +154,6 @@
     <string name="safety_tooltip">Verhouding van gebruik met hoeveelheid tijd verlopen.</string>
     <string name="sizes">Groottes</string>
     <string name="plan_usage">Bundelgebruik</string>
-    <string name="calculate_usage">Gebruik berekenen</string>
     <string name="system_service">Systeemservice %1$d</string>
     <string name="rollover">Overblijfsel</string>
     <string name="rollover_description">Voeg ongebruikte data toe als extra aan het einde van de periode.</string>

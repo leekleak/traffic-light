@@ -12,7 +12,6 @@
     <string name="battery_optimization_description">تأكد مِن أن النظام لا يوقف الخدمة</string>
     <string name="usage_statistics">إذن الاستخدام</string>
     <string name="usage_statistics_description">مطلوب لتتبع استخدام البيانات على المدى الطويل.</string>
-    <string name="notifications">إشعار</string>
     <string name="screen_off_update">تحديث عندما تكون الشاشة مغلقة</string>
     <string name="screen_off_update_description">يتيح تتبع الاستخدام على شاشة القفل الدائم (AOD)، لكنه يؤثر على البطارية.</string>
     <string name="wi_fi">واي فاي: %1$s</string>
@@ -132,10 +131,7 @@
     <string name="persistent_notification">إشعار دائم</string>
     <string name="plan_notification">إشعار الخطة</string>
     <string name="plan_warning_notification">إشعار تحذير الخطة</string>
-    <string name="notification_permission">إذن الإشعارات</string>
-    <string name="allow_app_to_send_notifications">اسمح للتطبيق بإرسال إشعارات</string>
     <string name="hint">تلميح</string>
-    <string name="press_the_card_to_configure_plan_data">اضغط على البطاقة لتضبيط بيانات الخطة.</string>
     <string name="other_users">مستخدمون آخرون</string>
     <string name="extras">الزيادات</string>
     <string name="disconnected">مفصول</string>
@@ -166,7 +162,6 @@
     <string name="base_1000">أساس 1000</string>
     <string name="sizes">الاحجام</string>
     <string name="plan_usage">استخدام الخطة</string>
-    <string name="calculate_usage">احسب الاستخدام</string>
     <string name="system_service">خدمة النظام %1$d</string>
     <string name="rollover">مرّر</string>
     <string name="rollover_description">أضف البيانات غير المستخدمة إلى الرصيد الإضافي في نهاية الفترة.</string>
@@ -181,8 +176,6 @@
     <string name="server_name">اسم الخادم</string>
     <string name="my_server">خادمي</string>
     <string name="name_cannot_be_empty">لا يمكن للخادم أن يكون فارغًا</string>
-    <string name="name_already_used">الاسم مستخدم بالفعل</string>
-    <string name="invalid_ip_address">عنوان IP غير صالح</string>
     <string name="invalid_port">منفذ غير صالح</string>
     <string name="remove_server">خادم بعيد</string>
     <string name="remove_server_question">أمتأكد من رغبتك في إزالة هذا الخادم؟</string>

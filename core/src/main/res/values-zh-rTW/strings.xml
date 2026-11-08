@@ -61,7 +61,6 @@
     <string name="battery_optimization_description">避免系統將背景運作終止</string>
     <string name="usage_statistics">使用量資料存取權</string>
     <string name="usage_statistics_description">長期監控數據使用量所需要的權限。</string>
-    <string name="notifications">顯示通知</string>
     <string name="app_name_short">紅綠燈</string>
     <string name="speed_unit">速度單位</string>
     <string name="size_unit">大小單位</string>
@@ -135,10 +134,7 @@
     <string name="plan_warning_notification">方案警告通知</string>
     <string name="notification_aggregation_warning_title">多則通知</string>
     <string name="notification_aggregation_warning_text">在 Android 16 （含）以上版本，多個前景通知會被合併，故圖示不會分開顯示。</string>
-    <string name="notification_permission">通知權限</string>
-    <string name="allow_app_to_send_notifications">允許 App 發送通知</string>
     <string name="hint">小撇步</string>
-    <string name="press_the_card_to_configure_plan_data">點擊卡片設定方案數據。</string>
     <string name="extras">額外加購</string>
     <string name="speed_threshold">靜音通知</string>
     <string name="speed_threshold_description">界線以下時的靜音通知。</string>
@@ -154,7 +150,6 @@
     <string name="safety_tooltip">與時間對比的方案使用率。</string>
     <string name="sizes">單位</string>
     <string name="plan_usage">方案用量</string>
-    <string name="calculate_usage">計算用量</string>
     <string name="system_service">系統服務 %1$d</string>
     <string name="selected">已選取</string>
     <string name="blur_effects">模糊效果</string>

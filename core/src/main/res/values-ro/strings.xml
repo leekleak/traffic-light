@@ -12,7 +12,6 @@
     <string name="battery_optimization_description">Asigură-te că sistemul nu oprește serviciul</string>
     <string name="usage_statistics">Permisiune de utilizare</string>
     <string name="usage_statistics_description">Necesar pentru urmărirea utilizării datelor pe termen lung.</string>
-    <string name="notifications">Notificare</string>
     <string name="screen_off_update">Actualizează când ecranul este oprit</string>
     <string name="screen_off_update_description">Permite urmărirea pe Always On Display, dar folosește multă energie.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>

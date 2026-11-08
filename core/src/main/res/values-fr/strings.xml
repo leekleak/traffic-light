@@ -21,7 +21,6 @@
     <string name="auto">Auto</string>
     <string name="default_theme">Défaut</string>
     <string name="battery_optimization_description">Garantit que le système n\'arrête pas le service</string>
-    <string name="notifications">Notification</string>
     <string name="wi_fi">Wi-Fi :%1$s</string>
     <string name="force_fallback">Forcer le suivi de vitesse de repli</string>
     <string name="missing_permissions">Permissions manquantes</string>
@@ -126,10 +125,7 @@
     <string name="persistent_notification">Notification persistante</string>
     <string name="plan_notification">Notification de forfait</string>
     <string name="plan_warning_notification">Notification d\'alerte de forfait</string>
-    <string name="notification_permission">Autorisation de notification</string>
-    <string name="allow_app_to_send_notifications">Autorise l\'application à envoyer des notifications</string>
     <string name="hint">Astuce</string>
-    <string name="press_the_card_to_configure_plan_data">Appuyez sur la carte pour configurer le forfait de données.</string>
     <string name="other_users">Autres utilisateurs</string>
     <string name="delete">Supprimer</string>
     <string name="delete_plan">Supprimer le forfait</string>
@@ -160,7 +156,6 @@
     <string name="base_1000">Multiples de 1000</string>
     <string name="sizes">Tailles</string>
     <string name="plan_usage">Utilisation du forfait</string>
-    <string name="calculate_usage">Calculer l\'utilisation</string>
     <string name="system_service">Service système %1$d</string>
     <string name="rollover">Retour</string>
     <string name="rollover_description">Ajoute les données inutilisées à un supplément en fin de période.</string>
@@ -175,8 +170,6 @@
     <string name="server_name">Nom du serveur</string>
     <string name="my_server">Mon serveur</string>
     <string name="name_cannot_be_empty">Le nom ne peut être vide</string>
-    <string name="name_already_used">Le nom est déjà utilisé</string>
-    <string name="invalid_ip_address">Adresse IP invalide</string>
     <string name="invalid_port">Port invalide</string>
     <string name="remove_server">Supprimer le serveur</string>
     <string name="remove_server_question">Êtes-vous certain de vouloir supprimer ce serveur ?</string>
@@ -196,7 +189,18 @@
         <item quantity="other">%d flux</item>
     </plurals>
     <string name="version">Version</string>
-    <string name="connected_sockets">Sockets connectés</string>
     <string name="socket_id">ID de socket : %1$d</string>
     <string name="aggregate_stats">Statistiques cumulées</string>
+    <string name="notification">Notification</string>
+    <string name="speed_tracking">Suivi de la vitesse</string>
+    <string name="data_plan_unavailable">Ce forfait n\'est plus disponible.\nOuvrez Traffic Light pour régler le suivi.</string>
+    <string name="tools">Outils</string>
+    <string name="reliability">Fiabilité</string>
+    <string name="invalid_extra_amount">La valeur doit être supérieure à zéro</string>
+    <string name="invalid_extra_usage">L\'utilisation ne doit pas dépasser la valeur</string>
+    <string name="invalid_extra_usage_value">Saisissez une utilisation valide</string>
+    <string name="invalid_extra_expiry">L\'expiration doit venir après le début</string>
+    <string name="estimate_usage">Estimer l\'utilisation</string>
+    <string name="test_duration">Durée du test (secondes)</string>
+    <string name="no_web_browser_installed">Aucun navigateur web installé</string>
 </resources>

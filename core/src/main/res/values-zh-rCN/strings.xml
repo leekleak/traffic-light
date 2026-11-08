@@ -12,7 +12,6 @@
     <string name="grant">授权</string>
     <string name="battery_optimization">电池优化</string>
     <string name="usage_statistics_description">用于分析历史网络使用情况。</string>
-    <string name="notifications">通知</string>
     <string name="screen_off_update">熄屏更新</string>
     <string name="screen_off_update_description">允许在熄屏显示时跟踪，但会增加耗电。</string>
     <string name="mobile">流量: %1$s</string>
@@ -138,10 +137,7 @@
     <string name="plan_warning_notification">计划警告通知</string>
     <string name="notification_aggregation_warning_title">多条通知</string>
     <string name="notification_aggregation_warning_text">在Android 16及以上版本中，多个前台通知会被合并，因此它们的图标将不再单独可见。</string>
-    <string name="notification_permission">通知权限</string>
-    <string name="allow_app_to_send_notifications">允许应用发送通知</string>
     <string name="hint">提示</string>
-    <string name="press_the_card_to_configure_plan_data">点击卡片配置计划数据。</string>
     <string name="extras">扩展</string>
     <string name="speed_threshold">静音通知</string>
     <string name="speed_threshold_description">低于阈值时静音通知。</string>
@@ -158,7 +154,6 @@
     <string name="safety_tooltip">计划使用率与时间进度对比。</string>
     <string name="sizes">大小</string>
     <string name="plan_usage">计划用量</string>
-    <string name="calculate_usage">计算用量</string>
     <string name="system_service">系统服务%1$d</string>
     <string name="selected">已选中的</string>
     <string name="blur_effects">模糊效果</string>
@@ -171,8 +166,6 @@
     <string name="server_name">服务器名称</string>
     <string name="my_server">我的服务器</string>
     <string name="name_cannot_be_empty">名称不能为空白</string>
-    <string name="name_already_used">此名称已被占用</string>
-    <string name="invalid_ip_address">无效IP地址</string>
     <string name="invalid_port">无效端口</string>
     <string name="remove_server">远程服务器</string>
     <string name="remove_server_question">您确定要移除这个服务器？</string>
