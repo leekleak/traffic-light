@@ -40,15 +40,15 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leekleak.core.R
-import com.leekleak.trafficlight.database.DataPlan
-import com.leekleak.trafficlight.database.DataPlanSnapshot
 import com.leekleak.core.ui.theme.LocalSizeMetric
-import com.leekleak.trafficlight.ui.theme.backgrounds
 import com.leekleak.core.ui.theme.carrierFont
 import com.leekleak.core.ui.theme.doHyeonFont
 import com.leekleak.core.ui.theme.googleSansEmphasized
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.simIconRes
+import com.leekleak.trafficlight.database.DataPlan
+import com.leekleak.trafficlight.database.DataPlanSnapshot
+import com.leekleak.trafficlight.ui.theme.backgrounds
 import java.text.DecimalFormat
 
 @Composable
@@ -64,7 +64,9 @@ fun DataPlanCard(
         dataPlan = plan,
         selected = selected,
         onClick = {
-            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            if (!selected) {
+                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+            }
             onClick()
         }
     ) {

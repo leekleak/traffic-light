@@ -214,7 +214,7 @@ private fun Modifier.pillGlass(hazeState: HazeState, shape: Shape): Modifier {
         remember(tint, screen) {
             HazeBlurStyle {
                 backgroundColor(screen)
-                colorEffects(listOf(HazeColorEffect.tint(solid.copy(alpha = 0.55f))))
+                colorEffects(listOf(HazeColorEffect.tint(solid.copy(alpha = 0.8f))))
                 fallbackColorEffect(HazeColorEffect.tint(solid))
             }
         },
@@ -329,7 +329,7 @@ fun NavigationButton(
             null
         },
         onClick = {
-            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            haptic.performHapticFeedback(HapticFeedbackType.Confirm)
             navigator.setTo(route)
         },
         contentPadding = PaddingValues(horizontal = 4.dp),
