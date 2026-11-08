@@ -12,7 +12,6 @@
     <string name="battery_optimization_description">Musí být vypnuto, aby telefon po chvíli neukončil službu na pozadí.</string>
     <string name="usage_statistics">Statistiky využití</string>
     <string name="usage_statistics_description">Vyžadováno pro dlouhodobé sledování využití dat.</string>
-    <string name="notifications">Oznámení</string>
     <string name="screen_off_update">Aktualizace při vypnutí obrazovky</string>
     <string name="screen_off_update_description">Umožňuje sledování využití na AOD, ale má vliv na baterii.</string>
 </resources>
