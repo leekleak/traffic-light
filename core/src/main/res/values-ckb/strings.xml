@@ -13,7 +13,6 @@
     <string name="battery_optimization_description">دەبێت ناچالاک بکرێت بۆ ئەوەی مۆبایلەکە خزمەتگوزاریی پاشبنەما نەکوژێنێتەوە دوای ماوەیەک.</string>
     <string name="usage_statistics">مۆڵەتی بەکارهێنان</string>
     <string name="usage_statistics_description">پێویستە بۆ بەدواداچوونی بەکارهێنانی داتا لە ماوەیەکی درێژخایەندا.</string>
-    <string name="notifications">ئاگانامە</string>
     <string name="screen_off_update">نوێکردنەوە لە کاتی کوژانەوەی شاشەدا</string>
     <string name="screen_off_update_description">ڕێگە دەدات بە بەدواداچوونی بەکارهێنان لەسەر شاشەی هەمیشە داگیرساو (AOD)، بەڵام کاریگەری لەسەر پاتری دەبێت.</string>
     <string name="wi_fi">وای فای: %1$s</string>
