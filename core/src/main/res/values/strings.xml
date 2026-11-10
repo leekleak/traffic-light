@@ -228,4 +228,5 @@
     <string name="cpu_usage" translatable="false">%1$s%% (User: %2$s%%, Sys: %3$s%%)</string>
     <string name="aggregate_stats">Aggregate stats</string>
     <string name="no_web_browser_installed">No web browser installed</string>
+    <string name="overlay">Overlay</string>
 </resources>
