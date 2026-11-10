@@ -14,23 +14,28 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.rememberNavBackStack
 import com.leekleak.core.R
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
 import com.leekleak.core.ui.navigation.LocalNavigationBarPadding
 import com.leekleak.core.ui.navigation.Navigator
+import com.leekleak.core.ui.theme.AppTheme
 import com.leekleak.core.ui.theme.card
 import com.leekleak.core.util.CategoryTitleSmallText
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.ui.navigation.IperfScreenKey
 import com.leekleak.trafficlight.ui.navigation.NotificationSettingsKey
+import com.leekleak.trafficlight.ui.navigation.ToolsKey
 import com.leekleak.trafficlight.ui.settings.SpeedIconPreview
 
 private val ToolCardMinWidth = 152.dp
@@ -141,5 +146,15 @@ private fun ToolCard(
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun ToolsPreview() {
+    val backStack = rememberNavBackStack(ToolsKey)
+    val navigator = remember(backStack) { Navigator(backStack) }
+    AppTheme {
+        Tools(navigator)
     }
 }
