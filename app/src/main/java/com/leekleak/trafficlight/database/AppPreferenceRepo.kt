@@ -48,6 +48,9 @@ class AppPreferenceRepo (
     val liveNotification: Flow<Boolean> = data.map { it[LIVE_NOTIFICATION] ?: false }.distinctUntilChanged()
     suspend fun setLiveNotification(value: Boolean) = dataStore.edit { it[LIVE_NOTIFICATION] = value }
 
+    val overlay: Flow<Boolean> = data.map { it[OVERLAY] ?: false }.distinctUntilChanged()
+    suspend fun setOverlay(value: Boolean) = dataStore.edit { it[OVERLAY] = value }
+
     val speedThreshold: Flow<Boolean> = data.map { it[SPEED_THRESHOLD] ?: false }.distinctUntilChanged()
     suspend fun setSpeedThreshold(value: Boolean) = dataStore.edit { it[SPEED_THRESHOLD] = value }
 
@@ -85,6 +88,7 @@ class AppPreferenceRepo (
     private companion object {
         private val NOTIFICATION = booleanPreferencesKey("notification")
         private val LIVE_NOTIFICATION = booleanPreferencesKey("live_notification")
+        private val OVERLAY = booleanPreferencesKey("overlay")
         private val MODE_AOD = booleanPreferencesKey("mode_aod")
         private val SPEED_BITS = booleanPreferencesKey("speed_bits")
         private val SEPARATE_UP_DOWN = booleanPreferencesKey("separate_up_down")

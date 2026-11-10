@@ -37,6 +37,7 @@ import com.leekleak.core.util.CategoryTitleSmallText
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.ui.navigation.IperfScreenKey
 import com.leekleak.trafficlight.ui.navigation.NotificationSettingsKey
+import com.leekleak.trafficlight.ui.navigation.OverlaySettingsKey
 import com.leekleak.trafficlight.ui.navigation.ToolsKey
 import com.leekleak.trafficlight.ui.settings.SpeedIconPreview
 
@@ -72,7 +73,7 @@ fun Tools(navigator: Navigator) {
                         painter = painterResource(R.drawable.picture_in_picture),
                         contentDescription = null
                     ) },
-                    onClick = { navigator.goTo(NotificationSettingsKey) },
+                    onClick = { navigator.goTo(OverlaySettingsKey) },
                 )
             )
         )

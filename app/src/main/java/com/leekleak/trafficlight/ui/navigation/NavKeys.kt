@@ -34,10 +34,9 @@ data object IperfScreenKey : NavKey
 @Serializable
 data class PlanConfigKey(val dataPlan: DataPlan) : NavKey
 
-/**
- * Settings
- */
 @Serializable
 data object NotificationSettingsKey : NavKey
+@Serializable
+data object OverlaySettingsKey : NavKey
 @Serializable
 data object LibraryLicenseScreen : NavKey

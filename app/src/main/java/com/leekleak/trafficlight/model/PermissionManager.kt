@@ -39,6 +39,9 @@ class PermissionManager(
     val notificationPermission: StateFlow<Boolean>
         field = MutableStateFlow(false)
 
+    val overlayPermission: StateFlow<Boolean>
+        field = MutableStateFlow(false)
+
     val shizukuRunning: StateFlow<Boolean>
         field = MutableStateFlow(false)
 
@@ -69,6 +72,15 @@ class PermissionManager(
         activity?.startActivity(
             Intent(
                 Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                "package:${activity.packageName}".toUri()
+            )
+        )
+    }
+
+    fun askOverlayPermission(activity: Activity?) {
+        activity?.startActivity(
+            Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                 "package:${activity.packageName}".toUri()
             )
         )
@@ -122,6 +134,8 @@ class PermissionManager(
         } else {
             true
         }
+
+        overlayPermission.value = Settings.canDrawOverlays(context)
 
         shizukuRunning.value = shizukuServicesProvider.shizukuRunning()
         if (shizukuRunning.value) {
