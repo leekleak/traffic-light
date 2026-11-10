@@ -16,7 +16,6 @@ import com.leekleak.core.R
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
 import com.leekleak.core.ui.navigation.Navigator
-import com.leekleak.core.util.CategoryTitleSmallText
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.model.PermissionManager
 import kotlinx.coroutines.launch
@@ -55,8 +54,6 @@ private fun OverlaySettings(
             scope.launch { appPreferenceRepo.setOverlay(true) }
         }
     }
-
-    CategoryTitleSmallText(stringResource(R.string.overlay))
 
     SwitchPreference(
         title = stringResource(R.string.overlay),
