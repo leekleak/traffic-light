@@ -86,7 +86,7 @@ fun ActivityGraph(
         }
     }
 
-    LaunchedEffect(scrollState.maxValue) {
+    LaunchedEffect(data) {
         if (scrollState.maxValue > 0) scrollState.scrollTo(scrollState.maxValue)
     }
 
