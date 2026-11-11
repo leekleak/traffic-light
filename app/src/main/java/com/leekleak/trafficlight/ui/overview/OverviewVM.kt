@@ -2,21 +2,18 @@ package com.leekleak.trafficlight.ui.overview
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.leekleak.core.util.DataSize
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.NetworkUsageManager
-import com.leekleak.core.util.DataSize
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.milliseconds
 
 class OverviewVM(
     networkUsageManager: NetworkUsageManager,
@@ -27,10 +24,13 @@ class OverviewVM(
     val query = appPreferenceRepo.overviewDataType.map { UsageQuery(it) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, UsageQuery(DataType.Mobile))
 
+    val range = appPreferenceRepo.overviewRange
+        .stateIn(viewModelScope, SharingStarted.Eagerly, OverviewRange.Today)
+
     val adsEnabled = appPreferenceRepo.ads.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
-    @OptIn(FlowPreview::class)
-    private val refresh = combine(query, refreshTrigger) { q, _ -> q }.debounce(100.milliseconds)
+    private val refresh = combine(query, range, refreshTrigger) { q, r, _ -> q to r }
+
     fun refresh() = refreshTrigger.tryEmit(Unit)
 
     fun setDataType(dataType: DataType) {
@@ -39,19 +39,19 @@ class OverviewVM(
         }
     }
 
-    val weekUsage = refresh.map { overviewLogic.getWeekUsage(it) }
+    fun setRange(range: OverviewRange) {
+        viewModelScope.launch {
+            appPreferenceRepo.setOverviewRange(range)
+        }
+    }
+
+    val usage = refresh.map { (query, range) -> overviewLogic.getUsage(query, range) }.distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    val graphUsage = refresh.map { (query, range) -> overviewLogic.getGraphUsage(query, range) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val todayUsage = refresh.map { overviewLogic.getTodayUsage(it) }.distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
-
-    val prediction = refresh.map { overviewLogic.getPrediction(it) }.distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
-
-    val trend = refresh.map { overviewLogic.getTrend(it) }.distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
-
-    val topApps = refresh.map { overviewLogic.getTopAppUsage(it) }
+    val topApps = refresh.map { (query, range) -> overviewLogic.getTopAppUsage(query, range) }
         .distinctUntilChanged { old, new ->
             if (old.size != new.size) return@distinctUntilChanged false
             old.indices.all { i ->

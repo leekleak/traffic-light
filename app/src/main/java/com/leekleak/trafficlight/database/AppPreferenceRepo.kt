@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.leekleak.core.ui.theme.Theme
 import com.leekleak.core.util.valueOfOrNull
+import com.leekleak.trafficlight.ui.overview.OverviewRange
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -81,6 +82,9 @@ class AppPreferenceRepo (
     val overviewDataType: Flow<DataType> = data.map { prefs -> prefs[OVERVIEW_DATA_TYPE]?.let { valueOfOrNull<DataType>(it) } ?: DataType.Mobile }.distinctUntilChanged()
     suspend fun setOverviewDataType(value: DataType) = dataStore.edit { it[OVERVIEW_DATA_TYPE] = value.name }
 
+    val overviewRange: Flow<OverviewRange> = data.map { prefs -> prefs[OVERVIEW_RANGE]?.let { valueOfOrNull<OverviewRange>(it) } ?: OverviewRange.Today }.distinctUntilChanged()
+    suspend fun setOverviewRange(value: OverviewRange) = dataStore.edit { it[OVERVIEW_RANGE] = value.name }
+
     private companion object {
         private val NOTIFICATION = booleanPreferencesKey("notification")
         private val LIVE_NOTIFICATION = booleanPreferencesKey("live_notification")
@@ -98,5 +102,6 @@ class AppPreferenceRepo (
         private val SHIZUKU_TRACKING = booleanPreferencesKey("shizuku_tracking")
         private val ADS = booleanPreferencesKey("supporter_ads")
         private val OVERVIEW_DATA_TYPE = stringPreferencesKey("overview_data_type")
+        private val OVERVIEW_RANGE = stringPreferencesKey("overview_range")
     }
 }

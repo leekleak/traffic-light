@@ -1,6 +1,7 @@
 package com.leekleak.iperf.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
@@ -182,13 +183,16 @@ fun ClientScreen(
 
         val iPerfRunning = uiState.isIperfRunning
         val data by viewModel.data.collectAsStateWithLifecycle()
+        val graphColor by animateColorAsState(
+            if (iPerfRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHigh
+        )
 
         SpeedGraph(
             modifier = Modifier
                 .fillMaxHeight(0.5f)
                 .align(Alignment.BottomCenter),
             data = uiState.speedData,
-            running = iPerfRunning
+            graphColor = graphColor
         )
 
         val alignment by animateAlignmentAsState(if (iPerfRunning) Alignment.BottomCenter else Alignment.Center)

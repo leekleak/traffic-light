@@ -1,99 +1,96 @@
 package com.leekleak.trafficlight.ui.overview
 
-import com.leekleak.core.charts.model.BarData
+import androidx.annotation.StringRes
+import com.leekleak.core.R
+import com.leekleak.core.util.toTimestamp
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.model.UsageData
-import com.leekleak.core.util.toTimestamp
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.last
 import java.time.LocalDate
 import java.time.LocalDateTime
-import kotlin.math.max
-import kotlin.math.roundToInt
+import java.time.temporal.ChronoUnit
+import java.time.temporal.WeekFields
+import java.util.Locale
+import kotlin.math.abs
+
+data class GraphPoint(val value: Float, val start: LocalDateTime)
+
+fun highlightIndices(values: List<Float>, count: Int = 3, minGap: Int = 1): List<Int> {
+    val gap = minGap.coerceAtLeast(1)
+    val highlighted = mutableListOf<Int>()
+    values.indices
+        .filter { values[it] > 0f }
+        .sortedByDescending { values[it] }
+        .forEach { index ->
+            if (highlighted.size < count && highlighted.all { abs(it - index) >= gap }) {
+                highlighted += index
+            }
+        }
+    return highlighted
+}
+
+enum class OverviewRange(@StringRes val nameRes: Int) {
+    Today(R.string.today),
+    Week(R.string.this_week),
+    Month(R.string.this_month);
+
+    fun startDate(): LocalDate {
+        val today = LocalDate.now()
+        return when (this) {
+            Today -> today
+            Week -> today.with(WeekFields.of(Locale.getDefault()).dayOfWeek(), 1)
+            Month -> today.withDayOfMonth(1)
+        }
+    }
+}
 
 class OverviewLogic(val networkUsageManager: NetworkUsageManager) {
-    suspend fun getPrediction(query: UsageQuery): Long {
-        val hour = LocalDateTime.now().hour
-        val hoursLeft = 23 - hour
-        val nowStamp = LocalDateTime.now().toTimestamp()
-        val last24HourUsage = networkUsageManager
-            .getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, query.dataType)
-            .sumForQuery(query)
-        val todayUsage =
-            networkUsageManager.totalDayUsage(query, LocalDate.now())
-
-        val out = coroutineScope {
-            (1..4).map { i ->
-                async {
-                    val pivotStamp = nowStamp - i * 24 * 7 * 3_600_000L
-                    val futureHours = networkUsageManager
-                        .getNetworkDataForType(
-                            pivotStamp,
-                            pivotStamp + hoursLeft * 3_600_000,
-                            null,
-                            query.dataType
-                        ).sumForQuery(query)
-                    val pastHours = networkUsageManager
-                        .getNetworkDataForType(
-                            pivotStamp - 24 * 3_600_000,
-                            pivotStamp,
-                            null,
-                            query.dataType
-                        ).sumForQuery(query)
-
-                    (pastHours) to (futureHours + pastHours)
-                }
-            }.awaitAll()
+    suspend fun getUsage(query: UsageQuery, range: OverviewRange): Long {
+        if (range == OverviewRange.Today) {
+            return networkUsageManager.totalDayUsage(query, LocalDate.now())
         }
-
-        val hourSum = out.sumOf { it.first }.toDouble()
-        val daySum = out.sumOf { it.second }.toDouble()
-
-        return if (hourSum == 0.0) {
-            todayUsage
-        } else {
-            (last24HourUsage * (daySum / hourSum - 1)).toLong() + todayUsage
-        }
+        return networkUsageManager.getNetworkDataForType(
+            startStamp = range.startDate().toTimestamp(),
+            endStamp = LocalDate.now().plusDays(1).toTimestamp(),
+            subscriberId = null,
+            type = query.dataType,
+        ).sumForQuery(query)
     }
 
-    suspend fun getTodayUsage(query: UsageQuery): Long {
-        return networkUsageManager.totalDayUsage(query, LocalDate.now())
-    }
-
-    suspend fun getTrend(query: UsageQuery): Int {
-        val nowStamp = LocalDateTime.now().toTimestamp()
-        // Last 24 hours
-        val hourAverage24 = networkUsageManager
-            .getNetworkDataForType(nowStamp - 24 * 3_600_000, nowStamp, null, query.dataType)
-            .sumOf { it.total } / 24.0
-        // Last week average excluding last 24 hours
-        val weekAverage = networkUsageManager
-            .getNetworkDataForType(
-                nowStamp - 168 * 3_600_000,
-                nowStamp - 24 * 3_600_000,
-                null,
-                query.dataType
+    suspend fun getGraphUsage(query: UsageQuery, range: OverviewRange): List<GraphPoint> {
+        val start = range.startDate()
+        if (range == OverviewRange.Today) {
+            return networkUsageManager.getNetworkDataForTypeHourly(
+                startStamp = start.toTimestamp(),
+                endStamp = LocalDateTime.now().toTimestamp(),
+                subscriberId = null,
+                type = query.dataType,
+                uid = null,
             )
-            .sumOf { it.total } / 144.0
-
-        return ((hourAverage24 / max(weekAverage, 1.0) - 1) * 100.0).roundToInt()
+                .sortedBy { it.start }
+                .map { GraphPoint((it.upload + it.download).toFloat(), it.start) }
+        }
+        val end = if (range == OverviewRange.Week) start.plusWeeks(1) else start.plusMonths(1)
+        val elapsedEnd = minOf(LocalDate.now().plusDays(1), end)
+        val elapsed = networkUsageManager.daysUsage(start, elapsedEnd, query)
+            .last()
+            .map { GraphPoint((it.y1 + it.y2).toFloat(), it.x.atStartOfDay()) }
+        val missingDays = ChronoUnit.DAYS.between(elapsedEnd, end).toInt()
+        return elapsed + List(missingDays) { GraphPoint(0f, elapsedEnd.plusDays(it.toLong()).atStartOfDay()) }
     }
 
-    suspend fun getWeekUsage(query: UsageQuery): List<BarData> = networkUsageManager.getWeekUsage(null, query.dataType)
-
-    suspend fun getTopAppUsage(query: UsageQuery): List<AppUsage> {
-        val todayUsage = networkUsageManager.getAllAppUsage(
-            startStamp = LocalDate.now().toTimestamp(),
+    suspend fun getTopAppUsage(query: UsageQuery, range: OverviewRange): List<AppUsage> {
+        val usage = networkUsageManager.getAllAppUsage(
+            startStamp = range.startDate().toTimestamp(),
             endStamp = LocalDateTime.now().toTimestamp(),
             query1 = query,
             query2 = UsageQuery(DataType.None),
         )
-        return todayUsage.filter { it.app != allApp }.take(3)
+        return usage.filter { it.app != allApp }.take(3)
     }
 
     private fun List<UsageData>.sumForQuery(query: UsageQuery): Long = sumOf { usage ->
