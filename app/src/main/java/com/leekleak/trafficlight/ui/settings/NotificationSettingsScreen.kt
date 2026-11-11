@@ -16,11 +16,22 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -29,7 +40,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -57,15 +70,68 @@ fun NotificationSettingsScreen(
     appPreferenceRepo: AppPreferenceRepo,
     permissionManager: PermissionManager,
 ) {
+    var showSettingsSheet by rememberSaveable { mutableStateOf(false) }
+
+    if (showSettingsSheet) {
+        NotificationSettingsSheet(
+            onDismissRequest = { showSettingsSheet = false },
+            viewModel = viewModel,
+            appPreferenceRepo = appPreferenceRepo,
+        )
+    }
+
     HazeScaffold(
         title = stringResource(R.string.notification),
         backAction = BackAction.Normal(navigator),
+        scrollState = null,
         verticalArrangement = Arrangement.Top
+    ) { contentPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding)
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                NotificationSettings(viewModel, appPreferenceRepo, permissionManager)
+            }
+            Button(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                onClick = { showSettingsSheet = true }
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(painterResource(R.drawable.settings), null)
+                    Text(
+                        modifier = Modifier.padding(start = 8.dp),
+                        text = stringResource(R.string.settings)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NotificationSettingsSheet(
+    onDismissRequest: () -> Unit,
+    viewModel: SettingsVM,
+    appPreferenceRepo: AppPreferenceRepo,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest
     ) {
-        NotificationSettings(viewModel, appPreferenceRepo, permissionManager)
-        NotificationAppearanceSettings(viewModel, appPreferenceRepo)
-        BehaviorSettings(appPreferenceRepo)
-        NotificationChannelSettings(appPreferenceRepo)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            NotificationAppearanceSettings(viewModel, appPreferenceRepo)
+            BehaviorSettings(appPreferenceRepo)
+            NotificationChannelSettings(appPreferenceRepo)
+        }
     }
 }
 
@@ -76,8 +142,6 @@ private fun NotificationSettings(
     permissionManager: PermissionManager,
 ) {
     val scope = rememberCoroutineScope()
-
-    CategoryTitleSmallText(stringResource(R.string.notification))
 
     var showWarning by remember { mutableStateOf(false) }
     if (showWarning) {

@@ -11,6 +11,7 @@ import com.leekleak.trafficlight.ui.plans.DataPlans
 import com.leekleak.trafficlight.ui.plans.DataPlansVM
 import com.leekleak.trafficlight.ui.settings.LibraryLicenseScreen
 import com.leekleak.trafficlight.ui.settings.NotificationSettingsScreen
+import com.leekleak.trafficlight.ui.settings.OverlaySettingsScreen
 import com.leekleak.trafficlight.ui.settings.Settings
 import com.leekleak.trafficlight.ui.settings.UsagePermissionRequest
 import com.leekleak.trafficlight.ui.tools.Tools
@@ -45,5 +46,6 @@ val navigationModule = module {
         DataPlanConfig(LocalNavigator.current, viewModel)
     }
     navigation<NotificationSettingsKey> { NotificationSettingsScreen(LocalNavigator.current, get(), get(), get()) }
+    navigation<OverlaySettingsKey> { OverlaySettingsScreen(LocalNavigator.current, get(), get()) }
     navigation<LibraryLicenseScreen> { LibraryLicenseScreen(LocalNavigator.current) }
 }
