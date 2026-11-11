@@ -9,6 +9,7 @@ import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanSnapshot
 import com.leekleak.trafficlight.model.DataPlanManager
+import com.leekleak.trafficlight.model.PermissionManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -29,16 +30,18 @@ data class DataPlansUiState(
     val activityUsage: List<ActivityDay>? = null,
     val topApps: List<AppUsage>? = null,
     val adsEnabled: Boolean = false,
-    val shizukuHint: Boolean = false,
     val shizukuTracking: Boolean = false,
+    val shizukuRunning: Boolean = false,
 )
 
 class DataPlansVM(
     private val dataPlansLogic: DataPlanLogic,
     private val appPreferenceRepo: AppPreferenceRepo,
     private val dataPlanManager: DataPlanManager,
+    private val permissionManager: PermissionManager,
 ): ViewModel() {
     private val selectedDataPlan = MutableStateFlow<DataPlan?>(null)
+
     fun selectDataPlan(dataPlan: DataPlan?) {
         selectedDataPlan.value = dataPlan
     }
@@ -128,8 +131,8 @@ class DataPlansVM(
         activityUsageFlow,
         topAppsFlow,
         appPreferenceRepo.ads,
-        appPreferenceRepo.shizukuHint,
-        appPreferenceRepo.shizukuTracking
+        appPreferenceRepo.shizukuTracking,
+        permissionManager.shizukuRunning
     ) { flows ->
         val activePlans = flows[0] as List<DataPlan>
         val snapshotsByHash = flows[1] as Map<String, DataPlanSnapshot>
@@ -142,8 +145,8 @@ class DataPlansVM(
         val activityUsage = flows[7] as List<ActivityDay>?
         val apps = flows[8] as List<AppUsage>?
         val adsEnabled = flows[9] as Boolean
-        val shizukuHint = flows[10] as Boolean
-        val shizukuTracking = flows[11] as Boolean
+        val shizukuTracking = flows[10] as Boolean
+        val shizukuRunning = flows[11] as Boolean
 
         DataPlansUiState(
             activePlans = activePlans,
@@ -156,10 +159,10 @@ class DataPlansVM(
             activityUsage = activityUsage,
             topApps = apps,
             adsEnabled = adsEnabled,
-            shizukuHint = shizukuHint,
-            shizukuTracking = shizukuTracking
+            shizukuTracking = shizukuTracking,
+            shizukuRunning = shizukuRunning
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DataPlansUiState())
 
-    fun disableShizukuHint() = viewModelScope.launch { appPreferenceRepo.setShizukuHint(false) }
+    fun grantShizuku() = permissionManager.setShizukuTracking(true)
 }

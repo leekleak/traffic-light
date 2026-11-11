@@ -37,7 +37,6 @@ import com.leekleak.core.util.SlideAnimatedVisibility
 import com.leekleak.core.util.openLink
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.database.AppPreferenceRepo
-import com.leekleak.trafficlight.integrations.ShizukuServicesProvider
 import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.LibraryLicenseScreen
 import kotlinx.coroutines.launch
@@ -47,7 +46,6 @@ fun Settings(
     navigator: Navigator,
     appPreferenceRepo: AppPreferenceRepo,
     permissionManager: PermissionManager,
-    shizukuServicesProvider: ShizukuServicesProvider,
 ) {
     HazeScaffold(
         title = stringResource(R.string.settings),
@@ -59,7 +57,6 @@ fun Settings(
             ShizukuSettings(
                 appPreferenceRepo = appPreferenceRepo,
                 permissionManager = permissionManager,
-                shizukuServicesProvider = shizukuServicesProvider
             )
         }
         BasesSettings(appPreferenceRepo)
@@ -197,20 +194,11 @@ private fun BasesSettings(appPreferenceRepo: AppPreferenceRepo) {
 private fun ShizukuSettings(
     appPreferenceRepo: AppPreferenceRepo,
     permissionManager: PermissionManager,
-    shizukuServicesProvider: ShizukuServicesProvider
 ) {
-    val scope = rememberCoroutineScope()
-
     CategoryTitleSmallText(stringResource(R.string.data_plans))
     val shizukuTracking by appPreferenceRepo.shizukuTracking.collectAsState(false)
     val shizukuPermission by permissionManager.shizukuPermission.collectAsState()
     val shizukuRunning by permissionManager.shizukuRunning.collectAsState()
-    var expectingPermissionChange by remember { mutableStateOf(false) }
-    LaunchedEffect(shizukuPermission) {
-        if (shizukuPermission && expectingPermissionChange) {
-            scope.launch { appPreferenceRepo.setShizukuTracking(true) }
-        }
-    }
     SwitchPreference(
         title = stringResource(R.string.multi_sim_tracking),
         summary = if (shizukuRunning) stringResource(R.string.shizuku_required) else stringResource(
@@ -219,14 +207,7 @@ private fun ShizukuSettings(
         icon = R.drawable.version,
         value = shizukuTracking && shizukuPermission,
         enabled = shizukuRunning,
-        onValueChanged = {
-            if (shizukuPermission) {
-                scope.launch { appPreferenceRepo.setShizukuTracking(it) }
-            } else {
-                shizukuServicesProvider.shizukuRequestPermission()
-                expectingPermissionChange = true
-            }
-        },
+        onValueChanged = permissionManager::setShizukuTracking,
     )
 }
 

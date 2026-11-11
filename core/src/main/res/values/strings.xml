@@ -88,7 +88,9 @@
     <string name="tools">Tools</string>
     <string name="reliability">Reliability</string>
     <string name="multi_sim_tracking">Multi-SIM tracking</string>
+    <string name="track_multiple_sim_cards">Track multiple SIM cards</string>
     <string name="shizuku_required">Shizuku required</string>
+    <string name="shizuku_permission_required">Shizuku permission required</string>
     <string name="close">Close</string>
     <string name="shizuku_hint">Want to track multiple SIM cards?</string>
     <string name="shizuku_hint_description">To achieve that, you\'ll need to set up Shizuku and enable the feature in the settings.</string>

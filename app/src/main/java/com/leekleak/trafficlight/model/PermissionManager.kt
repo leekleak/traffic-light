@@ -26,8 +26,8 @@ import kotlinx.coroutines.launch
 
 class PermissionManager(
     private val context: Context,
-    scope: CoroutineScope,
-    appPreferenceRepo: AppPreferenceRepo,
+    private val scope: CoroutineScope,
+    private val appPreferenceRepo: AppPreferenceRepo,
     private val shizukuServicesProvider: ShizukuServicesProvider
 ) {
     val backgroundPermission: StateFlow<Boolean>
@@ -48,6 +48,8 @@ class PermissionManager(
     val shizukuPermission: StateFlow<Boolean>
         field = MutableStateFlow(false)
 
+    private var pendingShizukuGrant: (() -> Unit)? = null
+
     init {
         scope.launch {
             combine(
@@ -65,6 +67,28 @@ class PermissionManager(
                     shizukuServicesProvider.updateSimData()
                 }
             }
+        }
+        scope.launch {
+            shizukuPermission.collect { granted ->
+                if (granted) {
+                    pendingShizukuGrant?.invoke()
+                    pendingShizukuGrant = null
+                }
+            }
+        }
+    }
+
+    fun setShizukuTracking(enabled: Boolean) {
+        if (!enabled) {
+            pendingShizukuGrant = null
+            scope.launch { appPreferenceRepo.setShizukuTracking(false) }
+            return
+        }
+        if (shizukuPermission.value) {
+            scope.launch { appPreferenceRepo.setShizukuTracking(true) }
+        } else if (shizukuRunning.value) {
+            pendingShizukuGrant = { scope.launch { appPreferenceRepo.setShizukuTracking(true) } }
+            shizukuServicesProvider.shizukuRequestPermission()
         }
     }
 

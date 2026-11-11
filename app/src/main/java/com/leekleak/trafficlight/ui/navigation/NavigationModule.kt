@@ -32,14 +32,14 @@ val navigationModule = module {
         DataPlans(
             uiState = uiState,
             selectDataPlan = viewModel::selectDataPlan,
-            disableShizukuHint = viewModel::disableShizukuHint,
+            grantShizuku = viewModel::grantShizuku,
             goToPlanConfig = { plan -> navigator.goTo(PlanConfigKey(plan)) },
             refresh = viewModel::refresh
         )
     }
     navigation<HistoryKey> { History(get(), get()) }
     navigation<ToolsKey> { Tools(LocalNavigator.current) }
-    navigation<SettingsKey> { Settings(LocalNavigator.current, get(), get(), get()) }
+    navigation<SettingsKey> { Settings(LocalNavigator.current, get(), get()) }
     navigation<UsagePermissionRequestKey> { UsagePermissionRequest(LocalNavigator.current, get()) }
     navigation<PlanConfigKey> { key ->
         val viewModel: DataPlanConfigVM = koinViewModel(key = key.dataPlan.hashedSubscriberID) { parametersOf(key.dataPlan) }

@@ -1,7 +1,7 @@
 package com.leekleak.trafficlight.ui.plans
 
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
@@ -54,6 +55,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -71,8 +73,8 @@ import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.MiniCard
 import com.leekleak.core.util.MiniCardState
 import com.leekleak.core.util.TrendCard
-import com.leekleak.core.util.openLink
 import com.leekleak.core.util.shelfShape
+import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.charts.ActivityDay
 import com.leekleak.trafficlight.charts.ActivityGraph
 import com.leekleak.trafficlight.charts.AppGraph
@@ -88,13 +90,13 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 private val DataPlansUiState.showShizukuHint: Boolean
-    get() = shizukuHint && !shizukuTracking
+    get() = BuildConfig.SHIZUKU && !shizukuTracking
 
 @Composable
 fun DataPlans(
     uiState: DataPlansUiState,
     selectDataPlan: (DataPlan?) -> Unit,
-    disableShizukuHint: () -> Unit,
+    grantShizuku: () -> Unit,
     goToPlanConfig: (DataPlan) -> Unit,
     refresh: () -> Unit,
 ) {
@@ -118,7 +120,7 @@ fun DataPlans(
                 paddingValues = paddingValues,
                 uiState = uiState,
                 selectDataPlan = selectDataPlan,
-                disableShizukuHint = disableShizukuHint,
+                grantShizuku = grantShizuku,
                 goToPlanConfig = goToPlanConfig,
             )
         } else {
@@ -126,7 +128,7 @@ fun DataPlans(
                 paddingValues = paddingValues,
                 uiState = uiState,
                 selectDataPlan = selectDataPlan,
-                disableShizukuHint = disableShizukuHint,
+                grantShizuku = grantShizuku,
                 goToPlanConfig = goToPlanConfig,
             )
         }
@@ -138,7 +140,7 @@ private fun DataPlansSinglePane(
     paddingValues: PaddingValues,
     uiState: DataPlansUiState,
     selectDataPlan: (DataPlan?) -> Unit,
-    disableShizukuHint: () -> Unit,
+    grantShizuku: () -> Unit,
     goToPlanConfig: (DataPlan) -> Unit,
 ) {
     val layoutDirection = LocalLayoutDirection.current
@@ -152,7 +154,7 @@ private fun DataPlansSinglePane(
             endPadding = paddingValues.calculateEndPadding(layoutDirection) + 8.dp,
             uiState = uiState,
             selectDataPlan = selectDataPlan,
-            disableShizukuHint = disableShizukuHint
+            grantShizuku = grantShizuku
         )
         DataPlanInsights(
             bottomPadding = paddingValues.calculateBottomPadding(),
@@ -167,7 +169,7 @@ private fun DataPlansTwoPane(
     paddingValues: PaddingValues,
     uiState: DataPlansUiState,
     selectDataPlan: (DataPlan?) -> Unit,
-    disableShizukuHint: () -> Unit,
+    grantShizuku: () -> Unit,
     goToPlanConfig: (DataPlan) -> Unit,
 ) {
     val layoutDirection = LocalLayoutDirection.current
@@ -198,7 +200,11 @@ private fun DataPlansTwoPane(
             }
             if (uiState.showShizukuHint) {
                 item(key = "shizuku_hint") {
-                    ShizukuHintCard(disableShizukuHint, Modifier.animateItem())
+                    ShizukuHintCard(
+                        onGrant = grantShizuku,
+                        shizukuRunning = uiState.shizukuRunning,
+                        modifier = Modifier.animateItem()
+                    )
                 }
             }
         }
@@ -226,7 +232,7 @@ private fun DataPlanPager(
     endPadding: Dp,
     uiState: DataPlansUiState,
     selectDataPlan: (DataPlan?) -> Unit,
-    disableShizukuHint: () -> Unit,
+    grantShizuku: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -260,56 +266,63 @@ private fun DataPlanPager(
                 scope.launch { pagerState.animateScrollToPage(page) }
             }
         } else {
-            ShizukuHintCard(disableShizukuHint)
+            ShizukuHintCard(
+                onGrant = grantShizuku,
+                shizukuRunning = uiState.shizukuRunning
+            )
         }
     }
 }
 
 @Composable
 private fun ShizukuHintCard(
-    onDismiss: () -> Unit,
+    onGrant: () -> Unit,
+    shizukuRunning: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val activity = LocalActivity.current
     Column(
         modifier = modifier
             .fillMaxWidth()
             .height(200.dp)
-            .card()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.End
+            .border(1.5.dp, colorScheme.secondary, MaterialTheme.shapes.medium)
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Icon(painterResource(R.drawable.warning), null)
-            Text(modifier = Modifier.fillMaxWidth(), fontWeight = FontWeight.Bold, text = stringResource(R.string.shizuku_hint))
+        Icon(
+            modifier = Modifier.size(32.dp),
+            painter = painterResource(R.drawable.sim_card),
+            contentDescription = null,
+            tint = colorScheme.secondary
+        )
+        Text(
+            text = stringResource(R.string.track_multiple_sim_cards),
+            color = colorScheme.secondary,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = stringResource(R.string.shizuku_permission_required),
+            color = colorScheme.secondary,
+            textAlign = TextAlign.Center
+        )
+        if (!shizukuRunning) {
+            Text(
+                text = stringResource(R.string.shizuku_not_running),
+                color = colorScheme.secondary,
+                textAlign = TextAlign.Center
+            )
         }
-        Text(modifier = Modifier.fillMaxWidth(), text = stringResource(R.string.shizuku_hint_description))
-        Row(
-            modifier = Modifier.fillMaxHeight(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.Bottom
+        Button(
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorScheme.secondary,
+                contentColor = colorScheme.onSecondary
+            ),
+            shape = MaterialTheme.shapes.large,
+            enabled = shizukuRunning,
+            onClick = onGrant
         ) {
-            Button(
-                colors = ButtonDefaults.filledTonalButtonColors(),
-                shape = MaterialTheme.shapes.large,
-                onClick = { openLink(activity, "https://github.com/leekleak/traffic-light/wiki/Setting-up-Shizuku-for-multi%E2%80%90SIM-tracking") },
-            ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Icon(painterResource(R.drawable.help), null)
-                    Text(stringResource(R.string.help))
-                }
-            }
-            Button(
-                onClick = onDismiss
-            ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Icon(painterResource(R.drawable.close), null)
-                    Text(stringResource(R.string.close))
-                }
-            }
+            Text(stringResource(R.string.grant))
         }
     }
 }

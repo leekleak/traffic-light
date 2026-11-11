@@ -10,7 +10,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.leekleak.core.ui.theme.Theme
 import com.leekleak.core.util.valueOfOrNull
-import com.leekleak.trafficlight.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -76,9 +75,6 @@ class AppPreferenceRepo (
     val shizukuTracking: Flow<Boolean> = data.map { it[SHIZUKU_TRACKING] ?: false }.distinctUntilChanged()
     suspend fun setShizukuTracking(value: Boolean) = dataStore.edit { it[SHIZUKU_TRACKING] = value }
 
-    val shizukuHint: Flow<Boolean> = data.map { it[SHIZUKU_HINT] ?: BuildConfig.SHIZUKU }.distinctUntilChanged()
-    suspend fun setShizukuHint(value: Boolean) = dataStore.edit { it[SHIZUKU_HINT] = value }
-
     val ads: Flow<Boolean> = data.map { it[ADS] ?: false }.distinctUntilChanged()
     suspend fun setAds(value: Boolean) = dataStore.edit { it[ADS] = value }
 
@@ -100,7 +96,6 @@ class AppPreferenceRepo (
         private val THEME = stringPreferencesKey("theme")
         private val BLUR = booleanPreferencesKey("blur")
         private val SHIZUKU_TRACKING = booleanPreferencesKey("shizuku_tracking")
-        private val SHIZUKU_HINT = booleanPreferencesKey("shizuku_hint")
         private val ADS = booleanPreferencesKey("supporter_ads")
         private val OVERVIEW_DATA_TYPE = stringPreferencesKey("overview_data_type")
     }
