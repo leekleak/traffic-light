@@ -101,7 +101,7 @@ fun SpeedGraph(
             val maxCenter = size.width - halfWidth - inset
             val centerX = if (minCenter <= maxCenter) point.x.coerceIn(minCenter, maxCenter) else size.width / 2f
             val labelHeight = title.size.height + lineGap + value.size.height
-            val top = (point.y + labelGap).coerceAtMost(size.height - labelHeight - inset)
+            val top = (point.y - labelGap - labelHeight).coerceAtMost(size.height - labelHeight - inset)
 
             drawText(
                 textLayoutResult = title,

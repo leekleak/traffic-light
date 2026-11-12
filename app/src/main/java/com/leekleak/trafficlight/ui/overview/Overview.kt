@@ -207,7 +207,7 @@ private fun OverviewHero(viewModel: OverviewVM, scrollState: ScrollState) {
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .requiredWidth(maxWidth + 32.dp) // tiny hack to work around page padding
-                .fillMaxHeight(0.8f - 0.18f * pressProgress)
+                .fillMaxHeight(0.8f - 0.2f * pressProgress)
                 .graphicsLayer { translationY = scrollState.value * 0.4f },
             data = graphValues,
             width = (graphValues.size - 1).coerceAtLeast(1),
