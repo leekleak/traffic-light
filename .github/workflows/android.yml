@@ -47,6 +47,23 @@ jobs:
           chmod +x gradlew
           ./gradlew --no-daemon assembleDebug --stacktrace
 
+      - name: Run unit tests
+        shell: bash
+        run: |
+          unset HTTP_PROXY HTTPS_PROXY ALL_PROXY
+          unset http_proxy https_proxy all_proxy
+          ./gradlew --no-daemon test --stacktrace
+
+      - name: Upload unit test reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+            name: unit-test-reports
+            path: |
+              **/build/reports/tests/
+              **/build/test-results/
+            if-no-files-found: ignore
+
       - name: Upload APK Debug
         uses: actions/upload-artifact@v7
         with:
