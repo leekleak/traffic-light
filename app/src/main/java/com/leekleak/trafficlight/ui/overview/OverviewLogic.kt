@@ -12,7 +12,6 @@ import com.leekleak.trafficlight.model.UsageData
 import kotlinx.coroutines.flow.last
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 import java.time.temporal.WeekFields
 import java.util.Locale
 import kotlin.math.abs
@@ -79,8 +78,7 @@ class OverviewLogic(val networkUsageManager: NetworkUsageManager) {
         val elapsed = networkUsageManager.daysUsage(start, elapsedEnd, query)
             .last()
             .map { GraphPoint((it.y1 + it.y2).toFloat(), it.x.atStartOfDay()) }
-        val missingDays = ChronoUnit.DAYS.between(elapsedEnd, end).toInt()
-        return elapsed + List(missingDays) { GraphPoint(0f, elapsedEnd.plusDays(it.toLong()).atStartOfDay()) }
+        return elapsed
     }
 
     suspend fun getTopAppUsage(query: UsageQuery, range: OverviewRange): List<AppUsage> {
