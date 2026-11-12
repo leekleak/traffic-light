@@ -29,7 +29,6 @@ data class DataPlansUiState(
     val remainingDailyBudget: Long = 0,
     val activityUsage: List<ActivityDay>? = null,
     val topApps: List<AppUsage>? = null,
-    val adsEnabled: Boolean = false,
     val shizukuTracking: Boolean = false,
     val shizukuRunning: Boolean = false,
 )
@@ -130,7 +129,6 @@ class DataPlansVM(
         remainingDailyBudgetFlow,
         activityUsageFlow,
         topAppsFlow,
-        appPreferenceRepo.ads,
         appPreferenceRepo.shizukuTracking,
         permissionManager.shizukuRunning
     ) { flows ->
@@ -144,9 +142,8 @@ class DataPlansVM(
         val remaining = flows[6] as Long? ?: 0L
         val activityUsage = flows[7] as List<ActivityDay>?
         val apps = flows[8] as List<AppUsage>?
-        val adsEnabled = flows[9] as Boolean
-        val shizukuTracking = flows[10] as Boolean
-        val shizukuRunning = flows[11] as Boolean
+        val shizukuTracking = flows[9] as Boolean
+        val shizukuRunning = flows[10] as Boolean
 
         DataPlansUiState(
             activePlans = activePlans,
@@ -158,7 +155,6 @@ class DataPlansVM(
             remainingDailyBudget = remaining,
             activityUsage = activityUsage,
             topApps = apps,
-            adsEnabled = adsEnabled,
             shizukuTracking = shizukuTracking,
             shizukuRunning = shizukuRunning
         )

@@ -70,8 +70,6 @@ import com.leekleak.core.util.rememberIs24HourFormat
 import com.leekleak.core.util.toLocaleHourString
 import com.leekleak.trafficlight.charts.AppGraph
 import com.leekleak.trafficlight.database.DataType
-import com.leekleak.trafficlight.integrations.Ad
-import com.leekleak.trafficlight.integrations.AdType
 import com.leekleak.trafficlight.ui.navigation.SettingsKey
 import kotlin.math.ceil
 
@@ -352,6 +350,4 @@ fun OverviewItems(viewModel: OverviewVM) {
             AppGraph(list, isWifi)
         }
     }
-    val adsEnabled by viewModel.adsEnabled.collectAsStateWithLifecycle()
-    Ad(adsEnabled, AdType.NativeBanner)
 }

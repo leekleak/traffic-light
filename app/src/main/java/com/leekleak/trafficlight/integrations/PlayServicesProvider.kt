@@ -5,7 +5,3 @@ import android.app.Activity
 interface PlayServicesProvider {
     suspend fun onAppLaunch(activity: Activity)
 }
-
-enum class AdType {
-    NativeBanner
-}

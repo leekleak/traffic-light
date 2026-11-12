@@ -132,10 +132,6 @@
     <string name="notes">Notes</string>
     <string name="plans">Plans</string>
     <string name="separate_upload_and_download">Separate upload and download</string>
-    <string name="supporter_ads">Supporter ADs</string>
-    <string name="supporter_ads_description">Enable ADs to support development</string>
-    <string name="supporter_ads_disabled">Only supported in Google Play version.</string>
-    <string name="ad">Ad</string>
     <string name="no_browser_found">No browser found</string>
     <string name="persistent_notification">Persistent Notification</string>
     <string name="persistent_notification_silent">Persistent Notification (Silent)</string>

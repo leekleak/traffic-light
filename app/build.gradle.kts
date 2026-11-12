@@ -1,6 +1,5 @@
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode
 import com.mikepenz.aboutlibraries.plugin.DuplicateRule
-import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -34,8 +33,6 @@ android {
         versionCode = 59
         versionName = "4.0-beta1"
         base.archivesName = "$namespace-$versionName"
-
-        manifestPlaceholders["admobAppId"] = "ca-app-pub-3940256099942544~3347511713"
     }
     buildTypes {
         release {
@@ -53,34 +50,19 @@ android {
     }
     flavorDimensions += "version"
     productFlavors {
-        val localProperties = Properties()
-        val localPropertiesFile = rootProject.file("local.properties")
-        if (localPropertiesFile.exists()) {
-            localProperties.load(localPropertiesFile.inputStream())
-        }
-
-        val admobAppId = localProperties.getProperty("admob.app.id") ?: "ca-app-pub-3940256099942544~3347511713"
-        val admobUnitIdOverview = localProperties.getProperty("admob.unit.id.overview") ?: "/21775744923/example/native"
-
         create("full") {
             dimension = "version"
             buildConfigField("Boolean", "SHIZUKU", "true")
-            buildConfigField("Boolean", "ADS", "false")
             buildConfigField("Boolean", "IPERF", "true")
         }
         create("play") {
             dimension = "version"
             buildConfigField("Boolean", "SHIZUKU", "false")
-            buildConfigField("Boolean", "ADS", "true")
             buildConfigField("Boolean", "IPERF", "true")
-            buildConfigField("String", "ADMOB_APP_ID", "\"$admobAppId\"")
-            buildConfigField("String", "ADMOB_UNIT_ID_OVERVIEW", "\"$admobUnitIdOverview\"")
-            manifestPlaceholders["admobAppId"] = admobAppId
         }
         create("lite") {
             dimension = "version"
             buildConfigField("Boolean", "SHIZUKU", "false")
-            buildConfigField("Boolean", "ADS", "false")
             buildConfigField("Boolean", "IPERF", "false")
             applicationId = "com.leekleak.trafficlight.lite"
         }
@@ -178,7 +160,6 @@ dependencies {
     implementation(libs.haze.blur)
     implementation(libs.haze.blur.materials)
     "playImplementation"(project(":playIntegration"))
-    "playImplementation"(libs.ads.mobile.sdk)
 
     "fullImplementation"(project(":shizukuIntegration"))
 

@@ -68,21 +68,8 @@ fun Settings(
 @Composable
 private fun AboutSettings(navigator: Navigator, appPreferenceRepo: AppPreferenceRepo) {
     val activity = LocalActivity.current
-    val scope = rememberCoroutineScope()
 
     CategoryTitleSmallText(stringResource(R.string.about))
-    val ads by appPreferenceRepo.ads.collectAsState(false)
-    SwitchPreference(
-        title = stringResource(R.string.supporter_ads),
-        summary = stringResource(
-            if (BuildConfig.ADS) R.string.supporter_ads_description
-            else R.string.supporter_ads_disabled
-        ),
-        icon = R.drawable.celebration,
-        value = ads,
-        enabled = BuildConfig.ADS,
-        onValueChanged = { scope.launch { appPreferenceRepo.setAds(it) } },
-    )
 
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         NavigatePreference(

@@ -82,8 +82,6 @@ import com.leekleak.trafficlight.charts.ExtraGraph
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanSnapshot
-import com.leekleak.trafficlight.integrations.Ad
-import com.leekleak.trafficlight.integrations.AdType
 import com.leekleak.trafficlight.ui.settings.InfoCard
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
@@ -372,7 +370,6 @@ private fun DataPlanInsights(
             if (plan.mainDataSize.byteValue > 0) usageInsights(uiState)
             extras(snapshot)
             uiState.topApps?.let { topApps(it) }
-            if (uiState.adsEnabled) item { Ad(true, AdType.NativeBanner, colorScheme.surface) }
             if (plan.mainDataSize.byteValue > 0) budgetInsights(uiState)
             uiState.activityUsage?.let { activity(it, plan) }
         }

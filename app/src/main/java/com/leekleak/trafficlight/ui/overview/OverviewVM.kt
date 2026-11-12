@@ -27,8 +27,6 @@ class OverviewVM(
     val range = appPreferenceRepo.overviewRange
         .stateIn(viewModelScope, SharingStarted.Eagerly, OverviewRange.Today)
 
-    val adsEnabled = appPreferenceRepo.ads.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
-
     private val refresh = combine(query, range, refreshTrigger) { q, r, _ -> q to r }
 
     fun refresh() = refreshTrigger.tryEmit(Unit)
