@@ -46,8 +46,8 @@ Traffic Light is an open-source tool for tracking your network usage while ensur
   </tr>
   <tr>
     <td align="center">All features</td>
-    <td align="center">No Shizuku (multi-SIM support)</td>
-    <td align="center">No Shizuku,<br>No iPerf3,<br>No 'Internet' permission</td>
+    <td align="center"><b>Excludes:</b><br>Shizuku (multi-SIM support)</td>
+    <td align="center"><b>Excludes:</b><br>Shizuku, iPerf3, 'Internet' permission</td>
   </tr>
   </tr>
 </table>
