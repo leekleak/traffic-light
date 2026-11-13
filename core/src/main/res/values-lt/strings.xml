@@ -104,10 +104,6 @@
     <string name="notes">Užrašai</string>
     <string name="plans">Planai</string>
     <string name="separate_upload_and_download">Atskirti įkėlimą ir atsisiuntimą</string>
-    <string name="supporter_ads">Palaikytojo reklamos</string>
-    <string name="supporter_ads_description">Įjungti reklamas kūrimo palaikymui</string>
-    <string name="supporter_ads_disabled">Palaikoma tik Google Play versijoje.</string>
-    <string name="ad">Reklama</string>
     <string name="no_browser_found">Naršyklė nerasta</string>
     <plurals name="resets_in_hours">
         <item quantity="one">Atsinaujins po %d valandos</item>
