@@ -120,10 +120,6 @@
     <string name="notes">یادداشت ها</string>
     <string name="plans">بسته ها</string>
     <string name="separate_upload_and_download">جداسازی آپلود و دانلود</string>
-    <string name="supporter_ads">تبلیغات حمایتی</string>
-    <string name="supporter_ads_description">فعال سازی تبلیغات برای حمایت از توسعه</string>
-    <string name="supporter_ads_disabled">فقط در نسخه Google Play پشتیبانی می‌شود.</string>
-    <string name="ad">تبلیغ</string>
     <string name="no_browser_found">مرورگری پیدا نشد</string>
     <string name="persistent_notification">اعلان دائمی</string>
     <string name="persistent_notification_silent">اعلان دائمی (بی‌صدا)</string>
