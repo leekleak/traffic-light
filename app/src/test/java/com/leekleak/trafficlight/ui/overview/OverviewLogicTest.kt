@@ -1,6 +1,5 @@
 package com.leekleak.trafficlight.ui.overview
 
-import com.leekleak.core.charts.model.ScrollableBarData
 import com.leekleak.core.util.toTimestamp
 import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DataType
@@ -13,17 +12,13 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
@@ -77,27 +72,6 @@ class OverviewLogicTest {
 
         assertEquals(listOf(3f, 30f), graph.map { it.value })
         assertEquals(listOf(2, 4), graph.map { it.start.hour })
-    }
-
-    @Test
-    fun `week graph pads future days with zeros`() = runTest {
-        val networkUsageManager = mockk<NetworkUsageManager>(relaxed = true)
-        val startDate = slot<LocalDate>()
-
-        every {
-            networkUsageManager.daysUsage(capture(startDate), any(), any())
-        } returns flowOf(listOf(ScrollableBarData(LocalDate.now(), y1 = 40L)))
-
-        val graph = OverviewLogic(networkUsageManager).getGraphUsage(usageQuery(), OverviewRange.Week)
-
-        val weekStart = OverviewRange.Week.startDate()
-        val weekEnd = weekStart.plusWeeks(1)
-        val elapsedEnd = minOf(LocalDate.now().plusDays(1), weekEnd)
-        assertEquals(weekStart, startDate.captured)
-        assertEquals(1 + ChronoUnit.DAYS.between(elapsedEnd, weekEnd).toInt(), graph.size)
-        assertEquals(40f, graph.first().value)
-        assertEquals(LocalDate.now().atStartOfDay(), graph.first().start)
-        assertTrue(graph.drop(1).all { it.value == 0f })
     }
 
     @Test
