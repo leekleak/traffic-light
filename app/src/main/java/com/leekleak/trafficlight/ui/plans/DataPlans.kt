@@ -256,33 +256,28 @@ private fun DataPlanPager(
 
     val activePlans = uiState.activePlans
     val initialPage = activePlans.indexOfFirst { it.hashedSubscriberID == initialPlanHash }
-        .coerceAtLeast(0)
+        .takeIf { it >= 0 }
+        ?: activePlans.indexOf(uiState.selectedPlan).coerceAtLeast(0)
 
-    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = {
-        activePlans.size + if (uiState.showShizukuHint) 1 else 0
-    })
+    val pageCount = activePlans.size + if (uiState.showShizukuHint) 1 else 0
+    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { pageCount })
+    
+    LaunchedEffect(pagerState.settledPage) {
+        activePlans.getOrNull(pagerState.settledPage)?.let(selectDataPlan)
+    }
 
     LaunchedEffect(uiState.selectedPlan) {
         val selectedPlanIndex = activePlans.indexOf(uiState.selectedPlan)
-        if (selectedPlanIndex != pagerState.currentPage) {
+        val onHintCard = pagerState.currentPage >= activePlans.size
+        if (!onHintCard && selectedPlanIndex >= 0 && selectedPlanIndex != pagerState.currentPage) {
             pagerState.animateScrollToPage(selectedPlanIndex)
         }
     }
 
-    LaunchedEffect(activePlans.size) {
-        if (pagerState.currentPage >= activePlans.size) {
-            selectDataPlan(null)
+    LaunchedEffect(pageCount) {
+        if (pageCount > 0 && pagerState.currentPage >= pageCount) {
+            pagerState.scrollToPage(pageCount - 1)
         }
-    }
-
-    LaunchedEffect(pagerState.currentPage) {
-        selectDataPlan(
-            if (pagerState.currentPage < activePlans.size) {
-                activePlans[pagerState.currentPage]
-            } else {
-                null
-            }
-        )
     }
 
     HorizontalPager(
