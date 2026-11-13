@@ -1,7 +1,6 @@
 package com.leekleak.trafficlight.ui.plans
 
 import com.leekleak.core.util.MiniCardState
-import com.leekleak.core.util.fromTimestamp
 import com.leekleak.core.util.toTimestamp
 import com.leekleak.trafficlight.charts.ActivityDay
 import com.leekleak.trafficlight.database.AppUsage
@@ -93,22 +92,13 @@ class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
         val periodDays = ChronoUnit.DAYS.between(periodStart, periodEnd).coerceAtLeast(1)
 
         val hasConfiguredBudget = dataPlan.configured && dataPlan.mainDataSize.byteValue > 0L
-        val createdDate = dataPlan.createdAt
-            .takeIf { it > 0L }
-            ?.let { fromTimestamp(it).toLocalDate() }
 
-        val startDate = if (hasConfiguredBudget) {
-            val from = createdDate?.let { minOf(it, periodStart) } ?: earliest
-            from.coerceAtLeast(earliest)
-        } else {
-            earliest
-        }
-        val days = (ChronoUnit.DAYS.between(startDate, today).toInt() + 1).coerceAtLeast(1)
+        val days = (ChronoUnit.DAYS.between(earliest, today).toInt() + 1).coerceAtLeast(1)
         val excludedApps = dataPlan.excludedApps.toSet()
 
         val usages = (0 until days).map { offset ->
             async {
-                val date = startDate.plusDays(offset.toLong())
+                val date = earliest.plusDays(offset.toLong())
                 networkUsageManager.totalDayUsage(
                     query = UsageQuery(dataType = DataType.Mobile),
                     startDate = date,
@@ -127,7 +117,7 @@ class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
 
         usages.mapIndexed { index, usage ->
             ActivityDay(
-                date = startDate.plusDays(index.toLong()),
+                date = earliest.plusDays(index.toLong()),
                 usage = usage,
                 budget = dailyBudget,
             )
