@@ -25,12 +25,13 @@ import org.koin.dsl.navigation3.navigation
 val navigationModule = module {
 
     navigation<OverviewKey> { Overview(LocalNavigator.current, get()) }
-    navigation<DataPlansKey> {
+    navigation<DataPlansKey> { key ->
         val viewModel: DataPlansVM = koinViewModel<DataPlansVM>()
         val navigator = LocalNavigator.current
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
         DataPlans(
             uiState = uiState,
+            initialPlanHash = key.selectedPlanHash,
             selectDataPlan = viewModel::selectDataPlan,
             grantShizuku = viewModel::grantShizuku,
             goToPlanConfig = { plan -> navigator.goTo(PlanConfigKey(plan)) },

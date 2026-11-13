@@ -96,7 +96,7 @@ class WidgetConfigureActivity : ComponentActivity() {
                     }
                 }
                 val snapshot by produceState(DataPlanSnapshot()) { value = dataPlanManager.getSnapshot(it) }
-                DataPlanCard(it, snapshot) { onSelect() }
+                DataPlanCard(plan = it, planSnapshot = snapshot) { onSelect() }
             }
         }
     }

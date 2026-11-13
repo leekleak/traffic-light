@@ -7,6 +7,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -22,6 +24,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PageSize
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.Icon
@@ -70,7 +75,9 @@ import com.leekleak.core.util.rememberIs24HourFormat
 import com.leekleak.core.util.toLocaleHourString
 import com.leekleak.trafficlight.charts.AppGraph
 import com.leekleak.trafficlight.database.DataType
+import com.leekleak.trafficlight.ui.navigation.DataPlansKey
 import com.leekleak.trafficlight.ui.navigation.SettingsKey
+import com.leekleak.trafficlight.ui.plans.DataPlanCard
 import kotlin.math.ceil
 
 
@@ -91,6 +98,7 @@ fun Overview(
     HazeScaffold(
         title = stringResource(R.string.overview),
         scrollState = scrollState,
+        applyPadding = false,
         backAction = BackAction.None,
         extraPadding = LocalNavigationBarPadding.current,
         actions = {
@@ -103,7 +111,8 @@ fun Overview(
                 Icon(painterResource(R.drawable.settings), contentDescription = stringResource(R.string.settings))
             }
         }
-    ) {
+    ) { contentPadding ->
+        Spacer(Modifier.height(contentPadding.calculateTopPadding()))
         if (windowSizeClass.isWidthAtLeastBreakpoint(600)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -111,24 +120,25 @@ fun Overview(
                 verticalAlignment = Alignment.Top,
             ) {
                 Column(
-                    modifier = Modifier.widthIn(max = 400.dp),
+                    modifier = Modifier.widthIn(max = 400.dp).weight(1f),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     OverviewHero(viewModel, scrollState)
                     OverviewRangeSelector(viewModel)
                 }
                 Column(
-                    modifier = Modifier.widthIn(max = 400.dp),
+                    modifier = Modifier.widthIn(max = 400.dp).weight(1f),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    OverviewItems(viewModel)
+                    OverviewItems(navigator, viewModel)
                 }
             }
         } else {
             OverviewHero(viewModel, scrollState)
             OverviewRangeSelector(viewModel)
-            OverviewItems(viewModel)
+            OverviewItems(navigator, viewModel)
         }
+        Spacer(Modifier.height(contentPadding.calculateBottomPadding()))
     }
 }
 
@@ -204,7 +214,7 @@ private fun OverviewHero(viewModel: OverviewVM, scrollState: ScrollState) {
         SpeedGraph(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .requiredWidth(maxWidth + 32.dp) // tiny hack to work around page padding
+                .requiredWidth(maxWidth)
                 .fillMaxHeight(0.8f - 0.2f * pressProgress)
                 .graphicsLayer { translationY = scrollState.value * 0.4f },
             data = graphValues,
@@ -313,7 +323,7 @@ private fun OverviewRangeSelector(viewModel: OverviewVM) {
     }
 
     ButtonGroup(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         expandedRatio = 0.05f,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         overflowIndicator = {}
@@ -334,20 +344,52 @@ private fun OverviewRangeSelector(viewModel: OverviewVM) {
 }
 
 @Composable
-fun OverviewItems(viewModel: OverviewVM) {
+fun OverviewItems(navigator: Navigator, viewModel: OverviewVM) {
     val topAppsList by viewModel.topApps.collectAsStateWithLifecycle()
     val query by viewModel.query.collectAsStateWithLifecycle()
-    CategoryTitleText(stringResource(R.string.top_apps))
-    Box(
-        modifier = Modifier
-            .card()
-            .padding(6.dp)
-    ) {
-        val listWithWifi = remember(topAppsList) { topAppsList to (query.dataType == DataType.Wifi) }
-        AnimatedContent(
-            targetState = listWithWifi
-        ) { (list, isWifi) ->
-            AppGraph(list, isWifi)
+    Box(Modifier.padding(horizontal = 16.dp)) {
+        CategoryTitleText(stringResource(R.string.top_apps))
+        Box(modifier = Modifier.card().padding(6.dp)) {
+            val listWithWifi =
+                remember(topAppsList) { topAppsList to (query.dataType == DataType.Wifi) }
+            AnimatedContent(
+                targetState = listWithWifi
+            ) { (list, isWifi) ->
+                AppGraph(list, isWifi)
+            }
         }
+    }
+    OverviewPlans(navigator, viewModel)
+}
+
+@Composable
+private fun OverviewPlans(navigator: Navigator, viewModel: OverviewVM) {
+    val plans by viewModel.plans.collectAsStateWithLifecycle()
+    val snapshots by viewModel.planSnapshots.collectAsStateWithLifecycle()
+    val haptic = LocalHapticFeedback.current
+    if (plans.isEmpty()) return
+
+    val pagerState = rememberPagerState { plans.size }
+
+    Box(Modifier.padding(horizontal = 16.dp)) {
+        CategoryTitleText(stringResource(R.string.plans))
+    }
+    HorizontalPager(
+        modifier = Modifier.height(220.dp),
+        state = pagerState,
+        contentPadding = PaddingValues(horizontal = 24.dp),
+        pageSpacing = 12.dp,
+        snapPosition = SnapPosition.Center,
+        pageSize = PageSize.Fill
+    ) { page ->
+        val plan = plans[page]
+        DataPlanCard(
+            plan = plan,
+            planSnapshot = snapshots[plan],
+            onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                navigator.setTo(DataPlansKey(plan.hashedSubscriberID))
+            }
+        )
     }
 }

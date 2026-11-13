@@ -149,6 +149,13 @@ class DataPlanManager(
         }.awaitAll().toMap()
     }
 
+    suspend fun ensureSnapshots(maxAgeMs: Long = SNAPSHOT_UPDATE_MS) {
+        val activePlans = dao.getActivePlans()
+        if (activePlans.isNotEmpty()) {
+            getSnapshots(activePlans, maxAgeMs)
+        }
+    }
+
     suspend fun refresh(): List<DataPlanRefresh> = dataMutex.withLock {
         val currentPlans = dao.getActivePlans()
         if (currentPlans.isEmpty()) return@withLock emptyList()

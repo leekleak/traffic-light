@@ -93,6 +93,7 @@ private val DataPlansUiState.showShizukuHint: Boolean
 @Composable
 fun DataPlans(
     uiState: DataPlansUiState,
+    initialPlanHash: String?,
     selectDataPlan: (DataPlan?) -> Unit,
     grantShizuku: () -> Unit,
     goToPlanConfig: (DataPlan) -> Unit,
@@ -101,6 +102,15 @@ fun DataPlans(
     LifecycleResumeEffect(Unit) {
         refresh()
         onPauseOrDispose {}
+    }
+
+    val initialSelectionApplied = rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(uiState.activePlans, initialPlanHash) {
+        if (initialSelectionApplied.value || initialPlanHash == null) return@LaunchedEffect
+        val plan = uiState.activePlans.find { it.hashedSubscriberID == initialPlanHash }
+            ?: return@LaunchedEffect
+        initialSelectionApplied.value = true
+        selectDataPlan(plan)
     }
 
     val isWidescreen = currentWindowAdaptiveInfoV2()
@@ -124,6 +134,7 @@ fun DataPlans(
         } else {
             DataPlansSinglePane(
                 paddingValues = paddingValues,
+                initialPlanHash = initialPlanHash,
                 uiState = uiState,
                 selectDataPlan = selectDataPlan,
                 grantShizuku = grantShizuku,
@@ -136,6 +147,7 @@ fun DataPlans(
 @Composable
 private fun DataPlansSinglePane(
     paddingValues: PaddingValues,
+    initialPlanHash: String?,
     uiState: DataPlansUiState,
     selectDataPlan: (DataPlan?) -> Unit,
     grantShizuku: () -> Unit,
@@ -147,13 +159,16 @@ private fun DataPlansSinglePane(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Spacer(Modifier.height(paddingValues.calculateTopPadding()))
-        DataPlanPager(
-            startPadding = paddingValues.calculateStartPadding(layoutDirection) + 8.dp,
-            endPadding = paddingValues.calculateEndPadding(layoutDirection) + 8.dp,
-            uiState = uiState,
-            selectDataPlan = selectDataPlan,
-            grantShizuku = grantShizuku
-        )
+        if (uiState.activePlans.isNotEmpty() || uiState.showShizukuHint) {
+            DataPlanPager(
+                initialPlanHash = initialPlanHash,
+                startPadding = paddingValues.calculateStartPadding(layoutDirection) + 8.dp,
+                endPadding = paddingValues.calculateEndPadding(layoutDirection) + 8.dp,
+                uiState = uiState,
+                selectDataPlan = selectDataPlan,
+                grantShizuku = grantShizuku
+            )
+        }
         DataPlanInsights(
             bottomPadding = paddingValues.calculateBottomPadding(),
             uiState = uiState,
@@ -193,7 +208,11 @@ private fun DataPlansTwoPane(
             items(uiState.activePlans, key = { it.hashedSubscriberID }) { plan ->
                 val planSnapshot = uiState.planSnapshots[plan]
                 Box(Modifier.animateItem()) {
-                    DataPlanCard(plan, planSnapshot, plan == uiState.selectedPlan) { selectDataPlan(plan) }
+                    DataPlanCard(
+                        plan = plan,
+                        planSnapshot = planSnapshot,
+                        selected = plan == uiState.selectedPlan
+                    ) { selectDataPlan(plan) }
                 }
             }
             if (uiState.showShizukuHint) {
@@ -226,6 +245,7 @@ private fun DataPlansTwoPane(
 
 @Composable
 private fun DataPlanPager(
+    initialPlanHash: String?,
     startPadding: Dp,
     endPadding: Dp,
     uiState: DataPlansUiState,
@@ -235,12 +255,27 @@ private fun DataPlanPager(
     val scope = rememberCoroutineScope()
 
     val activePlans = uiState.activePlans
+    val initialPage = activePlans.indexOfFirst { it.hashedSubscriberID == initialPlanHash }
+        .coerceAtLeast(0)
 
-    val pagerState = rememberPagerState(pageCount = {
+    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = {
         activePlans.size + if (uiState.showShizukuHint) 1 else 0
     })
 
-    LaunchedEffect(activePlans.size, pagerState.currentPage) {
+    LaunchedEffect(uiState.selectedPlan) {
+        val selectedPlanIndex = activePlans.indexOf(uiState.selectedPlan)
+        if (selectedPlanIndex != pagerState.currentPage) {
+            pagerState.animateScrollToPage(selectedPlanIndex)
+        }
+    }
+
+    LaunchedEffect(activePlans.size) {
+        if (pagerState.currentPage >= activePlans.size) {
+            selectDataPlan(null)
+        }
+    }
+
+    LaunchedEffect(pagerState.currentPage) {
         selectDataPlan(
             if (pagerState.currentPage < activePlans.size) {
                 activePlans[pagerState.currentPage]
@@ -260,7 +295,11 @@ private fun DataPlanPager(
     ) { page ->
         if (page < activePlans.size) {
             val plan = activePlans[page]
-            DataPlanCard(plan, uiState.planSnapshots[plan], page == pagerState.currentPage) {
+            DataPlanCard(
+                plan = plan,
+                planSnapshot = uiState.planSnapshots[plan],
+                selected = page == pagerState.currentPage
+            ) {
                 scope.launch { pagerState.animateScrollToPage(page) }
             }
         } else {

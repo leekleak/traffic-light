@@ -89,10 +89,10 @@ private val PillOutlineWidth = 1.dp
 fun NavigationManager(navigator: Navigator) {
     val currentEntry = navigator.backStack.lastOrNull()
 
-    var showBottomBar by remember { mutableStateOf(mainScreens.contains(currentEntry)) }
+    var showBottomBar by remember { mutableStateOf(currentEntry.isMainScreen()) }
 
     LaunchedEffect(currentEntry) {
-        showBottomBar = mainScreens.contains(currentEntry)
+        showBottomBar = currentEntry.isMainScreen()
     }
 
     val isWidescreen = currentWindowAdaptiveInfoV2()
@@ -283,10 +283,15 @@ private class NavigationItemSpec(
     val icon: Int,
 )
 
+private fun NavKey?.isMainScreen(): Boolean {
+    val key = this ?: return false
+    return mainScreens.any { it::class == key::class }
+}
+
 @Composable
 private fun navigationItems(): List<NavigationItemSpec> = listOf(
     NavigationItemSpec(OverviewKey, stringResource(R.string.overview), R.drawable.overview),
-    NavigationItemSpec(DataPlansKey, stringResource(R.string.plans), R.drawable.sim_card),
+    NavigationItemSpec(DataPlansKey(), stringResource(R.string.plans), R.drawable.sim_card),
     NavigationItemSpec(HistoryKey, stringResource(R.string.history), R.drawable.history),
     NavigationItemSpec(ToolsKey, stringResource(R.string.tools), R.drawable.handyman),
 )
@@ -300,7 +305,7 @@ fun NavigationButton(
     icon: Int,
     vertical: Boolean = false,
 ) {
-    val selected = navigator.current == route
+    val selected = navigator.current::class == route::class
     val haptic = LocalHapticFeedback.current
 
     Button(
@@ -331,8 +336,10 @@ fun NavigationButton(
             null
         },
         onClick = {
-            haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-            navigator.setTo(route)
+            if (navigator.current::class != route::class) {
+                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                navigator.setTo(route)
+            }
         },
         contentPadding = PaddingValues(horizontal = 4.dp),
     ) {

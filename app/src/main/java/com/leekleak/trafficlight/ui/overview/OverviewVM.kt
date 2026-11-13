@@ -6,6 +6,7 @@ import com.leekleak.core.util.DataSize
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.UsageQuery
+import com.leekleak.trafficlight.model.DataPlanManager
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,10 +15,12 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class OverviewVM(
     networkUsageManager: NetworkUsageManager,
-    private val appPreferenceRepo: AppPreferenceRepo
+    private val appPreferenceRepo: AppPreferenceRepo,
+    private val dataPlanManager: DataPlanManager,
 ) : ViewModel() {
     private val overviewLogic = OverviewLogic(networkUsageManager)
     private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
@@ -63,4 +66,27 @@ class OverviewVM(
             }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val plans = dataPlanManager.activePlans
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val planSnapshots = combine(plans, dataPlanManager.snapshots) { plans, snapshots ->
+        plans.associateWith { plan -> snapshots[plan.hashedSubscriberID] }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        emptyMap()
+    )
+
+    init {
+        viewModelScope.launch {
+            refreshTrigger.collect {
+                try {
+                    dataPlanManager.ensureSnapshots()
+                } catch (e: Exception) {
+                    Timber.e(e, "Failed to load data plan snapshots")
+                }
+            }
+        }
+    }
 }

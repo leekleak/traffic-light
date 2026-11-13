@@ -66,6 +66,7 @@ fun HazeScaffold(
     scrollState: ScrollState? = rememberScrollState(),
     hazeState: HazeState? = rememberHazeState(),
     showTitle: Boolean = true,
+    applyPadding: Boolean = scrollState != null,
     extraPadding: PaddingValues = PaddingValues(),
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(8.dp),
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
@@ -77,13 +78,13 @@ fun HazeScaffold(
     val extraStart = extraPadding.calculateStartPadding(layoutDirection)
     val extraEnd = extraPadding.calculateEndPadding(layoutDirection)
     val contentSidePadding = 16.dp
-    val outerStart = extraStart + if (scrollState != null) contentSidePadding else 0.dp
-    val outerEnd = extraEnd + if (scrollState != null) contentSidePadding else 0.dp
-    val contentStart = if (scrollState != null) 0.dp else contentSidePadding
-    val contentEnd = if (scrollState != null) 0.dp else contentSidePadding
+    val outerStart = extraStart + if (applyPadding) contentSidePadding else 0.dp
+    val outerEnd = extraEnd + if (applyPadding) contentSidePadding else 0.dp
+    val contentStart = if (applyPadding) 0.dp else contentSidePadding
+    val contentEnd = if (applyPadding) 0.dp else contentSidePadding
     val paddingTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + TOP_BAR_HEIGHT + 6.dp + extraPadding.calculateTopPadding()
     val paddingBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 8.dp + extraPadding.calculateBottomPadding()
-    val paddingValues = if (scrollState != null) {
+    val paddingValues = if (applyPadding) {
         PaddingValues()
     } else {
         PaddingValues(start = contentStart, top = paddingTop, end = contentEnd, bottom = paddingBottom)
@@ -102,7 +103,7 @@ fun HazeScaffold(
                     .padding(start = outerStart, end = outerEnd)
                     .then(if (scrollState != null) Modifier.verticalScroll(scrollState) else Modifier),
             ) {
-                if (scrollState != null) Spacer(Modifier.height((paddingTop).coerceAtLeast(0.dp)))
+                if (applyPadding) Spacer(Modifier.height((paddingTop).coerceAtLeast(0.dp)))
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = verticalArrangement,
@@ -110,7 +111,7 @@ fun HazeScaffold(
                 ) {
                     content(paddingValues)
                 }
-                if (scrollState != null) Spacer(Modifier.height((paddingBottom).coerceAtLeast(0.dp)))
+                if (applyPadding) Spacer(Modifier.height((paddingBottom).coerceAtLeast(0.dp)))
             }
             AnimatedVisibility(
                 visible = showTitle,

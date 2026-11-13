@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 data object OverviewKey : NavKey
 
 @Serializable
-data object DataPlansKey : NavKey
+data class DataPlansKey(val selectedPlanHash: String? = null) : NavKey
 
 @Serializable
 data object HistoryKey : NavKey
@@ -26,7 +26,7 @@ data object SettingsKey : NavKey
 @Serializable
 data object UsagePermissionRequestKey : NavKey
 
-val mainScreens = listOf(OverviewKey, DataPlansKey, HistoryKey, ToolsKey)
+val mainScreens = listOf(OverviewKey, DataPlansKey(), HistoryKey, ToolsKey)
 
 @Serializable
 data object IperfScreenKey : NavKey
