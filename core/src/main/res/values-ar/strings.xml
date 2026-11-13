@@ -114,10 +114,6 @@
         <item quantity="other">سيتم إعادة الضبط بعد %d ساعة</item>
     </plurals>
     <string name="separate_upload_and_download">تنزيل و رفع منفصل</string>
-    <string name="supporter_ads">إعلانات الداعمين</string>
-    <string name="supporter_ads_description">فعّل الإعلانات لدعم التطوير</string>
-    <string name="supporter_ads_disabled">مدعومة فقط في إصدار متجر Play.</string>
-    <string name="ad">إعلان</string>
     <string name="no_browser_found">لم يُعثر على متصفح</string>
     <string name="donate">تبرّع</string>
     <string name="budget_overshoot_warning">تحذير الميزانية</string>
