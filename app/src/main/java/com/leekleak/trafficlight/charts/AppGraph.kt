@@ -30,12 +30,16 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.leekleak.core.R
-import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.core.ui.theme.googleSansEmphasized
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.formatted
 import com.leekleak.core.util.toSp
+import com.leekleak.trafficlight.database.AppUsage
+
+private val BarHeight = 40.dp
+private val BarSpacing = 8.dp
+private const val MaxApps = 3
 
 @Composable
 fun AppGraph(
@@ -47,48 +51,34 @@ fun AppGraph(
     ) {
         if (data.isEmpty()) {
             val font = remember { googleSansEmphasized() }
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                text = stringResource(R.string.no_usage_detected),
-                textAlign = TextAlign.Center,
-                color = colorScheme.onSurfaceVariant,
-                fontFamily = font
-            )
+            val height = BarHeight * MaxApps + BarSpacing * (MaxApps - 1)
+            Box(Modifier.fillMaxWidth().height(height)) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                        .align(Alignment.Center),
+                    text = stringResource(R.string.no_usage_detected),
+                    textAlign = TextAlign.Center,
+                    color = colorScheme.onSurfaceVariant,
+                    fontFamily = font
+                )
+            }
             return@BoxWithConstraints
         }
         val maxBarWidth = maxWidth - 52.dp
         val maxUsage = data.firstOrNull()?.usage?.totalUsage?.toFloat() ?: return@BoxWithConstraints
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        val density = LocalDensity.current
+        val textMeasurer = rememberTextMeasurer()
+        Column(verticalArrangement = Arrangement.spacedBy(BarSpacing)) {
             data.forEachIndexed { index, usage ->
                 val barWidth = maxBarWidth * (usage.usage.totalUsage.toFloat() / maxUsage)
                 val text = DataSize(usage.usage.totalUsage).formatted().replace(" ", "")
-                val density = LocalDensity.current
-                val textMeasurer = rememberTextMeasurer()
-                val fittedFontWidth = remember(text, barWidth) {
-                    val targetPx = with(density) { (barWidth - 8.dp).toPx() }
-
-                    fun measureWidth(axisWidth: Float): Float {
-                        val style = TextStyle(
-                            fontFamily = googleSans(weight = 600f - 200f * index, width = axisWidth),
-                            fontSize = with(density) { 56.dp.toSp() }
-                        )
-                        return textMeasurer.measure(text, style).size.width.toFloat()
-                    }
-
-                    if (measureWidth(25f) > targetPx) return@remember 25f
-
-                    var lo = 26f
-                    var hi = 125f
-                    repeat(8) {
-                        val mid = (lo + hi) / 2f
-                        if (measureWidth(mid) > targetPx / 2f) hi = mid else lo = mid
-                    }
-                    lo
+                val font = remember(index) { googleSans(weight = 600f - 100f * index, width = 60f) }
+                val labelInsideBar = remember(text, barWidth, font) {
+                    val style = TextStyle(fontFamily = font, fontSize = with(density) { 42.dp.toSp() })
+                    textMeasurer.measure(text, style).size.width <= with(density) { (barWidth - 8.dp).toPx() }
                 }
-
-                val font = remember(fittedFontWidth) { googleSans(weight = 600f - 200f * index, width = fittedFontWidth) }
 
                 Row (horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Box(
@@ -96,16 +86,16 @@ fun AppGraph(
                             .clip(MaterialTheme.shapes.medium)
                             .background(if (alternateColor) colorScheme.tertiary else colorScheme.primary)
                             .width(barWidth)
-                            .height(40.dp)
+                            .height(BarHeight)
                     ) {
-                        if (fittedFontWidth != 25f) {
+                        if (labelInsideBar) {
                             val color = if (alternateColor) colorScheme.onTertiary else colorScheme.onPrimary
                             Text(font, color, text)
                         }
                     }
                     usage.app.GetIcon(Modifier.size(40.dp))
-                    if (fittedFontWidth == 25f) {
-                        Box(Modifier.height(40.dp)) {
+                    if (!labelInsideBar) {
+                        Box(Modifier.height(BarHeight)) {
                             Text(font, colorScheme.onBackground, text)
                         }
                     }
