@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">چراغ راهنمایی: ردیاب شبکه</string>
+    <string name="app_name">Traffic Light: ردیاب شبکه</string>
     <string name="today">امروز</string>
     <string name="this_week">این هفته</string>
     <string name="history">تاریخچه</string>
@@ -34,7 +34,6 @@
     <string name="unknown">ناشناخته</string>
     <string name="appearance">ظاهر</string>
     <string name="behavior">رفتار</string>
-    <string name="app_name_short">چراغ راهنمایی</string>
     <string name="speed_unit">واحد سرعت</string>
     <string name="size_unit">واحد اندازه</string>
     <string name="base_1024">پایه 1024</string>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Šviesoforas: Duomenų prižiūrėtojas</string>
+    <string name="app_name">Traffic Light: Duomenų prižiūrėtojas</string>
     <string name="grant">Suteikti</string>
     <string name="today">Šiandien</string>
     <string name="this_week">Ši savaitė</string>
@@ -67,7 +67,6 @@
     <string name="notification_channels">Pranešimo kanalų nustatymai</string>
     <string name="go_back">Grįžti</string>
     <string name="overview">Apžvalga</string>
-    <string name="app_name_short">Šviesoforas</string>
     <string name="multi_sim_tracking">Multi-SIM stebėjimas</string>
     <string name="shizuku_required">Reikalinga Shizuku</string>
     <string name="close">Uždaryti</string>

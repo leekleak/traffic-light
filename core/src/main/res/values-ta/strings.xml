@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name_short">ட்ராஃபிக் லைட்</string>
     <string name="today">இன்று</string>
     <string name="this_week">இந்த வாரம்</string>
     <string name="history">வரலாறு</string>

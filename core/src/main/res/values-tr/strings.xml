@@ -62,7 +62,6 @@
     <string name="prediction">Tahmin</string>
     <string name="trend">Eğilim</string>
     <string name="mobile_data">Hücresel veri</string>
-    <string name="app_name_short">Traffic Light</string>
     <string name="all_apps">Tüm uygulamalar</string>
     <string name="notification_channels">Bildirim Kanalı Ayarları</string>
     <string name="go_back">Geri git</string>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">إشارة المرور: متتبع الشبكة</string>
+    <string name="app_name">Traffic Light: متتبع الشبكة</string>
     <string name="today">اليوم</string>
     <string name="this_week">هذا الأسبوع</string>
     <string name="history">التاريخ</string>
@@ -69,7 +69,6 @@
     <string name="notification_channels">إعدادات قنوات الإشعارات</string>
     <string name="go_back">ارجع</string>
     <string name="overview">نظرة عامة</string>
-    <string name="app_name_short">إشارة مرور</string>
     <string name="multi_sim_tracking">تتبع شرائح الاتصال المتعددة</string>
     <string name="shizuku_required">يتطلب Shizuku</string>
     <string name="close">أغلِق</string>

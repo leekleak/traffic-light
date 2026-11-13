@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ترافیک لایت: شوێنپێکەری تۆڕ</string>
-    <string name="app_name_short">ترافیک لایت</string>
+    <string name="app_name">Traffic Light: شوێنپێکەری تۆڕ</string>
     <string name="today">ئەمڕۆ</string>
     <string name="this_week">ئەم هەفتەیە</string>
     <string name="history">مێژوو</string>

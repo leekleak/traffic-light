@@ -58,7 +58,6 @@
         <item quantity="many">Reiniciará en %d días</item>
         <item quantity="other">Reiniciará en %d días</item>
     </plurals>
-    <string name="app_name_short">Traffic Light</string>
     <string name="speed_unit">Unidad de velocidad</string>
     <string name="size_unit">Unidad de tamaño</string>
     <string name="base_1024">Base 1.024</string>

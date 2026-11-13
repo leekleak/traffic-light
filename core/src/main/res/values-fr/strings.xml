@@ -66,7 +66,6 @@
     <string name="notification_channels">Réglages du canal de notification</string>
     <string name="go_back">Revenir</string>
     <string name="overview">Aperçu</string>
-    <string name="app_name_short">Traffic Light</string>
     <string name="multi_sim_tracking">Suivi multi-SIM</string>
     <string name="shizuku_required">Shizuku requis</string>
     <string name="close">Fermer</string>

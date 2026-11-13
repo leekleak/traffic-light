@@ -49,7 +49,7 @@
     <string name="notification_description">於狀態列中顯示網路速度。</string>
     <string name="auto">自動</string>
     <string name="force_fallback">強制啟用後備性的網路速度監控方法</string>
-    <string name="app_name">紅綠燈(Traffic Light)：一款網路流量監控工具</string>
+    <string name="app_name">Traffic Light：一款網路流量監控工具</string>
     <string name="today">今日</string>
     <string name="this_week">本週</string>
     <string name="history">歷史紀錄</string>
@@ -61,7 +61,6 @@
     <string name="battery_optimization_description">避免系統將背景運作終止</string>
     <string name="usage_statistics">使用量資料存取權</string>
     <string name="usage_statistics_description">長期監控數據使用量所需要的權限。</string>
-    <string name="app_name_short">紅綠燈</string>
     <string name="speed_unit">速度單位</string>
     <string name="size_unit">大小單位</string>
     <string name="base_1024">1024 進位制</string>

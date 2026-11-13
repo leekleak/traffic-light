@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name_short">Світлофор</string>
     <string name="today">Сьогодні</string>
     <string name="this_week">Цього Тижня</string>
     <string name="history">Історія</string>
-    <string name="app_name">Світлофор: Мережевий Трекер</string>
+    <string name="app_name">Traffic Light: Мережевий Трекер</string>
     <string name="wifi">Wi-Fi</string>
     <string name="cellular">Мобільний</string>
     <string name="grant">Грант</string>

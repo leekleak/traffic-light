@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Traffic Light: Trình theo dõi mạng</string>
-    <string name="app_name_short">Traffic Light</string>
     <string name="today">Hôm nay</string>
     <string name="this_week">Tuần này</string>
     <string name="history">Lịch sử</string>

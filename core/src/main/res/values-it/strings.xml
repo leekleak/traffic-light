@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Traffic Light: Contatore velocità di Rete</string>
-    <string name="app_name_short">Traffic Light</string>
     <string name="today">Oggi</string>
     <string name="this_week">Questa settimana</string>
     <string name="history">Cronologia</string>

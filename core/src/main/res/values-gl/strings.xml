@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Semáforo: Monitor de rede</string>
+    <string name="app_name">Traffic Light: Monitor de rede</string>
     <string name="today">Hoxe</string>
     <string name="this_week">Esta semama</string>
     <string name="history">Historial</string>
@@ -57,7 +57,6 @@
         <item quantity="one">Reiníciase mañá</item>
         <item quantity="other">Reiníciase dentro de %d días</item>
     </plurals>
-    <string name="app_name_short">Semáforo</string>
     <string name="tethering">Compartición de conexión</string>
     <string name="removed_apps">Aplicacións eliminadas</string>
     <string name="all_apps">Tódalas aplicacións</string>

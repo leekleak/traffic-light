@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Sygnalizacja świetlna</string>
+    <string name="app_name">Traffic Light</string>
     <string name="today">Dzisiaj</string>
     <string name="this_week">Ten tydzień</string>
     <string name="history">Historia</string>
