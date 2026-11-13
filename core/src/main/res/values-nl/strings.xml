@@ -116,10 +116,6 @@
     <string name="safety_status_notif_title">Veiligheidsstatus verandert</string>
     <string name="safety_status_notif_text">Je veiligheidsstatus voor %1$s is nu %2$s.</string>
     <string name="separate_upload_and_download">Aparte upload en download</string>
-    <string name="supporter_ads">Supporteradvertenties</string>
-    <string name="supporter_ads_description">Schakel advertenties in om de ontwikkeling te steunen</string>
-    <string name="supporter_ads_disabled">Alleen ondersteunt in de Google Play-versie.</string>
-    <string name="ad">Advertentie</string>
     <string name="no_browser_found">Geen browser gevonden</string>
     <string name="persistent_notification">Blijvende melding</string>
     <string name="plan_notification">Bundelmelding</string>
