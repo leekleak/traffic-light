@@ -50,6 +50,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -86,6 +87,7 @@ fun Overview(
 ) {
     val haptic = LocalHapticFeedback.current
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
+    val isWidescreen = windowSizeClass.isWidthAtLeastBreakpoint(600)
 
     LifecycleResumeEffect(Unit) {
         viewModel.refresh()
@@ -109,28 +111,28 @@ fun Overview(
         }
     ) { contentPadding ->
         Spacer(Modifier.height(contentPadding.calculateTopPadding()))
-        if (windowSizeClass.isWidthAtLeastBreakpoint(600)) {
+        if (isWidescreen) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(start = contentPadding.calculateLeftPadding(LayoutDirection.Ltr)),
                 horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.Top,
             ) {
                 Column(
-                    modifier = Modifier.widthIn(max = 400.dp).weight(1f),
+                    modifier = Modifier.widthIn(max = 400.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    OverviewHero(viewModel)
+                    OverviewHero(viewModel, true)
                     OverviewRangeSelector(viewModel)
                 }
                 Column(
-                    modifier = Modifier.widthIn(max = 400.dp).weight(1f),
+                    modifier = Modifier.widthIn(max = 400.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     OverviewItems(navigator, viewModel)
                 }
             }
         } else {
-            OverviewHero(viewModel)
+            OverviewHero(viewModel, false)
             OverviewRangeSelector(viewModel)
             OverviewItems(navigator, viewModel)
         }
@@ -139,7 +141,7 @@ fun Overview(
 }
 
 @Composable
-private fun OverviewHero(viewModel: OverviewVM) {
+private fun OverviewHero(viewModel: OverviewVM, isWidescreen: Boolean, ) {
     val haptic = LocalHapticFeedback.current
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -216,7 +218,8 @@ private fun OverviewHero(viewModel: OverviewVM) {
             width = (graphValues.size - 1).coerceAtLeast(1),
             graphColor = graphColor,
             fillAlpha = 0.7f,
-            tags = tags
+            tags = tags,
+            sideBorder = isWidescreen,
         )
 
         Column(
@@ -235,7 +238,7 @@ private fun OverviewHero(viewModel: OverviewVM) {
             val width = 30f + 30f * pressProgress
             val weight = 400f + 400f * pressProgress
             val fontFamily1 = remember(weight, width) { googleSans(weight = weight, width = width, roundness = 100f) }
-            val fontFamily2 = remember(weight, width) { googleSans(weight = weight + 200f, width = width + 70f, roundness = 50f) }
+            val fontFamily2 = remember(weight, width) { googleSans(weight = weight, width = width + 70f, roundness = 50f) }
 
             val bundledUsage = remember(string) { string to (query.dataType == DataType.Wifi) }
             AnimatedContent(bundledUsage) { (text, isWifi) ->

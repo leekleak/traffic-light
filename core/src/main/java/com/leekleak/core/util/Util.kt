@@ -368,7 +368,8 @@ fun ButtonGroupScope.iconToggleButton(
                             Text(
                                 modifier = if (icon!= null) Modifier.padding(start = 8.dp) else Modifier,
                                 text = it,
-                                maxLines = 1
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }

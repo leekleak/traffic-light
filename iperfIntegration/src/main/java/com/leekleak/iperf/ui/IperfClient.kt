@@ -63,7 +63,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.core.R
 import com.leekleak.core.charts.SpeedGraph
 import com.leekleak.iperf.data.IPerfEntry
-import com.leekleak.iperf.ui.IperfLogScreenKey
 import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.ui.components.FancyDialog
 import com.leekleak.core.ui.theme.card
@@ -192,7 +191,7 @@ fun ClientScreen(
                 .fillMaxHeight(0.5f)
                 .align(Alignment.BottomCenter),
             data = uiState.speedData,
-            graphColor = graphColor
+            graphColor = graphColor,
         )
 
         val alignment by animateAlignmentAsState(if (iPerfRunning) Alignment.BottomCenter else Alignment.Center)

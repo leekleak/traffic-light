@@ -11,6 +11,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -34,6 +36,7 @@ fun SpeedGraph(
     graphColor: Color,
     fillAlpha: Float = 1f,
     tags: List<SpeedGraphTag> = emptyList(),
+    sideBorder: Boolean = false,
 ) {
     val valueColor = colorScheme.onSurface
     val textMeasurer = rememberTextMeasurer()
@@ -88,6 +91,20 @@ fun SpeedGraph(
         val labelGap = 7.dp.toPx()
         val lineGap = 1.dp.toPx()
         val inset = 16.dp.toPx()
+
+        if (sideBorder) {
+            val border = Path().apply {
+                moveTo(-1f, points.first().y)
+                lineTo(-1f, size.height)
+                moveTo(size.width+1, points.last().y)
+                lineTo(size.width+1, size.height)
+            }
+            drawPath(
+                path = border,
+                color = graphColor.copy(alpha = 0.5f),
+                style = Stroke(width = 2.dp.toPx(), cap= StrokeCap.Round)
+            )
+        }
 
         tags.forEach { tag ->
             if (tag.alpha <= 0f) return@forEach
