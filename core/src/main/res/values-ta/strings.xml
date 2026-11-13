@@ -120,10 +120,6 @@
     <string name="notes">குறிப்புகள்</string>
     <string name="plans">திட்டங்கள்</string>
     <string name="separate_upload_and_download">பதிவேற்றம் மற்றும் பதிவிறக்கம் தனித்தனியாக</string>
-    <string name="supporter_ads">ஆதரவாளர் விளம்பரங்கள்</string>
-    <string name="supporter_ads_description">மேம்பாட்டுப் பணிகளை ஆதரிக்க விளம்பரங்களைச் செயல்படுத்தவும்</string>
-    <string name="supporter_ads_disabled">Google Play பதிப்பில் மட்டுமே ஆதரிக்கப்படுகிறது.</string>
-    <string name="ad">விளம்பரம்</string>
     <string name="no_browser_found">browser எதுவும் கண்டறியப்படவில்லை</string>
     <string name="persistent_notification">நிலைத்த அறிவிப்பு</string>
     <string name="persistent_notification_silent">நிலையான அறிவிப்பு (அமைதியானது)</string>
