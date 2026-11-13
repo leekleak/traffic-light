@@ -94,10 +94,14 @@ fun SpeedGraph(
 
         if (sideBorder) {
             val border = Path().apply {
-                moveTo(-1f, points.first().y)
-                lineTo(-1f, size.height)
-                moveTo(size.width+1, points.last().y)
-                lineTo(size.width+1, size.height)
+                if (size.height - points.first().y > dotRadius) {
+                    moveTo(-1f, points.first().y)
+                    lineTo(-1f, size.height)
+                }
+                if (size.height - points.last().y > dotRadius) {
+                    moveTo(size.width+1, points.last().y)
+                    lineTo(size.width+1, size.height)
+                }
             }
             drawPath(
                 path = border,
