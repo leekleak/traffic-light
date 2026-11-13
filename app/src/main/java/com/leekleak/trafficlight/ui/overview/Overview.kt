@@ -5,7 +5,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -27,7 +26,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -88,7 +86,6 @@ fun Overview(
 ) {
     val haptic = LocalHapticFeedback.current
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
-    val scrollState = rememberScrollState()
 
     LifecycleResumeEffect(Unit) {
         viewModel.refresh()
@@ -97,7 +94,6 @@ fun Overview(
 
     HazeScaffold(
         title = stringResource(R.string.overview),
-        scrollState = scrollState,
         applyPadding = false,
         backAction = BackAction.None,
         extraPadding = LocalNavigationBarPadding.current,
@@ -123,7 +119,7 @@ fun Overview(
                     modifier = Modifier.widthIn(max = 400.dp).weight(1f),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    OverviewHero(viewModel, scrollState)
+                    OverviewHero(viewModel)
                     OverviewRangeSelector(viewModel)
                 }
                 Column(
@@ -134,7 +130,7 @@ fun Overview(
                 }
             }
         } else {
-            OverviewHero(viewModel, scrollState)
+            OverviewHero(viewModel)
             OverviewRangeSelector(viewModel)
             OverviewItems(navigator, viewModel)
         }
@@ -143,7 +139,7 @@ fun Overview(
 }
 
 @Composable
-private fun OverviewHero(viewModel: OverviewVM, scrollState: ScrollState) {
+private fun OverviewHero(viewModel: OverviewVM) {
     val haptic = LocalHapticFeedback.current
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -215,8 +211,7 @@ private fun OverviewHero(viewModel: OverviewVM, scrollState: ScrollState) {
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .requiredWidth(maxWidth)
-                .fillMaxHeight(0.8f - 0.2f * pressProgress)
-                .graphicsLayer { translationY = scrollState.value * 0.4f },
+                .fillMaxHeight(0.8f - 0.2f * pressProgress),
             data = graphValues,
             width = (graphValues.size - 1).coerceAtLeast(1),
             graphColor = graphColor,
@@ -347,7 +342,7 @@ private fun OverviewRangeSelector(viewModel: OverviewVM) {
 fun OverviewItems(navigator: Navigator, viewModel: OverviewVM) {
     val topAppsList by viewModel.topApps.collectAsStateWithLifecycle()
     val query by viewModel.query.collectAsStateWithLifecycle()
-    Box(Modifier.padding(horizontal = 16.dp)) {
+    Column(Modifier.padding(horizontal = 16.dp)) {
         CategoryTitleText(stringResource(R.string.top_apps))
         Box(modifier = Modifier.card().padding(6.dp)) {
             val listWithWifi =
@@ -375,9 +370,8 @@ private fun OverviewPlans(navigator: Navigator, viewModel: OverviewVM) {
         CategoryTitleText(stringResource(R.string.plans))
     }
     HorizontalPager(
-        modifier = Modifier.height(220.dp),
         state = pagerState,
-        contentPadding = PaddingValues(horizontal = 24.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp),
         pageSpacing = 12.dp,
         snapPosition = SnapPosition.Center,
         pageSize = PageSize.Fill
