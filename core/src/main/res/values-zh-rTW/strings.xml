@@ -123,10 +123,6 @@
     <string name="notes">備註</string>
     <string name="plans">方案</string>
     <string name="separate_upload_and_download">分開顯示上傳和下載</string>
-    <string name="supporter_ads">贊助商廣告</string>
-    <string name="supporter_ads_description">開啟廣告，支持開發</string>
-    <string name="supporter_ads_disabled">僅支援 Google Play 版。</string>
-    <string name="ad">廣告</string>
     <string name="no_browser_found">找不到瀏覽器</string>
     <string name="persistent_notification">常駐型通知</string>
     <string name="persistent_notification_silent">常駐型通知（靜音）</string>
@@ -157,4 +153,32 @@
     <plurals name="resets_in_hours">
         <item quantity="other">%d小時後重設</item>
     </plurals>
+    <string name="notification">通知</string>
+    <string name="data_plan_unavailable">此方案已失效。\n請開啟 Traffic Light 來設定。</string>
+    <string name="tools">工具</string>
+    <string name="reliability">可靠度</string>
+    <string name="invalid_extra_amount">請輸入大於零的數值</string>
+    <string name="estimate_usage">預計用量</string>
+    <string name="search">搜尋</string>
+    <string name="server_address">伺服器位址</string>
+    <string name="no_server_selected">未選取伺服器</string>
+    <string name="select_server">選擇伺服器</string>
+    <string name="add_server">新增伺服器</string>
+    <string name="network_port">連接埠</string>
+    <string name="server_name">伺服器名稱</string>
+    <string name="my_server">我的伺服器</string>
+    <string name="name_cannot_be_empty">請輸入名稱</string>
+    <string name="invalid_port">無效連接埠</string>
+    <string name="remove_server">移除伺服器</string>
+    <string name="remove_server_question">確定要移除此伺服器嗎？</string>
+    <string name="remove">移除</string>
+    <string name="client">用戶端</string>
+    <string name="server">伺服器</string>
+    <string name="edit">編輯</string>
+    <string name="protocol">協定</string>
+    <string name="direction">方向</string>
+    <string name="bandwidth">頻寬</string>
+    <string name="logs">日誌</string>
+    <string name="version">版本</string>
+    <string name="no_web_browser_installed">未安裝網頁瀏覽器</string>
 </resources>

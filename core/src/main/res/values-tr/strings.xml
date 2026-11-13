@@ -106,10 +106,6 @@
     </plurals>
     <string name="selected_item">Seçildi</string>
     <string name="separate_upload_and_download">Yükleme ve indirmeyi ayır</string>
-    <string name="supporter_ads">Destekçi reklamlar</string>
-    <string name="supporter_ads_description">Geliştirmeyi desteklemek için reklamları açın</string>
-    <string name="supporter_ads_disabled">Yalnızca Google Play sürümünde desteklenir.</string>
-    <string name="ad">Reklam</string>
     <string name="no_browser_found">Bir tarayıcı bulunamadı</string>
     <string name="donate">Bağış Yap</string>
     <string name="delete">Sil</string>

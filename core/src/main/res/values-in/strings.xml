@@ -111,10 +111,6 @@
     <string name="notes">Catatan</string>
     <string name="plans">Paket</string>
     <string name="separate_upload_and_download">Pisahkan unggah dan unduh</string>
-    <string name="supporter_ads">Iklan pendukung</string>
-    <string name="supporter_ads_description">Aktifkan iklan untuk mendukung pengembangan</string>
-    <string name="supporter_ads_disabled">Hanya didukung pada versi Google Play.</string>
-    <string name="ad">Iklan</string>
     <string name="no_browser_found">Browser tidak ditemukan</string>
     <string name="persistent_notification">Notifikasi Persisten</string>
     <string name="plan_notification">Notifikasi Paket</string>

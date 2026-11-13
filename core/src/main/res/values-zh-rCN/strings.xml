@@ -126,10 +126,6 @@
     <string name="safety_status_notif_text">您的%1$s的安全状态当前为%2$s。</string>
     <string name="note">备注</string>
     <string name="write_your_note_here">在此输入备注……</string>
-    <string name="supporter_ads">赞助商广告</string>
-    <string name="supporter_ads_description">启用广告以支持开发</string>
-    <string name="supporter_ads_disabled">仅Google Play版本支持。</string>
-    <string name="ad">广告</string>
     <string name="no_browser_found">未找到浏览器</string>
     <string name="persistent_notification">常驻通知</string>
     <string name="persistent_notification_silent">常驻通知（静默）</string>
@@ -167,7 +163,7 @@
     <string name="my_server">我的服务器</string>
     <string name="name_cannot_be_empty">名称不能为空白</string>
     <string name="invalid_port">无效端口</string>
-    <string name="remove_server">远程服务器</string>
+    <string name="remove_server">移除服务器</string>
     <string name="remove_server_question">您确定要移除这个服务器？</string>
     <string name="remove">移除</string>
     <string name="client">客户端</string>

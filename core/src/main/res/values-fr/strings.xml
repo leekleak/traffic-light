@@ -108,10 +108,6 @@
     </plurals>
     <string name="selected_item">Sélectionné</string>
     <string name="separate_upload_and_download">Séparer les entrées des sorties</string>
-    <string name="supporter_ads">Pubs de soutien</string>
-    <string name="supporter_ads_description">Activer les pubs pour soutenir le développement</string>
-    <string name="supporter_ads_disabled">Uniquement supporté dans la version Google Play.</string>
-    <string name="ad">Pubs</string>
     <string name="donate">Donner</string>
     <string name="budget_overshoot_warning">Alerte budget</string>
     <string name="budget_overshoot_warning_description">Notifie quand le budget quotidien est dépassé.</string>
@@ -203,4 +199,8 @@
     <string name="estimate_usage">Estimer l\'utilisation</string>
     <string name="test_duration">Durée du test (secondes)</string>
     <string name="no_web_browser_installed">Aucun navigateur web installé</string>
+    <string name="activity">Activité</string>
+    <string name="overlay">Superposition</string>
+    <string name="shizuku_permission_required">L\'autorisation Shizuku est requise</string>
+    <string name="track_multiple_sim_cards">Suivre plusieurs cartes SIM</string>
 </resources>
