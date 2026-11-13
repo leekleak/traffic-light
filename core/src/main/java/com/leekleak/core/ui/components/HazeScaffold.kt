@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -77,11 +78,12 @@ fun HazeScaffold(
     val layoutDirection = LocalLayoutDirection.current
     val extraStart = extraPadding.calculateStartPadding(layoutDirection)
     val extraEnd = extraPadding.calculateEndPadding(layoutDirection)
-    val contentSidePadding = 16.dp
-    val outerStart = extraStart + if (applyPadding) contentSidePadding else 0.dp
-    val outerEnd = extraEnd + if (applyPadding) contentSidePadding else 0.dp
-    val contentStart = if (applyPadding) 0.dp else contentSidePadding
-    val contentEnd = if (applyPadding) 0.dp else contentSidePadding
+    val contentStartPadding = 16.dp + WindowInsets.safeDrawing.asPaddingValues().calculateStartPadding(layoutDirection)
+    val contentEndPadding = 16.dp + WindowInsets.safeDrawing.asPaddingValues().calculateEndPadding(layoutDirection)
+    val outerStart = extraStart + if (applyPadding) contentStartPadding else 0.dp
+    val outerEnd = extraEnd + if (applyPadding) contentEndPadding else 0.dp
+    val contentStart = if (applyPadding) 0.dp else contentStartPadding
+    val contentEnd = if (applyPadding) 0.dp else contentEndPadding
     val paddingTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + TOP_BAR_HEIGHT + 6.dp + extraPadding.calculateTopPadding()
     val paddingBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() + 8.dp + extraPadding.calculateBottomPadding()
     val paddingValues = if (applyPadding) {
