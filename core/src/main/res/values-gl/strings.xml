@@ -124,10 +124,6 @@
     <string name="notes">Notas</string>
     <string name="plans">Plans</string>
     <string name="separate_upload_and_download">Carga e descarga separadas</string>
-    <string name="supporter_ads">anuncios para apoio</string>
-    <string name="supporter_ads_description">Activa os anuncios para apoiar o desenvolvemento</string>
-    <string name="supporter_ads_disabled">Só se admite na versión de Google Play.</string>
-    <string name="ad">Anuncio</string>
     <string name="no_browser_found">Non se atopou ningún navegador</string>
     <string name="persistent_notification">Notificación persistente</string>
     <string name="persistent_notification_silent">Notificación persistente (silenciosa)</string>
