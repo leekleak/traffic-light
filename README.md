@@ -42,6 +42,7 @@ Traffic Light is an open-source tool for tracking your network usage while ensur
     </td>
     <td align="center">
       <a href="https://github.com/leekleak/traffic-light/releases"><img alt="GitHub" height="60" src="branding/badge_github.png"></a>
+      <a href="https://apt.izzysoft.de/packages/com.leekleak.trafficlight.lite"><img alt="IzzyOnDroid" height="60" src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png"></a>
     </td>
   </tr>
   <tr>
