@@ -53,12 +53,6 @@ fun Settings(
         backAction = BackAction.Normal(navigator),
     ) {
         BackgroundPermissionPrompt(permissionManager)
-        if (BuildConfig.SHIZUKU) {
-            ShizukuSettings(
-                appPreferenceRepo = appPreferenceRepo,
-                permissionManager = permissionManager,
-            )
-        }
         BasesSettings(appPreferenceRepo)
         InterfaceSettings(appPreferenceRepo)
         AboutSettings(navigator, appPreferenceRepo)
@@ -175,27 +169,6 @@ private fun BasesSettings(appPreferenceRepo: AppPreferenceRepo) {
             onValueChanged = { scope.launch { appPreferenceRepo.setSizeMetric(it) } },
         )
     }
-}
-
-@Composable
-private fun ShizukuSettings(
-    appPreferenceRepo: AppPreferenceRepo,
-    permissionManager: PermissionManager,
-) {
-    CategoryTitleSmallText(stringResource(R.string.data_plans))
-    val shizukuTracking by appPreferenceRepo.shizukuTracking.collectAsState(false)
-    val shizukuPermission by permissionManager.shizukuPermission.collectAsState()
-    val shizukuRunning by permissionManager.shizukuRunning.collectAsState()
-    SwitchPreference(
-        title = stringResource(R.string.multi_sim_tracking),
-        summary = if (shizukuRunning) stringResource(R.string.shizuku_required) else stringResource(
-            R.string.shizuku_not_running
-        ),
-        icon = R.drawable.version,
-        value = shizukuTracking && shizukuPermission,
-        enabled = shizukuRunning,
-        onValueChanged = permissionManager::setShizukuTracking,
-    )
 }
 
 @Composable

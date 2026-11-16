@@ -47,7 +47,7 @@
     <string name="appearance">Appearance</string>
     <string name="behavior">Behavior</string>
     <string name="donate">Donate</string>
-    <string name="shizuku_not_running">Shizuku is not running</string>
+    <string name="shizuku_stopped">Shizuku stopped</string>
     <string name="sim_card">SIM card</string>
     <string name="data_plans">Data Plans</string>
     <string name="configure_plan">Configure Plan</string>

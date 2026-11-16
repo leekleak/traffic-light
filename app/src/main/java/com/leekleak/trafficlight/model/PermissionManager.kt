@@ -19,9 +19,11 @@ import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.integrations.ShizukuServicesProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class PermissionManager(
@@ -45,49 +47,28 @@ class PermissionManager(
     val shizukuRunning: StateFlow<Boolean>
         field = MutableStateFlow(false)
 
-    val shizukuPermission: StateFlow<Boolean>
-        field = MutableStateFlow(false)
-
-    private var pendingShizukuGrant: (() -> Unit)? = null
+    val shizukuPermissionGranted: StateFlow<Boolean> =
+        appPreferenceRepo.shizukuPermissionGranted.stateIn(scope, SharingStarted.Eagerly, false)
 
     init {
         scope.launch {
             combine(
-                appPreferenceRepo.shizukuTracking,
-                shizukuPermission,
+                appPreferenceRepo.shizukuPermissionGranted,
                 shizukuRunning
-            ) {
-                setting, permission, running ->
-                return@combine Triple(setting, permission, running)
-            }.collectLatest { (setting, permission, running) ->
-                if (setting && permission && running) {
-                    shizukuServicesProvider.enable()
-                } else if (!setting) {
-                    shizukuServicesProvider.disable()
-                    shizukuServicesProvider.updateSimData()
+            ) { granted, running -> granted to running }
+                .collectLatest { (granted, running) ->
+                    if (granted && running) {
+                        shizukuServicesProvider.enable()
+                    } else {
+                        shizukuServicesProvider.disable()
+                        if (!granted) shizukuServicesProvider.updateSimData()
+                    }
                 }
-            }
-        }
-        scope.launch {
-            shizukuPermission.collect { granted ->
-                if (granted) {
-                    pendingShizukuGrant?.invoke()
-                    pendingShizukuGrant = null
-                }
-            }
         }
     }
 
-    fun setShizukuTracking(enabled: Boolean) {
-        if (!enabled) {
-            pendingShizukuGrant = null
-            scope.launch { appPreferenceRepo.setShizukuTracking(false) }
-            return
-        }
-        if (shizukuPermission.value) {
-            scope.launch { appPreferenceRepo.setShizukuTracking(true) }
-        } else if (shizukuRunning.value) {
-            pendingShizukuGrant = { scope.launch { appPreferenceRepo.setShizukuTracking(true) } }
+    fun requestShizukuPermission() {
+        if (shizukuRunning.value) {
             shizukuServicesProvider.shizukuRequestPermission()
         }
     }
@@ -163,9 +144,15 @@ class PermissionManager(
 
         shizukuRunning.value = shizukuServicesProvider.shizukuRunning()
         if (shizukuRunning.value) {
-            shizukuPermission.value = shizukuServicesProvider.shizukuPermission() == PackageManager.PERMISSION_GRANTED
-        } else {
-            shizukuPermission.value = false
+            val permission = runCatching {
+                shizukuServicesProvider.shizukuPermission()
+            }.getOrNull()
+            if (permission != null) {
+                val granted = permission == PackageManager.PERMISSION_GRANTED
+                if (shizukuPermissionGranted.value != granted) {
+                    scope.launch { appPreferenceRepo.setShizukuPermissionGranted(granted) }
+                }
+            }
         }
     }
 }

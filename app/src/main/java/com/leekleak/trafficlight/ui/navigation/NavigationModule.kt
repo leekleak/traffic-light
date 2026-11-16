@@ -38,7 +38,7 @@ val navigationModule = module {
             refresh = viewModel::refresh
         )
     }
-    navigation<HistoryKey> { History(get(), get()) }
+    navigation<HistoryKey> { History(get(), get(), get()) }
     navigation<ToolsKey> { Tools(LocalNavigator.current) }
     navigation<SettingsKey> { Settings(LocalNavigator.current, get(), get()) }
     navigation<UsagePermissionRequestKey> { UsagePermissionRequest(LocalNavigator.current, get()) }

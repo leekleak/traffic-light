@@ -74,7 +74,6 @@ import com.leekleak.core.util.MiniCard
 import com.leekleak.core.util.MiniCardState
 import com.leekleak.core.util.TrendCard
 import com.leekleak.core.util.shelfShape
-import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.charts.ActivityDay
 import com.leekleak.trafficlight.charts.ActivityGraph
 import com.leekleak.trafficlight.charts.AppGraph
@@ -82,13 +81,11 @@ import com.leekleak.trafficlight.charts.ExtraGraph
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanSnapshot
+import com.leekleak.trafficlight.ui.components.ShizukuStoppedTag
 import com.leekleak.trafficlight.ui.settings.InfoCard
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-
-private val DataPlansUiState.showShizukuHint: Boolean
-    get() = BuildConfig.SHIZUKU && !shizukuTracking
 
 @Composable
 fun DataPlans(
@@ -122,6 +119,9 @@ fun DataPlans(
         scrollState = null,
         backAction = BackAction.None,
         extraPadding = LocalNavigationBarPadding.current,
+        actions = {
+            if (uiState.showShizukuNotRunning) ShizukuStoppedTag()
+        },
     ) { paddingValues ->
         if (isWidescreen) {
             DataPlansTwoPane(
@@ -340,7 +340,7 @@ private fun ShizukuHintCard(
         )
         if (!shizukuRunning) {
             Text(
-                text = stringResource(R.string.shizuku_not_running),
+                text = stringResource(R.string.shizuku_stopped),
                 color = colorScheme.secondary,
                 textAlign = TextAlign.Center
             )

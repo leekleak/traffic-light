@@ -3,8 +3,8 @@ package com.leekleak.trafficlight.ui.plans
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leekleak.core.util.MiniCardState
+import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.charts.ActivityDay
-import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanSnapshot
@@ -29,13 +29,18 @@ data class DataPlansUiState(
     val remainingDailyBudget: Long = 0,
     val activityUsage: List<ActivityDay>? = null,
     val topApps: List<AppUsage>? = null,
-    val shizukuTracking: Boolean = false,
+    val shizukuPermissionGranted: Boolean = false,
     val shizukuRunning: Boolean = false,
-)
+) {
+    val showShizukuHint: Boolean
+        get() = BuildConfig.SHIZUKU && !shizukuPermissionGranted
+
+    val showShizukuNotRunning: Boolean
+        get() = BuildConfig.SHIZUKU && shizukuPermissionGranted && !shizukuRunning
+}
 
 class DataPlansVM(
     private val dataPlansLogic: DataPlanLogic,
-    private val appPreferenceRepo: AppPreferenceRepo,
     private val dataPlanManager: DataPlanManager,
     private val permissionManager: PermissionManager,
 ): ViewModel() {
@@ -129,7 +134,7 @@ class DataPlansVM(
         remainingDailyBudgetFlow,
         activityUsageFlow,
         topAppsFlow,
-        appPreferenceRepo.shizukuTracking,
+        permissionManager.shizukuPermissionGranted,
         permissionManager.shizukuRunning
     ) { flows ->
         val activePlans = flows[0] as List<DataPlan>
@@ -142,7 +147,7 @@ class DataPlansVM(
         val remaining = flows[6] as Long? ?: 0L
         val activityUsage = flows[7] as List<ActivityDay>?
         val apps = flows[8] as List<AppUsage>?
-        val shizukuTracking = flows[9] as Boolean
+        val shizukuPermissionGranted = flows[9] as Boolean
         val shizukuRunning = flows[10] as Boolean
 
         DataPlansUiState(
@@ -155,10 +160,10 @@ class DataPlansVM(
             remainingDailyBudget = remaining,
             activityUsage = activityUsage,
             topApps = apps,
-            shizukuTracking = shizukuTracking,
+            shizukuPermissionGranted = shizukuPermissionGranted,
             shizukuRunning = shizukuRunning
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DataPlansUiState())
 
-    fun grantShizuku() = permissionManager.setShizukuTracking(true)
+    fun grantShizuku() = permissionManager.requestShizukuPermission()
 }

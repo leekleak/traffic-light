@@ -73,8 +73,8 @@ class AppPreferenceRepo (
     val blur: Flow<Boolean> = data.map { prefs -> prefs[BLUR] ?: true }.distinctUntilChanged()
     suspend fun setBlur(value: Boolean) = dataStore.edit { it[BLUR] = value }
 
-    val shizukuTracking: Flow<Boolean> = data.map { it[SHIZUKU_TRACKING] ?: false }.distinctUntilChanged()
-    suspend fun setShizukuTracking(value: Boolean) = dataStore.edit { it[SHIZUKU_TRACKING] = value }
+    val shizukuPermissionGranted: Flow<Boolean> = data.map { it[SHIZUKU_PERMISSION_GRANTED] ?: false }.distinctUntilChanged()
+    suspend fun setShizukuPermissionGranted(value: Boolean) = dataStore.edit { it[SHIZUKU_PERMISSION_GRANTED] = value }
 
     val overviewDataType: Flow<DataType> = data.map { prefs -> prefs[OVERVIEW_DATA_TYPE]?.let { valueOfOrNull<DataType>(it) } ?: DataType.Mobile }.distinctUntilChanged()
     suspend fun setOverviewDataType(value: DataType) = dataStore.edit { it[OVERVIEW_DATA_TYPE] = value.name }
@@ -96,7 +96,7 @@ class AppPreferenceRepo (
         private val SIZE_METRIC = booleanPreferencesKey("size_metric")
         private val THEME = stringPreferencesKey("theme")
         private val BLUR = booleanPreferencesKey("blur")
-        private val SHIZUKU_TRACKING = booleanPreferencesKey("shizuku_tracking")
+        private val SHIZUKU_PERMISSION_GRANTED = booleanPreferencesKey("shizuku_tracking")
         private val OVERVIEW_DATA_TYPE = stringPreferencesKey("overview_data_type")
         private val OVERVIEW_RANGE = stringPreferencesKey("overview_range")
     }

@@ -6,7 +6,6 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -42,7 +41,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -94,6 +92,7 @@ import com.leekleak.core.R
 import com.leekleak.core.charts.LineGraph
 import com.leekleak.core.charts.ScrollableBarGraph
 import com.leekleak.core.charts.model.ScrollableBarData
+import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DropdownItem
@@ -105,10 +104,12 @@ import com.leekleak.trafficlight.model.AppManager.Companion.removedApp
 import com.leekleak.trafficlight.model.AppManager.Companion.tetheringApp
 import com.leekleak.trafficlight.model.DataUID
 import com.leekleak.trafficlight.model.DataUIDApp
+import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.model.search
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
 import com.leekleak.core.ui.navigation.LocalNavigationBarPadding
+import com.leekleak.trafficlight.ui.components.ShizukuStoppedTag
 import com.leekleak.trafficlight.ui.plans.AppSelector
 import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.core.ui.theme.historyItemFont
@@ -127,7 +128,11 @@ const val MAX_DAYS = 90
 val imageWidth = 32.dp
 
 @Composable
-fun History(viewModel: HistoryVM, appManager: AppManager) {
+fun History(
+    viewModel: HistoryVM,
+    appManager: AppManager,
+    permissionManager: PermissionManager,
+) {
     val haptic = LocalHapticFeedback.current
 
     val usage: List<ScrollableBarData> by viewModel.usageFlow.collectAsStateWithLifecycle()
@@ -135,6 +140,11 @@ fun History(viewModel: HistoryVM, appManager: AppManager) {
     val usageQueries by viewModel.queryFlow.collectAsStateWithLifecycle()
     val listParam by viewModel.listParamFlow.collectAsStateWithLifecycle()
     val dateParams by viewModel.dateParamsFlow.collectAsStateWithLifecycle()
+
+    val shizukuPermissionGranted by permissionManager.shizukuPermissionGranted.collectAsStateWithLifecycle()
+    val shizukuRunning by permissionManager.shizukuRunning.collectAsStateWithLifecycle()
+    val showShizukuNotRunning =
+        BuildConfig.SHIZUKU && shizukuPermissionGranted && !shizukuRunning
 
     LifecycleResumeEffect(Unit) {
         viewModel.refresh()
@@ -148,9 +158,13 @@ fun History(viewModel: HistoryVM, appManager: AppManager) {
         backAction = BackAction.None,
         extraPadding = LocalNavigationBarPadding.current,
         actions = {
-            HistoryLegendItem(usageQueries.first, colorScheme.primary, colorScheme.onPrimary)
-            Spacer(Modifier.width(8.dp))
-            HistoryLegendItem(usageQueries.second, colorScheme.tertiary, colorScheme.onTertiary)
+            if (showShizukuNotRunning) {
+                ShizukuStoppedTag()
+            } else {
+                HistoryLegendItem(usageQueries.first, colorScheme.primary, colorScheme.onPrimary)
+                Spacer(Modifier.width(8.dp))
+                HistoryLegendItem(usageQueries.second, colorScheme.tertiary, colorScheme.onTertiary)
+            }
         }
     ) { paddingValues ->
         val layoutDirection = LocalLayoutDirection.current
