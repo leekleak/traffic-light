@@ -18,9 +18,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroup
@@ -62,7 +62,7 @@ fun IperfScreen(
     val showServer = uiState.showServer
 
     HazeScaffold(
-        title = stringResource(R.string.iperf3) + " (Beta)",
+        title = stringResource(R.string.iperf3),
         backAction = BackAction.Normal(navigator),
         scrollState = null,
     ) { contentPadding ->
@@ -78,7 +78,8 @@ fun IperfScreen(
             ButtonGroup(
                 modifier = Modifier
                     .padding(start = startPadding, end = endPadding)
-                    .fillMaxWidth(),
+                    .widthIn(max = 500.dp)
+                    .align(Alignment.CenterHorizontally),
                 horizontalArrangement = Arrangement.spacedBy(
                     4.dp,
                     Alignment.CenterHorizontally

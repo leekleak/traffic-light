@@ -93,6 +93,7 @@ fun ClientScreen(
     myIp: String?,
     viewModel: IperfClientVM = koinViewModel(),
 ) {
+    val haptic = LocalHapticFeedback.current
     val uiState by viewModel.uiState
 
     if (uiState.showEntrySelector) {
@@ -163,7 +164,10 @@ fun ClientScreen(
                 .padding(top = 4.dp)
                 .align(Alignment.TopCenter),
             shape = MaterialTheme.shapes.medium,
-            onClick = { viewModel.setShowEntrySelector(true) },
+            onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                viewModel.setShowEntrySelector(true)
+            },
             contentPadding = PaddingValues(start = 12.dp, top = 4.dp, end = 8.dp, bottom = 4.dp)
         ) {
             Row(
@@ -256,7 +260,10 @@ fun ClientScreen(
                 enter = fadeIn() + scaleIn(),
                 exit = fadeOut() + scaleOut()
             ) {
-                Button(onClick = { viewModel.setShowTestSettings(true) }) {
+                Button(onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                    viewModel.setShowTestSettings(true)
+                }) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(painterResource(R.drawable.settings), null)
                         Text(
@@ -298,6 +305,7 @@ private fun EntrySelectorComponent(
     setShowEntryDeletion: (IPerfEntry) -> Unit,
     setShowEntryCreator: () -> Unit
 ) {
+    val haptic = LocalHapticFeedback.current
     FancyDialog(
         onDismissRequest = onDismissRequest,
         title = stringResource(R.string.select_server),
@@ -313,6 +321,7 @@ private fun EntrySelectorComponent(
                     .card(MaterialTheme.colorScheme.surfaceContainerHigh)
                     .combinedClickable(
                         onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                             selectEntry(it)
                             onDismissRequest()
                         },
@@ -353,7 +362,10 @@ private fun EntrySelectorComponent(
             modifier = Modifier
                 .fillMaxWidth()
                 .card(MaterialTheme.colorScheme.surfaceContainerHigh)
-                .clickable(onClick = { setShowEntryCreator() })
+                .clickable(onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                    setShowEntryCreator()
+                })
                 .padding(vertical = 8.dp, horizontal = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
