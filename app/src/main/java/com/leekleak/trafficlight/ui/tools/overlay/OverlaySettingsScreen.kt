@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.ui.settings
+package com.leekleak.trafficlight.ui.tools.overlay
 
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
@@ -22,22 +22,8 @@ import com.leekleak.trafficlight.model.PermissionManager
 import kotlinx.coroutines.launch
 
 @Composable
-fun OverlaySettingsScreen(
+fun OverlayScreen(
     navigator: Navigator,
-    appPreferenceRepo: AppPreferenceRepo,
-    permissionManager: PermissionManager,
-) {
-    HazeScaffold(
-        title = stringResource(R.string.overlay),
-        backAction = BackAction.Normal(navigator),
-        verticalArrangement = Arrangement.Top
-    ) {
-        OverlaySettings(appPreferenceRepo, permissionManager)
-    }
-}
-
-@Composable
-private fun OverlaySettings(
     appPreferenceRepo: AppPreferenceRepo,
     permissionManager: PermissionManager,
 ) {
@@ -56,18 +42,24 @@ private fun OverlaySettings(
         }
     }
 
-    SwitchPreference(
+    HazeScaffold(
         title = stringResource(R.string.overlay),
-        icon = R.drawable.picture_in_picture,
-        value = overlay && overlayPermission,
-        onValueChanged = { enabled ->
-            if (enabled && !overlayPermission) {
-                expectingOverlayPermission = true
-                permissionManager.askOverlayPermission(activity)
-            } else {
-                expectingOverlayPermission = false
-                scope.launch { appPreferenceRepo.setOverlay(enabled) }
-            }
-        },
-    )
+        backAction = BackAction.Normal(navigator),
+        verticalArrangement = Arrangement.Top
+    ) {
+        SwitchPreference(
+            title = stringResource(R.string.overlay),
+            icon = R.drawable.picture_in_picture,
+            value = overlay && overlayPermission,
+            onValueChanged = { enabled ->
+                if (enabled && !overlayPermission) {
+                    expectingOverlayPermission = true
+                    permissionManager.askOverlayPermission(activity)
+                } else {
+                    expectingOverlayPermission = false
+                    scope.launch { appPreferenceRepo.setOverlay(enabled) }
+                }
+            },
+        )
+    }
 }

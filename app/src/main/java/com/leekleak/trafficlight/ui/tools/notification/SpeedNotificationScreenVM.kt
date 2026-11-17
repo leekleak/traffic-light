@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.ui.settings
+package com.leekleak.trafficlight.ui.tools.notification
 
 import androidx.appstate.transform.transform
 import androidx.compose.runtime.State
@@ -27,7 +27,7 @@ data class NotificationSettingsUiState(
     val doesFallbackWork: Boolean = false,
 )
 
-class NotificationSettingsVM(
+class SpeedNotificationScreenVM(
     private val appPreferenceRepo: AppPreferenceRepo,
     dataPlanManager: DataPlanManager,
     permissionManager: PermissionManager,

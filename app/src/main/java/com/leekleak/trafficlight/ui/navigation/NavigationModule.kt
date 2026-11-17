@@ -11,12 +11,12 @@ import com.leekleak.trafficlight.ui.plans.DataPlanConfigVM
 import com.leekleak.trafficlight.ui.plans.DataPlans
 import com.leekleak.trafficlight.ui.plans.DataPlansVM
 import com.leekleak.trafficlight.ui.settings.LibraryLicenseScreen
-import com.leekleak.trafficlight.ui.settings.NotificationSettingsScreen
-import com.leekleak.trafficlight.ui.settings.NotificationSettingsVM
-import com.leekleak.trafficlight.ui.settings.OverlaySettingsScreen
+import com.leekleak.trafficlight.ui.tools.overlay.OverlayScreen
 import com.leekleak.trafficlight.ui.settings.Settings
 import com.leekleak.trafficlight.ui.settings.UsagePermissionRequest
 import com.leekleak.trafficlight.ui.tools.Tools
+import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationScreenVM
+import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationScreen
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.core.parameter.parametersOf
@@ -65,9 +65,9 @@ val navigationModule = module {
         DataPlanConfig(LocalNavigator.current, viewModel)
     }
     navigation<NotificationSettingsKey> {
-        val viewModel: NotificationSettingsVM = koinViewModel()
+        val viewModel: SpeedNotificationScreenVM = koinViewModel()
         val uiState by viewModel.uiState
-        NotificationSettingsScreen(
+        SpeedNotificationScreen(
             navigator = LocalNavigator.current,
             uiState = uiState,
             setNotification = viewModel::setNotification,
@@ -80,6 +80,6 @@ val navigationModule = module {
             setForceFallback = viewModel::setForceFallback,
         )
     }
-    navigation<OverlaySettingsKey> { OverlaySettingsScreen(LocalNavigator.current, get(), get()) }
+    navigation<OverlaySettingsKey> { OverlayScreen(LocalNavigator.current, get(), get()) }
     navigation<LibraryLicenseScreen> { LibraryLicenseScreen(LocalNavigator.current) }
 }
