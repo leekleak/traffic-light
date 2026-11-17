@@ -91,7 +91,7 @@ fun ClientScreen(
     myIp: String?,
     viewModel: IperfClientVM = koinViewModel(),
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState
 
     if (uiState.showEntrySelector) {
         EntrySelectorComponent(

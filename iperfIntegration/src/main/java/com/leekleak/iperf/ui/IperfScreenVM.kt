@@ -1,23 +1,13 @@
 package com.leekleak.iperf.ui
 
-import android.net.ConnectivityManager
-import android.net.LinkProperties
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
-import android.net.wifi.WifiManager
-import android.os.Build
-import android.text.format.Formatter
+import androidx.appstate.transform.transform
+import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import com.leekleak.iperf.IperfNetworkMonitor
+import kotlinx.coroutines.Dispatchers
 
 data class IperfScreenUIState(
     val showServer: Boolean = false,
@@ -25,61 +15,25 @@ data class IperfScreenUIState(
 )
 
 class IperfScreenVM(
-    private val connectivityManager: ConnectivityManager,
-    private val wifiManager: WifiManager,
-): ViewModel() {
-    private val showServer = MutableStateFlow(false)
+    private val networkMonitor: IperfNetworkMonitor,
+) : ViewModel() {
+    private val showServer = mutableStateOf(false)
 
     fun setShowServer(show: Boolean) {
         showServer.value = show
     }
 
-    private val ipFlow: Flow<String?> = callbackFlow {
-        var networkCallback: ConnectivityManager.NetworkCallback? = null
+    val uiState: State<IperfScreenUIState> = transform(
+        initialValue = IperfScreenUIState(),
+        scope = viewModelScope,
+        dispatcher = Dispatchers.Main,
+    ) {
+        val isServerShown by showServer
+        val myIp by networkMonitor.myIp
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val request = NetworkRequest.Builder()
-                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-                .build()
-            networkCallback =
-                object : ConnectivityManager.NetworkCallback() {
-                    override fun onLinkPropertiesChanged(
-                        network: Network,
-                        linkProperties: LinkProperties
-                    ) {
-                        super.onLinkPropertiesChanged(network, linkProperties)
-                        trySend(linkProperties.linkAddresses.map { it.address }
-                            .filterIsInstance<java.net.Inet4Address>()
-                            .mapNotNull { it.hostAddress }
-                            .joinToString("\n")
-                        )
-                    }
-
-                    override fun onLost(network: Network) {
-                        super.onLost(network)
-                        trySend(null)
-                    }
-                }
-            connectivityManager.registerNetworkCallback(request, networkCallback)
-        } else {
-            trySend(Formatter.formatIpAddress(wifiManager.connectionInfo.ipAddress))
-        }
-        awaitClose {
-            networkCallback?.let { connectivityManager.unregisterNetworkCallback(it) }
-        }
-    }
-
-    val uiState: StateFlow<IperfScreenUIState> = combine(
-        showServer,
-        ipFlow
-    ) { showServer, myIp ->
         IperfScreenUIState(
-            showServer = showServer,
-            myIp = myIp
+            showServer = isServerShown,
+            myIp = myIp,
         )
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(5000L),
-        IperfScreenUIState()
-    )
+    }
 }

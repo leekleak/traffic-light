@@ -38,7 +38,7 @@ fun ServerScreen(
     viewModel: IperfServerVM = koinViewModel(),
 ) {
     val context = LocalContext.current
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState
     val data by viewModel.data.collectAsStateWithLifecycle()
 
     Box(

@@ -2,6 +2,10 @@ package com.leekleak.iperf.ui
 
 import android.content.Context
 import android.widget.Toast
+import androidx.appstate.transform.transform
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leekleak.iperf.IPerf3Provider
@@ -9,10 +13,7 @@ import com.leekleak.iperf.IperfCallback
 import com.leekleak.iperf.IperfEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -22,32 +23,31 @@ data class IperfServerUIState(
 )
 
 class IperfServerVM(
-    private val iPerf3Provider: IPerf3Provider? = null,
+    private val iPerf3Provider: IPerf3Provider,
 ) : ViewModel(), IperfLogViewModel {
 
     override val data: StateFlow<List<IperfEvent>>
         field = MutableStateFlow(listOf())
 
-    val uiState: StateFlow<IperfServerUIState> = combine(
-        iPerf3Provider?.running ?: MutableStateFlow(false),
-        iPerf3Provider?.stopping ?: MutableStateFlow(false)
-    ) { running, stopping ->
-        IperfServerUIState(
-            isIperfRunning = running,
-            isIperfStopping = stopping
-        )
-    }.stateIn(
+    val uiState: State<IperfServerUIState> = transform(
+        initialValue = IperfServerUIState(),
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000L),
-        initialValue = IperfServerUIState()
-    )
+        dispatcher = Dispatchers.Main,
+    ) {
+        val isRunning by iPerf3Provider.running.collectAsState()
+        val isStopping by iPerf3Provider.stopping.collectAsState()
+
+        IperfServerUIState(
+            isIperfRunning = isRunning,
+            isIperfStopping = isStopping,
+        )
+    }
 
     fun startTest(context: Context) {
-        val provider = iPerf3Provider ?: return
-        if (provider.running.value) return
+        if (iPerf3Provider.running.value) return
         clearIperfEvents()
         viewModelScope.launch {
-            provider.runTest(
+            iPerf3Provider.runTest(
                 arrayOf("-s", "-p", "5201"),
                 object : IperfCallback {
                     override fun onOutput(event: IperfEvent) {
@@ -69,7 +69,7 @@ class IperfServerVM(
     }
 
     fun stopTest() {
-        iPerf3Provider?.stopTest()
+        iPerf3Provider.stopTest()
     }
 
     fun addIperfEvent(event: IperfEvent) {

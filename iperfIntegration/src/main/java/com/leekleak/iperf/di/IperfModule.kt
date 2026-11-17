@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room3.Room
 import com.leekleak.core.ui.navigation.LocalNavigator
 import com.leekleak.iperf.IPerf3Provider
+import com.leekleak.iperf.IperfNetworkMonitor
 import com.leekleak.iperf.data.IPerfEntryDao
 import com.leekleak.iperf.data.IPerfEntryDatabase
 import com.leekleak.iperf.ui.IperfClientVM
@@ -22,6 +23,7 @@ import org.koin.plugin.module.dsl.viewModel
 @OptIn(KoinExperimentalAPI::class)
 val iperfModule = module {
     single<IPerf3Provider>()
+    single<IperfNetworkMonitor>()
 
     single<IPerfEntryDatabase> {
         Room.databaseBuilder(
