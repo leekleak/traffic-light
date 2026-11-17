@@ -201,6 +201,7 @@ fun ClientScreen(
         val context = LocalContext.current
         PlayButton(
             modifier = Modifier.padding(64.dp).align(alignment),
+            enabled = uiState.selectedEntry != null,
             isIperfRunning = uiState.isIperfRunning,
             isIperfStopping = uiState.isIperfStopping,
             onStartTest = { viewModel.startTest(context) },

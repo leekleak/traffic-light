@@ -10,12 +10,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -39,7 +36,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -48,8 +47,8 @@ import androidx.core.content.ContextCompat
 import com.leekleak.core.R
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
-import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.ui.components.iconToggleButton
+import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.iperf.ui.client.ClientScreen
 import com.leekleak.iperf.ui.server.ServerScreen
 
@@ -125,14 +124,20 @@ fun IperfScreen(
 @Composable
 fun PlayButton(
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     isIperfRunning: Boolean,
     isIperfStopping: Boolean = false,
     onStartTest: () -> Unit,
     onStopTest: () -> Unit,
 ) {
-    val rotation = remember { Animatable(0f) }
-    val size by animateDpAsState(if (!isIperfRunning) 128.dp else 96.dp)
+    val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
+
+    val spin = remember { Animatable(0f) }
+    val scale = animateFloatAsState(if (isIperfRunning) 0.75f else 1f)
+    val colors = ButtonDefaults.buttonColors()
+    val isEnabled = (isIperfRunning || enabled) && !isIperfStopping
+
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
@@ -140,54 +145,51 @@ fun PlayButton(
     }
 
     LaunchedEffect(isIperfRunning) {
-        if (isIperfRunning) {
-            rotation.animateTo(
-                targetValue = rotation.value + 360f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(15000, easing = LinearEasing)
-                )
-            )
-        }
+        if (!isIperfRunning) return@LaunchedEffect
+        while (true) spin.animateTo(spin.value + 360f, tween(15000, easing = LinearEasing))
     }
 
-    Button(
-        modifier = modifier
-            .graphicsLayer { rotationZ = rotation.value }
-            .size(size),
-        onClick = {
-            if (!isIperfRunning) {
-                val hasPermission = Build.VERSION.SDK_INT < Build.VERSION_CODES.CINNAMON_BUN ||
-                    ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.ACCESS_LOCAL_NETWORK
-                    ) == PackageManager.PERMISSION_GRANTED
-                if (hasPermission) {
-                    onStartTest()
+    Box(modifier = modifier.size(128.dp), contentAlignment = Alignment.Center) {
+        Button(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    rotationZ = spin.value
+                    scaleX = scale.value
+                    scaleY = scale.value
+                },
+            onClick = {
+                if (!isIperfRunning) {
+                    val hasPermission = Build.VERSION.SDK_INT < Build.VERSION_CODES.CINNAMON_BUN ||
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.ACCESS_LOCAL_NETWORK
+                        ) == PackageManager.PERMISSION_GRANTED
+                    if (hasPermission) {
+                        onStartTest()
+                        haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                    } else {
+                        permissionLauncher.launch(Manifest.permission.ACCESS_LOCAL_NETWORK)
+                    }
                 } else {
-                    permissionLauncher.launch(Manifest.permission.ACCESS_LOCAL_NETWORK)
+                    onStopTest()
+                    haptic.performHapticFeedback(HapticFeedbackType.ToggleOff)
                 }
-            } else {
-                onStopTest()
-            }
-        },
-        enabled = !isIperfStopping,
-        shape = Cookie12Sided.toShape(),
-    ) {
-        val modifier = Modifier.size(56.dp)
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .graphicsLayer { rotationZ = -rotation.value }) {
-            AnimatedContent(
-                targetState = isIperfRunning,
-                modifier = Modifier.align(Alignment.Center),
-                transitionSpec =  { fadeIn().togetherWith(fadeOut()) }
-            ) {
-                Icon(
-                    painter = painterResource(if (it) R.drawable.stop else R.drawable.play_arrow),
-                    contentDescription = null,
-                    modifier = modifier
-                )
-            }
+            },
+            enabled = isEnabled,
+            shape = Cookie12Sided.toShape(),
+            colors = colors,
+        ) {}
+
+        AnimatedContent(
+            targetState = isIperfRunning,
+        ) {
+            Icon(
+                painter = painterResource(if (it) R.drawable.stop else R.drawable.play_arrow),
+                contentDescription = null,
+                modifier = Modifier.size(56.dp),
+                tint = if (isEnabled) colors.contentColor else colors.disabledContentColor
+            )
         }
     }
 }
