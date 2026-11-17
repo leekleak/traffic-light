@@ -34,12 +34,9 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -47,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.core.R
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.CategoryTitleSmallText
@@ -60,27 +56,35 @@ import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.ui.theme.LocalSpeedMetric
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.openLink
-import com.leekleak.trafficlight.database.AppPreferenceRepo
-import com.leekleak.trafficlight.database.TrafficSnapshotManager
-import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.services.notifications.SpeedNotification
-import kotlinx.coroutines.launch
 import kotlin.math.pow
 
 @Composable
 fun NotificationSettingsScreen(
     navigator: Navigator,
-    viewModel: SettingsVM,
-    appPreferenceRepo: AppPreferenceRepo,
-    permissionManager: PermissionManager,
+    uiState: NotificationSettingsUiState,
+    setNotification: (Boolean) -> Unit,
+    setLiveNotification: (Boolean) -> Unit,
+    setSeparateUpDown: (Boolean) -> Unit,
+    setSpeedThreshold: (Boolean) -> Unit,
+    setSpeedThresholdKb: (Long) -> Unit,
+    setSpeedBits: (Boolean) -> Unit,
+    setModeAOD: (Boolean) -> Unit,
+    setForceFallback: (Boolean) -> Unit,
 ) {
     var showSettingsSheet by rememberSaveable { mutableStateOf(false) }
 
     if (showSettingsSheet) {
         NotificationSettingsSheet(
             onDismissRequest = { showSettingsSheet = false },
-            viewModel = viewModel,
-            appPreferenceRepo = appPreferenceRepo,
+            uiState = uiState,
+            setLiveNotification = setLiveNotification,
+            setSeparateUpDown = setSeparateUpDown,
+            setSpeedThreshold = setSpeedThreshold,
+            setSpeedThresholdKb = setSpeedThresholdKb,
+            setSpeedBits = setSpeedBits,
+            setModeAOD = setModeAOD,
+            setForceFallback = setForceFallback,
         )
     }
 
@@ -96,7 +100,7 @@ fun NotificationSettingsScreen(
                 .padding(contentPadding)
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
-                NotificationSettings(viewModel, appPreferenceRepo, permissionManager)
+                NotificationSettings(uiState, setNotification)
             }
             Button(
                 modifier = Modifier.align(Alignment.BottomCenter),
@@ -118,8 +122,14 @@ fun NotificationSettingsScreen(
 @Composable
 private fun NotificationSettingsSheet(
     onDismissRequest: () -> Unit,
-    viewModel: SettingsVM,
-    appPreferenceRepo: AppPreferenceRepo,
+    uiState: NotificationSettingsUiState,
+    setLiveNotification: (Boolean) -> Unit,
+    setSeparateUpDown: (Boolean) -> Unit,
+    setSpeedThreshold: (Boolean) -> Unit,
+    setSpeedThresholdKb: (Long) -> Unit,
+    setSpeedBits: (Boolean) -> Unit,
+    setModeAOD: (Boolean) -> Unit,
+    setForceFallback: (Boolean) -> Unit,
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismissRequest
@@ -132,39 +142,45 @@ private fun NotificationSettingsSheet(
                 .padding(bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            NotificationAppearanceSettings(viewModel, appPreferenceRepo)
-            BehaviorSettings(appPreferenceRepo)
-            NotificationChannelSettings(appPreferenceRepo)
+            NotificationAppearanceSettings(
+                uiState = uiState,
+                setLiveNotification = setLiveNotification,
+                setSeparateUpDown = setSeparateUpDown,
+                setSpeedBits = setSpeedBits,
+            )
+            BehaviorSettings(
+                uiState = uiState,
+                setModeAOD = setModeAOD,
+                setForceFallback = setForceFallback,
+            )
+            NotificationChannelSettings(
+                uiState = uiState,
+                setSpeedThreshold = setSpeedThreshold,
+                setSpeedThresholdKb = setSpeedThresholdKb,
+            )
         }
     }
 }
 
 @Composable
 private fun NotificationSettings(
-    viewModel: SettingsVM,
-    appPreferenceRepo: AppPreferenceRepo,
-    permissionManager: PermissionManager,
+    uiState: NotificationSettingsUiState,
+    setNotification: (Boolean) -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-
     var showWarning by remember { mutableStateOf(false) }
     if (showWarning) {
         NotificationWarningDialog(onDismiss = { showWarning = false })
     }
 
-    val notification by viewModel.notification.collectAsStateWithLifecycle()
-    val activePlanNotificationsCount by viewModel.activePlanNotificationsCount.collectAsStateWithLifecycle()
-    val notificationPermission by permissionManager.notificationPermission.collectAsStateWithLifecycle()
+    val notificationPermission = uiState.notificationPermission
 
     var expectingNotificationPermission by remember { mutableStateOf(false) }
 
     fun setNotificationsEnabled(enabled: Boolean) {
-        if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA && activePlanNotificationsCount > 0) {
+        if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA && uiState.activePlanNotificationsCount > 0) {
             showWarning = true
         }
-        scope.launch {
-            appPreferenceRepo.setNotification(enabled)
-        }
+        setNotification(enabled)
     }
 
     val notificationPermissionCallback =
@@ -183,7 +199,7 @@ private fun NotificationSettings(
         title = stringResource(R.string.notification),
         summary = stringResource(R.string.notification_description),
         iconContent = { SpeedIconPreview() },
-        value = notification && notificationPermission,
+        value = uiState.notification && notificationPermission,
         onValueChanged = { enabled ->
             if (enabled && !notificationPermission) {
                 expectingNotificationPermission = true
@@ -201,25 +217,24 @@ private fun NotificationSettings(
 }
 
 @Composable
-private fun NotificationChannelSettings(appPreferenceRepo: AppPreferenceRepo) {
+private fun NotificationChannelSettings(
+    uiState: NotificationSettingsUiState,
+    setSpeedThreshold: (Boolean) -> Unit,
+    setSpeedThresholdKb: (Long) -> Unit,
+) {
     val activity = LocalActivity.current
-    val scope = rememberCoroutineScope()
 
     CategoryTitleSmallText(stringResource(R.string.notification_channels))
 
-    val speedThreshold by appPreferenceRepo.speedThreshold.collectAsState(false)
     SwitchPreference(
         title = stringResource(R.string.speed_threshold),
         summary = stringResource(R.string.speed_threshold_description),
         icon = R.drawable.visibility_off,
-        value = speedThreshold,
-        onValueChanged = {
-            scope.launch { appPreferenceRepo.setSpeedThreshold(it) }
-        }
+        value = uiState.speedThreshold,
+        onValueChanged = setSpeedThreshold
     )
 
-    val speedThresholdKb by appPreferenceRepo.speedThresholdKb.collectAsState(-1)
-    val speedBits by appPreferenceRepo.speedBits.collectAsState(false)
+    val speedBits = uiState.speedBits
     val speedMetric = LocalSpeedMetric.current
     val disconnectedString = stringResource(R.string.disconnected)
     val values = remember(speedBits, disconnectedString, speedMetric) {
@@ -230,7 +245,7 @@ private fun NotificationChannelSettings(appPreferenceRepo: AppPreferenceRepo) {
     }
 
     AnimatedVisibility(
-        visible = speedThreshold,
+        visible = uiState.speedThreshold,
         enter = fadeIn(tween()) + slideInVertically() + expandVertically(),
         exit = fadeOut(tween()) + slideOutVertically() + shrinkVertically()
     ) {
@@ -239,11 +254,9 @@ private fun NotificationChannelSettings(appPreferenceRepo: AppPreferenceRepo) {
                 modifierLabelText = Modifier.widthIn(min = 128.dp),
                 title = stringResource(R.string.threshold),
                 icon = painterResource(R.drawable.horizontal_align_right),
-                value = speedThresholdKb,
+                value = uiState.speedThresholdKb,
                 values = values,
-                onValueChanged = {
-                    scope.launch { appPreferenceRepo.setSpeedThresholdKb(it) }
-                }
+                onValueChanged = setSpeedThresholdKb
             )
             Row(
                 modifier = Modifier.height(IntrinsicSize.Min),
@@ -275,73 +288,70 @@ private fun NotificationChannelSettings(appPreferenceRepo: AppPreferenceRepo) {
 }
 
 @Composable
-private fun BehaviorSettings(appPreferenceRepo: AppPreferenceRepo) {
-    val scope = rememberCoroutineScope()
-
+private fun BehaviorSettings(
+    uiState: NotificationSettingsUiState,
+    setModeAOD: (Boolean) -> Unit,
+    setForceFallback: (Boolean) -> Unit,
+) {
     CategoryTitleSmallText(stringResource(R.string.behavior))
 
-    val modeAOD by appPreferenceRepo.modeAOD.collectAsState(false)
     SwitchPreference(
         title = stringResource(R.string.screen_off_update),
         summary = stringResource(R.string.screen_off_update_description),
         icon = R.drawable.aod,
-        value = modeAOD,
-        onValueChanged = { scope.launch { appPreferenceRepo.setModeAOD(it) } }
+        value = uiState.modeAOD,
+        onValueChanged = setModeAOD
     )
 
-    val forceFallback by appPreferenceRepo.forceFallback.collectAsState(false)
-    val doesFallbackWork by produceState(initialValue = false) {
-        value = TrafficSnapshotManager.doesFallbackWork()
-    }
     SwitchPreference(
         title = stringResource(R.string.force_fallback),
-        summary = if (doesFallbackWork) stringResource(R.string.force_fallback_description)
+        summary = if (uiState.doesFallbackWork) stringResource(R.string.force_fallback_description)
         else stringResource(R.string.fallback_unsupported),
         icon = R.drawable.fallback,
-        value = forceFallback,
-        enabled = doesFallbackWork,
-        onValueChanged = { scope.launch { appPreferenceRepo.setForceFallback(it) } }
+        value = uiState.forceFallback,
+        enabled = uiState.doesFallbackWork,
+        onValueChanged = setForceFallback
     )
 }
 
 @Composable
-private fun NotificationAppearanceSettings(viewModel: SettingsVM, appPreferenceRepo: AppPreferenceRepo) {
-    val scope = rememberCoroutineScope()
-
-    val separateUpDown by appPreferenceRepo.separateUpDown.collectAsState(false)
-    val liveNotification by viewModel.liveNotification.collectAsStateWithLifecycle()
+private fun NotificationAppearanceSettings(
+    uiState: NotificationSettingsUiState,
+    setLiveNotification: (Boolean) -> Unit,
+    setSeparateUpDown: (Boolean) -> Unit,
+    setSpeedBits: (Boolean) -> Unit,
+) {
     CategoryTitleSmallText(stringResource(R.string.appearance))
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
-        LiveNotificationSettings(viewModel, appPreferenceRepo)
+        LiveNotificationSettings(uiState, setLiveNotification)
     }
 
     SwitchPreference(
         title = stringResource(R.string.separate_upload_and_download),
         summary = null,
         iconContent = { SeparateSpeedIconPreview() },
-        value = separateUpDown,
-        enabled = !liveNotification,
-        onValueChanged = { scope.launch { appPreferenceRepo.setSeparateUpDown(it) } }
+        value = uiState.separateUpDown,
+        enabled = !uiState.liveNotification,
+        onValueChanged = setSeparateUpDown
     )
 
 
-    val speedBits by appPreferenceRepo.speedBits.collectAsState(false)
     SwitchPreference(
         title = stringResource(R.string.speed_in_bits),
         summary = null,
         icon = R.drawable.speed,
-        value = speedBits,
-        onValueChanged = { scope.launch { appPreferenceRepo.setSpeedBits(it) } }
+        value = uiState.speedBits,
+        onValueChanged = setSpeedBits
     )
 }
 
 @Composable
-private fun LiveNotificationSettings(viewModel: SettingsVM, appPreferenceRepo: AppPreferenceRepo) {
+private fun LiveNotificationSettings(
+    uiState: NotificationSettingsUiState,
+    setLiveNotification: (Boolean) -> Unit,
+) {
     val activity = LocalActivity.current
-    val scope = rememberCoroutineScope()
 
-    val liveNotification by viewModel.liveNotification.collectAsStateWithLifecycle()
-    val separateUpDown by appPreferenceRepo.separateUpDown.collectAsState(false)
     Row(
         modifier = Modifier.height(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -350,9 +360,9 @@ private fun LiveNotificationSettings(viewModel: SettingsVM, appPreferenceRepo: A
             modifier = Modifier.weight(1f),
             title = stringResource(R.string.live_notification),
             icon = R.drawable.app_badging,
-            value = liveNotification,
-            enabled = !separateUpDown,
-            onValueChanged = { scope.launch { appPreferenceRepo.setLiveNotification(it) } }
+            value = uiState.liveNotification,
+            enabled = !uiState.separateUpDown,
+            onValueChanged = setLiveNotification
         )
         IconPreference(
             title = stringResource(R.string.help),

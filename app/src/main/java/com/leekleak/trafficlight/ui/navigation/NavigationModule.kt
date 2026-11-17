@@ -11,6 +11,7 @@ import com.leekleak.trafficlight.ui.plans.DataPlans
 import com.leekleak.trafficlight.ui.plans.DataPlansVM
 import com.leekleak.trafficlight.ui.settings.LibraryLicenseScreen
 import com.leekleak.trafficlight.ui.settings.NotificationSettingsScreen
+import com.leekleak.trafficlight.ui.settings.NotificationSettingsVM
 import com.leekleak.trafficlight.ui.settings.OverlaySettingsScreen
 import com.leekleak.trafficlight.ui.settings.Settings
 import com.leekleak.trafficlight.ui.settings.UsagePermissionRequest
@@ -46,7 +47,22 @@ val navigationModule = module {
         val viewModel: DataPlanConfigVM = koinViewModel(key = key.dataPlan.hashedSubscriberID) { parametersOf(key.dataPlan) }
         DataPlanConfig(LocalNavigator.current, viewModel)
     }
-    navigation<NotificationSettingsKey> { NotificationSettingsScreen(LocalNavigator.current, get(), get(), get()) }
+    navigation<NotificationSettingsKey> {
+        val viewModel: NotificationSettingsVM = koinViewModel()
+        val uiState by viewModel.uiState
+        NotificationSettingsScreen(
+            navigator = LocalNavigator.current,
+            uiState = uiState,
+            setNotification = viewModel::setNotification,
+            setLiveNotification = viewModel::setLiveNotification,
+            setSeparateUpDown = viewModel::setSeparateUpDown,
+            setSpeedThreshold = viewModel::setSpeedThreshold,
+            setSpeedThresholdKb = viewModel::setSpeedThresholdKb,
+            setSpeedBits = viewModel::setSpeedBits,
+            setModeAOD = viewModel::setModeAOD,
+            setForceFallback = viewModel::setForceFallback,
+        )
+    }
     navigation<OverlaySettingsKey> { OverlaySettingsScreen(LocalNavigator.current, get(), get()) }
     navigation<LibraryLicenseScreen> { LibraryLicenseScreen(LocalNavigator.current) }
 }
