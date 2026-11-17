@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.ui.plans
+package com.leekleak.core.ui.components
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState

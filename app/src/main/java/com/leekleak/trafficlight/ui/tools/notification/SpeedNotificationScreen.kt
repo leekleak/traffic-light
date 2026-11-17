@@ -57,9 +57,9 @@ import com.leekleak.core.ui.theme.LocalSpeedMetric
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.openLink
 import com.leekleak.trafficlight.services.notifications.SpeedNotification
-import com.leekleak.trafficlight.ui.settings.NotificationWarningDialog
-import com.leekleak.trafficlight.ui.settings.SeparateSpeedIconPreview
-import com.leekleak.trafficlight.ui.settings.SpeedIconPreview
+import com.leekleak.core.ui.components.NotificationWarningDialog
+import com.leekleak.core.ui.components.SeparateSpeedIconPreview
+import com.leekleak.core.ui.components.SpeedIconPreview
 import kotlin.math.pow
 
 @Composable

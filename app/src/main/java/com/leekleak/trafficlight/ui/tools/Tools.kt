@@ -39,7 +39,7 @@ import com.leekleak.trafficlight.ui.navigation.IperfScreenKey
 import com.leekleak.trafficlight.ui.navigation.NotificationSettingsKey
 import com.leekleak.trafficlight.ui.navigation.OverlaySettingsKey
 import com.leekleak.trafficlight.ui.navigation.ToolsKey
-import com.leekleak.trafficlight.ui.settings.SpeedIconPreview
+import com.leekleak.core.ui.components.SpeedIconPreview
 
 private val ToolCardMinWidth = 152.dp
 private val ToolGridSpacing = 8.dp

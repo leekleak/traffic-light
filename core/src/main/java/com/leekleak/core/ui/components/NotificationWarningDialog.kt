@@ -1,10 +1,9 @@
-package com.leekleak.trafficlight.ui.settings
+package com.leekleak.core.ui.components
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.leekleak.core.R
-import com.leekleak.core.ui.components.FancyDialog
 
 @Composable
 fun NotificationWarningDialog(

@@ -68,6 +68,7 @@ import com.leekleak.core.ui.components.HazeScaffold
 import com.leekleak.core.ui.components.InfoCard
 import com.leekleak.core.ui.components.MiniCard
 import com.leekleak.core.ui.components.MiniCardState
+import com.leekleak.core.ui.components.ShizukuStoppedTag
 import com.leekleak.core.ui.components.TrendCard
 import com.leekleak.core.ui.navigation.LocalNavigationBarPadding
 import com.leekleak.core.ui.theme.LocalSizeMetric
@@ -82,7 +83,6 @@ import com.leekleak.trafficlight.charts.ExtraGraph
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataPlan
 import com.leekleak.trafficlight.database.DataPlanSnapshot
-import com.leekleak.trafficlight.ui.components.ShizukuStoppedTag
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle

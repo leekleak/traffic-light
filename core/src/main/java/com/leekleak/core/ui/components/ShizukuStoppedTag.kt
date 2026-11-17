@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.ui.components
+package com.leekleak.core.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

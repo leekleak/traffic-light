@@ -1,10 +1,9 @@
-package com.leekleak.trafficlight.services.notifications
+package com.leekleak.core.util
 
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import com.leekleak.core.ui.theme.googleSans
-import com.leekleak.core.util.convertFontFamilyToTypeface
 
 class NotificationIconRenderer(context: Context) {
     private val paintValue = textPaint(context, weight = 600f, width = 60f, align = Paint.Align.CENTER)

@@ -7,6 +7,7 @@ import android.graphics.Color
 import androidx.compose.ui.unit.Density
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.IconCompat
+import com.leekleak.core.util.NotificationIconRenderer
 import com.leekleak.trafficlight.R
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
