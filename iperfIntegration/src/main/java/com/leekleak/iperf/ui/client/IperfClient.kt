@@ -385,9 +385,9 @@ private fun EntryCreatorComponent(
 ) {
     val nameFieldState = rememberTextFieldState(entry?.name ?: "")
     var nameFieldError: String? by remember { mutableStateOf(null) }
-    val ipFieldState = rememberTextFieldState(entry?.ip ?: "")
+    val ipFieldState = rememberTextFieldState(entry?.ip ?: myIp?.replaceAfterLast(".", "").orEmpty())
     var ipFieldError: String? by remember { mutableStateOf(null) }
-    val portFieldState = rememberTextFieldState(entry?.port ?: "")
+    val portFieldState = rememberTextFieldState(entry?.port ?: "5201")
     var portFieldError: String? by remember { mutableStateOf(null) }
 
     val emptyNameError = stringResource(R.string.name_cannot_be_empty)
