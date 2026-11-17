@@ -14,6 +14,7 @@ import com.leekleak.trafficlight.ui.settings.LibraryLicenseScreen
 import com.leekleak.trafficlight.ui.settings.Settings
 import com.leekleak.trafficlight.ui.settings.SettingsVM
 import com.leekleak.trafficlight.ui.permissions.UsagePermissionRequest
+import com.leekleak.trafficlight.ui.permissions.UsagePermissionRequestVM
 import com.leekleak.trafficlight.ui.tools.Tools
 import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationScreen
 import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationScreenVM
@@ -72,7 +73,16 @@ val navigationModule = module {
             askBackgroundPermission = viewModel::askBackgroundPermission,
         )
     }
-    navigation<UsagePermissionRequestKey> { UsagePermissionRequest(LocalNavigator.current, get()) }
+    navigation<UsagePermissionRequestKey> {
+        val viewModel: UsagePermissionRequestVM = koinViewModel()
+        val uiState by viewModel.uiState
+        UsagePermissionRequest(
+            navigator = LocalNavigator.current,
+            uiState = uiState,
+            askUsagePermission = viewModel::askUsagePermission,
+            openUsagePermissionHelp = viewModel::openUsagePermissionHelp,
+        )
+    }
     navigation<PlanConfigKey> { key ->
         val viewModel: DataPlanConfigVM = koinViewModel(key = key.dataPlan.hashedSubscriberID) { parametersOf(key.dataPlan) }
         DataPlanConfig(LocalNavigator.current, viewModel)

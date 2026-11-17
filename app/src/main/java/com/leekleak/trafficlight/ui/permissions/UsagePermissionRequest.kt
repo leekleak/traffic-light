@@ -1,5 +1,6 @@
 package com.leekleak.trafficlight.ui.permissions
 
+import android.app.Activity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,25 +26,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.core.R
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
 import com.leekleak.core.ui.navigation.Navigator
-import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.OverviewKey
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun UsagePermissionRequest(
     navigator: Navigator,
-    permissionManager: PermissionManager
+    uiState: UsagePermissionRequestUiState,
+    askUsagePermission: (Activity?) -> Unit,
+    openUsagePermissionHelp: (Activity?) -> Unit,
 ) {
     val activity = LocalActivity.current
-    val usagePermission by permissionManager.usagePermission.collectAsStateWithLifecycle()
 
-    LaunchedEffect(usagePermission) {
-        if (usagePermission) navigator.setTo(OverviewKey)
+    LaunchedEffect(uiState.usagePermission) {
+        if (uiState.usagePermission) navigator.setTo(OverviewKey)
     }
 
     HazeScaffold(
@@ -87,7 +86,7 @@ fun UsagePermissionRequest(
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(
                 colors = ButtonDefaults.filledTonalButtonColors(),
-                onClick = { permissionManager.openUsagePermissionHelp(activity) },
+                onClick = { openUsagePermissionHelp(activity) },
             ) {
                 Row(
                     Modifier.padding(6.dp),
@@ -102,7 +101,7 @@ fun UsagePermissionRequest(
             }
             Button(
                 colors = ButtonDefaults.buttonColors(),
-                onClick = { permissionManager.askUsagePermission(activity) },
+                onClick = { askUsagePermission(activity) },
             ) {
                 Row(
                     Modifier.padding(6.dp),
