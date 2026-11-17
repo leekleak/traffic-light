@@ -7,6 +7,7 @@ import com.leekleak.trafficlight.ui.plans.DataPlansVM
 import com.leekleak.trafficlight.ui.permissions.UsagePermissionRequestVM
 import com.leekleak.trafficlight.ui.settings.SettingsVM
 import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationScreenVM
+import com.leekleak.trafficlight.ui.tools.overlay.OverlayScreenVM
 import org.koin.dsl.module
 import org.koin.plugin.module.dsl.viewModel
 
@@ -16,6 +17,7 @@ val viewModelModule = module {
     viewModel<HistoryVM>()
     viewModel<DataPlanConfigVM>()
     viewModel<SpeedNotificationScreenVM>()
+    viewModel<OverlayScreenVM>()
     viewModel<SettingsVM>()
     viewModel<UsagePermissionRequestVM>()
 }

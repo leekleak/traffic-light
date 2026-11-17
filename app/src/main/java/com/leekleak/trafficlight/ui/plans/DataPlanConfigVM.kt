@@ -23,6 +23,20 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.InjectedParam
 
+enum class PendingNotificationSetting {
+    Foreground,
+    Live,
+    Budget,
+    Safety,
+}
+
+data class PlanConfigDialogs(
+    val delete: Boolean = false,
+    val appPicker: Boolean = false,
+    val addExtra: Boolean = false,
+    val pendingNotification: PendingNotificationSetting? = null,
+)
+
 class DataPlanConfigVM (
     val appManager: AppManager,
     val dataPlanManager: DataPlanManager,
@@ -36,6 +50,9 @@ class DataPlanConfigVM (
 
     val showForegroundNotificationWarning: StateFlow<Boolean>
         field = MutableStateFlow(false)
+
+    val planDialogs: StateFlow<PlanConfigDialogs>
+        field = MutableStateFlow(PlanConfigDialogs())
 
     private val estimationBaseline = MutableStateFlow(initialPlan.estimationParams)
     private val isEstimating = MutableStateFlow(false)
@@ -135,6 +152,37 @@ class DataPlanConfigVM (
 
     fun hideForegroundNotificationWarning() {
         showForegroundNotificationWarning.update { false }
+    }
+
+    fun setShowDeleteDialog(show: Boolean) {
+        planDialogs.update { it.copy(delete = show) }
+    }
+
+    fun setShowAppPicker(show: Boolean) {
+        planDialogs.update { it.copy(appPicker = show) }
+    }
+
+    fun setShowAddExtraDialog(show: Boolean) {
+        planDialogs.update { it.copy(addExtra = show) }
+    }
+
+    fun onNotificationToggleRequested(setting: PendingNotificationSetting) {
+        planDialogs.update { it.copy(pendingNotification = setting) }
+    }
+
+    fun clearPendingNotification() {
+        planDialogs.update { it.copy(pendingNotification = null) }
+    }
+
+    fun onNotificationPermissionGranted() {
+        val pending = planDialogs.value.pendingNotification ?: return
+        planDialogs.update { it.copy(pendingNotification = null) }
+        when (pending) {
+            PendingNotificationSetting.Foreground -> onForegroundNotificationValueChanged(true)
+            PendingNotificationSetting.Live -> onLiveNotificationValueChanged(true)
+            PendingNotificationSetting.Budget -> onBudgetNotificationValueChanged(true)
+            PendingNotificationSetting.Safety -> onSafetyNotificationValueChanged(true)
+        }
     }
 }
 

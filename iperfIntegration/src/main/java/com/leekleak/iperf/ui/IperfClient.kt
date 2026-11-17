@@ -66,6 +66,7 @@ import com.leekleak.core.ui.components.CategoryTitleSmallText
 import com.leekleak.core.ui.components.FancyDialog
 import com.leekleak.core.ui.components.SearchField
 import com.leekleak.core.ui.components.iconToggleButton
+import com.leekleak.core.ui.components.rememberSyncedIntInput
 import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.ui.theme.card
 import com.leekleak.core.ui.theme.googleSans
@@ -549,13 +550,7 @@ private fun TestSettingsComponent(
             }
 
             AnimatedVisibility(visible = selectedProtocol == IperfProtocol.UDP) {
-                val bandwidthState = rememberTextFieldState(bandwidth.toString())
-
-                LaunchedEffect(bandwidthState.text) {
-                    bandwidthState.text.toString().toIntOrNull()?.let {
-                        if (it > 0) onBandwidthChanged(it)
-                    }
-                }
+                val bandwidthState = rememberSyncedIntInput(bandwidth, onChange = onBandwidthChanged)
 
                 Column {
                     CategoryTitleSmallText(stringResource(R.string.bandwidth))
@@ -596,13 +591,10 @@ private fun TestSettingsComponent(
                 }
             }
 
-            val parallelStreamsState = rememberTextFieldState(parallelStreams.toString())
-
-            LaunchedEffect(parallelStreamsState.text) {
-                parallelStreamsState.text.toString().toIntOrNull()?.let {
-                    if (it > 0) onParallelStreamsChanged(it)
-                }
-            }
+            val parallelStreamsState = rememberSyncedIntInput(
+                parallelStreams,
+                onChange = onParallelStreamsChanged,
+            )
 
             Column {
                 CategoryTitleSmallText(stringResource(R.string.parallel_streams))
@@ -621,13 +613,10 @@ private fun TestSettingsComponent(
                 )
             }
 
-            val testDurationState = rememberTextFieldState(testDuration.toString())
-
-            LaunchedEffect(testDurationState.text) {
-                testDurationState.text.toString().toIntOrNull()?.let {
-                    if (it > 0) onTestDurationChanged(it)
-                }
-            }
+            val testDurationState = rememberSyncedIntInput(
+                testDuration,
+                onChange = onTestDurationChanged,
+            )
 
             Column {
                 CategoryTitleSmallText(stringResource(R.string.test_duration))

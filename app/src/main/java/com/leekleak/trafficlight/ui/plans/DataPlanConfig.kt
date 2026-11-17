@@ -88,7 +88,6 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -138,6 +137,7 @@ import com.leekleak.core.ui.components.preference.IconPreference
 import com.leekleak.core.ui.components.preference.Preference
 import com.leekleak.core.ui.components.preference.SliderComponent
 import com.leekleak.core.ui.components.preference.SwitchPreference
+import com.leekleak.core.ui.components.rememberSyncedIntInput
 import com.leekleak.core.ui.components.rememberSyncedSizeInput
 import com.leekleak.core.ui.components.sizeToBytes
 import com.leekleak.core.ui.navigation.Navigator
@@ -167,15 +167,7 @@ import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.LocalTime
 import kotlin.math.E
-import kotlin.math.max
 import kotlin.math.pow
-
-private enum class PendingNotificationSetting {
-    Foreground,
-    Live,
-    Budget,
-    Safety,
-}
 
 @Composable
 fun DataPlanConfig(
@@ -188,16 +180,16 @@ fun DataPlanConfig(
 
     val newPlan by viewModel.newPlan.collectAsStateWithLifecycle()
     val canEstimate by viewModel.canEstimate.collectAsStateWithLifecycle()
-    var showDeleteDialog by remember { mutableStateOf(false) }
+    val dialogs by viewModel.planDialogs.collectAsStateWithLifecycle()
 
     val showForegroundNotificationWarning by viewModel.showForegroundNotificationWarning.collectAsStateWithLifecycle()
     if (showForegroundNotificationWarning) {
         NotificationWarningDialog(onDismiss = viewModel::hideForegroundNotificationWarning)
     }
 
-    if (showDeleteDialog) {
+    if (dialogs.delete) {
         FancyDialog(
-            onDismissRequest = { showDeleteDialog = false },
+            onDismissRequest = { viewModel.setShowDeleteDialog(false) },
             title = stringResource(R.string.delete_plan),
             icon = R.drawable.deleted,
             content = {Text(stringResource(R.string.delete_plan_confirmation))},
@@ -298,7 +290,11 @@ fun DataPlanConfig(
                     )
                 }
                 UsageInputPreference(newPlan) { usage -> viewModel.updatePlan { it.copy(mainDataUsed = usage) } }
-                ExtrasConfig(newPlan) { plan -> viewModel.updatePlan { it.copy(extras = plan.extras) } }
+                ExtrasConfig(
+                    newPlan = newPlan,
+                    showAddExtraDialog = dialogs.addExtra,
+                    onShowAddExtraDialogChange = viewModel::setShowAddExtraDialog,
+                ) { plan -> viewModel.updatePlan { it.copy(extras = plan.extras) } }
             }
             categoryTitleSmall { stringResource(R.string.zero_rated_apps) }
             item {
@@ -317,7 +313,6 @@ fun DataPlanConfig(
                         .card()
                         .padding(vertical = 8.dp),
                 ) {
-                    var addApps by remember { mutableStateOf(false) }
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -343,7 +338,7 @@ fun DataPlanConfig(
                         FilledIconButton (
                             modifier = Modifier.padding(end = 8.dp),
                             onClick = {
-                                addApps = !addApps
+                                viewModel.setShowAppPicker(!dialogs.appPicker)
                                 haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                             },
                         ) {
@@ -354,7 +349,7 @@ fun DataPlanConfig(
                         }
                     }
 
-                    AnimatedVisibility(addApps, modifier = Modifier.fillMaxWidth()) {
+                    AnimatedVisibility(dialogs.appPicker, modifier = Modifier.fillMaxWidth()) {
                         val textFieldState = rememberTextFieldState()
                         val searchResults by produceState<List<DataUID>>(initialValue = includedApps, textFieldState.text) {
                             value = includedApps.search(textFieldState.text.toString(), context)
@@ -390,29 +385,13 @@ fun DataPlanConfig(
             categoryTitleSmall { stringResource(R.string.notification) }
             item {
                 val notificationPermission by viewModel.notificationPermission.collectAsStateWithLifecycle()
-                var pendingNotification by rememberSaveable {
-                    mutableStateOf<PendingNotificationSetting?>(null)
-                }
                 val notificationPermissionCallback = rememberLauncherForActivityResult(
                     ActivityResultContracts.RequestPermission()
                 ) { granted ->
-                    if (!granted) pendingNotification = null
+                    if (!granted) viewModel.clearPendingNotification()
                 }
                 LaunchedEffect(notificationPermission) {
-                    val pending = pendingNotification
-                    if (notificationPermission && pending != null) {
-                        pendingNotification = null
-                        when (pending) {
-                            PendingNotificationSetting.Foreground ->
-                                viewModel.onForegroundNotificationValueChanged(true)
-                            PendingNotificationSetting.Live ->
-                                viewModel.onLiveNotificationValueChanged(true)
-                            PendingNotificationSetting.Budget ->
-                                viewModel.onBudgetNotificationValueChanged(true)
-                            PendingNotificationSetting.Safety ->
-                                viewModel.onSafetyNotificationValueChanged(true)
-                        }
-                    }
+                    if (notificationPermission) viewModel.onNotificationPermissionGranted()
                 }
 
                 fun onNotificationValueChanged(
@@ -421,12 +400,12 @@ fun DataPlanConfig(
                     apply: (Boolean) -> Unit
                 ) {
                     if (enabled && !notificationPermission) {
-                        pendingNotification = pending
+                        viewModel.onNotificationToggleRequested(pending)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                             notificationPermissionCallback.launch(Manifest.permission.POST_NOTIFICATIONS)
                         }
                     } else {
-                        pendingNotification = null
+                        viewModel.clearPendingNotification()
                         apply(enabled)
                     }
                 }
@@ -551,7 +530,7 @@ fun DataPlanConfig(
             customElement = {
                 IconButton(
                     enabled = newPlan.configured,
-                    onClick = { showDeleteDialog = true }
+                    onClick = { viewModel.setShowDeleteDialog(true) }
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.deleted),
@@ -753,8 +732,8 @@ private fun UsageInputPreference(
 
 @Composable
 private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: LocalTime, multiplier: Int) -> Unit) {
-    var selectedDate by remember { mutableStateOf(fromTimestamp(newPlan.startDate).toLocalDate()) }
-    var selectedTime by remember { mutableStateOf(fromTimestamp(newPlan.startDate).toLocalTime()) }
+    val selectedDate = fromTimestamp(newPlan.startDate).toLocalDate()
+    val selectedTime = fromTimestamp(newPlan.startDate).toLocalTime()
 
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = newPlan.startDate,
@@ -766,12 +745,12 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
         initialMinute = selectedTime.minute,
     )
 
-    val textFieldState = rememberTextFieldState((newPlan.intervalMultiplier).toString())
+    val textFieldState = rememberSyncedIntInput(
+        value = newPlan.intervalMultiplier,
+        onChange = { onChange(selectedDate, selectedTime, it) },
+    )
 
-    LaunchedEffect(selectedDate, selectedTime, textFieldState.text) {
-        val multiplier = max(textFieldState.text.toString().toIntOrNull() ?: 1, 1)
-        onChange(selectedDate, selectedTime, multiplier)
-    }
+    fun currentMultiplier(): Int = textFieldState.text.toString().toIntOrNull() ?: 1
 
     DateAndTimePicker(
         selectedDate,
@@ -779,8 +758,8 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
         datePickerState,
         timePickerState,
         contentPadding = PaddingValues(8.dp),
-        onDateSelect = {selectedDate = it},
-        onTimeSelect = {selectedTime = it}
+        onDateSelect = { onChange(it, selectedTime, currentMultiplier()) },
+        onTimeSelect = { onChange(selectedDate, it, currentMultiplier()) },
     ) { fontFamily ->
         item {
             Column(
@@ -1163,11 +1142,12 @@ fun PlanSizeConfig(
 @Composable
 private fun ExtrasConfig(
     newPlan: DataPlan,
+    showAddExtraDialog: Boolean,
+    onShowAddExtraDialogChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     onPlanChange: (plan: DataPlan) -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
-    var showAddExtraDialog by remember { mutableStateOf(false) }
 
     val extrasWithAdd = newPlan.extras.map { it as Any? } + listOf(null)
     Column(modifier = modifier) {
@@ -1216,7 +1196,7 @@ private fun ExtrasConfig(
                     } else {
                         if (showAddExtraDialog) {
                             AddExtraDialog(
-                                onDismiss = { showAddExtraDialog = false },
+                                onDismiss = { onShowAddExtraDialogChange(false) },
                                 onConfirm = { extra ->
                                     onPlanChange(newPlan.copy(extras = newPlan.extras + extra))
                                 }
@@ -1230,7 +1210,7 @@ private fun ExtrasConfig(
                                 .background(colorScheme.surfaceContainer)
                                 .clickable {
                                     haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-                                    showAddExtraDialog = true
+                                    onShowAddExtraDialogChange(true)
                                 },
                             contentAlignment = Alignment.Center
                         ) {

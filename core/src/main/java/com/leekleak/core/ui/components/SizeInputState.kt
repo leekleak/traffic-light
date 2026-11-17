@@ -5,6 +5,7 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberUpdatedState
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.DataSizeUnit
 import java.text.DecimalFormat
@@ -59,6 +60,31 @@ fun rememberSyncedSizeInput(
         if (parseSizeBytes(text, unit, metric, numberFormat) != bytes) {
             state.setTextAndPlaceCursorAtEnd(formatSizeValue(bytes, unit, metric, formatter))
         }
+    }
+
+    return state
+}
+
+@Composable
+fun rememberSyncedIntInput(
+    value: Int,
+    accept: (Int) -> Boolean = { it > 0 },
+    onChange: (Int) -> Unit,
+): TextFieldState {
+    val state = rememberTextFieldState(value.toString())
+    val currentAccept = rememberUpdatedState(accept)
+    val currentOnChange = rememberUpdatedState(onChange)
+
+    LaunchedEffect(value) {
+        if (state.text.toString().toIntOrNull() != value) {
+            state.setTextAndPlaceCursorAtEnd(value.toString())
+        }
+    }
+
+    LaunchedEffect(state.text) {
+        state.text.toString().toIntOrNull()
+            ?.takeIf { currentAccept.value(it) }
+            ?.let { currentOnChange.value(it) }
     }
 
     return state

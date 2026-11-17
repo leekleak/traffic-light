@@ -20,6 +20,7 @@ import com.leekleak.trafficlight.ui.tools.Tools
 import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationScreen
 import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationScreenVM
 import com.leekleak.trafficlight.ui.tools.overlay.OverlayScreen
+import com.leekleak.trafficlight.ui.tools.overlay.OverlayScreenVM
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.core.parameter.parametersOf
@@ -114,6 +115,15 @@ val navigationModule = module {
             setForceFallback = viewModel::setForceFallback,
         )
     }
-    navigation<OverlaySettingsKey> { OverlayScreen(LocalNavigator.current, get(), get()) }
+    navigation<OverlaySettingsKey> {
+        val viewModel: OverlayScreenVM = koinViewModel()
+        val uiState by viewModel.uiState
+        OverlayScreen(
+            navigator = LocalNavigator.current,
+            uiState = uiState,
+            setOverlay = viewModel::setOverlay,
+            onOverlayPermissionChanged = viewModel::onOverlayPermissionChanged,
+        )
+    }
     navigation<LibraryLicenseScreen> { LibraryLicenseScreen(LocalNavigator.current) }
 }
