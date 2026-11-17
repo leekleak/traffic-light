@@ -8,6 +8,6 @@ class ShizukuServicesProviderImpl(val dataPlanManager: DataPlanManager): Shizuku
     override fun shizukuRunning(): Boolean = false
     override fun shizukuPermission(): Int = PackageManager.PERMISSION_DENIED
     override fun shizukuRequestPermission() = Unit
-    override fun enable() = Unit
+    override fun enable() = true
     override fun disable() = Unit
 }

@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.leekleak.core.ui.theme.Theme
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.model.PermissionManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 data class SettingsUiState(
@@ -24,9 +25,15 @@ class SettingsVM(
     private val appPreferenceRepo: AppPreferenceRepo,
     private val permissionManager: PermissionManager,
 ) : ViewModel() {
+    /**
+    * TODO: dispatcher is forced to work around what looks like a compose animation lib issue
+    *       which has been exascerbated by the AppState lib.
+    *       https://issuetracker.google.com/issues/579488073
+    */
     val uiState: State<SettingsUiState> = transform(
         initialValue = SettingsUiState(),
         scope = viewModelScope,
+        dispatcher = Dispatchers.Main.immediate,
     ) {
         val theme by appPreferenceRepo.theme.collectAsState()
         val blur by appPreferenceRepo.blur.collectAsState(true)

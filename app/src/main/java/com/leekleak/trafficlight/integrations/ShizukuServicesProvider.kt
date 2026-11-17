@@ -7,7 +7,7 @@ interface ShizukuServicesProvider {
     fun shizukuRunning(): Boolean
     fun shizukuPermission(): Int
     fun shizukuRequestPermission()
-    fun enable()
+    fun enable(): Boolean
     fun disable()
 }
 

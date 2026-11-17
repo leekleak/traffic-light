@@ -52,11 +52,13 @@ class ShizukuServicesProviderImpl(
     override fun shizukuPermission(): Int = shizukuHelper.shizukuPermission()
     override fun shizukuRequestPermission(): Unit = shizukuHelper.shizukuRequestPermission()
 
-    override fun enable() {
-        try {
+    override fun enable(): Boolean {
+        return try {
             shizukuHelper.bind()
+            true
         } catch (e: RuntimeException) {
             Timber.e(e, "Failure binding to shizuku")
+            false
         }
     }
 

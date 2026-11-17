@@ -11,6 +11,7 @@ import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.TrafficSnapshotManager
 import com.leekleak.trafficlight.model.DataPlanManager
 import com.leekleak.trafficlight.model.PermissionManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 data class NotificationSettingsUiState(
@@ -35,6 +36,7 @@ class SpeedNotificationScreenVM(
     val uiState: State<NotificationSettingsUiState> = transform(
         initialValue = NotificationSettingsUiState(),
         scope = viewModelScope,
+        dispatcher = Dispatchers.Main.immediate,
     ) {
         val notification by appPreferenceRepo.notification.collectAsState(false)
         val liveNotification by appPreferenceRepo.liveNotification.collectAsState(false)

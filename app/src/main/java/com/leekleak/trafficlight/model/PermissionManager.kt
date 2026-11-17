@@ -58,7 +58,9 @@ class PermissionManager(
             ) { granted, running -> granted to running }
                 .collectLatest { (granted, running) ->
                     if (granted && running) {
-                        shizukuServicesProvider.enable()
+                        if (!shizukuServicesProvider.enable()) {
+                            appPreferenceRepo.setShizukuPermissionGranted(false)
+                        }
                     } else {
                         shizukuServicesProvider.disable()
                         if (!granted) shizukuServicesProvider.updateSimData()

@@ -13,7 +13,7 @@ import com.leekleak.trafficlight.ui.plans.DataPlansVM
 import com.leekleak.trafficlight.ui.settings.LibraryLicenseScreen
 import com.leekleak.trafficlight.ui.settings.Settings
 import com.leekleak.trafficlight.ui.settings.SettingsVM
-import com.leekleak.trafficlight.ui.settings.UsagePermissionRequest
+import com.leekleak.trafficlight.ui.permissions.UsagePermissionRequest
 import com.leekleak.trafficlight.ui.tools.Tools
 import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationScreen
 import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationScreenVM

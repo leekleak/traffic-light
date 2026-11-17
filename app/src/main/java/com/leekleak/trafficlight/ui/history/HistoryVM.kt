@@ -25,6 +25,7 @@ import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.model.PermissionManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -81,6 +82,7 @@ class HistoryVM(
     val uiState: State<HistoryUiState> = transform(
         initialValue = HistoryUiState(),
         scope = viewModelScope,
+        dispatcher = Dispatchers.Main.immediate,
     ) {
         val current by inputs.collectAsState(HistoryInputs())
         val query1 = current.query1

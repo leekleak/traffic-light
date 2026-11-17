@@ -1,4 +1,4 @@
-package com.leekleak.trafficlight.ui.settings
+package com.leekleak.trafficlight.ui.permissions
 
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
@@ -28,10 +28,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.core.R
-import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
 import com.leekleak.core.ui.navigation.Navigator
+import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.OverviewKey
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
