@@ -219,7 +219,7 @@ private fun OverviewHero(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .requiredWidth(maxWidth)
-                .fillMaxHeight(0.8f - 0.2f * pressProgress),
+                .fillMaxHeight(0.8f - 0.3f * pressProgress),
             data = graphValues,
             width = (graphValues.size - 1).coerceAtLeast(1),
             graphColor = graphColor,
