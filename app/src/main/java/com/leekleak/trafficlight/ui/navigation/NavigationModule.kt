@@ -11,12 +11,13 @@ import com.leekleak.trafficlight.ui.plans.DataPlanConfigVM
 import com.leekleak.trafficlight.ui.plans.DataPlans
 import com.leekleak.trafficlight.ui.plans.DataPlansVM
 import com.leekleak.trafficlight.ui.settings.LibraryLicenseScreen
-import com.leekleak.trafficlight.ui.tools.overlay.OverlayScreen
 import com.leekleak.trafficlight.ui.settings.Settings
+import com.leekleak.trafficlight.ui.settings.SettingsVM
 import com.leekleak.trafficlight.ui.settings.UsagePermissionRequest
 import com.leekleak.trafficlight.ui.tools.Tools
-import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationScreenVM
 import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationScreen
+import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationScreenVM
+import com.leekleak.trafficlight.ui.tools.overlay.OverlayScreen
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.core.parameter.parametersOf
@@ -58,7 +59,19 @@ val navigationModule = module {
         )
     }
     navigation<ToolsKey> { Tools(LocalNavigator.current) }
-    navigation<SettingsKey> { Settings(LocalNavigator.current, get(), get()) }
+    navigation<SettingsKey> {
+        val viewModel: SettingsVM = koinViewModel()
+        val uiState by viewModel.uiState
+        Settings(
+            navigator = LocalNavigator.current,
+            uiState = uiState,
+            setTheme = viewModel::setTheme,
+            setBlur = viewModel::setBlur,
+            setSpeedMetric = viewModel::setSpeedMetric,
+            setSizeMetric = viewModel::setSizeMetric,
+            askBackgroundPermission = viewModel::askBackgroundPermission,
+        )
+    }
     navigation<UsagePermissionRequestKey> { UsagePermissionRequest(LocalNavigator.current, get()) }
     navigation<PlanConfigKey> { key ->
         val viewModel: DataPlanConfigVM = koinViewModel(key = key.dataPlan.hashedSubscriberID) { parametersOf(key.dataPlan) }

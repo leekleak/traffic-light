@@ -1,5 +1,6 @@
 package com.leekleak.trafficlight.ui.settings
 
+import android.app.Activity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -10,12 +11,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -25,7 +24,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.core.R
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.CategoryTitleSmallText
@@ -37,35 +35,37 @@ import com.leekleak.core.ui.components.preference.NavigatePreference
 import com.leekleak.core.ui.components.preference.NavigatePreferenceIcon
 import com.leekleak.core.ui.components.preference.SwitchPreference
 import com.leekleak.core.ui.navigation.Navigator
+import com.leekleak.core.ui.theme.Theme
 import com.leekleak.core.ui.theme.card
 import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.core.util.openLink
 import com.leekleak.trafficlight.BuildConfig
-import com.leekleak.trafficlight.database.AppPreferenceRepo
-import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.ui.navigation.LibraryLicenseScreen
-import kotlinx.coroutines.launch
 
 @Composable
 fun Settings(
     navigator: Navigator,
-    appPreferenceRepo: AppPreferenceRepo,
-    permissionManager: PermissionManager,
+    uiState: SettingsUiState,
+    setTheme: (Theme) -> Unit,
+    setBlur: (Boolean) -> Unit,
+    setSpeedMetric: (Boolean) -> Unit,
+    setSizeMetric: (Boolean) -> Unit,
+    askBackgroundPermission: (Activity?) -> Unit,
 ) {
     HazeScaffold(
         title = stringResource(R.string.settings),
         verticalArrangement = Arrangement.Top,
         backAction = BackAction.Normal(navigator),
     ) {
-        BackgroundPermissionPrompt(permissionManager)
-        BasesSettings(appPreferenceRepo)
-        InterfaceSettings(appPreferenceRepo)
-        AboutSettings(navigator, appPreferenceRepo)
+        BackgroundPermissionPrompt(uiState, askBackgroundPermission)
+        BasesSettings(uiState, setSpeedMetric, setSizeMetric)
+        InterfaceSettings(uiState, setTheme, setBlur)
+        AboutSettings(navigator)
     }
 }
 
 @Composable
-private fun AboutSettings(navigator: Navigator, appPreferenceRepo: AppPreferenceRepo) {
+private fun AboutSettings(navigator: Navigator) {
     val activity = LocalActivity.current
 
     CategoryTitleSmallText(stringResource(R.string.about))
@@ -103,12 +103,12 @@ private fun AboutSettings(navigator: Navigator, appPreferenceRepo: AppPreference
 }
 
 @Composable
-private fun InterfaceSettings(appPreferenceRepo: AppPreferenceRepo) {
-    val scope = rememberCoroutineScope()
-
+private fun InterfaceSettings(
+    uiState: SettingsUiState,
+    setTheme: (Theme) -> Unit,
+    setBlur: (Boolean) -> Unit,
+) {
     CategoryTitleSmallText(stringResource(R.string.ui))
-    val theme by appPreferenceRepo.theme.collectAsState()
-    val blur by appPreferenceRepo.blur.collectAsState(true)
     val scroll = rememberScrollState(0)
 
     val spacing = 8.dp
@@ -118,7 +118,7 @@ private fun InterfaceSettings(appPreferenceRepo: AppPreferenceRepo) {
 
     LaunchedEffect(panelWidth) {
         if (panelWidth == 0) return@LaunchedEffect
-        scroll.scrollTo(if (theme.isMaterial) 0 else panelWidth + spacingPx)
+        scroll.scrollTo(if (uiState.theme.isMaterial) 0 else panelWidth + spacingPx)
         aligned = true
     }
     Row(
@@ -131,27 +131,28 @@ private fun InterfaceSettings(appPreferenceRepo: AppPreferenceRepo) {
         horizontalArrangement = Arrangement.spacedBy(spacing)
     ) {
         ThemePreferenceContainer(
-            currentTheme = theme,
+            currentTheme = uiState.theme,
             material = true,
             modifier = Modifier.onSizeChanged { panelWidth = it.width },
-        ) { scope.launch { appPreferenceRepo.setTheme(it) } }
-        ThemePreferenceContainer(theme, false) { scope.launch { appPreferenceRepo.setTheme(it) } }
+            onThemeChanged = setTheme,
+        )
+        ThemePreferenceContainer(uiState.theme, false, onThemeChanged = setTheme)
     }
     SwitchPreference(
         title = stringResource(R.string.blur_effects),
         icon = R.drawable.blur_on,
-        value = blur,
-        onValueChanged = { scope.launch { appPreferenceRepo.setBlur(it) } },
+        value = uiState.blur,
+        onValueChanged = setBlur,
     )
 }
 
 @Composable
-private fun BasesSettings(appPreferenceRepo: AppPreferenceRepo) {
-    val scope = rememberCoroutineScope()
-
+private fun BasesSettings(
+    uiState: SettingsUiState,
+    setSpeedMetric: (Boolean) -> Unit,
+    setSizeMetric: (Boolean) -> Unit,
+) {
     CategoryTitleSmallText(stringResource(R.string.sizes))
-    val speedMetric by appPreferenceRepo.speedMetric.collectAsState(false)
-    val sizeMetric by appPreferenceRepo.sizeMetric.collectAsState(false)
     val values = listOf(
         true to stringResource(R.string.base_1000),
         false to stringResource(R.string.base_1024)
@@ -161,32 +162,34 @@ private fun BasesSettings(appPreferenceRepo: AppPreferenceRepo) {
             modifier = Modifier.weight(1f),
             title = stringResource(R.string.speed_unit),
             icon = R.drawable.network_check,
-            value = speedMetric,
+            value = uiState.speedMetric,
             values = values,
-            onValueChanged = { scope.launch { appPreferenceRepo.setSpeedMetric(it) } },
+            onValueChanged = setSpeedMetric,
         )
         DialogItemSelectPreference(
             modifier = Modifier.weight(1f),
             title = stringResource(R.string.size_unit),
             icon = R.drawable.database,
-            value = sizeMetric,
+            value = uiState.sizeMetric,
             values = values,
-            onValueChanged = { scope.launch { appPreferenceRepo.setSizeMetric(it) } },
+            onValueChanged = setSizeMetric,
         )
     }
 }
 
 @Composable
-private fun BackgroundPermissionPrompt(permissionManager: PermissionManager) {
+private fun BackgroundPermissionPrompt(
+    uiState: SettingsUiState,
+    askBackgroundPermission: (Activity?) -> Unit,
+) {
     val activity = LocalActivity.current
-    val backgroundPermission by permissionManager.backgroundPermission.collectAsStateWithLifecycle()
-    SlideAnimatedVisibility(!backgroundPermission) {
+    SlideAnimatedVisibility(!uiState.backgroundPermission) {
         CategoryTitleSmallText(stringResource(R.string.missing_permissions))
         PermissionCard(
             title = stringResource(R.string.battery_optimization),
             description = stringResource(R.string.battery_optimization_description),
             icon = painterResource(R.drawable.battery),
-            onClick = { permissionManager.askBackgroundPermission(activity) }
+            onClick = { askBackgroundPermission(activity) }
         )
     }
 }
