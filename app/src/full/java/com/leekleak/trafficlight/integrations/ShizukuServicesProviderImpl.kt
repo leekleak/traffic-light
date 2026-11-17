@@ -7,6 +7,7 @@ import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.model.DataPlanManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class ShizukuServicesProviderImpl(
     private val dataPlanManager: DataPlanManager,
@@ -52,10 +53,18 @@ class ShizukuServicesProviderImpl(
     override fun shizukuRequestPermission(): Unit = shizukuHelper.shizukuRequestPermission()
 
     override fun enable() {
-        shizukuHelper.bind()
+        try {
+            shizukuHelper.bind()
+        } catch (e: RuntimeException) {
+            Timber.e(e, "Failure binding to shizuku")
+        }
     }
 
     override fun disable() {
-        shizukuHelper.unbind()
+        try {
+            shizukuHelper.unbind()
+        } catch (e: RuntimeException) {
+            Timber.e(e, "Failure unbinding from shizuku")
+        }
     }
 }
