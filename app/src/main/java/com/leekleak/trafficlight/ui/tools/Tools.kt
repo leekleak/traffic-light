@@ -33,7 +33,7 @@ import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.ui.theme.AppTheme
 import com.leekleak.core.ui.theme.card
 import com.leekleak.core.ui.theme.googleSans
-import com.leekleak.core.util.CategoryTitleSmallText
+import com.leekleak.core.ui.components.CategoryTitleSmallText
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.ui.navigation.IperfScreenKey
 import com.leekleak.trafficlight.ui.navigation.NotificationSettingsKey

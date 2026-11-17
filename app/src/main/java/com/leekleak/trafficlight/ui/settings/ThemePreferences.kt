@@ -1,0 +1,264 @@
+package com.leekleak.trafficlight.ui.settings
+
+import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.toPath
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.copy
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import com.leekleak.core.R
+import com.leekleak.core.charts.GraphTheme
+import com.leekleak.core.ui.components.CategoryTitleSmallText
+import com.leekleak.core.ui.theme.Theme
+import com.leekleak.core.ui.theme.card
+import com.leekleak.core.util.px
+import kotlinx.coroutines.launch
+
+@Composable
+fun ThemePreferenceContainer(
+    currentTheme: Theme,
+    material: Boolean,
+    modifier: Modifier = Modifier,
+    onThemeChanged: (Theme) -> Unit
+) {
+    val themeLight = if (material) Theme.LightMaterial else Theme.Light
+    val themeDark = if (material) Theme.DarkMaterial else Theme.Dark
+    val themeAuto = if (material) Theme.AutoMaterial else Theme.Auto
+    Column(modifier = modifier) {
+        CategoryTitleSmallText(if (material) stringResource(R.string.material_theme) else stringResource(R.string.default_theme))
+        Column(
+            modifier = Modifier
+                .clip(MaterialTheme.shapes.large)
+                .width(IntrinsicSize.Max)
+                .background(colorScheme.surface)
+                .padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ThemePreference(themeLight, themeLight == currentTheme) { onThemeChanged(themeLight) }
+                ThemePreference(themeDark, themeDark == currentTheme) { onThemeChanged(themeDark) }
+            }
+            ThemeAutoPreference(themeAuto, themeAuto == currentTheme) { onThemeChanged(themeAuto) }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun ThemePreference(theme: Theme, enabled: Boolean, onClick: () -> Unit) {
+    val scheme = theme.getColors()
+    val radiusSmall = 12.dp.px
+    val radiusBig = 38.dp.px
+    val cornerRadius = remember { Animatable(radiusSmall) }
+    val rotation = remember { Animatable(0f) }
+
+    val shape1 = GraphTheme.wifiShape().toPath()
+    val shape2 = GraphTheme.cellularShape().toPath()
+    val iconScaleSmall = 42.dp.px
+    val iconScaleBig = 48.dp.px
+    val iconScale = remember { Animatable(iconScaleSmall) }
+
+    val shape1Transformed = remember(iconScale.value, rotation.value) {
+        val matrix = Matrix().apply {
+            translate(-rotation.value, rotation.value)
+            scale(iconScale.value, iconScale.value)
+            translate(-0.5f, -0.5f)
+        }
+        shape1.copy().apply { transform(matrix) }
+    }
+
+    val shape2Transformed = remember(iconScale.value, rotation.value) {
+        val matrix = Matrix().apply {
+            translate(rotation.value, -rotation.value)
+            scale(iconScale.value, iconScale.value)
+            translate(-0.5f, -0.5f)
+        }
+        shape2.copy().apply { transform(matrix) }
+    }
+
+    val scope = rememberCoroutineScope()
+    val haptic = LocalHapticFeedback.current
+
+    LaunchedEffect(enabled) {
+        if (enabled) {
+            launch { cornerRadius.animateTo(radiusBig) }
+            launch { rotation.animateTo(-10f) }
+            launch { iconScale.animateTo(iconScaleBig) }
+        } else {
+            launch { cornerRadius.animateTo(radiusSmall) }
+            launch { rotation.animateTo(0f) }
+            launch { iconScale.animateTo(iconScaleSmall) }
+        }
+    }
+    Column (
+        Modifier
+            .card()
+            .clickable(onClick = {
+                scope.launch { haptic.performHapticFeedback(HapticFeedbackType.ToggleOn) }
+                onClick()
+            })
+            .background(if (enabled) colorScheme.surfaceVariant else colorScheme.surfaceContainer)
+            .padding(4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(4.dp)
+                .size(120.dp, 70.dp)
+                .drawBehind {
+                    rotate(-rotation.value) {
+                        drawRoundRect(
+                            color = scheme.background,
+                            cornerRadius = CornerRadius(cornerRadius.value)
+                        )
+                    }
+                    val x = size.width / 7f
+                    val y = size.height / 2f
+                    translate(x * 2, y) {
+                        rotate(rotation.value * 2f) {
+                            drawPath(shape1Transformed, scheme.primary)
+                        }
+                    }
+                    translate(x * 5, y) {
+                        rotate(-rotation.value * 2f) {
+                            drawPath(shape2Transformed, scheme.tertiary)
+                        }
+                    }
+                }
+                .padding(12.dp)
+                .fillMaxWidth(),
+        )
+        Row (
+            Modifier.padding(vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(if (theme.isDark()) R.drawable.dark else R.drawable.light),
+                contentDescription = null
+            )
+            Text(
+                text = theme.getName(),
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun ThemeAutoPreference(theme: Theme, enabled: Boolean, onClick: () -> Unit) {
+    val scheme = theme.getColors()
+    val radiusSmall = 12.dp.px
+    val radiusBig = 38.dp.px
+    val cornerRadius = remember { Animatable(radiusSmall) }
+    val rotation = remember { Animatable(-15f) }
+
+    val shape1 = GraphTheme.wifiShape().toPath()
+    val shape2 = GraphTheme.cellularShape().toPath()
+    val iconScaleSmall = 42.dp.px
+    val iconScaleBig = 48.dp.px
+    val iconScale = remember { Animatable(iconScaleSmall) }
+
+    val shape1Transformed = remember(iconScale.value, rotation.value) {
+        val matrix = Matrix().apply {
+            scale(iconScale.value, iconScale.value)
+            translate(-0.5f, -0.5f)
+        }
+        shape1.copy().apply { transform(matrix) }
+    }
+
+    val shape2Transformed = remember(iconScale.value, rotation.value) {
+        val matrix = Matrix().apply {
+            scale(iconScale.value, iconScale.value)
+            translate(-0.5f, -0.5f)
+        }
+        shape2.copy().apply { transform(matrix) }
+    }
+
+    val scope = rememberCoroutineScope()
+    val haptic = LocalHapticFeedback.current
+
+    LaunchedEffect(enabled) {
+        if (enabled) {
+            launch { cornerRadius.animateTo(radiusBig) }
+            launch { rotation.animateTo(-5f) }
+            launch { iconScale.animateTo(iconScaleBig) }
+        } else {
+            launch { cornerRadius.animateTo(radiusSmall) }
+            launch { rotation.animateTo(-15f) }
+            launch { iconScale.animateTo(iconScaleSmall) }
+        }
+    }
+    Box(
+        modifier = Modifier
+            .card()
+            .clickable(onClick = {
+                scope.launch { haptic.performHapticFeedback(HapticFeedbackType.ToggleOn) }
+                onClick()
+            })
+            .background(if (enabled) colorScheme.surfaceVariant else colorScheme.surfaceContainer)
+            .padding(4.dp)
+            .drawBehind {
+                val x = size.width / 7f
+                val y = size.height / 2f
+                translate(x * 1, y) {
+                    rotate(rotation.value * 2f) {
+                        drawPath(shape1Transformed, scheme.primary)
+                    }
+                }
+                translate(x * 6, y) {
+                    rotate(-rotation.value * 2f) {
+                        drawPath(shape2Transformed, scheme.tertiary)
+                    }
+                }
+            }
+            .padding(12.dp)
+            .fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.magic),
+                contentDescription = null,
+            )
+            Text(
+                text = theme.getName(),
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
+    }
+}

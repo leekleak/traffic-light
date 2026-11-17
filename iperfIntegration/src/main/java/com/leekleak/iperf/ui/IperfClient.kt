@@ -62,18 +62,18 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.core.R
 import com.leekleak.core.charts.SpeedGraph
-import com.leekleak.iperf.data.IPerfEntry
-import com.leekleak.core.ui.navigation.Navigator
+import com.leekleak.core.ui.components.CategoryTitleSmallText
 import com.leekleak.core.ui.components.FancyDialog
+import com.leekleak.core.ui.components.SearchField
+import com.leekleak.core.ui.components.iconToggleButton
+import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.ui.theme.card
 import com.leekleak.core.ui.theme.googleSans
-import com.leekleak.core.util.CategoryTitleSmallText
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.DataSizeUnit
-import com.leekleak.core.util.SearchField
 import com.leekleak.core.util.animateAlignmentAsState
 import com.leekleak.core.util.formattedParts
-import com.leekleak.core.util.iconToggleButton
+import com.leekleak.iperf.data.IPerfEntry
 import org.koin.compose.viewmodel.koinViewModel
 import java.util.UUID
 

@@ -50,10 +50,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.core.R
 import com.leekleak.core.ui.components.BackAction
+import com.leekleak.core.ui.components.CategoryTitleSmallText
 import com.leekleak.core.ui.components.HazeScaffold
+import com.leekleak.core.ui.components.preference.IconPreference
+import com.leekleak.core.ui.components.preference.NavigatePreference
+import com.leekleak.core.ui.components.preference.SliderPreference
+import com.leekleak.core.ui.components.preference.SwitchPreference
 import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.ui.theme.LocalSpeedMetric
-import com.leekleak.core.util.CategoryTitleSmallText
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.openLink
 import com.leekleak.trafficlight.database.AppPreferenceRepo

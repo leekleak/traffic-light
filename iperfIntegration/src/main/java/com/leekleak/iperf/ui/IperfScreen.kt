@@ -50,7 +50,7 @@ import com.leekleak.core.R
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
 import com.leekleak.core.ui.navigation.Navigator
-import com.leekleak.core.util.iconToggleButton
+import com.leekleak.core.ui.components.iconToggleButton
 
 @Composable
 fun IperfScreen(

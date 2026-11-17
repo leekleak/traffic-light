@@ -1,6 +1,6 @@
 package com.leekleak.trafficlight.ui.plans
 
-import com.leekleak.core.util.MiniCardState
+import com.leekleak.core.ui.components.MiniCardState
 import com.leekleak.core.util.toTimestamp
 import com.leekleak.trafficlight.charts.ActivityDay
 import com.leekleak.trafficlight.database.AppUsage

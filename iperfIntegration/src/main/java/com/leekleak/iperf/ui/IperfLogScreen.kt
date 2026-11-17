@@ -56,7 +56,7 @@ import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.ui.theme.LocalSizeMetric
 import com.leekleak.core.ui.theme.LocalSpeedMetric
 import com.leekleak.core.ui.theme.card
-import com.leekleak.core.util.CategoryTitleSmallText
+import com.leekleak.core.ui.components.CategoryTitleSmallText
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.toAnnotatedString
 import java.util.Locale

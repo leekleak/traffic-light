@@ -30,8 +30,8 @@ import com.leekleak.trafficlight.database.DataPlanSnapshot
 import com.leekleak.trafficlight.model.DataPlanManager
 import com.leekleak.trafficlight.ui.plans.DataPlanCard
 import com.leekleak.trafficlight.ui.theme.AppTheme
-import com.leekleak.core.util.categoryTitle
-import com.leekleak.core.util.categoryTitleSmall
+import com.leekleak.core.ui.components.categoryTitle
+import com.leekleak.core.ui.components.categoryTitleSmall
 import com.leekleak.trafficlight.widget.Widget.Companion.CARRIER_NAME
 import com.leekleak.trafficlight.widget.Widget.Companion.SIM_NUMBER
 import com.leekleak.trafficlight.widget.Widget.Companion.SUBSCRIBER_ID_HASH

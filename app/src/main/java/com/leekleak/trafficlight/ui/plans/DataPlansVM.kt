@@ -2,7 +2,7 @@ package com.leekleak.trafficlight.ui.plans
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.leekleak.core.util.MiniCardState
+import com.leekleak.core.ui.components.MiniCardState
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.charts.ActivityDay
 import com.leekleak.trafficlight.database.AppUsage

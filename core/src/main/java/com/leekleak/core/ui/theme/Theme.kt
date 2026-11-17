@@ -3,9 +3,12 @@ package com.leekleak.core.ui.theme
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -16,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.leekleak.core.R
 
 enum class Theme {
@@ -82,6 +86,14 @@ fun Modifier.card(backgroundColor: Color = colorScheme.surfaceContainer): Modifi
         .clip(MaterialTheme.shapes.medium)
         .background(backgroundColor)
 }
+
+inline val shelfShape: RoundedCornerShape
+    @Composable get() = RoundedCornerShape(
+        topStart = shapes.large.topStart,
+        topEnd = shapes.large.topEnd,
+        bottomEnd = CornerSize(0.dp),
+        bottomStart = CornerSize(0.dp)
+    )
 
 internal val lightScheme = lightColorScheme(
     primary = PrimaryLight,
