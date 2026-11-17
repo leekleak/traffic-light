@@ -33,7 +33,7 @@ class SettingsVM(
     val uiState: State<SettingsUiState> = transform(
         initialValue = SettingsUiState(),
         scope = viewModelScope,
-        dispatcher = Dispatchers.Main.immediate,
+        dispatcher = Dispatchers.Main,
     ) {
         val theme by appPreferenceRepo.theme.collectAsState()
         val blur by appPreferenceRepo.blur.collectAsState(true)

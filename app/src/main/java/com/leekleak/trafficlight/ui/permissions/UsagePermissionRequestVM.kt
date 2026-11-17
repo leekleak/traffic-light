@@ -20,7 +20,7 @@ class UsagePermissionRequestVM(
     val uiState: State<UsagePermissionRequestUiState> = transform(
         initialValue = UsagePermissionRequestUiState(),
         scope = viewModelScope,
-        dispatcher = Dispatchers.Main.immediate,
+        dispatcher = Dispatchers.Main,
     ) {
         val usagePermission by permissionManager.usagePermission.collectAsState()
 

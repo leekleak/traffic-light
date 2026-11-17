@@ -82,7 +82,7 @@ class HistoryVM(
     val uiState: State<HistoryUiState> = transform(
         initialValue = HistoryUiState(),
         scope = viewModelScope,
-        dispatcher = Dispatchers.Main.immediate,
+        dispatcher = Dispatchers.Main,
     ) {
         val current by inputs.collectAsState(HistoryInputs())
         val query1 = current.query1

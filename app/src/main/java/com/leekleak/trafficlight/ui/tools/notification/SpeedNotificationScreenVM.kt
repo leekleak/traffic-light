@@ -36,7 +36,7 @@ class SpeedNotificationScreenVM(
     val uiState: State<NotificationSettingsUiState> = transform(
         initialValue = NotificationSettingsUiState(),
         scope = viewModelScope,
-        dispatcher = Dispatchers.Main.immediate,
+        dispatcher = Dispatchers.Main,
     ) {
         val notification by appPreferenceRepo.notification.collectAsState(false)
         val liveNotification by appPreferenceRepo.liveNotification.collectAsState(false)
