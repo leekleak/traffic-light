@@ -1,4 +1,4 @@
-package com.leekleak.iperf.ui
+package com.leekleak.iperf.ui.logs
 
 import com.leekleak.iperf.IperfEvent
 import kotlinx.coroutines.flow.StateFlow

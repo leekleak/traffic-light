@@ -1,4 +1,4 @@
-package com.leekleak.iperf.ui
+package com.leekleak.iperf.ui.logs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll

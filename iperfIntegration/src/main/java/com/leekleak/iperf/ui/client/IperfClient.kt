@@ -1,4 +1,4 @@
-package com.leekleak.iperf.ui
+package com.leekleak.iperf.ui.client
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -38,7 +38,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,6 +74,8 @@ import com.leekleak.core.util.DataSizeUnit
 import com.leekleak.core.util.animateAlignmentAsState
 import com.leekleak.core.util.formattedParts
 import com.leekleak.iperf.data.IPerfEntry
+import com.leekleak.iperf.ui.PlayButton
+import com.leekleak.iperf.ui.logs.IperfLogScreenKey
 import org.koin.compose.viewmodel.koinViewModel
 import java.util.UUID
 

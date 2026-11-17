@@ -1,4 +1,4 @@
-package com.leekleak.iperf.ui
+package com.leekleak.iperf.ui.server
 
 import android.content.Context
 import android.widget.Toast
@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.leekleak.iperf.IPerf3Provider
 import com.leekleak.iperf.IperfCallback
 import com.leekleak.iperf.IperfEvent
+import com.leekleak.iperf.ui.logs.IperfLogViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

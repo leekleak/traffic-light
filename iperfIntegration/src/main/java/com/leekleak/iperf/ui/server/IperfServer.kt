@@ -1,4 +1,4 @@
-package com.leekleak.iperf.ui
+package com.leekleak.iperf.ui.server
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -27,8 +27,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.core.R
-import com.leekleak.iperf.ui.IperfLogScreenKey
+import com.leekleak.iperf.ui.logs.IperfLogScreenKey
 import com.leekleak.core.ui.navigation.Navigator
+import com.leekleak.iperf.ui.PlayButton
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

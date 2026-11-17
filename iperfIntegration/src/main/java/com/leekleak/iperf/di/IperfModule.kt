@@ -7,12 +7,12 @@ import com.leekleak.iperf.IPerf3Provider
 import com.leekleak.iperf.IperfNetworkMonitor
 import com.leekleak.iperf.data.IPerfEntryDao
 import com.leekleak.iperf.data.IPerfEntryDatabase
-import com.leekleak.iperf.ui.IperfClientVM
-import com.leekleak.iperf.ui.IperfLogScreen
-import com.leekleak.iperf.ui.IperfLogScreenKey
-import com.leekleak.iperf.ui.IperfLogViewModel
+import com.leekleak.iperf.ui.client.IperfClientVM
+import com.leekleak.iperf.ui.logs.IperfLogScreen
+import com.leekleak.iperf.ui.logs.IperfLogScreenKey
+import com.leekleak.iperf.ui.logs.IperfLogViewModel
 import com.leekleak.iperf.ui.IperfScreenVM
-import com.leekleak.iperf.ui.IperfServerVM
+import com.leekleak.iperf.ui.server.IperfServerVM
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.dsl.module

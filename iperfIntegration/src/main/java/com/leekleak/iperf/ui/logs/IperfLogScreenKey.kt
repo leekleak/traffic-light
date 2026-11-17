@@ -1,4 +1,4 @@
-package com.leekleak.iperf.ui
+package com.leekleak.iperf.ui.logs
 
 import androidx.navigation3.runtime.NavKey
 import com.leekleak.iperf.IperfEvent
