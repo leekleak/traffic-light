@@ -6,6 +6,7 @@ import com.leekleak.core.ui.navigation.LocalNavigator
 import com.leekleak.trafficlight.ui.history.History
 import com.leekleak.trafficlight.ui.history.HistoryVM
 import com.leekleak.trafficlight.ui.overview.Overview
+import com.leekleak.trafficlight.ui.overview.OverviewVM
 import com.leekleak.trafficlight.ui.plans.DataPlanConfig
 import com.leekleak.trafficlight.ui.plans.DataPlanConfigVM
 import com.leekleak.trafficlight.ui.plans.DataPlans
@@ -28,7 +29,17 @@ import org.koin.dsl.navigation3.navigation
 @OptIn(KoinExperimentalAPI::class)
 val navigationModule = module {
 
-    navigation<OverviewKey> { Overview(LocalNavigator.current, get()) }
+    navigation<OverviewKey> {
+        val viewModel: OverviewVM = koinViewModel()
+        val uiState by viewModel.uiState
+        Overview(
+            navigator = LocalNavigator.current,
+            uiState = uiState,
+            refresh = viewModel::refresh,
+            setDataType = viewModel::setDataType,
+            setRange = viewModel::setRange,
+        )
+    }
     navigation<DataPlansKey> { key ->
         val viewModel: DataPlansVM = koinViewModel<DataPlansVM>()
         val navigator = LocalNavigator.current

@@ -54,7 +54,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.core.R
 import com.leekleak.core.charts.SpeedGraph
 import com.leekleak.core.charts.SpeedGraphTag
@@ -83,14 +82,17 @@ import kotlin.math.ceil
 @Composable
 fun Overview(
     navigator: Navigator,
-    viewModel: OverviewVM
+    uiState: OverviewUiState,
+    refresh: () -> Unit,
+    setDataType: (DataType) -> Unit,
+    setRange: (OverviewRange) -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
     val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
     val isWidescreen = windowSizeClass.isWidthAtLeastBreakpoint(600)
 
     LifecycleResumeEffect(Unit) {
-        viewModel.refresh()
+        refresh()
         onPauseOrDispose {}
     }
 
@@ -121,32 +123,38 @@ fun Overview(
                     modifier = Modifier.widthIn(max = 400.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    OverviewHero(viewModel, true)
-                    OverviewRangeSelector(viewModel)
+                    OverviewHero(uiState, setDataType, true)
+                    OverviewRangeSelector(uiState, setRange)
                 }
                 Column(
                     modifier = Modifier.widthIn(max = 400.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    OverviewItems(navigator, viewModel)
+                    OverviewItems(navigator, uiState)
                 }
             }
         } else {
-            OverviewHero(viewModel, false)
-            OverviewRangeSelector(viewModel)
-            OverviewItems(navigator, viewModel)
+            OverviewHero(uiState, setDataType, false)
+            OverviewRangeSelector(uiState, setRange)
+            OverviewItems(navigator, uiState)
         }
         Spacer(Modifier.height(contentPadding.calculateBottomPadding()))
     }
 }
 
 @Composable
-private fun OverviewHero(viewModel: OverviewVM, isWidescreen: Boolean, ) {
+private fun OverviewHero(
+    uiState: OverviewUiState,
+    setDataType: (DataType) -> Unit,
+    isWidescreen: Boolean,
+) {
     val haptic = LocalHapticFeedback.current
 
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
-    val query by viewModel.query.collectAsStateWithLifecycle()
+    val query = uiState.query
+    val range = uiState.range
+    val graphUsage = uiState.graphUsage
 
     LaunchedEffect(interactionSource) {
         interactionSource.interactions.collect { interaction ->
@@ -161,8 +169,6 @@ private fun OverviewHero(viewModel: OverviewVM, isWidescreen: Boolean, ) {
         }
     }
 
-    val graphUsage by viewModel.graphUsage.collectAsStateWithLifecycle()
-    val range by viewModel.range.collectAsStateWithLifecycle()
     val graphValues = remember(graphUsage) { graphUsage.map { it.value } }
     val is24HourFormat by rememberIs24HourFormat()
     val metric = LocalSizeMetric.current
@@ -232,8 +238,7 @@ private fun OverviewHero(viewModel: OverviewVM, isWidescreen: Boolean, ) {
                     transformOrigin = TransformOrigin(0.5f, 0f)
                 }
         ) {
-            val usage by viewModel.usage.collectAsStateWithLifecycle()
-            val string = DataSize(usage).formattedParts(extraPrecision = true)
+            val string = DataSize(uiState.usage).formattedParts(extraPrecision = true)
 
             val width = 30f + 30f * pressProgress
             val weight = 400f + 400f * pressProgress
@@ -280,7 +285,7 @@ private fun OverviewHero(viewModel: OverviewVM, isWidescreen: Boolean, ) {
             iconToggleButton(
                 text = null,
                 selected = query.dataType == DataType.Mobile,
-                onSelect = { viewModel.setDataType(DataType.Mobile) }
+                onSelect = { setDataType(DataType.Mobile) }
             ) {
                 Icon(
                     painter = painterResource(R.drawable.cellular),
@@ -291,7 +296,7 @@ private fun OverviewHero(viewModel: OverviewVM, isWidescreen: Boolean, ) {
                 text = null,
                 selected = query.dataType == DataType.Wifi,
                 selectedColors = wifiToggledColors,
-                onSelect = { viewModel.setDataType(DataType.Wifi) }
+                onSelect = { setDataType(DataType.Wifi) }
             ) {
                 Icon(
                     painter = painterResource(R.drawable.wifi),
@@ -303,10 +308,13 @@ private fun OverviewHero(viewModel: OverviewVM, isWidescreen: Boolean, ) {
 }
 
 @Composable
-private fun OverviewRangeSelector(viewModel: OverviewVM) {
+private fun OverviewRangeSelector(
+    uiState: OverviewUiState,
+    setRange: (OverviewRange) -> Unit,
+) {
     val haptic = LocalHapticFeedback.current
-    val range by viewModel.range.collectAsStateWithLifecycle()
-    val query by viewModel.query.collectAsStateWithLifecycle()
+    val range = uiState.range
+    val query = uiState.query
     val labels = OverviewRange.entries.map { stringResource(it.nameRes) }
     val selectedColors = if (query.dataType == DataType.Wifi) {
         IconButtonDefaults.iconButtonColors(
@@ -332,7 +340,7 @@ private fun OverviewRangeSelector(viewModel: OverviewVM) {
                 text = labels[index],
                 selectedColors = selectedColors,
                 onSelect = {
-                    viewModel.setRange(option)
+                    setRange(option)
                     haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                 },
                 weight = 1f
@@ -342,9 +350,9 @@ private fun OverviewRangeSelector(viewModel: OverviewVM) {
 }
 
 @Composable
-fun OverviewItems(navigator: Navigator, viewModel: OverviewVM) {
-    val topAppsList by viewModel.topApps.collectAsStateWithLifecycle()
-    val query by viewModel.query.collectAsStateWithLifecycle()
+private fun OverviewItems(navigator: Navigator, uiState: OverviewUiState) {
+    val topAppsList = uiState.topApps
+    val query = uiState.query
     Column(Modifier.padding(horizontal = 16.dp)) {
         CategoryTitleText(stringResource(R.string.top_apps))
         Box(modifier = Modifier.card().padding(6.dp)) {
@@ -357,13 +365,13 @@ fun OverviewItems(navigator: Navigator, viewModel: OverviewVM) {
             }
         }
     }
-    OverviewPlans(navigator, viewModel)
+    OverviewPlans(navigator, uiState)
 }
 
 @Composable
-private fun OverviewPlans(navigator: Navigator, viewModel: OverviewVM) {
-    val plans by viewModel.plans.collectAsStateWithLifecycle()
-    val snapshots by viewModel.planSnapshots.collectAsStateWithLifecycle()
+private fun OverviewPlans(navigator: Navigator, uiState: OverviewUiState) {
+    val plans = uiState.plans
+    val snapshots = uiState.planSnapshots
     val haptic = LocalHapticFeedback.current
     if (plans.isEmpty()) return
 
