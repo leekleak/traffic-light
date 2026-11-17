@@ -1,5 +1,7 @@
 package com.leekleak.trafficlight.ui.history
 
+import android.app.Activity
+import android.content.Intent
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -87,12 +89,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.core.R
 import com.leekleak.core.charts.LineGraph
 import com.leekleak.core.charts.ScrollableBarGraph
-import com.leekleak.core.charts.model.ScrollableBarData
-import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DropdownItem
@@ -104,7 +103,6 @@ import com.leekleak.trafficlight.model.AppManager.Companion.removedApp
 import com.leekleak.trafficlight.model.AppManager.Companion.tetheringApp
 import com.leekleak.trafficlight.model.DataUID
 import com.leekleak.trafficlight.model.DataUIDApp
-import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.model.search
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
@@ -122,32 +120,29 @@ import com.leekleak.trafficlight.ui.plans.AppSelector
 import com.leekleak.core.util.toDp
 import com.leekleak.core.util.toLocaleHourString
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalTime
 
-const val MAX_DAYS = 90
 val imageWidth = 32.dp
 
 @Composable
 fun History(
-    viewModel: HistoryVM,
+    uiState: HistoryUiState,
     appManager: AppManager,
-    permissionManager: PermissionManager,
+    refresh: () -> Unit,
+    updateDateQuery: (day: LocalDate, showMonth: Boolean) -> Unit,
+    updateQuery: (Int, UsageQuery) -> Unit,
+    updateQueries: (UsageQuery, UsageQuery) -> Unit,
+    updateListQuery: (ListParam) -> Unit,
+    persistFilters: () -> Unit,
+    resetFilters: () -> Unit,
+    openApp: (Activity?, Intent?) -> Unit,
+    openPackageSettings: suspend (Activity?, Int) -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
 
-    val usage: List<ScrollableBarData> by viewModel.usageFlow.collectAsStateWithLifecycle()
-
-    val usageQueries by viewModel.queryFlow.collectAsStateWithLifecycle()
-    val listParam by viewModel.listParamFlow.collectAsStateWithLifecycle()
-    val dateParams by viewModel.dateParamsFlow.collectAsStateWithLifecycle()
-
-    val shizukuPermissionGranted by permissionManager.shizukuPermissionGranted.collectAsStateWithLifecycle()
-    val shizukuRunning by permissionManager.shizukuRunning.collectAsStateWithLifecycle()
-    val showShizukuNotRunning =
-        BuildConfig.SHIZUKU && shizukuPermissionGranted && !shizukuRunning
-
     LifecycleResumeEffect(Unit) {
-        viewModel.refresh()
+        refresh()
         onPauseOrDispose {}
     }
 
@@ -158,12 +153,12 @@ fun History(
         backAction = BackAction.None,
         extraPadding = LocalNavigationBarPadding.current,
         actions = {
-            if (showShizukuNotRunning) {
+            if (uiState.showShizukuNotRunning) {
                 ShizukuStoppedTag()
             } else {
-                HistoryLegendItem(usageQueries.first, colorScheme.primary, colorScheme.onPrimary)
+                HistoryLegendItem(uiState.queries.first, colorScheme.primary, colorScheme.onPrimary)
                 Spacer(Modifier.width(8.dp))
-                HistoryLegendItem(usageQueries.second, colorScheme.tertiary, colorScheme.onTertiary)
+                HistoryLegendItem(uiState.queries.second, colorScheme.tertiary, colorScheme.onTertiary)
             }
         }
     ) { paddingValues ->
@@ -189,8 +184,11 @@ fun History(
                 ),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            ScrollableBarGraph(usage) {
-                viewModel.updateDateQuery(day = viewModel.getDatesForTimespan().first.plusDays(it.toLong()))
+            ScrollableBarGraph(uiState.usage) {
+                updateDateQuery(
+                    uiState.timespanStartDate.plusDays(it.toLong()),
+                    uiState.dateParams.showMonth
+                )
             }
             Row(
                 Modifier
@@ -200,8 +198,14 @@ fun History(
                     .padding(horizontal = 4.dp)
             ) {
                 var showFilter by remember { mutableStateOf(false) }
-                if (showFilter) HistoryFilter(viewModel, appManager) { showFilter = false }
-                val filtersChanged by viewModel.filtersChanged.collectAsStateWithLifecycle()
+                if (showFilter) HistoryFilter(
+                    uiState = uiState,
+                    appManager = appManager,
+                    updateQuery = updateQuery,
+                    updateListQuery = updateListQuery,
+                    persistFilters = persistFilters,
+                    resetFilters = resetFilters,
+                ) { showFilter = false }
                 val buttonUnselectedColors = IconButtonDefaults.iconButtonColors(
                     containerColor = colorScheme.surfaceContainer,
                     contentColor = colorScheme.onSurfaceVariant
@@ -216,7 +220,7 @@ fun History(
                     overflowIndicator = {}
                 ) {
                     iconToggleButton(
-                        showBadge = filtersChanged,
+                        showBadge = uiState.filtersChanged,
                         selected = showFilter,
                         onSelect = { showFilter = true },
                         unselectedColors = buttonUnselectedColors
@@ -228,40 +232,59 @@ fun History(
                     }
                     toggleableItem(
                         onCheckedChange = {
-                            viewModel.updateDateQuery(showMonth = true)
+                            updateDateQuery(uiState.dateParams.day, true)
                             haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                         },
-                        label = dateParams.day.month.getName(java.time.format.TextStyle.FULL),
-                        checked = !dateParams.showMonth,
+                        label = uiState.dateParams.day.month.getName(java.time.format.TextStyle.FULL),
+                        checked = !uiState.dateParams.showMonth,
                         weight = 3f
                     )
                     toggleableItem(
                         onCheckedChange = {
-                            viewModel.updateDateQuery(showMonth = false)
+                            updateDateQuery(uiState.dateParams.day, false)
                             haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                         },
-                        label = dateParams.day.dayOfMonth.toString(),
-                        checked = dateParams.showMonth,
+                        label = uiState.dateParams.day.dayOfMonth.toString(),
+                        checked = uiState.dateParams.showMonth,
                         weight = 1f
                     )
                 }
             }
         }
-        if (listParam == ListParam.AppList) AppList(viewModel, listContentPadding)
-        else HourList(viewModel, listContentPadding)
+        if (uiState.listParam == ListParam.AppList) {
+            AppList(
+                uiState = uiState,
+                updateQueries = updateQueries,
+                openApp = openApp,
+                openPackageSettings = openPackageSettings,
+                contentPadding = listContentPadding,
+            )
+        } else {
+            HourList(
+                uiState = uiState,
+                updateQueries = updateQueries,
+                openApp = openApp,
+                openPackageSettings = openPackageSettings,
+                contentPadding = listContentPadding,
+            )
+        }
     }
 }
 
 @Composable
 private fun AppList(
-    viewModel: HistoryVM,
+    uiState: HistoryUiState,
+    updateQueries: (UsageQuery, UsageQuery) -> Unit,
+    openApp: (Activity?, Intent?) -> Unit,
+    openPackageSettings: suspend (Activity?, Int) -> Unit,
     contentPadding: PaddingValues,
 ) {
     val context = LocalContext.current
 
-    val appList by remember { viewModel.appList }.collectAsStateWithLifecycle()
     var appSelected by remember { mutableIntStateOf(-1) }
-    val totalMaximum = remember(appList) { appList.find { it.app.uidQuery == null }?.usage?.totalUsage ?: 0 }
+    val totalMaximum = remember(uiState.appList) {
+        uiState.appList.find { it.app.uidQuery == null }?.usage?.totalUsage ?: 0
+    }
 
     val listState = rememberLazyListState()
     LazyColumn(
@@ -274,10 +297,13 @@ private fun AppList(
         verticalArrangement = Arrangement.spacedBy(6.dp),
         state = listState
     ) {
-        items(appList, { it.app.uid }) { item ->
+        items(uiState.appList, { it.app.uid }) { item ->
             Box(Modifier.animateItem()) {
                 AppItem(
-                    viewModel = viewModel,
+                    usageQueries = uiState.queries,
+                    updateQueries = updateQueries,
+                    openApp = openApp,
+                    openPackageSettings = openPackageSettings,
                     app = item.app,
                     usage1 = item.usage.usage1,
                     usage2 = item.usage.usage2,
@@ -295,12 +321,14 @@ private fun AppList(
 
 @Composable
 private fun HourList(
-    viewModel: HistoryVM,
+    uiState: HistoryUiState,
+    updateQueries: (UsageQuery, UsageQuery) -> Unit,
+    openApp: (Activity?, Intent?) -> Unit,
+    openPackageSettings: suspend (Activity?, Int) -> Unit,
     contentPadding: PaddingValues,
 ) {
-    val hourList by remember { viewModel.hourList }.collectAsStateWithLifecycle()
     var hourSelected by remember { mutableIntStateOf(-1) }
-    val maximum by remember { derivedStateOf { hourList.sumOf { it.usage.totalUsage } } }
+    val maximum = uiState.hourList.sumOf { it.usage.totalUsage }
     val textMeasurer = rememberTextMeasurer()
     val font = remember { historyItemFont() }
     val is24HourFormat by rememberIs24HourFormat()
@@ -326,9 +354,12 @@ private fun HourList(
             Box(Modifier.animateItem()) {
                 val key = -10
                 AppItem(
-                    viewModel = viewModel,
-                    usage1 = hourList.sumOf { it.usage.usage1 },
-                    usage2 = hourList.sumOf { it.usage.usage2 },
+                    usageQueries = uiState.queries,
+                    updateQueries = updateQueries,
+                    openApp = openApp,
+                    openPackageSettings = openPackageSettings,
+                    usage1 = uiState.hourList.sumOf { it.usage.usage1 },
+                    usage2 = uiState.hourList.sumOf { it.usage.usage2 },
                     name = stringResource(R.string.total_usage),
                     selected = key == hourSelected,
                     maximum = maximum,
@@ -346,10 +377,13 @@ private fun HourList(
                 }
             }
         }
-        items(hourList, { it.start.hour }) { item ->
+        items(uiState.hourList, { it.start.hour }) { item ->
             Box(Modifier.animateItem()) {
                 AppItem(
-                    viewModel = viewModel,
+                    usageQueries = uiState.queries,
+                    updateQueries = updateQueries,
+                    openApp = openApp,
+                    openPackageSettings = openPackageSettings,
                     usage1 = item.usage.usage1,
                     usage2 = item.usage.usage2,
                     name = item.toString(is24HourFormat),
@@ -406,16 +440,17 @@ private fun HistoryLegendItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryFilter(
-    viewModel: HistoryVM,
+    uiState: HistoryUiState,
     appManager: AppManager,
+    updateQuery: (Int, UsageQuery) -> Unit,
+    updateListQuery: (ListParam) -> Unit,
+    persistFilters: () -> Unit,
+    resetFilters: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
 
-    val usageQueries by viewModel.queryFlow.collectAsStateWithLifecycle()
-    val listParam by viewModel.listParamFlow.collectAsStateWithLifecycle()
-    val filtersChanged by viewModel.filtersChanged.collectAsStateWithLifecycle()
     val font = remember { googleSans(weight = 600f) }
 
     val sheetState = rememberBottomSheetState(
@@ -437,18 +472,18 @@ fun HistoryFilter(
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     HistoryItemSettings(
-                        viewModel = viewModel,
                         appManager = appManager,
+                        updateQuery = updateQuery,
                         title = stringResource(R.string.primary),
                         n = 1,
-                        query = usageQueries.first
+                        query = uiState.queries.first
                     )
                     HistoryItemSettings(
-                        viewModel = viewModel,
                         appManager = appManager,
+                        updateQuery = updateQuery,
                         title = stringResource(R.string.secondary),
                         n = 2,
-                        query = usageQueries.second
+                        query = uiState.queries.second
                     )
                 }
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
@@ -457,7 +492,6 @@ fun HistoryFilter(
                     style = MaterialTheme.typography.headlineSmallEmphasized,
                     fontFamily = font
                 )
-                val forceHourList by viewModel.forceHourList.collectAsStateWithLifecycle()
                 ButtonGroup(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(
@@ -468,18 +502,18 @@ fun HistoryFilter(
                     overflowIndicator = {}
                 ) {
                     iconToggleButton(
-                        onSelect = { viewModel.updateListQuery(ListParam.AppList) },
+                        onSelect = { updateListQuery(ListParam.AppList) },
                         text = ListParam.AppList.getString(context),
                         icon = { Icon(painterResource(R.drawable.apps), null) },
-                        enabled = !forceHourList,
-                        selected = listParam == ListParam.AppList,
+                        enabled = !uiState.forceHourList,
+                        selected = uiState.listParam == ListParam.AppList,
                         weight = 1f
                     )
                     iconToggleButton(
-                        onSelect = { viewModel.updateListQuery(ListParam.HourList) },
+                        onSelect = { updateListQuery(ListParam.HourList) },
                         text = ListParam.HourList.getString(context),
                         icon = { Icon(painterResource(R.drawable.clock_analog), null) },
-                        selected = listParam == ListParam.HourList,
+                        selected = uiState.listParam == ListParam.HourList,
                         weight = 1f
                     )
                 }
@@ -496,10 +530,10 @@ fun HistoryFilter(
                 Spacer(Modifier.width(8.dp))
                 Button (
                     onClick = {
-                        viewModel.resetFilters()
+                        resetFilters()
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     },
-                    enabled = filtersChanged,
+                    enabled = uiState.filtersChanged,
                     contentPadding = contentPadding,
                     colors = ButtonDefaults.filledTonalButtonColors()
                 ) {
@@ -513,10 +547,10 @@ fun HistoryFilter(
                 }
                 Button (
                     onClick = {
-                        viewModel.persistFilters()
+                        persistFilters()
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     },
-                    enabled = filtersChanged,
+                    enabled = uiState.filtersChanged,
                     contentPadding = contentPadding,
                     colors = ButtonDefaults.filledTonalButtonColors()
                 ) {
@@ -536,8 +570,8 @@ fun HistoryFilter(
 
 @Composable
 fun RowScope.HistoryItemSettings(
-    viewModel: HistoryVM,
     appManager: AppManager,
+    updateQuery: (Int, UsageQuery) -> Unit,
     title: String,
     n: Int,
     query: UsageQuery
@@ -556,7 +590,7 @@ fun RowScope.HistoryItemSettings(
             n = n,
             enabled = true,
             onSelect = {
-                viewModel.updateQuery(n, query.copy(dataType = it))
+                updateQuery(n, query.copy(dataType = it))
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
             },
             text = stringResource(query.dataType.nameRes),
@@ -568,7 +602,7 @@ fun RowScope.HistoryItemSettings(
             n = n,
             enabled = query.dataType != DataType.None,
             onSelect = {
-                viewModel.updateQuery(n, query.copy(dataDirection = it))
+                updateQuery(n, query.copy(dataDirection = it))
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
             },
             text = stringResource(query.dataDirection.nameRes),
@@ -595,7 +629,7 @@ fun RowScope.HistoryItemSettings(
                 appManager,
                 onSelect = { uid ->
                     scope.launch {
-                        viewModel.updateQuery(n, query.copy(dataUID = appManager.getAppForUID(uid)))
+                        updateQuery(n, query.copy(dataUID = appManager.getAppForUID(uid)))
                         hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                     }
                 }
@@ -745,7 +779,10 @@ private fun <T : DropdownItem> FilterDropdownButton(
 @Composable
 fun AppItem(
     modifier: Modifier = Modifier,
-    viewModel: HistoryVM,
+    usageQueries: Pair<UsageQuery, UsageQuery>,
+    updateQueries: (UsageQuery, UsageQuery) -> Unit,
+    openApp: (Activity?, Intent?) -> Unit,
+    openPackageSettings: suspend (Activity?, Int) -> Unit,
     app: DataUID? = null,
     usage1: Long,
     usage2: Long,
@@ -757,7 +794,6 @@ fun AppItem(
 ) {
     val haptic = LocalHapticFeedback.current
     val activity = LocalActivity.current
-    val usageQueries by viewModel.queryFlow.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
 
     Column(
@@ -792,7 +828,7 @@ fun AppItem(
                                     fontWeight = FontWeight.Bold,
                                 )
                             }
-                            LineGraphHeader(viewModel)
+                            LineGraphHeader(usageQueries)
                         }
                     }
                 }
@@ -816,12 +852,12 @@ fun AppItem(
                                 modifier = Modifier.padding(end = 4.dp),
                                 shape = MaterialTheme.shapes.large,
                                 onClick = {
-                                    scope.launch {
-                                        app?.let {
-                                            viewModel.updateQuery(1, usageQueries.first.copy(dataUID = it))
-                                            viewModel.updateQuery(2, usageQueries.second.copy(dataUID = it))
-                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        }
+                                    app?.let {
+                                        updateQueries(
+                                            usageQueries.first.copy(dataUID = it),
+                                            usageQueries.second.copy(dataUID = it),
+                                        )
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     }
                                 }
                             ) {
@@ -840,7 +876,7 @@ fun AppItem(
                                 FilledIconButton(
                                     enabled = launchIntent != null,
                                     onClick = {
-                                        viewModel.openApp(activity, launchIntent)
+                                        openApp(activity, launchIntent)
                                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     }
                                 ) {
@@ -852,7 +888,7 @@ fun AppItem(
                                 FilledIconButton(
                                     onClick = {
                                         scope.launch {
-                                            viewModel.openPackageSettings(activity, app.uid)
+                                            openPackageSettings(activity, app.uid)
                                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                         }
                                     }
@@ -886,9 +922,8 @@ fun AppItem(
 }
 
 @Composable
-fun LineGraphHeader(viewModel: HistoryVM) {
+fun LineGraphHeader(usageQueries: Pair<UsageQuery, UsageQuery>) {
     val context = LocalContext.current
-    val usageQueries by viewModel.queryFlow.collectAsStateWithLifecycle()
 
     Column (Modifier.fillMaxWidth()) {
         Row {

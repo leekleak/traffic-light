@@ -5,11 +5,18 @@ import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 import androidx.annotation.IntRange
+import androidx.appstate.transform.transform
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leekleak.core.R
 import com.leekleak.core.charts.model.ScrollableBarData
+import com.leekleak.core.util.toTimestamp
+import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.HistoryPreferenceRepo
@@ -17,66 +24,167 @@ import com.leekleak.trafficlight.database.HourUsage
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.NetworkUsageManager
-import com.leekleak.core.util.toTimestamp
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableSharedFlow
+import com.leekleak.trafficlight.model.PermissionManager
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDate
+
+const val MAX_DAYS = 90
+
+private data class HistoryInputs(
+    val query1: UsageQuery = UsageQuery(DataType.Mobile),
+    val query2: UsageQuery = UsageQuery(DataType.Wifi),
+    val listParam: ListParam = ListParam.AppList,
+    val dateParams: DateParams = DateParams(LocalDate.now(), showMonth = false),
+) {
+    val forceHourList: Boolean
+        get() = (query1.dataUID.uidQuery != null) || (query2.dataUID.uidQuery != null)
+}
+
+data class HistoryUiState(
+    val usage: List<ScrollableBarData> = List(MAX_DAYS) { ScrollableBarData(LocalDate.MIN) },
+    val query1: UsageQuery = UsageQuery(DataType.Mobile),
+    val query2: UsageQuery = UsageQuery(DataType.Wifi),
+    val listParam: ListParam = ListParam.AppList,
+    val dateParams: DateParams = DateParams(LocalDate.now(), showMonth = false),
+    val filtersChanged: Boolean = false,
+    val forceHourList: Boolean = false,
+    val appList: List<AppUsage> = emptyList(),
+    val hourList: List<HourUsage> = emptyList(),
+    val shizukuPermissionGranted: Boolean = false,
+    val shizukuRunning: Boolean = false,
+    val timespanStartDate: LocalDate = LocalDate.now().plusDays(1).minusDays(MAX_DAYS.toLong()),
+) {
+    val queries: Pair<UsageQuery, UsageQuery>
+        get() = query1 to query2
+
+    val showShizukuNotRunning: Boolean
+        get() = BuildConfig.SHIZUKU && shizukuPermissionGranted && !shizukuRunning
+}
 
 class HistoryVM(
     private val networkUsageManager: NetworkUsageManager,
     private val appManager: AppManager,
     private val prefs: HistoryPreferenceRepo,
+    private val permissionManager: PermissionManager,
 ): ViewModel() {
-    private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
-    private val dateParams = MutableStateFlow(DateParams(LocalDate.now(), false))
-    private val listParam = MutableStateFlow(ListParam.AppList)
-    private val query1 = MutableStateFlow(UsageQuery(DataType.Mobile))
-    private val query2 = MutableStateFlow(UsageQuery(DataType.Wifi))
-    private val savedQuery1 = prefs.query1.stateIn(viewModelScope, SharingStarted.Eagerly, UsageQuery(DataType.Mobile))
-    private val savedQuery2 = prefs.query2.stateIn(viewModelScope, SharingStarted.Eagerly, UsageQuery(DataType.Wifi))
-    private val savedListParam = prefs.listParam.stateIn(viewModelScope, SharingStarted.Eagerly, ListParam.AppList)
-    val queryFlow = combine(query1, query2) { q1, q2 -> q1 to q2 }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, UsageQuery(DataType.Mobile) to UsageQuery(DataType.Wifi))
-    val forceHourList = queryFlow.map { (query1, query2) ->
-        query1.dataUID.uidQuery != null || query2.dataUID.uidQuery != null
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
-    val dateQueryFlow = combine(dateParams, queryFlow, refreshTrigger) {date, queries, _ -> Pair(date, queries) }
-    val listParamFlow = listParam.asStateFlow()
-    val dateParamsFlow = dateParams.asStateFlow()
+    private val refreshTrigger = MutableStateFlow(0)
+    private val inputs = MutableStateFlow(HistoryInputs())
+
+    val uiState: State<HistoryUiState> = transform(
+        initialValue = HistoryUiState(),
+        scope = viewModelScope,
+    ) {
+        val current by inputs.collectAsState(HistoryInputs())
+        val query1 = current.query1
+        val query2 = current.query2
+        val listParam = current.listParam
+        val dateParams = current.dateParams
+        val refresh by refreshTrigger.collectAsState()
+
+        val savedQuery1 by prefs.query1.collectAsState(UsageQuery(DataType.Mobile))
+        val savedQuery2 by prefs.query2.collectAsState(UsageQuery(DataType.Wifi))
+        val savedListParam by prefs.listParam.collectAsState(ListParam.AppList)
+
+        val shizukuPermissionGranted by permissionManager.shizukuPermissionGranted.collectAsState()
+        val shizukuRunning by permissionManager.shizukuRunning.collectAsState()
+
+        val usage by produceState(
+            initialValue = List(MAX_DAYS) { ScrollableBarData(LocalDate.MIN) },
+            refresh, query1, query2,
+        ) {
+            val (startDate, endDate) = getDatesForTimespan()
+            value = networkUsageManager.daysUsage(
+                startDate = startDate,
+                endDate = endDate,
+                usageQuery1 = query1,
+                usageQuery2 = query2,
+            ).first()
+        }
+
+        val appList: List<AppUsage> = if (listParam == ListParam.AppList) {
+            val list by produceState(emptyList(), refresh, dateParams, query1, query2) {
+                val (startDate, endDate) = dateParams.getStartEndDates()
+                value = networkUsageManager.getAllAppUsage(
+                    startStamp = startDate.atStartOfDay().toTimestamp(),
+                    endStamp = endDate.atStartOfDay().toTimestamp(),
+                    query1 = query1,
+                    query2 = query2,
+                )
+            }
+            list
+        } else {
+            emptyList()
+        }
+
+        val hourList: List<HourUsage> = if (listParam == ListParam.HourList) {
+            val list by produceState(emptyList(), refresh, dateParams, query1, query2) {
+                value = networkUsageManager.getAllHourUsage(dateParams, query1, query2)
+            }
+            list
+        } else {
+            emptyList()
+        }
+
+        HistoryUiState(
+            usage = usage,
+            query1 = query1,
+            query2 = query2,
+            listParam = listParam,
+            dateParams = dateParams,
+            filtersChanged = (query1 != savedQuery1) ||
+                (query2 != savedQuery2) ||
+                (listParam != savedListParam),
+            forceHourList = current.forceHourList,
+            appList = appList,
+            hourList = hourList,
+            shizukuPermissionGranted = shizukuPermissionGranted,
+            shizukuRunning = shizukuRunning,
+            timespanStartDate = getDatesForTimespan().first,
+        )
+    }
 
     init {
         viewModelScope.launch {
-            query1.value = prefs.query1.first()
-            query2.value = prefs.query2.first()
-            listParam.value = prefs.listParam.first()
+            val savedQuery1 = prefs.query1.first()
+            val savedQuery2 = prefs.query2.first()
+            val savedListParam = prefs.listParam.first()
+            inputs.update {
+                it.copy(
+                    query1 = savedQuery1,
+                    query2 = savedQuery2,
+                    listParam = savedListParam,
+                )
+            }
         }
-        forceHourList
+        inputs
+            .map { it.forceHourList }
+            .distinctUntilChanged()
             .onEach { forced ->
                 if (forced) {
-                    listParam.value = ListParam.HourList
-                    dateParams.value = DateParams(dateParams.value.day, false)
+                    inputs.update {
+                        it.copy(
+                            listParam = ListParam.HourList,
+                            dateParams = it.dateParams.copy(showMonth = false),
+                        )
+                    }
                 }
             }
             .launchIn(viewModelScope)
     }
 
     fun refresh() {
-        refreshTrigger.tryEmit(Unit)
-        dateParams.value = DateParams(LocalDate.now(), dateParams.value.showMonth)
+        refreshTrigger.value += 1
+        inputs.update {
+            it.copy(dateParams = it.dateParams.copy(day = LocalDate.now()))
+        }
     }
 
     fun getDatesForTimespan(): Pair<LocalDate, LocalDate> {
@@ -85,72 +193,52 @@ class HistoryVM(
         return base to now
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val usageFlow = combine(refreshTrigger, queryFlow) { _, queries ->
-        queries
-    }.flatMapLatest { queries ->
-        val dates = getDatesForTimespan()
-        networkUsageManager.daysUsage(
-            startDate = dates.first,
-            endDate = dates.second,
-            usageQuery1 = queries.first,
-            usageQuery2 = queries.second
-        )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = List(MAX_DAYS) { ScrollableBarData(LocalDate.MIN) }
-    )
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val appList: StateFlow<List<AppUsage>> = dateQueryFlow.mapLatest { (date, queries) ->
-            val dates = date.getStartEndDates()
-            networkUsageManager.getAllAppUsage(
-                startStamp = dates.first.atStartOfDay().toTimestamp(),
-                endStamp = dates.second.atStartOfDay().toTimestamp(),
-                query1 = queries.first,
-                query2 = queries.second
-            )
-        }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val hourList: StateFlow<List<HourUsage>> = dateQueryFlow.mapLatest { (date, queries) ->
-            networkUsageManager.getAllHourUsage(date, queries.first, queries.second)
-        }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    val filtersChanged: StateFlow<Boolean> = combine(queryFlow, listParam, savedQuery1, savedQuery2, savedListParam) { q, lp, sq1, sq2, slp ->
-            q.first != sq1 || q.second != sq2 || lp != slp
-        }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
     fun updateQuery(@IntRange(1, 2) n: Int, newQuery: UsageQuery) {
-        when (n) {
-            1 -> query1.value = newQuery
-            2 -> query2.value = newQuery
-            else -> throw IllegalArgumentException("Invalid query index: $n")
+        inputs.update {
+            when (n) {
+                1 -> it.copy(query1 = newQuery)
+                2 -> it.copy(query2 = newQuery)
+                else -> throw IllegalArgumentException("Invalid query index: $n")
+            }
         }
     }
-
-    fun updateDateQuery(day: LocalDate= dateParams.value.day, showMonth: Boolean = dateParams.value.showMonth) {
-        dateParams.value = DateParams(day, showMonth)
+    
+    fun updateQueries(query1: UsageQuery, query2: UsageQuery) {
+        inputs.update { it.copy(query1 = query1, query2 = query2) }
     }
 
-    fun updateListQuery(newList: ListParam = listParam.value) {
-        if (!forceHourList.value) listParam.value = newList
-        else listParam.value = ListParam.HourList
+    fun updateDateQuery(
+        day: LocalDate = inputs.value.dateParams.day,
+        showMonth: Boolean = inputs.value.dateParams.showMonth,
+    ) {
+        inputs.update { it.copy(dateParams = DateParams(day, showMonth)) }
+    }
+
+    fun updateListQuery(newList: ListParam = inputs.value.listParam) {
+        inputs.update {
+            if (it.forceHourList) it.copy(listParam = ListParam.HourList)
+            else it.copy(listParam = newList)
+        }
     }
 
     fun persistFilters() {
-        viewModelScope.launch { prefs.saveQuery(1, query1.value) }
-        viewModelScope.launch { prefs.saveQuery(2, query2.value) }
-        viewModelScope.launch { prefs.saveListParam(listParam.value) }
+        val current = inputs.value
+        viewModelScope.launch { prefs.saveQuery(1, current.query1) }
+        viewModelScope.launch { prefs.saveQuery(2, current.query2) }
+        viewModelScope.launch { prefs.saveListParam(current.listParam) }
     }
 
     fun resetFilters() = viewModelScope.launch {
-        updateQuery(1, prefs.query1.first())
-        updateQuery(2, prefs.query2.first())
-        updateListQuery(prefs.listParam.first())
+        val savedQuery1 = prefs.query1.first()
+        val savedQuery2 = prefs.query2.first()
+        val savedListParam = prefs.listParam.first()
+        inputs.update {
+            it.copy(
+                query1 = savedQuery1,
+                query2 = savedQuery2,
+                listParam = savedListParam,
+            )
+        }
     }
 
     suspend fun openPackageSettings(activity: Activity?, uid: Int) {

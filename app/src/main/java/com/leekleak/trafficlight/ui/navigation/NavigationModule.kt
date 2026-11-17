@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.core.ui.navigation.LocalNavigator
 import com.leekleak.trafficlight.ui.history.History
+import com.leekleak.trafficlight.ui.history.HistoryVM
 import com.leekleak.trafficlight.ui.overview.Overview
 import com.leekleak.trafficlight.ui.plans.DataPlanConfig
 import com.leekleak.trafficlight.ui.plans.DataPlanConfigVM
@@ -39,7 +40,23 @@ val navigationModule = module {
             refresh = viewModel::refresh
         )
     }
-    navigation<HistoryKey> { History(get(), get(), get()) }
+    navigation<HistoryKey> {
+        val viewModel: HistoryVM = koinViewModel<HistoryVM>()
+        val uiState by viewModel.uiState
+        History(
+            uiState = uiState,
+            appManager = get(),
+            refresh = viewModel::refresh,
+            updateDateQuery = viewModel::updateDateQuery,
+            updateQuery = viewModel::updateQuery,
+            updateQueries = viewModel::updateQueries,
+            updateListQuery = viewModel::updateListQuery,
+            persistFilters = viewModel::persistFilters,
+            resetFilters = viewModel::resetFilters,
+            openApp = viewModel::openApp,
+            openPackageSettings = viewModel::openPackageSettings,
+        )
+    }
     navigation<ToolsKey> { Tools(LocalNavigator.current) }
     navigation<SettingsKey> { Settings(LocalNavigator.current, get(), get()) }
     navigation<UsagePermissionRequestKey> { UsagePermissionRequest(LocalNavigator.current, get()) }
