@@ -35,19 +35,23 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.leekleak.core.R
 import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.core.ui.theme.googleSansEmphasized
 import com.leekleak.core.util.DataSize
-import com.leekleak.core.util.formatted
+import com.leekleak.core.util.formattedParts
 import com.leekleak.core.util.toSp
 import com.leekleak.trafficlight.database.AppUsage
-import com.leekleak.trafficlight.model.DataUID
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
@@ -133,11 +137,20 @@ fun AppGraph(
         ) {
             data.forEachIndexed { index, usage ->
                 val barWidth = maxBarWidth * (usage.usage.totalUsage.toFloat() / maxUsage)
-                val text = DataSize(usage.usage.totalUsage).formatted().replace(" ", "")
-                val font = remember(index) { googleSans(weight = 600f - 100f * index, width = 60f) }
-                val labelInsideBar = remember(text, barWidth, font) {
-                    val style = TextStyle(fontFamily = font, fontSize = with(density) { 42.dp.toSp() })
-                    textMeasurer.measure(text, style).size.width <= with(density) { (barWidth - 8.dp).toPx() }
+                val textParts = DataSize(usage.usage.totalUsage).formattedParts()
+                val font = remember(index) { googleSans(weight = 600f - 100f * index, width = 60f, roundness = 40f) }
+                val annotatedString = buildAnnotatedString {
+                    withStyle(style = SpanStyle(fontFamily = font, fontSize = 42.dp.toSp)) {
+                        append(textParts.first + textParts.second)
+                    }
+                    withStyle(style = SpanStyle(fontFamily = font, fontSize = 36.dp.toSp)) {
+                        append(textParts.third)
+                    }
+                }
+
+                val labelInsideBar = remember(annotatedString, barWidth, font) {
+                    val style = TextStyle(fontFamily = font)
+                    textMeasurer.measure(annotatedString, style).size.width <= with(density) { (barWidth - 8.dp).toPx() }
                 }
 
                 Row (horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -146,11 +159,11 @@ fun AppGraph(
                             .clip(MaterialTheme.shapes.medium)
                             .background(if (alternateColor) colorScheme.tertiary else colorScheme.primary)
                             .width(barWidth)
-                            .height(BarHeight)
+                            .height(BarHeight),
                     ) {
                         if (labelInsideBar) {
                             val color = if (alternateColor) colorScheme.onTertiary else colorScheme.onPrimary
-                            Text(font, color, text)
+                            Text(font, color, annotatedString)
                         }
                     }
 
@@ -175,7 +188,7 @@ fun AppGraph(
                     }
                     if (!labelInsideBar) {
                         Box(Modifier.height(BarHeight)) {
-                            Text(font, colorScheme.onBackground, text)
+                            Text(font, colorScheme.onBackground, annotatedString)
                         }
                     }
                 }
@@ -185,47 +198,20 @@ fun AppGraph(
 }
 
 @Composable
-private fun FallingAppIcon(
-    app: DataUID,
-    state: FallingIconState,
-    fallDistancePx: Float,
-) {
-    val haptic = LocalHapticFeedback.current
-    val scope = rememberCoroutineScope()
-    Box(
-        Modifier
-            .size(40.dp)
-            .pointerInput(state) {
-                detectTapGestures {
-                    scope.launch { state.tap(haptic) }
-                }
-            }
-            .graphicsLayer {
-                rotationZ = state.rotation.value
-                translationY = state.fall.value * fallDistancePx
-                alpha = state.alpha.value
-            }
-    ) {
-        app.GetIcon(Modifier.fillMaxSize())
-    }
-}
-
-@Composable
 private fun BoxScope.Text(
     font: FontFamily,
     onPrimaryColor: Color,
-    text: String
+    text: AnnotatedString
 ) {
     Text(
         modifier = Modifier
-            .padding(start = 6.dp)
-            .height(38.dp)
+            .padding(start = 6.dp, top = 2.dp)
+            .height(42.dp)
             .align(Alignment.CenterStart)
             .wrapContentHeight(unbounded = true),
         fontFamily = font,
         color = onPrimaryColor,
         text = text,
-        fontSize = 42.dp.toSp,
         softWrap = false
     )
 }

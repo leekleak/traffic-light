@@ -243,7 +243,7 @@ private fun OverviewHero(
             val width = 30f + 30f * pressProgress
             val weight = 400f + 400f * pressProgress
             val fontFamily1 = remember(weight, width) { googleSans(weight = weight, width = width, roundness = 100f) }
-            val fontFamily2 = remember(weight, width) { googleSans(weight = weight, width = width + 70f, roundness = 50f) }
+            val fontFamily2 = remember(weight, width) { googleSans(weight = weight, width = width + 70f, roundness = 70f) }
 
             val bundledUsage = remember(string) { string to (query.dataType == DataType.Wifi) }
             AnimatedContent(bundledUsage) { (text, isWifi) ->
