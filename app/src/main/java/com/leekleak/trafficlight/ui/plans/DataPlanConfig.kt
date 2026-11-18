@@ -132,6 +132,7 @@ import com.leekleak.core.ui.components.SlideAnimatedVisibility
 import com.leekleak.core.ui.components.TOP_BAR_HEIGHT
 import com.leekleak.core.ui.components.categoryTitleSmall
 import com.leekleak.core.ui.components.formatSizeValue
+import com.leekleak.core.ui.components.iconToggleButton
 import com.leekleak.core.ui.components.parseSizeNumber
 import com.leekleak.core.ui.components.preference.IconPreference
 import com.leekleak.core.ui.components.preference.Preference
@@ -552,45 +553,48 @@ private fun LazyListScope.typeConfig(
             modifier = Modifier
                 .padding(vertical = 4.dp)
                 .card()
-                .padding(horizontal = 8.dp, vertical = 4.dp)
         ) {
             val interval by remember(plan) { derivedStateOf { plan.interval } }
             val monthlyString = stringResource(R.string.monthly)
             val customString = stringResource(R.string.custom)
+            val toggleButtonContainerColors = IconButtonDefaults.iconButtonColors(containerColor = colorScheme.surfaceContainerHighest)
             ButtonGroup(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
                 expandedRatio = 0.05f,
-                overflowIndicator = {}
+                overflowIndicator = {},
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                toggleableItem(
-                    checked = interval == TimeInterval.MONTH,
-                    label = monthlyString,
+                iconToggleButton(
+                    selected = interval == TimeInterval.MONTH,
+                    text = monthlyString,
                     icon = {
                         Icon(
                             painter = painterResource(R.drawable.calendar_month),
                             contentDescription = null
                         )
                     },
-                    onCheckedChange = {
+                    onSelect = {
                         onPlanChange(plan.copy(interval = TimeInterval.MONTH))
                         haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                     },
                     weight = 1f,
+                    unselectedColors = toggleButtonContainerColors
                 )
-                toggleableItem(
-                    checked = interval == TimeInterval.DAY,
-                    label = customString,
+                iconToggleButton(
+                    selected = interval == TimeInterval.DAY,
+                    text = customString,
                     icon = {
                         Icon(
                             painter = painterResource(R.drawable.custom),
                             contentDescription = null
                         )
                     },
-                    onCheckedChange = {
+                    onSelect = {
                         onPlanChange(plan.copy(interval = TimeInterval.DAY))
                         haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                     },
                     weight = 1f,
+                    unselectedColors = toggleButtonContainerColors
                 )
             }
 
@@ -600,7 +604,7 @@ private fun LazyListScope.typeConfig(
                 if (currentInterval == TimeInterval.MONTH) {
                     Column {
                         SliderComponent(
-                            modifier = Modifier.padding(horizontal = 4.dp),
+                            modifier = Modifier.padding(horizontal = 8.dp),
                             modifierLabelText = Modifier.width(46.dp),
                             title = stringResource(R.string.reset_day),
                             icon = painterResource(R.drawable.history_2),
@@ -753,11 +757,11 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
     fun currentMultiplier(): Int = textFieldState.text.toString().toIntOrNull() ?: 1
 
     DateAndTimePicker(
-        selectedDate,
-        selectedTime,
-        datePickerState,
-        timePickerState,
-        contentPadding = PaddingValues(8.dp),
+        selectedDate = selectedDate,
+        selectedTime = selectedTime,
+        datePickerState = datePickerState,
+        timePickerState = timePickerState,
+        contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp),
         onDateSelect = { onChange(it, selectedTime, currentMultiplier()) },
         onTimeSelect = { onChange(selectedDate, it, currentMultiplier()) },
     ) { fontFamily ->
