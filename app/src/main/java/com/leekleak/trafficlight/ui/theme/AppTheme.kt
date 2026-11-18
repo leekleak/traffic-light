@@ -15,12 +15,14 @@ fun AppThemeWrapper(
     val theme by appPreferenceRepo.theme.collectAsState()
     val speedMetric by appPreferenceRepo.speedMetric.collectAsState(true)
     val sizeMetric by appPreferenceRepo.sizeMetric.collectAsState(false)
+    val speedInBits by appPreferenceRepo.speedBits.collectAsState(false)
     val blurEnabled by appPreferenceRepo.blur.collectAsStateWithLifecycle(true)
 
     AppTheme(
         theme = theme,
         speedMetric = speedMetric,
         sizeMetric = sizeMetric,
+        speedInBits = speedInBits,
         blurEnabled = blurEnabled,
         content = content,
     )

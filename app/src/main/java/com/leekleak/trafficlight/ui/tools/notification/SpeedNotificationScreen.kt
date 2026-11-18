@@ -102,7 +102,6 @@ fun SpeedNotificationScreen(
             uiState = uiState,
             setSpeedThreshold = setSpeedThreshold,
             setSpeedThresholdKb = setSpeedThresholdKb,
-            setSpeedBits = setSpeedBits,
             setModeAOD = setModeAOD,
             setForceFallback = setForceFallback,
         )
@@ -113,10 +112,14 @@ fun SpeedNotificationScreen(
         backAction = BackAction.Normal(navigator),
         verticalArrangement = Arrangement.Top
     ) {
-        NotificationSettings(uiState, setNotification)
+        OnOffSetting(uiState, setNotification)
         NotificationTypeSelector(
             selected = uiState.notificationType,
             onSelect = setNotificationType,
+        )
+        NotificationAppearanceSettings(
+            uiState = uiState,
+            setSpeedBits = setSpeedBits,
         )
         Button(
             modifier = Modifier,
@@ -140,7 +143,6 @@ private fun NotificationSettingsSheet(
     uiState: NotificationSettingsUiState,
     setSpeedThreshold: (Boolean) -> Unit,
     setSpeedThresholdKb: (Long) -> Unit,
-    setSpeedBits: (Boolean) -> Unit,
     setModeAOD: (Boolean) -> Unit,
     setForceFallback: (Boolean) -> Unit,
 ) {
@@ -155,10 +157,7 @@ private fun NotificationSettingsSheet(
                 .padding(bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            NotificationAppearanceSettings(
-                uiState = uiState,
-                setSpeedBits = setSpeedBits,
-            )
+
             BehaviorSettings(
                 uiState = uiState,
                 setModeAOD = setModeAOD,
@@ -174,7 +173,7 @@ private fun NotificationSettingsSheet(
 }
 
 @Composable
-private fun NotificationSettings(
+private fun OnOffSetting(
     uiState: NotificationSettingsUiState,
     setNotification: (Boolean) -> Unit,
 ) {
@@ -386,7 +385,7 @@ private fun NotificationTypeSelector(
     }
 
     Column(
-        modifier = Modifier.card()
+        modifier = Modifier.padding(vertical = 4.dp).card()
     ) {
         HorizontalPager(
             modifier = Modifier.fillMaxWidth(),

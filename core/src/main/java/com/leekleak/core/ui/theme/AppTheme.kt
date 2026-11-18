@@ -10,6 +10,7 @@ import androidx.core.view.WindowCompat
 
 val LocalSizeMetric = compositionLocalOf { false }
 val LocalSpeedMetric = compositionLocalOf { false }
+val LocalSpeedInBits = compositionLocalOf { false }
 val LocalBlurEnabled = compositionLocalOf { true }
 
 @Composable
@@ -17,6 +18,7 @@ fun AppTheme(
     theme: Theme = Theme.AutoMaterial,
     speedMetric: Boolean = true,
     sizeMetric: Boolean = false,
+    speedInBits: Boolean = false,
     blurEnabled: Boolean = true,
     content: @Composable () -> Unit,
 ) {
@@ -33,6 +35,7 @@ fun AppTheme(
     CompositionLocalProvider(
         LocalSpeedMetric provides speedMetric,
         LocalSizeMetric provides sizeMetric,
+        LocalSpeedInBits provides speedInBits,
         LocalBlurEnabled provides blurEnabled
     ) {
         MaterialTheme(theme.getColors()) { content() }

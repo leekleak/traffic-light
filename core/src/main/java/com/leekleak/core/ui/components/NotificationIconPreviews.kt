@@ -22,17 +22,29 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.leekleak.core.R
+import com.leekleak.core.ui.theme.LocalSpeedInBits
+import com.leekleak.core.ui.theme.LocalSpeedMetric
 import com.leekleak.core.ui.theme.googleSans
+import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.NotificationIconRenderer
 import com.leekleak.core.util.toSp
+
+private val PreviewSpeed = DataSize(3_900_000)
+private val PreviewSpeedUp = DataSize(25_000_000)
+private val PreviewSpeedDown = DataSize(723_000)
 
 @Composable
 fun SpeedIconPreview(
     modifier: Modifier = Modifier.size(24.dp),
-    value: String = "3.9",
-    unit: String = "MB/s",
+    speed: DataSize = PreviewSpeed,
+    inBits: Boolean = LocalSpeedInBits.current,
 ) {
     val context = LocalContext.current
+    val metric = LocalSpeedMetric.current
+    val (value, unit) = remember(speed, inBits, metric) {
+        val parts = speed.toStringParts(speed = true, inBits = inBits, metric = metric)
+        parts.first + parts.second to parts.third
+    }
     val renderer = remember(context) { NotificationIconRenderer(context) }
     val color = LocalContentColor.current.toArgb()
     Canvas(modifier) {
@@ -45,10 +57,15 @@ fun SpeedIconPreview(
 @Composable
 fun SeparateSpeedIconPreview(
     modifier: Modifier = Modifier.size(24.dp),
-    top: String = "24M",
-    bottom: String = "687K",
+    up: DataSize = PreviewSpeedUp,
+    down: DataSize = PreviewSpeedDown,
+    inBits: Boolean = LocalSpeedInBits.current,
 ) {
     val context = LocalContext.current
+    val metric = LocalSpeedMetric.current
+    val (top, bottom) = remember(up, down, inBits, metric) {
+        compactSpeed(up, inBits, metric) to compactSpeed(down, inBits, metric)
+    }
     val renderer = remember(context) { NotificationIconRenderer(context) }
     val color = LocalContentColor.current.toArgb()
     Canvas(modifier) {
@@ -58,11 +75,21 @@ fun SeparateSpeedIconPreview(
     }
 }
 
+private fun compactSpeed(speed: DataSize, inBits: Boolean, metric: Boolean): String {
+    val parts = speed.toStringParts(speed = true, inBits = inBits, metric = metric)
+    return "${parts.first} ${parts.third.substring(0, 1)}"
+}
+
 @Composable
 fun LiveNotificationPreview(
     modifier: Modifier = Modifier,
-    text: String = "3.9 MB/s",
+    speed: DataSize = PreviewSpeed,
+    inBits: Boolean = LocalSpeedInBits.current,
 ) {
+    val metric = LocalSpeedMetric.current
+    val text = remember(speed, inBits, metric) {
+        speed.toString(speed = true, inBits = inBits, metric = metric)
+    }
     val font = remember { googleSans() }
     Row(
         modifier = modifier
