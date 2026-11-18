@@ -4,11 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.leekleak.core.ui.theme.AppTheme as CoreAppTheme
+import com.leekleak.core.ui.theme.AppTheme
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 
 @Composable
-fun AppTheme(
+fun AppThemeWrapper(
     appPreferenceRepo: AppPreferenceRepo,
     content: @Composable () -> Unit
 ) {
@@ -17,7 +17,7 @@ fun AppTheme(
     val sizeMetric by appPreferenceRepo.sizeMetric.collectAsState(false)
     val blurEnabled by appPreferenceRepo.blur.collectAsStateWithLifecycle(true)
 
-    CoreAppTheme(
+    AppTheme(
         theme = theme,
         speedMetric = speedMetric,
         sizeMetric = sizeMetric,

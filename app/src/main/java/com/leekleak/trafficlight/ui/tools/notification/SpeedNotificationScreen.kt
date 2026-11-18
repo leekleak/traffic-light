@@ -8,6 +8,7 @@ import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -15,51 +16,73 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PageSize
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.rememberNavBackStack
 import com.leekleak.core.R
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.CategoryTitleSmallText
 import com.leekleak.core.ui.components.HazeScaffold
+import com.leekleak.core.ui.components.LiveNotificationPreview
+import com.leekleak.core.ui.components.NotificationWarningDialog
+import com.leekleak.core.ui.components.ScreenPreview
+import com.leekleak.core.ui.components.SeparateSpeedIconPreview
+import com.leekleak.core.ui.components.SpeedIconPreview
 import com.leekleak.core.ui.components.preference.IconPreference
 import com.leekleak.core.ui.components.preference.NavigatePreference
 import com.leekleak.core.ui.components.preference.SliderPreference
 import com.leekleak.core.ui.components.preference.SwitchPreference
 import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.ui.theme.LocalSpeedMetric
+import com.leekleak.core.ui.theme.card
+import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.openLink
 import com.leekleak.trafficlight.services.notifications.SpeedNotification
-import com.leekleak.core.ui.components.NotificationWarningDialog
-import com.leekleak.core.ui.components.SeparateSpeedIconPreview
-import com.leekleak.core.ui.components.SpeedIconPreview
+import kotlinx.coroutines.launch
 import kotlin.math.pow
 
 @Composable
@@ -67,8 +90,7 @@ fun SpeedNotificationScreen(
     navigator: Navigator,
     uiState: NotificationSettingsUiState,
     setNotification: (Boolean) -> Unit,
-    setLiveNotification: (Boolean) -> Unit,
-    setSeparateUpDown: (Boolean) -> Unit,
+    setNotificationType: (SpeedNotificationType) -> Unit,
     setSpeedThreshold: (Boolean) -> Unit,
     setSpeedThresholdKb: (Long) -> Unit,
     setSpeedBits: (Boolean) -> Unit,
@@ -81,8 +103,6 @@ fun SpeedNotificationScreen(
         NotificationSettingsSheet(
             onDismissRequest = { showSettingsSheet = false },
             uiState = uiState,
-            setLiveNotification = setLiveNotification,
-            setSeparateUpDown = setSeparateUpDown,
             setSpeedThreshold = setSpeedThreshold,
             setSpeedThresholdKb = setSpeedThresholdKb,
             setSpeedBits = setSpeedBits,
@@ -94,28 +114,23 @@ fun SpeedNotificationScreen(
     HazeScaffold(
         title = stringResource(R.string.notification),
         backAction = BackAction.Normal(navigator),
-        scrollState = null,
         verticalArrangement = Arrangement.Top
-    ) { contentPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding)
+    ) {
+        NotificationSettings(uiState, setNotification)
+        NotificationTypeSelector(
+            selected = uiState.notificationType,
+            onSelect = setNotificationType,
+        )
+        Button(
+            modifier = Modifier,
+            onClick = { showSettingsSheet = true }
         ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                NotificationSettings(uiState, setNotification)
-            }
-            Button(
-                modifier = Modifier.align(Alignment.BottomCenter),
-                onClick = { showSettingsSheet = true }
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(painterResource(R.drawable.settings), null)
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = stringResource(R.string.settings)
-                    )
-                }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(painterResource(R.drawable.settings), null)
+                Text(
+                    modifier = Modifier.padding(start = 8.dp),
+                    text = stringResource(R.string.settings)
+                )
             }
         }
     }
@@ -126,8 +141,6 @@ fun SpeedNotificationScreen(
 private fun NotificationSettingsSheet(
     onDismissRequest: () -> Unit,
     uiState: NotificationSettingsUiState,
-    setLiveNotification: (Boolean) -> Unit,
-    setSeparateUpDown: (Boolean) -> Unit,
     setSpeedThreshold: (Boolean) -> Unit,
     setSpeedThresholdKb: (Long) -> Unit,
     setSpeedBits: (Boolean) -> Unit,
@@ -147,8 +160,6 @@ private fun NotificationSettingsSheet(
         ) {
             NotificationAppearanceSettings(
                 uiState = uiState,
-                setLiveNotification = setLiveNotification,
-                setSeparateUpDown = setSeparateUpDown,
                 setSpeedBits = setSpeedBits,
             )
             BehaviorSettings(
@@ -320,24 +331,9 @@ private fun BehaviorSettings(
 @Composable
 private fun NotificationAppearanceSettings(
     uiState: NotificationSettingsUiState,
-    setLiveNotification: (Boolean) -> Unit,
-    setSeparateUpDown: (Boolean) -> Unit,
     setSpeedBits: (Boolean) -> Unit,
 ) {
     CategoryTitleSmallText(stringResource(R.string.appearance))
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
-        LiveNotificationSettings(uiState, setLiveNotification)
-    }
-
-    SwitchPreference(
-        title = stringResource(R.string.separate_upload_and_download),
-        summary = null,
-        iconContent = { SeparateSpeedIconPreview() },
-        value = uiState.separateUpDown,
-        enabled = !uiState.liveNotification,
-        onValueChanged = setSeparateUpDown
-    )
-
 
     SwitchPreference(
         title = stringResource(R.string.speed_in_bits),
@@ -349,33 +345,109 @@ private fun NotificationAppearanceSettings(
 }
 
 @Composable
-private fun LiveNotificationSettings(
-    uiState: NotificationSettingsUiState,
-    setLiveNotification: (Boolean) -> Unit,
+private fun NotificationTypeSelector(
+    selected: SpeedNotificationType,
+    onSelect: (SpeedNotificationType) -> Unit,
 ) {
-    val activity = LocalActivity.current
-
-    Row(
-        modifier = Modifier.height(IntrinsicSize.Min),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        SwitchPreference(
-            modifier = Modifier.weight(1f),
-            title = stringResource(R.string.live_notification),
-            icon = R.drawable.app_badging,
-            value = uiState.liveNotification,
-            enabled = !uiState.separateUpDown,
-            onValueChanged = setLiveNotification
-        )
-        IconPreference(
-            title = stringResource(R.string.help),
-            painter = painterResource(R.drawable.help),
-            onClick = {
-                openLink(
-                    activity,
-                    "https://github.com/leekleak/traffic-light/wiki/Troubleshooting#notifications"
-                )
-            },
-        )
+    val font = remember { googleSans(600f) }
+    val types = remember {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) SpeedNotificationType.entries
+        else SpeedNotificationType.entries.filter { it != SpeedNotificationType.Live }
     }
+    val pagerState = rememberPagerState(
+        initialPage = types.indexOf(selected).coerceAtLeast(0),
+        pageCount = { types.size },
+    )
+
+    LaunchedEffect(pagerState.settledPage, selected) {
+        val type = types.getOrNull(pagerState.settledPage) ?: return@LaunchedEffect
+        if (type != selected) onSelect(type)
+    }
+
+    LaunchedEffect(selected) {
+        val index = types.indexOf(selected)
+        if (index >= 0 && index != pagerState.currentPage) {
+            pagerState.animateScrollToPage(index)
+        }
+    }
+
+    Column(
+        modifier = Modifier.card().padding(8.dp)
+    ) {
+        HorizontalPager(
+            modifier = Modifier.fillMaxWidth(),
+            state = pagerState,
+            pageSize = PageSize.Fill,
+        ) { page ->
+            NotificationTypeCard(type = types[page])
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest, MaterialTheme.shapes.extraLargeIncreased),
+                onClick = {},
+                shape = MaterialTheme.shapes.extraLargeIncreased
+            ) {
+                Icon(painterResource(R.drawable.arrow_back), stringResource(R.string.go_back))
+            }
+            val type = types[pagerState.currentPage]
+            Text(
+                text = type.label(),
+                fontFamily = font,
+                style = MaterialTheme.typography.titleMedium,
+            )
+            IconButton(
+                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest, MaterialTheme.shapes.extraLargeIncreased),
+                onClick = {},
+                shape = MaterialTheme.shapes.extraLargeIncreased
+            ) {
+                Icon(painterResource(R.drawable.arrow_forward), stringResource(R.string.go_back))
+            }
+        }
+    }
+}
+
+@Composable
+private fun NotificationTypeCard(
+    type: SpeedNotificationType,
+) {
+    Box(
+        modifier = Modifier.fillMaxWidth().height(92.dp + 32.dp * 2),
+        contentAlignment = Alignment.Center,
+    ) {
+        when (type) {
+            SpeedNotificationType.Classic -> SpeedIconPreview(Modifier.size(92.dp))
+            SpeedNotificationType.Split -> SeparateSpeedIconPreview(Modifier.size(92.dp))
+            SpeedNotificationType.Live -> LiveNotificationPreview()
+        }
+    }
+}
+
+@Composable
+private fun SpeedNotificationType.label(): String = stringResource(
+    when (this) {
+        SpeedNotificationType.Classic -> R.string.notification_type_classic
+        SpeedNotificationType.Split -> R.string.notification_type_split
+        SpeedNotificationType.Live -> R.string.notification_type_live
+    }
+)
+
+@Composable
+@ScreenPreview
+private fun SpeedNotificationScreenPreview() {
+    val backStack = rememberNavBackStack()
+    SpeedNotificationScreen(
+        navigator = Navigator(backStack),
+        uiState = NotificationSettingsUiState(),
+        setNotification = {},
+        setNotificationType = {},
+        setSpeedThreshold = {},
+        setSpeedThresholdKb = {},
+        setSpeedBits = {},
+        setModeAOD = {},
+        setForceFallback = {}
+    )
 }

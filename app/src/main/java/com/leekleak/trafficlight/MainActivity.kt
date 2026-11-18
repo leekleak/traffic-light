@@ -16,7 +16,7 @@ import com.leekleak.trafficlight.model.DataPlanManager
 import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.services.notifications.NotificationService
 import com.leekleak.trafficlight.ui.app.App
-import com.leekleak.trafficlight.ui.theme.AppTheme
+import com.leekleak.trafficlight.ui.theme.AppThemeWrapper
 import com.leekleak.trafficlight.widget.WidgetReceiver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             setSingletonImageLoaderFactory { imageLoader }
 
-            AppTheme(appPreferenceRepo) {
+            AppThemeWrapper (appPreferenceRepo) {
                 App(permissionManager = permissionManager)
             }
         }

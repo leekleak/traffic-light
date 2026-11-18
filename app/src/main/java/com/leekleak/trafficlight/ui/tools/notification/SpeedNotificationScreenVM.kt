@@ -18,15 +18,20 @@ data class NotificationSettingsUiState(
     val notification: Boolean = false,
     val notificationPermission: Boolean = false,
     val activePlanNotificationsCount: Int = 0,
-    val liveNotification: Boolean = false,
-    val separateUpDown: Boolean = false,
     val speedThreshold: Boolean = false,
     val speedThresholdKb: Long = -1L,
     val speedBits: Boolean = false,
     val modeAOD: Boolean = false,
     val forceFallback: Boolean = false,
     val doesFallbackWork: Boolean = false,
+    val notificationType: SpeedNotificationType = SpeedNotificationType.Classic,
 )
+
+enum class SpeedNotificationType {
+    Classic,
+    Split,
+    Live
+}
 
 class SpeedNotificationScreenVM(
     private val appPreferenceRepo: AppPreferenceRepo,
@@ -39,8 +44,7 @@ class SpeedNotificationScreenVM(
         dispatcher = Dispatchers.Main,
     ) {
         val notification by appPreferenceRepo.notification.collectAsState(false)
-        val liveNotification by appPreferenceRepo.liveNotification.collectAsState(false)
-        val separateUpDown by appPreferenceRepo.separateUpDown.collectAsState(false)
+        val notificationType by appPreferenceRepo.notificationType.collectAsState(SpeedNotificationType.Classic)
         val speedThreshold by appPreferenceRepo.speedThreshold.collectAsState(false)
         val speedThresholdKb by appPreferenceRepo.speedThresholdKb.collectAsState(-1L)
         val speedBits by appPreferenceRepo.speedBits.collectAsState(false)
@@ -56,14 +60,13 @@ class SpeedNotificationScreenVM(
             notification = notification,
             notificationPermission = notificationPermission,
             activePlanNotificationsCount = activePlanNotificationsCount,
-            liveNotification = liveNotification,
-            separateUpDown = separateUpDown,
             speedThreshold = speedThreshold,
             speedThresholdKb = speedThresholdKb,
             speedBits = speedBits,
             modeAOD = modeAOD,
             forceFallback = forceFallback,
             doesFallbackWork = doesFallbackWork,
+            notificationType = notificationType,
         )
     }
 
@@ -71,12 +74,8 @@ class SpeedNotificationScreenVM(
         viewModelScope.launch { appPreferenceRepo.setNotification(value) }
     }
 
-    fun setLiveNotification(value: Boolean) {
-        viewModelScope.launch { appPreferenceRepo.setLiveNotification(value) }
-    }
-
-    fun setSeparateUpDown(value: Boolean) {
-        viewModelScope.launch { appPreferenceRepo.setSeparateUpDown(value) }
+    fun setNotificationType(value: SpeedNotificationType) {
+        viewModelScope.launch { appPreferenceRepo.setNotificationType(value) }
     }
 
     fun setSpeedThreshold(value: Boolean) {

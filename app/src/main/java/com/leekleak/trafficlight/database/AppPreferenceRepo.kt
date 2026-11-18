@@ -11,6 +11,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.leekleak.core.ui.theme.Theme
 import com.leekleak.core.util.valueOfOrNull
 import com.leekleak.trafficlight.ui.overview.OverviewRange
+import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -39,14 +40,16 @@ class AppPreferenceRepo (
     val speedBits: Flow<Boolean> = data.map { it[SPEED_BITS] ?: false }.distinctUntilChanged()
     suspend fun setSpeedBits(value: Boolean) = dataStore.edit { it[SPEED_BITS] = value }
 
-    val separateUpDown: Flow<Boolean> = data.map { it[SEPARATE_UP_DOWN] ?: false }.distinctUntilChanged()
-    suspend fun setSeparateUpDown(value: Boolean) = dataStore.edit { it[SEPARATE_UP_DOWN] = value }
+    val notificationType: Flow<SpeedNotificationType> = data
+        .map { prefs ->
+            prefs[NOTIFICATION_TYPE]?.let { valueOfOrNull<SpeedNotificationType>(it) }
+                ?: SpeedNotificationType.Classic
+        }
+        .distinctUntilChanged()
+    suspend fun setNotificationType(value: SpeedNotificationType) = dataStore.edit { it[NOTIFICATION_TYPE] = value.name }
 
     val forceFallback: Flow<Boolean> = data.map { it[FORCE_FALLBACK] ?: false }.distinctUntilChanged()
     suspend fun setForceFallback(value: Boolean) = dataStore.edit { it[FORCE_FALLBACK] = value }
-
-    val liveNotification: Flow<Boolean> = data.map { it[LIVE_NOTIFICATION] ?: false }.distinctUntilChanged()
-    suspend fun setLiveNotification(value: Boolean) = dataStore.edit { it[LIVE_NOTIFICATION] = value }
 
     val overlay: Flow<Boolean> = data.map { it[OVERLAY] ?: false }.distinctUntilChanged()
     suspend fun setOverlay(value: Boolean) = dataStore.edit { it[OVERLAY] = value }
@@ -84,11 +87,10 @@ class AppPreferenceRepo (
 
     private companion object {
         private val NOTIFICATION = booleanPreferencesKey("notification")
-        private val LIVE_NOTIFICATION = booleanPreferencesKey("live_notification")
+        private val NOTIFICATION_TYPE = stringPreferencesKey("notification_type")
         private val OVERLAY = booleanPreferencesKey("overlay")
         private val MODE_AOD = booleanPreferencesKey("mode_aod")
         private val SPEED_BITS = booleanPreferencesKey("speed_bits")
-        private val SEPARATE_UP_DOWN = booleanPreferencesKey("separate_up_down")
         private val FORCE_FALLBACK = booleanPreferencesKey("force_fallback")
         private val SPEED_THRESHOLD = booleanPreferencesKey("speed_threshold")
         private val SPEED_THRESHOLD_KB = longPreferencesKey("speed_threshold_kb")

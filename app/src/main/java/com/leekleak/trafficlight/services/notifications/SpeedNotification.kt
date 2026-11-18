@@ -21,6 +21,7 @@ import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.clipAndPad
 import com.leekleak.core.util.toKb
+import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.InjectedParam
@@ -65,10 +66,11 @@ class SpeedNotification(
             appPreferenceRepo.speedBits.collect { inBits = it; updateNotification(true) }
         }
         scope.launch {
-            appPreferenceRepo.separateUpDown.collect { separateUpDown = it; updateNotification(true) }
-        }
-        scope.launch {
-            appPreferenceRepo.liveNotification.collect { liveNotification = it; updateNotification(true) }
+            appPreferenceRepo.notificationType.collect { type ->
+                liveNotification = type == SpeedNotificationType.Live
+                separateUpDown = type == SpeedNotificationType.Split
+                updateNotification(true)
+            }
         }
         scope.launch {
             appPreferenceRepo.speedThreshold.collect { speedThreshold = it; updateNotification(true) }

@@ -31,7 +31,7 @@ import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataPlanSnapshot
 import com.leekleak.trafficlight.model.DataPlanManager
 import com.leekleak.trafficlight.ui.plans.DataPlanCard
-import com.leekleak.trafficlight.ui.theme.AppTheme
+import com.leekleak.trafficlight.ui.theme.AppThemeWrapper
 import com.leekleak.trafficlight.widget.Widget.Companion.CARRIER_NAME
 import com.leekleak.trafficlight.widget.Widget.Companion.SIM_NUMBER
 import com.leekleak.trafficlight.widget.Widget.Companion.SUBSCRIBER_ID_HASH
@@ -55,7 +55,7 @@ class WidgetConfigureActivity : ComponentActivity() {
         setResult(RESULT_CANCELED, resultValue)
 
         setContent {
-            AppTheme(appPreferenceRepo) {
+            AppThemeWrapper(appPreferenceRepo) {
                 Scaffold { paddingValues ->
                     Content(appWidgetId, resultValue, paddingValues)
                 }

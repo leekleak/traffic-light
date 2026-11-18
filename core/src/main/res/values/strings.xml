@@ -109,6 +109,9 @@
     <string name="list">List</string>
     <string name="reset">Reset</string>
     <string name="live_notification">Live Notification</string>
+    <string name="notification_type_classic">Classic</string>
+    <string name="notification_type_split">Split</string>
+    <string name="notification_type_live">Live</string>
     <string name="very_big">Very big</string>
     <string name="plan_notification_description">Track plan usage in the status bar.</string>
     <string name="budget_overshoot_warning">Budget Warning</string>

@@ -30,9 +30,11 @@ dependencies {
     api(libs.androidx.compose.material3)
     api(libs.androidx.navigation3.runtime)
     api(libs.haze)
+    implementation(libs.androidx.compose.ui.tooling.preview)
 
     implementation(libs.haze.blur)
     implementation(libs.haze.blur.materials)
     implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.serialization.json)
+    debugImplementation(libs.androidx.compose.ui.tooling)
 }
