@@ -386,9 +386,7 @@ private fun NotificationTypeSelector(
     }
 
     Column(
-        modifier = Modifier
-            .card()
-            .padding(8.dp)
+        modifier = Modifier.card()
     ) {
         HorizontalPager(
             modifier = Modifier.fillMaxWidth(),
@@ -399,45 +397,40 @@ private fun NotificationTypeSelector(
         }
         val type = types[pagerState.currentPage]
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally),
-                verticalAlignment = Alignment.CenterVertically
+            IconButton(
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                    scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
+                },
+                enabled = pagerState.currentPage != 0,
+                colors = highIconButtonColors(),
             ) {
-                IconButton(
-                    onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-                        scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
-                    },
-                    enabled = pagerState.currentPage != 0,
-                    colors = highIconButtonColors(),
-                ) {
-                    Icon(
-                        modifier = Modifier.padding(8.dp),
-                        painter = painterResource(R.drawable.arrow_back),
-                        contentDescription = stringResource(R.string.go_back)
-                    )
-                }
-                Text(
-                    modifier = Modifier.width(92.dp),
-                    text = type.label(),
-                    fontFamily = font,
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMedium,
+                Icon(
+                    modifier = Modifier.padding(8.dp),
+                    painter = painterResource(R.drawable.arrow_back),
+                    contentDescription = stringResource(R.string.go_back)
                 )
-                IconButton(
-                    onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-                        scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
-                    },
-                    enabled = pagerState.currentPage != pagerState.pageCount - 1,
-                    colors = highIconButtonColors(),
-                ) {
-                    Icon(painterResource(R.drawable.arrow_forward), stringResource(R.string.go_back))
-                }
+            }
+            Text(
+                modifier = Modifier.width(92.dp),
+                text = type.label(),
+                fontFamily = font,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleMedium,
+            )
+            IconButton(
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                    scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+                },
+                enabled = pagerState.currentPage != pagerState.pageCount - 1,
+                colors = highIconButtonColors(),
+            ) {
+                Icon(painterResource(R.drawable.arrow_forward), stringResource(R.string.go_back))
             }
         }
     }
@@ -476,7 +469,7 @@ private fun LiveNotificationHelpButton(
 ) {
     val activity = LocalActivity.current
     IconButton(
-        modifier = modifier,
+        modifier = modifier.padding(4.dp),
         colors = highIconButtonColors(),
         onClick = {
             openLink(

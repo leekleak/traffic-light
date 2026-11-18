@@ -10,9 +10,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 
 @Composable
 fun SlideAnimatedVisibility(
@@ -24,7 +26,7 @@ fun SlideAnimatedVisibility(
 
     AnimatedVisibility(
         visibleState = visibleState,
-        modifier = modifier,
+        modifier = modifier.clip(MaterialTheme.shapes.medium),
         enter = fadeIn(tween()) + slideInVertically() + expandVertically(),
         exit = fadeOut(tween()) + slideOutVertically() + shrinkVertically(),
         content = content
