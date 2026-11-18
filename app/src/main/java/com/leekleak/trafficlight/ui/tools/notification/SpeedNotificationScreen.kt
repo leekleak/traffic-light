@@ -15,7 +15,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
@@ -35,6 +35,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -43,12 +45,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.leekleak.core.R
@@ -71,6 +77,7 @@ import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.openLink
 import com.leekleak.trafficlight.services.notifications.SpeedNotification
+import kotlinx.coroutines.launch
 import kotlin.math.pow
 
 @Composable
@@ -333,10 +340,23 @@ private fun NotificationAppearanceSettings(
 }
 
 @Composable
+fun highIconButtonColors(): IconButtonColors {
+    return IconButtonDefaults.iconButtonColors(
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
+@Composable
 private fun NotificationTypeSelector(
     selected: SpeedNotificationType,
     onSelect: (SpeedNotificationType) -> Unit,
 ) {
+    val scope = rememberCoroutineScope()
+    val haptic = LocalHapticFeedback.current
+
     val font = remember { googleSans(600f) }
     val types = remember {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) SpeedNotificationType.entries
@@ -346,16 +366,20 @@ private fun NotificationTypeSelector(
         initialPage = types.indexOf(selected).coerceAtLeast(0),
         pageCount = { types.size },
     )
-
-    LaunchedEffect(pagerState.settledPage, selected) {
-        val type = types.getOrNull(pagerState.settledPage) ?: return@LaunchedEffect
-        if (type != selected) onSelect(type)
-    }
+    var ignoreSelection by remember { mutableStateOf(false) }
 
     LaunchedEffect(selected) {
         val index = types.indexOf(selected)
-        if (index >= 0 && index != pagerState.currentPage) {
-            pagerState.animateScrollToPage(index)
+        if (index >= 0 && index != pagerState.currentPage && !ignoreSelection) {
+            pagerState.scrollToPage(index)
+        }
+    }
+
+    LaunchedEffect(pagerState.settledPage) {
+        val type = types.getOrNull(pagerState.settledPage) ?: return@LaunchedEffect
+        if (type != selected) {
+            onSelect(type)
+            ignoreSelection = true
         }
     }
 
@@ -369,30 +393,47 @@ private fun NotificationTypeSelector(
         ) { page ->
             NotificationTypeCard(type = types[page])
         }
+        val type = types[pagerState.currentPage]
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(
-                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest, MaterialTheme.shapes.extraLargeIncreased),
-                onClick = {},
-                shape = MaterialTheme.shapes.extraLargeIncreased
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(painterResource(R.drawable.arrow_back), stringResource(R.string.go_back))
-            }
-            val type = types[pagerState.currentPage]
-            Text(
-                text = type.label(),
-                fontFamily = font,
-                style = MaterialTheme.typography.titleMedium,
-            )
-            IconButton(
-                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest, MaterialTheme.shapes.extraLargeIncreased),
-                onClick = {},
-                shape = MaterialTheme.shapes.extraLargeIncreased
-            ) {
-                Icon(painterResource(R.drawable.arrow_forward), stringResource(R.string.go_back))
+                IconButton(
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                        scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
+                    },
+                    enabled = pagerState.currentPage != 0,
+                    colors = highIconButtonColors(),
+                ) {
+                    Icon(
+                        modifier = Modifier.padding(8.dp),
+                        painter = painterResource(R.drawable.arrow_back),
+                        contentDescription = stringResource(R.string.go_back)
+                    )
+                }
+                Text(
+                    modifier = Modifier.width(92.dp),
+                    text = type.label(),
+                    fontFamily = font,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                IconButton(
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                        scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+                    },
+                    enabled = pagerState.currentPage != pagerState.pageCount - 1,
+                    colors = highIconButtonColors(),
+                ) {
+                    Icon(painterResource(R.drawable.arrow_forward), stringResource(R.string.go_back))
+                }
             }
         }
     }
@@ -409,8 +450,30 @@ private fun NotificationTypeCard(
         when (type) {
             SpeedNotificationType.Classic -> SpeedIconPreview(Modifier.size(92.dp))
             SpeedNotificationType.Split -> SeparateSpeedIconPreview(Modifier.size(92.dp))
-            SpeedNotificationType.Live -> LiveNotificationPreview()
+            SpeedNotificationType.Live -> {
+                LiveNotificationHelpButton(Modifier.align(Alignment.TopEnd))
+                LiveNotificationPreview()
+            }
         }
+    }
+}
+
+@Composable
+private fun LiveNotificationHelpButton(
+    modifier: Modifier = Modifier,
+) {
+    val activity = LocalActivity.current
+    IconButton(
+        modifier = modifier,
+        colors = highIconButtonColors(),
+        onClick = {
+            openLink(
+                activity,
+                "https://github.com/leekleak/traffic-light/wiki/Troubleshooting#notifications"
+            )
+        },
+    ) {
+        Icon(painterResource(R.drawable.help), stringResource(R.string.help))
     }
 }
 
