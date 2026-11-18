@@ -13,21 +13,9 @@ import com.leekleak.core.ui.theme.AppTheme
     uiMode = Configuration.UI_MODE_NIGHT_NO
 )
 @Preview(
-    name = "Landscape - Light",
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-    device = "spec:width=673dp,height=841dp"
-)
-@Preview(
     name = "Portrait - Dark",
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_YES
-)
-@Preview(
-    name = "Landscape - Dark",
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    device = "spec:width=673dp,height=841dp"
 )
 @PreviewWrapper(ScreenPreviewWrapper::class)
 annotation class ScreenPreview
