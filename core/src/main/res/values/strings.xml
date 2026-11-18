@@ -230,4 +230,6 @@
     <string name="aggregate_stats">Aggregate stats</string>
     <string name="no_web_browser_installed">No web browser installed</string>
     <string name="overlay">Overlay</string>
+    <string name="info">Info</string>
+    <string name="live_speed_notification_warning">Live speed notification is only visible while the app is closed.</string>
 </resources>

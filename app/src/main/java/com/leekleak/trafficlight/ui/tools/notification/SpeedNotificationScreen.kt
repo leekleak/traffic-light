@@ -61,10 +61,12 @@ import com.leekleak.core.R
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.CategoryTitleSmallText
 import com.leekleak.core.ui.components.HazeScaffold
+import com.leekleak.core.ui.components.InfoCard
 import com.leekleak.core.ui.components.LiveNotificationPreview
 import com.leekleak.core.ui.components.NotificationWarningDialog
 import com.leekleak.core.ui.components.ScreenPreview
 import com.leekleak.core.ui.components.SeparateSpeedIconPreview
+import com.leekleak.core.ui.components.SlideAnimatedVisibility
 import com.leekleak.core.ui.components.SpeedIconPreview
 import com.leekleak.core.ui.components.preference.IconPreference
 import com.leekleak.core.ui.components.preference.NavigatePreference
@@ -384,7 +386,9 @@ private fun NotificationTypeSelector(
     }
 
     Column(
-        modifier = Modifier.card().padding(8.dp)
+        modifier = Modifier
+            .card()
+            .padding(8.dp)
     ) {
         HorizontalPager(
             modifier = Modifier.fillMaxWidth(),
@@ -436,6 +440,14 @@ private fun NotificationTypeSelector(
                 }
             }
         }
+    }
+
+    SlideAnimatedVisibility(types[pagerState.currentPage] == SpeedNotificationType.Live) {
+        InfoCard(
+            title = stringResource(R.string.info),
+            description = stringResource(R.string.live_speed_notification_warning),
+            icon = painterResource(R.drawable.info),
+        )
     }
 }
 

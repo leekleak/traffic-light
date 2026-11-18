@@ -22,7 +22,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.leekleak.core.R
+import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.core.util.NotificationIconRenderer
+import com.leekleak.core.util.toSp
 
 @Composable
 fun SpeedIconPreview(
@@ -61,24 +63,27 @@ fun LiveNotificationPreview(
     modifier: Modifier = Modifier,
     text: String = "3.9 MB/s",
 ) {
+    val font = remember { googleSans() }
     Row(
         modifier = modifier
+            .padding(top = 12.dp) // off-center as the visual centered is pulled down by the help icon
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .padding(horizontal = 24.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             modifier = Modifier
                 .padding(end = 6.dp)
-                .size(18.dp),
+                .size(42.dp),
             painter = painterResource(R.drawable.mobiledata_arrows),
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = MaterialTheme.colorScheme.onSurface,
         )
         Text(
             text = text,
-            style = MaterialTheme.typography.labelLarge,
+            fontFamily = font,
+            fontSize = 26.dp.toSp,
             color = MaterialTheme.colorScheme.onSurface,
         )
     }
