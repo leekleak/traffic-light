@@ -34,7 +34,6 @@
     <string name="app_name">Traffic Light：ネットワークトラッカー</string>
     <string name="behavior">行動</string>
     <string name="appearance">外観</string>
-    <string name="shizuku_not_running">Shizukuが起動していません</string>
     <string name="sim_card">SIMカード</string>
     <string name="data_plans">データプラン</string>
     <string name="configure_plan">プランを構成する</string>
