@@ -369,7 +369,7 @@ private fun NotificationAccentPreference(
     onValueChanged: (NotificationAccent) -> Unit,
 ) {
     Column(
-        modifier = Modifier.card().padding(8.dp).selectableGroup(),
+        modifier = Modifier.padding(vertical = 2.dp).card().padding(8.dp).selectableGroup(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Row(
@@ -522,7 +522,7 @@ private fun NotificationTypeSelector(
     }
 
     Column(
-        modifier = Modifier.padding(vertical = 4.dp).card()
+        modifier = Modifier.padding(vertical = 2.dp).card()
     ) {
         HorizontalPager(
             modifier = Modifier.fillMaxWidth(),

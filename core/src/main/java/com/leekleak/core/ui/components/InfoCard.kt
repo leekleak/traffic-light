@@ -57,7 +57,7 @@ fun InfoCard(
     Row (
         modifier = Modifier
             .height(IntrinsicSize.Max)
-            .padding(vertical = 4.dp),
+            .padding(vertical = 2.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
