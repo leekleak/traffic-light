@@ -11,6 +11,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.leekleak.core.ui.theme.Theme
 import com.leekleak.core.util.valueOfOrNull
 import com.leekleak.trafficlight.ui.overview.OverviewRange
+import com.leekleak.trafficlight.ui.tools.notification.NotificationAccent
 import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,6 +48,14 @@ class AppPreferenceRepo (
         }
         .distinctUntilChanged()
     suspend fun setNotificationType(value: SpeedNotificationType) = dataStore.edit { it[NOTIFICATION_TYPE] = value.name }
+
+    val notificationAccent: Flow<NotificationAccent> = data
+        .map { prefs ->
+            prefs[NOTIFICATION_ACCENT]?.let { valueOfOrNull<NotificationAccent>(it) }
+                ?: NotificationAccent.Default
+        }
+        .distinctUntilChanged()
+    suspend fun setNotificationAccent(value: NotificationAccent) = dataStore.edit { it[NOTIFICATION_ACCENT] = value.name }
 
     val forceFallback: Flow<Boolean> = data.map { it[FORCE_FALLBACK] ?: false }.distinctUntilChanged()
     suspend fun setForceFallback(value: Boolean) = dataStore.edit { it[FORCE_FALLBACK] = value }
@@ -88,6 +97,7 @@ class AppPreferenceRepo (
     private companion object {
         private val NOTIFICATION = booleanPreferencesKey("notification")
         private val NOTIFICATION_TYPE = stringPreferencesKey("notification_type")
+        private val NOTIFICATION_ACCENT = stringPreferencesKey("notification_accent")
         private val OVERLAY = booleanPreferencesKey("overlay")
         private val MODE_AOD = booleanPreferencesKey("mode_aod")
         private val SPEED_BITS = booleanPreferencesKey("speed_bits")

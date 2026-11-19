@@ -110,6 +110,7 @@ val navigationModule = module {
             setSpeedThreshold = viewModel::setSpeedThreshold,
             setSpeedThresholdKb = viewModel::setSpeedThresholdKb,
             setSpeedBits = viewModel::setSpeedBits,
+            setNotificationAccent = viewModel::setNotificationAccent,
             setModeAOD = viewModel::setModeAOD,
             setForceFallback = viewModel::setForceFallback,
         )

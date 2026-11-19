@@ -1,5 +1,7 @@
 package com.leekleak.core.ui.theme
 
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -36,7 +38,10 @@ enum class Theme {
     @Composable
     fun getColors(): ColorScheme {
         val context = LocalContext.current
-        val darkTheme = isSystemInDarkTheme()
+        return getColors(context, isSystemInDarkTheme())
+    }
+
+    fun getColors(context: Context, darkTheme: Boolean): ColorScheme {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             return when (this) {
                 AutoMaterial -> if (darkTheme) darkColorScheme() else lightColorScheme()
@@ -68,11 +73,19 @@ enum class Theme {
     }
 
     @Composable
-    fun isDark(): Boolean {
-        val darkTheme = isSystemInDarkTheme()
+    fun isDark(): Boolean = isDark(isSystemInDarkTheme())
+
+    fun isDark(context: Context): Boolean {
+        val systemDarkTheme =
+            (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+                Configuration.UI_MODE_NIGHT_YES
+        return isDark(systemDarkTheme)
+    }
+
+    private fun isDark(systemDarkTheme: Boolean): Boolean {
         return (
-            darkTheme && this == AutoMaterial ||
-            darkTheme && this == Auto ||
+            systemDarkTheme && this == AutoMaterial ||
+            systemDarkTheme && this == Auto ||
             this == DarkMaterial ||
             this == Dark
         )

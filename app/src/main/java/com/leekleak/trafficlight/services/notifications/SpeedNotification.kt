@@ -7,10 +7,16 @@ import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.DeadSystemException
+import androidx.compose.material3.ColorScheme
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleCoroutineScope
-import com.leekleak.trafficlight.MainActivity
 import com.leekleak.core.R
+import com.leekleak.core.ui.theme.Theme
+import com.leekleak.core.util.DataSize
+import com.leekleak.core.util.clipAndPad
+import com.leekleak.core.util.toKb
+import com.leekleak.trafficlight.MainActivity
 import com.leekleak.trafficlight.database.AppPreferenceRepo
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DayUsage
@@ -18,9 +24,7 @@ import com.leekleak.trafficlight.database.TrafficSnapshot
 import com.leekleak.trafficlight.database.TrafficSnapshotManager
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.NetworkUsageManager
-import com.leekleak.core.util.DataSize
-import com.leekleak.core.util.clipAndPad
-import com.leekleak.core.util.toKb
+import com.leekleak.trafficlight.ui.tools.notification.NotificationAccent
 import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -54,6 +58,10 @@ class SpeedNotification(
     private var speedThresholdKb = -1L
     private var speedMetric = false
     private var sizeMetric = false
+    private var theme = Theme.AutoMaterial
+    private var accent = NotificationAccent.Default
+    private var cachedSchemeKey: Pair<Theme, Boolean>? = null
+    private var cachedScheme: ColorScheme? = null
     private var todayUsage = DayUsage()
 
     @Volatile private var speedSnapshot: TrafficSnapshot = TrafficSnapshot(0, 0, emptySet())
@@ -83,6 +91,12 @@ class SpeedNotification(
         }
         scope.launch {
             appPreferenceRepo.sizeMetric.collect { sizeMetric = it; updateNotification(true) }
+        }
+        scope.launch {
+            appPreferenceRepo.theme.collect { theme = it; updateNotification(true) }
+        }
+        scope.launch {
+            appPreferenceRepo.notificationAccent.collect { accent = it; updateNotification(true) }
         }
         updateBaseNotification()
     }
@@ -180,6 +194,7 @@ class SpeedNotification(
                     }
                 }
             )
+            .setColor(accentColor())
             .setRequestPromotedOngoing(liveNotification && !shouldGoSilent())
             .apply {
                 if (!liveNotification) {
@@ -207,6 +222,26 @@ class SpeedNotification(
             .setContentText(messageShort)
             .build()
         notifySafely(notificationId, notification)
+    }
+
+    private fun accentColor(): Int {
+        val color = when (accent) {
+            NotificationAccent.Primary -> colorScheme().primary
+            NotificationAccent.Secondary -> colorScheme().secondary
+            NotificationAccent.Tertiary -> colorScheme().tertiary
+            NotificationAccent.Default -> return NotificationCompat.COLOR_DEFAULT
+        }
+        return color.toArgb()
+    }
+
+    private fun colorScheme(): ColorScheme {
+        val dark = theme.isDark(context)
+        val key = theme to dark
+        return cachedScheme?.takeIf { cachedSchemeKey == key }
+            ?: theme.getColors(context, dark).also {
+                cachedSchemeKey = key
+                cachedScheme = it
+            }
     }
 
     private suspend fun updateTodayUsage() {

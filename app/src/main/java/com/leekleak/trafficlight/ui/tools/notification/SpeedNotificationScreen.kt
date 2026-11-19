@@ -8,18 +8,26 @@ import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,6 +38,8 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -50,10 +60,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -91,6 +106,7 @@ fun SpeedNotificationScreen(
     setSpeedThreshold: (Boolean) -> Unit,
     setSpeedThresholdKb: (Long) -> Unit,
     setSpeedBits: (Boolean) -> Unit,
+    setNotificationAccent: (NotificationAccent) -> Unit,
     setModeAOD: (Boolean) -> Unit,
     setForceFallback: (Boolean) -> Unit,
 ) {
@@ -120,6 +136,7 @@ fun SpeedNotificationScreen(
         NotificationAppearanceSettings(
             uiState = uiState,
             setSpeedBits = setSpeedBits,
+            setNotificationAccent = setNotificationAccent,
         )
         Button(
             modifier = Modifier,
@@ -328,6 +345,7 @@ private fun BehaviorSettings(
 private fun NotificationAppearanceSettings(
     uiState: NotificationSettingsUiState,
     setSpeedBits: (Boolean) -> Unit,
+    setNotificationAccent: (NotificationAccent) -> Unit,
 ) {
     CategoryTitleSmallText(stringResource(R.string.appearance))
 
@@ -338,6 +356,125 @@ private fun NotificationAppearanceSettings(
         value = uiState.speedBits,
         onValueChanged = setSpeedBits
     )
+
+    NotificationAccentPreference(
+        value = uiState.notificationAccent,
+        onValueChanged = setNotificationAccent,
+    )
+}
+
+@Composable
+private fun NotificationAccentPreference(
+    value: NotificationAccent,
+    onValueChanged: (NotificationAccent) -> Unit,
+) {
+    Column(
+        modifier = Modifier.card().padding(8.dp).selectableGroup(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(modifier = Modifier.width(56.dp), painter = painterResource(R.drawable.palette), contentDescription = null)
+            Text(
+                modifier = Modifier.padding(),
+                text = stringResource(R.string.background_color),
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
+        Row {
+            NotificationAccentButton(NotificationAccent.Default, value, onValueChanged)
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            NotificationAccentButton(NotificationAccent.Primary, value, onValueChanged)
+            NotificationAccentButton(NotificationAccent.Secondary, value, onValueChanged)
+            NotificationAccentButton(NotificationAccent.Tertiary, value, onValueChanged)
+        }
+    }
+}
+
+
+@Composable
+private fun RowScope.NotificationAccentButton(
+    color: NotificationAccent,
+    value: NotificationAccent,
+    onValueChanged: (NotificationAccent) -> Unit
+){
+    val haptic = LocalHapticFeedback.current
+    val selected = value == color
+    val label = color.label()
+    val borderColor by animateColorAsState(if (selected) color.onColor() else color.onColor().copy(alpha = 0.2f))
+    Box(
+        modifier = Modifier.weight(1f)
+            .height(52.dp)
+            .border(
+                width = 2.dp,
+                color = borderColor,
+                shape = MaterialTheme.shapes.large
+            )
+            .clip(MaterialTheme.shapes.large)
+            .background(color.color(), shape = MaterialTheme.shapes.large)
+            .semantics {
+                if (color != NotificationAccent.Default) contentDescription = label
+            }
+            .selectable(
+                selected = selected,
+                role = Role.RadioButton,
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                    onValueChanged(color)
+                },
+            ),
+    ) {
+        Row(
+            modifier = Modifier.align(Alignment.Center),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AnimatedVisibility (
+                visible = selected,
+                enter = fadeIn(tween()) + scaleIn() + expandHorizontally(),
+                exit = fadeOut(tween()) + scaleOut() + shrinkHorizontally()
+            ) {
+                Icon(
+                    modifier = Modifier.padding(8.dp),
+                    painter = painterResource(R.drawable.check_circle),
+                    contentDescription = null,
+                    tint = color.onColor()
+                )
+            }
+            if (color == NotificationAccent.Default) {
+                val font = remember { googleSans(600f) }
+                Text(text = label, fontFamily = font)
+            }
+        }
+    }
+}
+
+@Composable
+private fun NotificationAccent.label(): String = stringResource(
+    when (this) {
+        NotificationAccent.Primary -> R.string.primary
+        NotificationAccent.Secondary -> R.string.secondary
+        NotificationAccent.Tertiary -> R.string.tertiary
+        NotificationAccent.Default -> R.string.default_accent
+    }
+)
+
+@Composable
+private fun NotificationAccent.color(): Color = when (this) {
+    NotificationAccent.Primary -> MaterialTheme.colorScheme.primary
+    NotificationAccent.Secondary -> MaterialTheme.colorScheme.secondary
+    NotificationAccent.Tertiary -> MaterialTheme.colorScheme.tertiary
+    NotificationAccent.Default -> MaterialTheme.colorScheme.surface
+}
+
+@Composable
+private fun NotificationAccent.onColor(): Color = when (this) {
+    NotificationAccent.Primary -> MaterialTheme.colorScheme.onPrimary
+    NotificationAccent.Secondary -> MaterialTheme.colorScheme.onSecondary
+    NotificationAccent.Tertiary -> MaterialTheme.colorScheme.onTertiary
+    NotificationAccent.Default -> MaterialTheme.colorScheme.onSurface
 }
 
 @Composable
@@ -502,6 +639,7 @@ private fun SpeedNotificationScreenPreview() {
         setSpeedThreshold = {},
         setSpeedThresholdKb = {},
         setSpeedBits = {},
+        setNotificationAccent = {},
         setModeAOD = {},
         setForceFallback = {}
     )

@@ -22,6 +22,7 @@
     <string name="about">About</string>
     <string name="licenses" translatable="false">Licenses</string>
     <string name="speed_in_bits">Show speed in bits</string>
+    <string name="background_color">Background color</string>
     <string name="speed_unit">Speed unit</string>
     <string name="size_unit">Size unit</string>
     <string name="base_1024">Base 1024</string>
@@ -98,6 +99,8 @@
     <string name="none">None</string>
     <string name="primary">Primary</string>
     <string name="secondary">Secondary</string>
+    <string name="tertiary">Tertiary</string>
+    <string name="default_accent">Default</string>
     <string name="upload">Upload</string>
     <string name="download">Download</string>
     <string name="bidirectional">Bidirectional</string>

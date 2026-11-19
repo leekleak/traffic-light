@@ -25,12 +25,20 @@ data class NotificationSettingsUiState(
     val forceFallback: Boolean = false,
     val doesFallbackWork: Boolean = false,
     val notificationType: SpeedNotificationType = SpeedNotificationType.Classic,
+    val notificationAccent: NotificationAccent = NotificationAccent.Default,
 )
 
 enum class SpeedNotificationType {
     Classic,
     Split,
     Live
+}
+
+enum class NotificationAccent {
+    Default,
+    Primary,
+    Secondary,
+    Tertiary
 }
 
 class SpeedNotificationScreenVM(
@@ -45,6 +53,7 @@ class SpeedNotificationScreenVM(
     ) {
         val notification by appPreferenceRepo.notification.collectAsState(false)
         val notificationType by appPreferenceRepo.notificationType.collectAsState(SpeedNotificationType.Classic)
+        val notificationAccent by appPreferenceRepo.notificationAccent.collectAsState(NotificationAccent.Default)
         val speedThreshold by appPreferenceRepo.speedThreshold.collectAsState(false)
         val speedThresholdKb by appPreferenceRepo.speedThresholdKb.collectAsState(-1L)
         val speedBits by appPreferenceRepo.speedBits.collectAsState(false)
@@ -67,6 +76,7 @@ class SpeedNotificationScreenVM(
             forceFallback = forceFallback,
             doesFallbackWork = doesFallbackWork,
             notificationType = notificationType,
+            notificationAccent = notificationAccent,
         )
     }
 
@@ -76,6 +86,10 @@ class SpeedNotificationScreenVM(
 
     fun setNotificationType(value: SpeedNotificationType) {
         viewModelScope.launch { appPreferenceRepo.setNotificationType(value) }
+    }
+
+    fun setNotificationAccent(value: NotificationAccent) {
+        viewModelScope.launch { appPreferenceRepo.setNotificationAccent(value) }
     }
 
     fun setSpeedThreshold(value: Boolean) {
