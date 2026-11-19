@@ -32,7 +32,6 @@
         <item quantity="other">於%d日後重設</item>
     </plurals>
     <string name="mobile_data">行動網路</string>
-    <string name="shizuku_not_running">Shizuku 尚未啟動</string>
     <string name="force_fallback_description">在系統有問題，或使用有線網路時可能有幫助</string>
     <string name="fallback_unsupported">不支援後備方法</string>
     <string name="ui">使用者介面</string>
