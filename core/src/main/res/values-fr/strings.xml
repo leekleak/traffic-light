@@ -34,7 +34,6 @@
     <string name="unknown">Inconnu</string>
     <string name="appearance">Apparence</string>
     <string name="behavior">Comportement</string>
-    <string name="shizuku_not_running">Shizuku n\'est pas lancé</string>
     <string name="sim_card">Carte SIM</string>
     <string name="data_plans">Forfaits de données</string>
     <string name="configure_plan">Configurer le plan</string>
@@ -202,4 +201,10 @@
     <string name="overlay">Superposition</string>
     <string name="shizuku_permission_required">L\'autorisation Shizuku est requise</string>
     <string name="track_multiple_sim_cards">Suivre plusieurs cartes SIM</string>
+    <string name="shizuku_stopped">Shizuku stoppé</string>
+    <string name="notification_type_classic">Classique</string>
+    <string name="notification_type_split">Séparé</string>
+    <string name="notification_type_live">En direct</string>
+    <string name="info">Infos</string>
+    <string name="live_speed_notification_warning">La notification de vitesse en direct est seulement visible quand l\'application est fermée.</string>
 </resources>
