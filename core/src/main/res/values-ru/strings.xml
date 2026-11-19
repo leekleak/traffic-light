@@ -34,7 +34,6 @@
     <string name="unknown">Неизвестно</string>
     <string name="appearance">Внешний вид</string>
     <string name="behavior">Поведение</string>
-    <string name="shizuku_not_running">Shizuku не запущен</string>
     <string name="sim_card">SIM карта</string>
     <string name="data_plans">Тарифные планы</string>
     <string name="configure_plan">Настроить план</string>
