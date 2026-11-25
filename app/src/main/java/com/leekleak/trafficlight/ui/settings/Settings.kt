@@ -62,7 +62,7 @@ fun Settings(
 private fun AboutSettings(navigator: Navigator) {
     val activity = LocalActivity.current
 
-    CategoryTitleSmallText(stringResource(R.string.about))
+    CategoryTitleSmallText(stringResource(R.string.other))
 
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         NavigatePreference(

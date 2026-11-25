@@ -17,8 +17,10 @@ import com.leekleak.trafficlight.ui.settings.LibraryLicenseScreen
 import com.leekleak.trafficlight.ui.settings.Settings
 import com.leekleak.trafficlight.ui.settings.SettingsVM
 import com.leekleak.trafficlight.ui.tools.Tools
-import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationScreen
-import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationScreenVM
+import com.leekleak.trafficlight.ui.tools.notification.NotificationSettingsScreen
+import com.leekleak.trafficlight.ui.tools.notification.NotificationSettingsScreenVM
+import com.leekleak.trafficlight.ui.tools.notification.NotificationScreen
+import com.leekleak.trafficlight.ui.tools.notification.NotificationScreenVM
 import com.leekleak.trafficlight.ui.tools.overlay.OverlayScreen
 import com.leekleak.trafficlight.ui.tools.overlay.OverlayScreenVM
 import org.koin.compose.viewmodel.koinViewModel
@@ -101,17 +103,25 @@ val navigationModule = module {
         DataPlanConfig(LocalNavigator.current, viewModel)
     }
     navigation<NotificationSettingsKey> {
-        val viewModel: SpeedNotificationScreenVM = koinViewModel()
+        val viewModel: NotificationScreenVM = koinViewModel()
         val uiState by viewModel.uiState
-        SpeedNotificationScreen(
+        NotificationScreen(
             navigator = LocalNavigator.current,
             uiState = uiState,
             setNotification = viewModel::setNotification,
             setNotificationType = viewModel::setNotificationType,
-            setSpeedThreshold = viewModel::setSpeedThreshold,
-            setSpeedThresholdKb = viewModel::setSpeedThresholdKb,
             setSpeedBits = viewModel::setSpeedBits,
             setNotificationAccent = viewModel::setNotificationAccent,
+        )
+    }
+    navigation<NotificationAdvancedSettingsKey> {
+        val viewModel: NotificationSettingsScreenVM = koinViewModel()
+        val uiState by viewModel.uiState
+        NotificationSettingsScreen(
+            navigator = LocalNavigator.current,
+            uiState = uiState,
+            setSpeedThreshold = viewModel::setSpeedThreshold,
+            setSpeedThresholdKb = viewModel::setSpeedThresholdKb,
             setModeAOD = viewModel::setModeAOD,
             setForceFallback = viewModel::setForceFallback,
         )

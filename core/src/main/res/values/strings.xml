@@ -19,7 +19,7 @@
     <string name="screen_off_update_description">Allows tracking usage on the AOD, but impacts battery.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Mobile: %1$s</string>
-    <string name="about">About</string>
+    <string name="other">Other</string>
     <string name="licenses" translatable="false">Licenses</string>
     <string name="speed_in_bits">Show speed in bits</string>
     <string name="background_color">Background color</string>

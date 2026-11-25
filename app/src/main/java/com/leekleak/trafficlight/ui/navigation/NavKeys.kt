@@ -37,6 +37,8 @@ data class PlanConfigKey(val dataPlan: DataPlan) : NavKey
 @Serializable
 data object NotificationSettingsKey : NavKey
 @Serializable
+data object NotificationAdvancedSettingsKey : NavKey
+@Serializable
 data object OverlaySettingsKey : NavKey
 @Serializable
 data object LibraryLicenseScreen : NavKey
