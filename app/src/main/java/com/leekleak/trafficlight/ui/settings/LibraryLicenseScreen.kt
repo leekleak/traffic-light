@@ -32,15 +32,15 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.leekleak.core.R as CoreR
-import com.leekleak.trafficlight.R
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
 import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.ui.theme.card
 import com.leekleak.core.ui.theme.googleSans
+import com.leekleak.trafficlight.R
 import com.mikepenz.aboutlibraries.entity.Library
 import com.mikepenz.aboutlibraries.ui.compose.android.produceLibraries
+import com.leekleak.core.R as CoreR
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,7 +61,7 @@ fun LibraryLicenseScreen(navigator: Navigator) {
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
             contentPadding = paddingValues
         ) {
             item {  }
@@ -83,7 +83,7 @@ fun LibraryLicenseScreen(navigator: Navigator) {
                             fontFamily = fontHeavy
                         )
                         FlowRow (
-                            modifier = Modifier.padding(top = 4.dp),
+                            modifier = Modifier.padding(top = 8.dp),
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
                             verticalArrangement = Arrangement.spacedBy(6.dp)
                         ) {

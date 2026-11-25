@@ -28,7 +28,6 @@ import com.leekleak.core.ui.components.CategoryTitleSmallText
 import com.leekleak.core.ui.components.HazeScaffold
 import com.leekleak.core.ui.components.preference.DialogItemSelectPreference
 import com.leekleak.core.ui.components.preference.NavigatePreference
-import com.leekleak.core.ui.components.preference.NavigatePreferenceIcon
 import com.leekleak.core.ui.components.preference.SwitchPreference
 import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.ui.theme.Theme
@@ -64,23 +63,26 @@ private fun AboutSettings(navigator: Navigator) {
 
     CategoryTitleSmallText(stringResource(R.string.other))
 
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    NavigatePreference(
+        title = stringResource(R.string.donate),
+        icon = R.drawable.donate,
+        onClick = { openLink(activity, "https://github.com/sponsors/leekleak") },
+        showControl = false
+    )
+    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         NavigatePreference(
             modifier = Modifier.weight(1f),
-            title = stringResource(R.string.donate),
-            icon = R.drawable.donate,
-            onClick = { openLink(activity, "https://github.com/sponsors/leekleak") },
+            title = stringResource(R.string.github),
+            icon = R.drawable.github,
+            onClick = { openLink(activity, "https://github.com/leekleak/traffic-light") },
             showControl = false
         )
-        NavigatePreferenceIcon(
-            icon = R.drawable.github,
-            contentDescription = stringResource(R.string.github),
-            onClick = { openLink(activity, "https://github.com/leekleak/traffic-light") },
-        )
-        NavigatePreferenceIcon(
+        NavigatePreference(
+            modifier = Modifier.weight(1f),
+            title = stringResource(R.string.licenses),
             icon = R.drawable.gavel,
-            contentDescription = stringResource(R.string.licenses),
             onClick = { navigator.goTo(LibraryLicenseScreen) },
+            showControl = false
         )
     }
 
@@ -117,7 +119,7 @@ private fun InterfaceSettings(
     }
     Row(
         modifier = Modifier
-            .padding(vertical = 4.dp)
+            .padding(vertical = 2.dp)
             .fillMaxWidth()
             .card()
             .horizontalScroll(scroll)
@@ -151,7 +153,7 @@ private fun BasesSettings(
         true to stringResource(R.string.base_1000),
         false to stringResource(R.string.base_1024)
     )
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         DialogItemSelectPreference(
             modifier = Modifier.weight(1f),
             title = stringResource(R.string.speed_unit),
