@@ -29,10 +29,9 @@ fun IconPreference(
             .padding(vertical = 4.dp)
             .card()
             .clickable(enabled = enabled) { onClick.invoke() }
-            .alpha(if (enabled) 1f else 0.38f),
     ) {
         Icon(
-            modifier = Modifier.align(Alignment.Center),
+            modifier = Modifier.align(Alignment.Center).alpha(if (enabled) 1f else 0.38f),
             painter = painterResource(icon),
             contentDescription = title
         )

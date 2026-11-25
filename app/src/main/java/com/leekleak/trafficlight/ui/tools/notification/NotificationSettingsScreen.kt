@@ -3,16 +3,7 @@ package com.leekleak.trafficlight.ui.tools.notification
 import android.content.Intent
 import android.provider.Settings
 import androidx.activity.compose.LocalActivity
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
@@ -94,46 +85,41 @@ private fun NotificationChannelSettings(
         }
     }
 
-    AnimatedVisibility(
-        visible = uiState.speedThreshold,
-        enter = fadeIn(tween()) + slideInVertically() + expandVertically(),
-        exit = fadeOut(tween()) + slideOutVertically() + shrinkVertically()
+    SliderPreference(
+        modifierLabelText = Modifier.widthIn(min = 128.dp),
+        title = stringResource(R.string.threshold),
+        icon = R.drawable.horizontal_align_right,
+        value = uiState.speedThresholdKb,
+        values = values,
+        enabled = uiState.speedThreshold,
+        onValueChanged = setSpeedThresholdKb
+    )
+    Row(
+        modifier = Modifier.height(IntrinsicSize.Min),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Column {
-            SliderPreference(
-                modifierLabelText = Modifier.widthIn(min = 128.dp),
-                title = stringResource(R.string.threshold),
-                icon = R.drawable.horizontal_align_right,
-                value = uiState.speedThresholdKb,
-                values = values,
-                onValueChanged = setSpeedThresholdKb
-            )
-            Row(
-                modifier = Modifier.height(IntrinsicSize.Min),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                IconPreference(
-                    title = stringResource(R.string.notification_channels),
-                    icon = R.drawable.notification_settings,
-                    onClick = {
-                        val intent: Intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
-                            .putExtra(Settings.EXTRA_APP_PACKAGE, activity?.packageName)
-                            .putExtra(Settings.EXTRA_CHANNEL_ID, SpeedNotification.NOTIFICATION_CHANNEL_ID_SILENT)
-                        activity?.startActivity(intent)
-                    },
+        IconPreference(
+            title = stringResource(R.string.notification_channels),
+            icon = R.drawable.notification_settings,
+            enabled = uiState.speedThreshold,
+            onClick = {
+                val intent: Intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+                    .putExtra(Settings.EXTRA_APP_PACKAGE, activity?.packageName)
+                    .putExtra(Settings.EXTRA_CHANNEL_ID, SpeedNotification.NOTIFICATION_CHANNEL_ID_SILENT)
+                activity?.startActivity(intent)
+            },
+        )
+        NavigatePreference(
+            title = stringResource(R.string.doesn_t_work),
+            icon = R.drawable.help,
+            enabled = uiState.speedThreshold,
+            onClick = {
+                openLink(
+                    activity,
+                    "https://github.com/leekleak/traffic-light/wiki/Troubleshooting#notification-doesnt-get-silenced"
                 )
-                NavigatePreference(
-                    title = stringResource(R.string.doesn_t_work),
-                    icon = R.drawable.help,
-                    onClick = {
-                        openLink(
-                            activity,
-                            "https://github.com/leekleak/traffic-light/wiki/Troubleshooting#notification-doesnt-get-silenced"
-                        )
-                    },
-                )
-            }
-        }
+            },
+        )
     }
 }
 

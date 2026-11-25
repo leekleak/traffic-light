@@ -52,8 +52,7 @@ fun SliderPreference(
            .fillMaxWidth()
            .padding(vertical = 4.dp)
            .card()
-           .padding(start = 8.dp, end = 16.dp, bottom = 4.dp)
-           .alpha(if (enabled) 1f else 0.38f),
+           .padding(start = 8.dp, end = 16.dp, bottom = 4.dp),
        modifierLabelText = modifierLabelText,
        title = title,
        icon = icon,
