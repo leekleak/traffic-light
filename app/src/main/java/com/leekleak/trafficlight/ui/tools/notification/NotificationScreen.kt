@@ -46,6 +46,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -93,19 +94,23 @@ fun NotificationScreen(
         verticalArrangement = Arrangement.Top
     ) {
         OnOffSetting(uiState, setNotification)
+        val notificationsEnabled = uiState.notification && uiState.notificationPermission
         NotificationTypeSelector(
             selected = uiState.notificationType,
             onSelect = setNotificationType,
+            enabled = notificationsEnabled,
         )
         NotificationAppearanceSettings(
             uiState = uiState,
             setSpeedBits = setSpeedBits,
             setNotificationAccent = setNotificationAccent,
+            enabled = notificationsEnabled,
         )
         CategoryTitleSmallText(stringResource(R.string.other))
         NavigatePreference(
             title = stringResource(R.string.advanced_settings),
             icon = R.drawable.settings,
+            enabled = notificationsEnabled,
             onClick = { navigator.goTo(NotificationAdvancedSettingsKey) }
         )
     }
@@ -170,6 +175,7 @@ private fun NotificationAppearanceSettings(
     uiState: NotificationScreenUiState,
     setSpeedBits: (Boolean) -> Unit,
     setNotificationAccent: (NotificationAccent) -> Unit,
+    enabled: Boolean,
 ) {
     CategoryTitleSmallText(stringResource(R.string.appearance))
 
@@ -178,12 +184,14 @@ private fun NotificationAppearanceSettings(
         summary = null,
         icon = R.drawable.speed,
         value = uiState.speedBits,
+        enabled = enabled,
         onValueChanged = setSpeedBits
     )
 
     NotificationAccentPreference(
         value = uiState.notificationAccent,
         onValueChanged = setNotificationAccent,
+        enabled = enabled,
     )
 }
 
@@ -191,16 +199,29 @@ private fun NotificationAppearanceSettings(
 private fun NotificationAccentPreference(
     value: NotificationAccent,
     onValueChanged: (NotificationAccent) -> Unit,
+    enabled: Boolean,
 ) {
     Column(
-        modifier = Modifier.padding(vertical = 2.dp).card().padding(8.dp).selectableGroup(),
+        modifier = Modifier
+            .padding(vertical = 2.dp)
+            .card()
+            .alpha(if (enabled) 1f else 0.38f)
+            .padding(8.dp)
+            .selectableGroup(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Row(
             modifier = Modifier.padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(modifier = Modifier.width(56.dp), painter = painterResource(R.drawable.palette), contentDescription = null)
+            Box(
+                modifier = Modifier
+                    .width(56.dp)
+                    .padding(end = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(painterResource(R.drawable.palette), contentDescription = null)
+            }
             Text(
                 modifier = Modifier.padding(),
                 text = stringResource(R.string.background_color),
@@ -208,12 +229,12 @@ private fun NotificationAccentPreference(
             )
         }
         Row {
-            NotificationAccentButton(NotificationAccent.Default, value, onValueChanged)
+            NotificationAccentButton(NotificationAccent.Default, value, onValueChanged, enabled)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            NotificationAccentButton(NotificationAccent.Primary, value, onValueChanged)
-            NotificationAccentButton(NotificationAccent.Secondary, value, onValueChanged)
-            NotificationAccentButton(NotificationAccent.Tertiary, value, onValueChanged)
+            NotificationAccentButton(NotificationAccent.Primary, value, onValueChanged, enabled)
+            NotificationAccentButton(NotificationAccent.Secondary, value, onValueChanged, enabled)
+            NotificationAccentButton(NotificationAccent.Tertiary, value, onValueChanged, enabled)
         }
     }
 }
@@ -223,7 +244,8 @@ private fun NotificationAccentPreference(
 private fun RowScope.NotificationAccentButton(
     color: NotificationAccent,
     value: NotificationAccent,
-    onValueChanged: (NotificationAccent) -> Unit
+    onValueChanged: (NotificationAccent) -> Unit,
+    enabled: Boolean,
 ){
     val haptic = LocalHapticFeedback.current
     val selected = value == color
@@ -244,6 +266,7 @@ private fun RowScope.NotificationAccentButton(
             }
             .selectable(
                 selected = selected,
+                enabled = enabled,
                 role = Role.RadioButton,
                 onClick = {
                     haptic.performHapticFeedback(HapticFeedbackType.Confirm)
@@ -315,6 +338,7 @@ fun highIconButtonColors(): IconButtonColors {
 private fun NotificationTypeSelector(
     selected: SpeedNotificationType,
     onSelect: (SpeedNotificationType) -> Unit,
+    enabled: Boolean,
 ) {
     val scope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
@@ -345,13 +369,18 @@ private fun NotificationTypeSelector(
         }
     }
 
+    CategoryTitleSmallText(stringResource(R.string.type))
     Column(
-        modifier = Modifier.padding(vertical = 2.dp).card()
+        modifier = Modifier
+            .padding(vertical = 2.dp)
+            .card()
+            .alpha(if (enabled) 1f else 0.38f)
     ) {
         HorizontalPager(
             modifier = Modifier.fillMaxWidth(),
             state = pagerState,
             pageSize = PageSize.Fill,
+            userScrollEnabled = enabled,
         ) { page ->
             NotificationTypeCard(type = types[page])
         }
@@ -366,7 +395,7 @@ private fun NotificationTypeSelector(
                     haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                     scope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
                 },
-                enabled = pagerState.currentPage != 0,
+                enabled = enabled && pagerState.currentPage != 0,
                 colors = highIconButtonColors(),
             ) {
                 Icon(
@@ -387,7 +416,7 @@ private fun NotificationTypeSelector(
                     haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                     scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
                 },
-                enabled = pagerState.currentPage != pagerState.pageCount - 1,
+                enabled = enabled && pagerState.currentPage != pagerState.pageCount - 1,
                 colors = highIconButtonColors(),
             ) {
                 Icon(painterResource(R.drawable.arrow_forward), stringResource(R.string.go_back))
