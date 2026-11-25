@@ -51,10 +51,10 @@ class OverviewVM(
         val usage by produceState(0L, refresh, query, range) {
             value = overviewLogic.getUsage(query, range)
         }
-        val graphUsage by produceState(emptyList<GraphPoint>(), refresh, query, range) {
+        val graphUsage by produceState(emptyList(), refresh, query, range) {
             value = overviewLogic.getGraphUsage(query, range)
         }
-        val topApps by produceState(emptyList<AppUsage>(), refresh, query, range) {
+        val topApps by produceState(emptyList(), refresh, query, range) {
             value = overviewLogic.getTopAppUsage(query, range)
         }
         val plans by dataPlanManager.activePlans.collectAsState(emptyList())

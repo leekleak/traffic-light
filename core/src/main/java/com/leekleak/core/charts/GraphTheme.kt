@@ -21,9 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.leekleak.core.R
 import com.leekleak.core.util.px
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)

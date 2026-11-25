@@ -2,8 +2,10 @@ package com.leekleak.trafficlight.model
 
 import android.app.usage.NetworkStats
 import android.app.usage.NetworkStatsManager
-import com.leekleak.core.charts.model.BarData
 import com.leekleak.core.charts.model.ScrollableBarData
+import com.leekleak.core.util.fromTimestamp
+import com.leekleak.core.util.overlapRatio
+import com.leekleak.core.util.toTimestamp
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DataDirection.Bidirectional
@@ -18,10 +20,6 @@ import com.leekleak.trafficlight.model.AppManager.Companion.otherUsersApp
 import com.leekleak.trafficlight.model.AppManager.Companion.specialUIDs
 import com.leekleak.trafficlight.model.AppManager.Companion.unknownApp
 import com.leekleak.trafficlight.ui.history.DateParams
-import com.leekleak.core.util.fromTimestamp
-import com.leekleak.core.util.getName
-import com.leekleak.core.util.overlapRatio
-import com.leekleak.core.util.toTimestamp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -32,9 +30,6 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.TextStyle
-import java.time.temporal.WeekFields
-import java.util.Locale
 
 data class UsageData(
     val upload: Long = 0,
@@ -299,38 +294,6 @@ class NetworkUsageManager(
             }.awaitAll()
         }
         emit(data.toList())
-    }
-
-    suspend fun getWeekUsage(
-        subscriberId: String?,
-        dataType: DataType = DataType.Mobile,
-        excludedApps: Set<Int> = emptySet(),
-    ): List<BarData> {
-        val field = WeekFields.of(Locale.getDefault())
-        val firstDay = field.firstDayOfWeek
-        val data: MutableList<BarData> = MutableList(7) { i ->
-            val x = firstDay.plus(i.toLong()).getName(TextStyle.SHORT_STANDALONE)
-            BarData(x, 0, 0)
-        }
-        val now = LocalDate.now()
-        val daysPassed = now.get(field.dayOfWeek()) - 1
-
-        coroutineScope {
-            (0..daysPassed).map { i ->
-                async {
-                    val now = now.minusDays(daysPassed.toLong() - i)
-                    val isWifi = dataType == DataType.Wifi
-                    val usage = totalDayUsage(
-                        UsageQuery(dataType),
-                        now,
-                        subscriberId,
-                        excludedApps = excludedApps,
-                    )
-                    data[i] = data[i].copy(y1 = if (isWifi) 0 else usage, y2 = if (isWifi) usage else 0)
-                }
-            }.awaitAll()
-        }
-        return data.toList()
     }
 
     suspend fun queryDetails(queryIndex: Int, subscriberId: String?, startStamp: Long, endStamp: Long): NetworkStats = withContext(Dispatchers.IO) {

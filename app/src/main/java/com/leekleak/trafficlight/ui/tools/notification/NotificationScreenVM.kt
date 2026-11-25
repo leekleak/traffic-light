@@ -92,14 +92,6 @@ class NotificationScreenVM(
         viewModelScope.launch { appPreferenceRepo.setNotificationAccent(value) }
     }
 
-    fun setSpeedThreshold(value: Boolean) {
-        viewModelScope.launch { appPreferenceRepo.setSpeedThreshold(value) }
-    }
-
-    fun setSpeedThresholdKb(value: Long) {
-        viewModelScope.launch { appPreferenceRepo.setSpeedThresholdKb(value) }
-    }
-
     fun setSpeedBits(value: Boolean) {
         viewModelScope.launch { appPreferenceRepo.setSpeedBits(value) }
     }

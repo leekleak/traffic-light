@@ -52,11 +52,6 @@ import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.enums.enumEntries
 
-enum class NetworkType {
-    Cellular,
-    Wifi,
-}
-
 fun String.clipAndPad(length: Int): String {
     return if (this.length >= length) {
         this.substring(0, length)

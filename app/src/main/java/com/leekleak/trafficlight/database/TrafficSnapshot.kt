@@ -57,7 +57,7 @@ class TrafficSnapshotManager(
                 useFallback = force || TrafficStats.getTotalTxBytes() == TrafficStats.UNSUPPORTED.toLong()
             }
         }
-        
+
         connectivityManager.registerNetworkCallback(
             NetworkRequest.Builder()
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
