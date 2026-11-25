@@ -292,7 +292,7 @@ private fun RowScope.NotificationAccentButton(
             }
             if (color == NotificationAccent.Default) {
                 val font = remember { googleSans(600f) }
-                Text(text = label, fontFamily = font)
+                Text(text = label, fontFamily = font, color = color.onColor())
             }
         }
     }
@@ -310,18 +310,18 @@ private fun NotificationAccent.label(): String = stringResource(
 
 @Composable
 private fun NotificationAccent.color(): Color = when (this) {
-    NotificationAccent.Primary -> MaterialTheme.colorScheme.primary
-    NotificationAccent.Secondary -> MaterialTheme.colorScheme.secondary
-    NotificationAccent.Tertiary -> MaterialTheme.colorScheme.tertiary
-    NotificationAccent.Default -> MaterialTheme.colorScheme.surface
-}
-
-@Composable
-private fun NotificationAccent.onColor(): Color = when (this) {
     NotificationAccent.Primary -> MaterialTheme.colorScheme.onPrimary
     NotificationAccent.Secondary -> MaterialTheme.colorScheme.onSecondary
     NotificationAccent.Tertiary -> MaterialTheme.colorScheme.onTertiary
     NotificationAccent.Default -> MaterialTheme.colorScheme.onSurface
+}
+
+@Composable
+private fun NotificationAccent.onColor(): Color = when (this) {
+    NotificationAccent.Primary -> MaterialTheme.colorScheme.primary
+    NotificationAccent.Secondary -> MaterialTheme.colorScheme.secondary
+    NotificationAccent.Tertiary -> MaterialTheme.colorScheme.tertiary
+    NotificationAccent.Default -> MaterialTheme.colorScheme.surface
 }
 
 @Composable
