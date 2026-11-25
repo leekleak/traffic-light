@@ -280,7 +280,7 @@ private fun NotificationChannelSettings(
             SliderPreference(
                 modifierLabelText = Modifier.widthIn(min = 128.dp),
                 title = stringResource(R.string.threshold),
-                icon = painterResource(R.drawable.horizontal_align_right),
+                icon = R.drawable.horizontal_align_right,
                 value = uiState.speedThresholdKb,
                 values = values,
                 onValueChanged = setSpeedThresholdKb
@@ -291,7 +291,7 @@ private fun NotificationChannelSettings(
             ) {
                 IconPreference(
                     title = stringResource(R.string.notification_channels),
-                    painter = painterResource(R.drawable.notification_settings),
+                    icon = R.drawable.notification_settings,
                     onClick = {
                         val intent: Intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
                             .putExtra(Settings.EXTRA_APP_PACKAGE, activity?.packageName)
@@ -575,7 +575,7 @@ private fun NotificationTypeSelector(
         InfoCard(
             title = stringResource(R.string.info),
             description = stringResource(R.string.live_speed_notification_warning),
-            icon = painterResource(R.drawable.info),
+            icon = R.drawable.info,
         )
     }
 }

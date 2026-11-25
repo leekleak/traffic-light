@@ -1,5 +1,6 @@
 package com.leekleak.core.ui.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.leekleak.core.ui.theme.card
@@ -28,9 +29,9 @@ import com.leekleak.core.ui.theme.card
 fun InfoCard(
     title: String,
     description: String,
-    icon: Painter,
+    @DrawableRes icon: Int,
     backgroundColor: Color = colorScheme.surfaceContainer,
-    buttonIcon: Painter? = null,
+    @DrawableRes buttonIcon: Int? = null,
     buttonDescription: String? = null,
     onClick: (() -> Unit)? = null,
 ) {
@@ -53,7 +54,7 @@ fun InfoCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(icon, null)
+                Icon(painterResource(icon), null)
                 Text(modifier = Modifier.fillMaxWidth(), fontWeight = FontWeight.Bold, text = title)
             }
             Text(modifier = Modifier.fillMaxWidth(), text = description)
@@ -67,7 +68,7 @@ fun InfoCard(
                 onClick = onClick,
             ) {
                 Icon(
-                    painter = buttonIcon,
+                    painter = painterResource(buttonIcon),
                     contentDescription = buttonDescription,
                 )
             }

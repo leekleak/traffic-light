@@ -692,7 +692,7 @@ private fun AppSearchDialog(
                     modifier = Modifier.focusRequester(focusRequester),
                     textFieldState = textFieldState,
                     placeholder = stringResource(R.string.search),
-                    icon = painterResource(R.drawable.search)
+                    icon = R.drawable.search
                 )
             }
         }

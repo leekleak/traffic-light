@@ -395,7 +395,7 @@ private fun DataPlanInsights(
                         InfoCard(
                             title = stringResource(R.string.note),
                             description = plan.note,
-                            icon = painterResource(R.drawable.sticky_note_2),
+                            icon = R.drawable.sticky_note_2,
                             backgroundColor = colorScheme.surface
                         )
                     }
@@ -483,7 +483,7 @@ private fun LazyListScope.usageInsights(uiState: DataPlansUiState) {
                 MiniCard(
                     state = dataSafety,
                     baseColor = colorScheme.surface,
-                    icon = painterResource(R.drawable.shield),
+                    icon = R.drawable.shield,
                     title = stringResource(R.string.safety),
                     tooltipText = stringResource(R.string.safety_tooltip),
                     description = AnnotatedString(
@@ -517,7 +517,7 @@ private fun LazyListScope.budgetInsights(uiState: DataPlansUiState) {
                 MiniCard(
                     state = MiniCardState.NEUTRAL,
                     baseColor = colorScheme.surface,
-                    icon = painterResource(R.drawable.today),
+                    icon = R.drawable.today,
                     title = stringResource(R.string.today),
                     description = buildAnnotatedString {
                         withStyle(style = SpanStyle(fontSize = 24.sp)) {
@@ -536,7 +536,7 @@ private fun LazyListScope.budgetInsights(uiState: DataPlansUiState) {
                 MiniCard(
                     state = MiniCardState.NEUTRAL,
                     baseColor = colorScheme.surface,
-                    icon = painterResource(R.drawable.calendar_month),
+                    icon = R.drawable.calendar_month,
                     title = stringResource(R.string.daily),
                     description = buildAnnotatedString {
                         withStyle(style = SpanStyle(fontSize = 24.sp)) {

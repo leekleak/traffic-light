@@ -375,7 +375,7 @@ fun DataPlanConfig(
                                 SearchField(
                                     textFieldState = textFieldState,
                                     placeholder = stringResource(R.string.search),
-                                    icon = painterResource(R.drawable.search)
+                                    icon = R.drawable.search
                                 )
                             }
                         }
@@ -448,7 +448,7 @@ fun DataPlanConfig(
                         )
                         IconPreference(
                             title = stringResource(R.string.help),
-                            painter = painterResource(R.drawable.help),
+                            icon = R.drawable.help,
                             onClick = { openLink(activity, "https://github.com/leekleak/traffic-light/wiki/Troubleshooting#notifications") },
                         )
                     }
@@ -607,7 +607,7 @@ private fun LazyListScope.typeConfig(
                             modifier = Modifier.padding(horizontal = 8.dp),
                             modifierLabelText = Modifier.width(46.dp),
                             title = stringResource(R.string.reset_day),
-                            icon = painterResource(R.drawable.history_2),
+                            icon = R.drawable.history_2,
                             value = selectedMonthDay.toLong(),
                             values = remember { (1L..28L).map { it to null } },
                             onValueChanged = {

@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -74,12 +73,12 @@ private fun AboutSettings(navigator: Navigator) {
             showControl = false
         )
         NavigatePreferenceIcon(
-            icon = painterResource(R.drawable.github),
+            icon = R.drawable.github,
             contentDescription = stringResource(R.string.github),
             onClick = { openLink(activity, "https://github.com/leekleak/traffic-light") },
         )
         NavigatePreferenceIcon(
-            icon = painterResource(R.drawable.gavel),
+            icon = R.drawable.gavel,
             contentDescription = stringResource(R.string.licenses),
             onClick = { navigator.goTo(LibraryLicenseScreen) },
         )

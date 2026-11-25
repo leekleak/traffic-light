@@ -1,5 +1,6 @@
 package com.leekleak.core.ui.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.leekleak.core.R
@@ -29,7 +29,7 @@ fun SearchField(
     textFieldState: TextFieldState,
     placeholder: String,
     isError: String? = null,
-    icon: Painter? = null,
+    @DrawableRes icon: Int? = null,
 ) {
     Column {
         TextField(
@@ -42,7 +42,7 @@ fun SearchField(
                     {
                         Icon(
                             modifier = Modifier.padding(start = 6.dp),
-                            painter = it,
+                            painter = painterResource(it),
                             contentDescription = null
                         )
                     }

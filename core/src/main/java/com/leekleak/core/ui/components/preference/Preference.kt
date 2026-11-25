@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
@@ -132,7 +131,7 @@ fun NavigatePreference(
 @Composable
 fun NavigatePreferenceIcon(
     modifier: Modifier = Modifier,
-    icon: Painter,
+    @DrawableRes icon: Int,
     contentDescription: String,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
@@ -151,7 +150,7 @@ fun NavigatePreferenceIcon(
     ) {
         Icon(
             modifier = Modifier.size(24.dp),
-            painter = icon,
+            painter = painterResource(icon),
             contentDescription = contentDescription,
         )
     }

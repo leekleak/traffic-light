@@ -1,5 +1,6 @@
 package com.leekleak.core.ui.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
@@ -25,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -47,7 +47,7 @@ enum class MiniCardState {
 fun RowScope.MiniCard(
     state: MiniCardState,
     baseColor: Color = colorScheme.surfaceContainer,
-    icon: Painter,
+    @DrawableRes icon: Int,
     title: String,
     tooltipText: String? = null,
     description: AnnotatedString
@@ -74,7 +74,7 @@ fun RowScope.MiniCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(icon, null)
+                Icon(painterResource(icon), null)
                 Text(title)
             }
             AnimatedContent(description) {
@@ -118,9 +118,9 @@ fun RowScope.TrendCard(
         state = state,
         baseColor = baseColor,
         icon = when (state) {
-            MiniCardState.NEGATIVE -> painterResource(R.drawable.trending_up)
-            MiniCardState.POSITIVE -> painterResource(R.drawable.trending_down)
-            else -> painterResource(R.drawable.trending_flat)
+            MiniCardState.NEGATIVE -> R.drawable.trending_up
+            MiniCardState.POSITIVE -> R.drawable.trending_down
+            else -> R.drawable.trending_flat
         },
         title = stringResource(R.string.trend),
         tooltipText = stringResource(R.string.trend_tooltip),

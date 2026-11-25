@@ -1,5 +1,6 @@
 package com.leekleak.core.ui.components.preference
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -24,9 +25,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
@@ -40,7 +41,7 @@ fun SliderPreference(
     modifier: Modifier = Modifier,
     modifierLabelText: Modifier = Modifier,
     title: String,
-    icon: Painter? = null,
+    @DrawableRes icon: Int? = null,
     value: Long,
     values: List<Pair<Long, String?>>,
     enabled: Boolean = true,
@@ -68,7 +69,7 @@ fun SliderComponent(
     modifier: Modifier,
     modifierLabelText: Modifier = Modifier,
     title: String,
-    icon: Painter? = null,
+    @DrawableRes icon: Int? = null,
     value: Long,
     values: List<Pair<Long, String?>>,
     enabled: Boolean = true,
@@ -90,7 +91,7 @@ fun SliderComponent(
         ) {
             icon?.let { Icon(
                 modifier = Modifier.width(48.dp),
-                painter = it,
+                painter = painterResource(it),
                 contentDescription = null,
             ) }
             Text(

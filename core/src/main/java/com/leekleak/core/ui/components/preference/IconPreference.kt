@@ -1,5 +1,6 @@
 package com.leekleak.core.ui.components.preference
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -10,14 +11,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.leekleak.core.ui.theme.card
 
 @Composable
 fun IconPreference(
     title: String,
-    painter: Painter,
+    @DrawableRes icon: Int,
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
@@ -32,7 +33,7 @@ fun IconPreference(
     ) {
         Icon(
             modifier = Modifier.align(Alignment.Center),
-            painter = painter,
+            painter = painterResource(icon),
             contentDescription = title
         )
     }
