@@ -1,8 +1,7 @@
 package com.leekleak.trafficlight.database
 
 import android.content.Context
-import android.net.ConnectivityManager.TYPE_MOBILE
-import android.net.ConnectivityManager.TYPE_WIFI
+import android.net.NetworkCapabilities
 import android.view.View
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -26,8 +25,8 @@ enum class DataType(
     @DrawableRes val iconRes: Int,
     val queryIndex: Int?
 ) : DropdownItem {
-    Mobile(R.string.cellular, R.drawable.cellular, TYPE_MOBILE),
-    Wifi(R.string.wifi, R.drawable.wifi, TYPE_WIFI),
+    Mobile(R.string.cellular, R.drawable.cellular, NetworkCapabilities.TRANSPORT_CELLULAR),
+    Wifi(R.string.wifi, R.drawable.wifi, NetworkCapabilities.TRANSPORT_WIFI),
     None(R.string.none, R.drawable.close, null);
 
     @Composable
