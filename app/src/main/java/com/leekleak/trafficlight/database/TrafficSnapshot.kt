@@ -3,10 +3,10 @@ package com.leekleak.trafficlight.database
 import android.net.ConnectivityManager
 import android.net.LinkProperties
 import android.net.Network
+import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.TrafficStats
 import android.os.Build
-import com.leekleak.trafficlight.model.PermissionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap
 class TrafficSnapshotManager(
     private val appPreferenceRepo: AppPreferenceRepo,
     private val connectivityManager: ConnectivityManager,
-    private val permissionManager: PermissionManager,
 ) : AutoCloseable {
     @Volatile private var useFallback: Boolean = TrafficStats.getTotalTxBytes() == TrafficStats.UNSUPPORTED.toLong()
     private val activeInterfaceNames = ConcurrentHashMap<Network, String>()
@@ -58,9 +57,13 @@ class TrafficSnapshotManager(
                 useFallback = force || TrafficStats.getTotalTxBytes() == TrafficStats.UNSUPPORTED.toLong()
             }
         }
-
-        // Default network request ignores VPNs, so it should (i hope) be safe from double-counting
-        connectivityManager.registerNetworkCallback(NetworkRequest.Builder().build(), callback)
+        
+        connectivityManager.registerNetworkCallback(
+            NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+                .build(),
+            callback
+        )
     }
 
     override fun close() {
