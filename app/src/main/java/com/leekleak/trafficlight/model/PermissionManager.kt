@@ -123,6 +123,19 @@ class PermissionManager(
         }
     }
 
+    fun openBatteryPermissionHelp(activity: Activity?) {
+        activity ?: return
+        val intent = Intent(
+            Intent.ACTION_VIEW,
+            "https://dontkillmyapp.com/".toUri()
+        )
+        try {
+            activity.startActivity(intent)
+        } catch (_: ActivityNotFoundException) {
+            Toast.makeText(activity, context.getString(R.string.no_browser_found), Toast.LENGTH_SHORT).show()
+        }
+    }
+
     fun update() {
         val packageName: String? = context.packageName
         val pm = context.getSystemService(POWER_SERVICE) as PowerManager

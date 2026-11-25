@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 
 data class UsagePermissionRequestUiState(
     val usagePermission: Boolean = false,
+    val backgroundPermission: Boolean = false,
 )
 
 class UsagePermissionRequestVM(
@@ -23,9 +24,11 @@ class UsagePermissionRequestVM(
         dispatcher = Dispatchers.Main,
     ) {
         val usagePermission by permissionManager.usagePermission.collectAsState()
+        val backgroundPermission by permissionManager.backgroundPermission.collectAsState()
 
         UsagePermissionRequestUiState(
             usagePermission = usagePermission,
+            backgroundPermission = backgroundPermission,
         )
     }
 
@@ -35,5 +38,13 @@ class UsagePermissionRequestVM(
 
     fun openUsagePermissionHelp(activity: Activity?) {
         permissionManager.openUsagePermissionHelp(activity)
+    }
+
+    fun askBackgroundPermission(activity: Activity?) {
+        permissionManager.askBackgroundPermission(activity)
+    }
+
+    fun openBatteryPermissionHelp(activity: Activity?) {
+        permissionManager.openBatteryPermissionHelp(activity)
     }
 }

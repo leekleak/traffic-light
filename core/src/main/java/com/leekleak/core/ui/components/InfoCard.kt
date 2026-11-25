@@ -20,29 +20,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.leekleak.core.R
 import com.leekleak.core.ui.theme.card
-
-@Composable
-fun PermissionCard(
-    title: String,
-    description: String,
-    icon: Painter,
-    onClick: () -> Unit,
-) {
-    InfoCard(
-        title = title,
-        description = description,
-        icon = icon,
-        buttonIcon = painterResource(R.drawable.grant),
-        buttonDescription = stringResource(R.string.grant),
-        onClick = onClick,
-    )
-}
 
 @Composable
 fun InfoCard(

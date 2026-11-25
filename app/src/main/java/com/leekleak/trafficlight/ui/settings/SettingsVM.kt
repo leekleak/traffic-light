@@ -1,6 +1,5 @@
 package com.leekleak.trafficlight.ui.settings
 
-import android.app.Activity
 import androidx.appstate.transform.transform
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -64,9 +63,5 @@ class SettingsVM(
 
     fun setSizeMetric(value: Boolean) {
         viewModelScope.launch { appPreferenceRepo.setSizeMetric(value) }
-    }
-
-    fun askBackgroundPermission(activity: Activity?) {
-        permissionManager.askBackgroundPermission(activity)
     }
 }

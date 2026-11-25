@@ -1,6 +1,5 @@
 package com.leekleak.trafficlight.ui.settings
 
-import android.app.Activity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -28,8 +27,6 @@ import com.leekleak.core.R
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.CategoryTitleSmallText
 import com.leekleak.core.ui.components.HazeScaffold
-import com.leekleak.core.ui.components.PermissionCard
-import com.leekleak.core.ui.components.SlideAnimatedVisibility
 import com.leekleak.core.ui.components.preference.DialogItemSelectPreference
 import com.leekleak.core.ui.components.preference.NavigatePreference
 import com.leekleak.core.ui.components.preference.NavigatePreferenceIcon
@@ -50,14 +47,12 @@ fun Settings(
     setBlur: (Boolean) -> Unit,
     setSpeedMetric: (Boolean) -> Unit,
     setSizeMetric: (Boolean) -> Unit,
-    askBackgroundPermission: (Activity?) -> Unit,
 ) {
     HazeScaffold(
         title = stringResource(R.string.settings),
         verticalArrangement = Arrangement.Top,
         backAction = BackAction.Normal(navigator),
     ) {
-        BackgroundPermissionPrompt(uiState, askBackgroundPermission)
         BasesSettings(uiState, setSpeedMetric, setSizeMetric)
         InterfaceSettings(uiState, setTheme, setBlur)
         AboutSettings(navigator)
@@ -173,23 +168,6 @@ private fun BasesSettings(
             value = uiState.sizeMetric,
             values = values,
             onValueChanged = setSizeMetric,
-        )
-    }
-}
-
-@Composable
-private fun BackgroundPermissionPrompt(
-    uiState: SettingsUiState,
-    askBackgroundPermission: (Activity?) -> Unit,
-) {
-    val activity = LocalActivity.current
-    SlideAnimatedVisibility(!uiState.backgroundPermission) {
-        CategoryTitleSmallText(stringResource(R.string.missing_permissions))
-        PermissionCard(
-            title = stringResource(R.string.battery_optimization),
-            description = stringResource(R.string.battery_optimization_description),
-            icon = painterResource(R.drawable.battery),
-            onClick = { askBackgroundPermission(activity) }
         )
     }
 }

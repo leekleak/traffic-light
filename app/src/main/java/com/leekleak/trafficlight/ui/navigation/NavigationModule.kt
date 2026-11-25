@@ -7,6 +7,8 @@ import com.leekleak.trafficlight.ui.history.History
 import com.leekleak.trafficlight.ui.history.HistoryVM
 import com.leekleak.trafficlight.ui.overview.Overview
 import com.leekleak.trafficlight.ui.overview.OverviewVM
+import com.leekleak.trafficlight.ui.permissions.UsagePermissionRequest
+import com.leekleak.trafficlight.ui.permissions.UsagePermissionRequestVM
 import com.leekleak.trafficlight.ui.plans.DataPlanConfig
 import com.leekleak.trafficlight.ui.plans.DataPlanConfigVM
 import com.leekleak.trafficlight.ui.plans.DataPlans
@@ -14,8 +16,6 @@ import com.leekleak.trafficlight.ui.plans.DataPlansVM
 import com.leekleak.trafficlight.ui.settings.LibraryLicenseScreen
 import com.leekleak.trafficlight.ui.settings.Settings
 import com.leekleak.trafficlight.ui.settings.SettingsVM
-import com.leekleak.trafficlight.ui.permissions.UsagePermissionRequest
-import com.leekleak.trafficlight.ui.permissions.UsagePermissionRequestVM
 import com.leekleak.trafficlight.ui.tools.Tools
 import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationScreen
 import com.leekleak.trafficlight.ui.tools.notification.SpeedNotificationScreenVM
@@ -82,7 +82,6 @@ val navigationModule = module {
             setBlur = viewModel::setBlur,
             setSpeedMetric = viewModel::setSpeedMetric,
             setSizeMetric = viewModel::setSizeMetric,
-            askBackgroundPermission = viewModel::askBackgroundPermission,
         )
     }
     navigation<UsagePermissionRequestKey> {
@@ -93,6 +92,8 @@ val navigationModule = module {
             uiState = uiState,
             askUsagePermission = viewModel::askUsagePermission,
             openUsagePermissionHelp = viewModel::openUsagePermissionHelp,
+            askBackgroundPermission = viewModel::askBackgroundPermission,
+            openBatteryPermissionHelp = viewModel::openBatteryPermissionHelp,
         )
     }
     navigation<PlanConfigKey> { key ->

@@ -32,7 +32,9 @@ fun App(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    val startDestination = if (permissionManager.usagePermission.collectAsState().value) OverviewKey else UsagePermissionRequestKey
+    val usagePermission = permissionManager.usagePermission.collectAsState().value
+    val backgroundPermission = permissionManager.backgroundPermission.collectAsState().value
+    val startDestination = if (usagePermission && backgroundPermission) OverviewKey else UsagePermissionRequestKey
     val backStack = rememberNavBackStack(startDestination)
     val navigator = remember(backStack) { Navigator(backStack) }
 
