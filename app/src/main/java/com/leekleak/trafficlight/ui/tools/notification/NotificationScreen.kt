@@ -310,18 +310,18 @@ private fun NotificationAccent.label(): String = stringResource(
 
 @Composable
 private fun NotificationAccent.color(): Color = when (this) {
-    NotificationAccent.Primary -> MaterialTheme.colorScheme.onPrimary
-    NotificationAccent.Secondary -> MaterialTheme.colorScheme.onSecondary
-    NotificationAccent.Tertiary -> MaterialTheme.colorScheme.onTertiary
-    NotificationAccent.Default -> MaterialTheme.colorScheme.onSurface
+    NotificationAccent.Primary -> MaterialTheme.colorScheme.primaryContainer
+    NotificationAccent.Secondary -> MaterialTheme.colorScheme.secondaryContainer
+    NotificationAccent.Tertiary -> MaterialTheme.colorScheme.tertiaryContainer
+    NotificationAccent.Default -> MaterialTheme.colorScheme.surface
 }
 
 @Composable
 private fun NotificationAccent.onColor(): Color = when (this) {
-    NotificationAccent.Primary -> MaterialTheme.colorScheme.primary
-    NotificationAccent.Secondary -> MaterialTheme.colorScheme.secondary
-    NotificationAccent.Tertiary -> MaterialTheme.colorScheme.tertiary
-    NotificationAccent.Default -> MaterialTheme.colorScheme.surface
+    NotificationAccent.Primary -> MaterialTheme.colorScheme.onPrimaryContainer
+    NotificationAccent.Secondary -> MaterialTheme.colorScheme.onSecondaryContainer
+    NotificationAccent.Tertiary -> MaterialTheme.colorScheme.onTertiaryContainer
+    NotificationAccent.Default -> MaterialTheme.colorScheme.onSurface
 }
 
 @Composable

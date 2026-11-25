@@ -226,9 +226,9 @@ class SpeedNotification(
 
     private fun accentColor(): Int {
         val color = when (accent) {
-            NotificationAccent.Primary -> colorScheme().onPrimary
-            NotificationAccent.Secondary -> colorScheme().onSecondary
-            NotificationAccent.Tertiary -> colorScheme().onTertiary
+            NotificationAccent.Primary -> colorScheme().primaryContainer
+            NotificationAccent.Secondary -> colorScheme().secondaryContainer
+            NotificationAccent.Tertiary -> colorScheme().tertiaryContainer
             NotificationAccent.Default -> return NotificationCompat.COLOR_DEFAULT
         }
         return color.toArgb()
