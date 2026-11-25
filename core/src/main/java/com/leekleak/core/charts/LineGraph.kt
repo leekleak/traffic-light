@@ -45,6 +45,15 @@ fun LineGraph(
     val text1 = data.first?.let { DataSize(it).formatted(extraPrecision = true) }
     val text2 = data.second?.let { DataSize(it).formatted(extraPrecision = true) }
 
+    val textStyle = remember(font) {
+        TextStyle(
+            fontFamily = font,
+            fontSize = fontSize,
+        )
+    }
+    val textLayout1 = remember(text1, textStyle) { text1?.let { textMeasurer.measure(it, textStyle) } }
+    val textLayout2 = remember(text2, textStyle) { text2?.let { textMeasurer.measure(it, textStyle) } }
+
     Canvas(modifier = Modifier
         .fillMaxWidth()
         .height(32.dp)
@@ -79,14 +88,7 @@ fun LineGraph(
         /**
          * Wifi text
          */
-        text1?.let { t1 ->
-            val textMeasure1 = textMeasurer.measure(
-                t1,
-                TextStyle(
-                    fontFamily = font,
-                    fontSize = fontSize,
-                )
-            )
+        textLayout1?.let { textMeasure1 ->
             val brush1 = Brush.horizontalGradient(
                 0f to onPrimaryColor,
                 point1 - paddingRatio to onPrimaryColor,
@@ -106,14 +108,7 @@ fun LineGraph(
         /**
          * Mobile text
          */
-        text2?.let { t2 ->
-            val textMeasure2 = textMeasurer.measure(
-                t2,
-                TextStyle(
-                    fontFamily = font,
-                    fontSize = fontSize,
-                )
-            )
+        textLayout2?.let { textMeasure2 ->
             val brush2 = Brush.horizontalGradient(
                 0f to onPrimaryColor,
                 point1 + paddingRatio to onPrimaryColor,

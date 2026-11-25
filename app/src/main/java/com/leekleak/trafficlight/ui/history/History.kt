@@ -61,7 +61,6 @@ import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -70,6 +69,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -119,9 +119,14 @@ import com.leekleak.trafficlight.model.DataUID
 import com.leekleak.trafficlight.model.DataUIDApp
 import com.leekleak.trafficlight.model.search
 import com.leekleak.trafficlight.ui.plans.AppSelector
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalTime
+import kotlin.time.Duration.Companion.milliseconds
 
 val imageWidth = 32.dp
 
@@ -297,7 +302,7 @@ private fun AppList(
         verticalArrangement = Arrangement.spacedBy(6.dp),
         state = listState
     ) {
-        items(uiState.appList, { it.app.uid }) { item ->
+        items(uiState.appList, key = { it.app.uid }, contentType = { "app" }) { item ->
             Box(Modifier.animateItem()) {
                 AppItem(
                     usageQueries = uiState.queries,
@@ -308,7 +313,7 @@ private fun AppList(
                     usage1 = item.usage.usage1,
                     usage2 = item.usage.usage2,
                     name = item.app.getName(context),
-                    selected = item.app.uid == appSelected,
+                    isSelected = { appSelected == item.app.uid },
                     maximum = totalMaximum,
                     onClick = {appSelected = if (appSelected != item.app.uid) item.app.uid else -1}
                 ) {
@@ -328,17 +333,22 @@ private fun HourList(
     contentPadding: PaddingValues,
 ) {
     var hourSelected by remember { mutableIntStateOf(-1) }
-    val maximum = uiState.hourList.sumOf { it.usage.totalUsage }
+    val maximum = remember(uiState.hourList) { uiState.hourList.sumOf { it.usage.totalUsage } }
+    val totalUsage1 = remember(uiState.hourList) { uiState.hourList.sumOf { it.usage.usage1 } }
+    val totalUsage2 = remember(uiState.hourList) { uiState.hourList.sumOf { it.usage.usage2 } }
     val textMeasurer = rememberTextMeasurer()
     val font = remember { historyItemFont() }
     val is24HourFormat by rememberIs24HourFormat()
-    val measurement = textMeasurer.measure(
-        text = LocalTime.MIDNIGHT.toLocaleHourString(is24HourFormat, true),
-        style = TextStyle(
-            fontFamily = font,
-            fontSize = MaterialTheme.typography.titleMedium.fontSize,
+    val labelFontSize = MaterialTheme.typography.titleMedium.fontSize
+    val measurement = remember(is24HourFormat, font, labelFontSize) {
+        textMeasurer.measure(
+            text = LocalTime.MIDNIGHT.toLocaleHourString(is24HourFormat, true),
+            style = TextStyle(
+                fontFamily = font,
+                fontSize = labelFontSize,
+            )
         )
-    )
+    }
     val listState = rememberLazyListState()
     LazyColumn(
         modifier = Modifier
@@ -358,10 +368,10 @@ private fun HourList(
                     updateQueries = updateQueries,
                     openApp = openApp,
                     openPackageSettings = openPackageSettings,
-                    usage1 = uiState.hourList.sumOf { it.usage.usage1 },
-                    usage2 = uiState.hourList.sumOf { it.usage.usage2 },
+                    usage1 = totalUsage1,
+                    usage2 = totalUsage2,
                     name = stringResource(R.string.total_usage),
-                    selected = key == hourSelected,
+                    isSelected = { hourSelected == key },
                     maximum = maximum,
                     onClick = {hourSelected = if (key != hourSelected) key else -1}
                 ) {
@@ -377,7 +387,7 @@ private fun HourList(
                 }
             }
         }
-        items(uiState.hourList, { it.start.hour }) { item ->
+        items(uiState.hourList, key = { it.start.hour }, contentType = { "hour" }) { item ->
             Box(Modifier.animateItem()) {
                 AppItem(
                     usageQueries = uiState.queries,
@@ -387,7 +397,7 @@ private fun HourList(
                     usage1 = item.usage.usage1,
                     usage2 = item.usage.usage2,
                     name = item.toString(is24HourFormat),
-                    selected = item.start.hour == hourSelected,
+                    isSelected = { hourSelected == item.start.hour },
                     maximum = maximum,
                     onClick = {hourSelected = if (item.start.hour != hourSelected) item.start.hour else -1}
                 ) {
@@ -641,7 +651,7 @@ fun RowScope.HistoryItemSettings(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, FlowPreview::class)
 private fun AppSearchDialog(
     appManager: AppManager,
     onSelect: (uid: Int) -> Unit,
@@ -676,8 +686,14 @@ private fun AppSearchDialog(
         }
 
         val includedApps by produceState(emptyList()) { value = listOf(allApp, tetheringApp, removedApp).plus(appManager.getAllApps()) }
-        val searchResults by produceState(initialValue = includedApps, textFieldState.text) {
-            value = includedApps.search(textFieldState.text.toString(), context)
+        val searchResults by produceState(initialValue = includedApps, includedApps) {
+            snapshotFlow { textFieldState.text.toString() }
+                .debounce(150.milliseconds)
+                .collect { text ->
+                    value = withContext(Dispatchers.Default) {
+                        includedApps.search(text, context)
+                    }
+                }
         }
         Column(
             modifier = Modifier
@@ -787,14 +803,12 @@ fun AppItem(
     usage1: Long,
     usage2: Long,
     name: String,
-    selected: Boolean,
+    isSelected: () -> Boolean,
     maximum: Long,
     onClick: () -> Unit = {},
     icon: @Composable (() -> Unit)
 ) {
     val haptic = LocalHapticFeedback.current
-    val activity = LocalActivity.current
-    val scope = rememberCoroutineScope()
 
     Column(
         modifier = modifier
@@ -812,107 +826,145 @@ fun AppItem(
         ) {
             icon()
             Column {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                    AnimatedVisibility(
-                        visible = selected,
-                        enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
-                        exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
-                    ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Row(
-                                modifier = Modifier.heightIn(min = 32.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = name,
-                                    fontWeight = FontWeight.Bold,
-                                )
-                            }
-                            LineGraphHeader(usageQueries)
-                        }
-                    }
-                }
+                ExpandableHeader(isSelected = isSelected, name = name, usageQueries = usageQueries)
                 val graphUsage1 = if (usageQueries.first.dataType != DataType.None) usage1 else null
                 val graphUsage2 = if (usageQueries.second.dataType != DataType.None) usage2 else null
                 LineGraph(
                     maximum = maximum,
                     data = Pair(graphUsage1, graphUsage2)
                 )
-                AnimatedVisibility(
-                    visible = selected && app != null && app != allApp,
-                    enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
-                    exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
+                ExpandableActions(
+                    isSelected = isSelected,
+                    modifier = modifier,
+                    usageQueries = usageQueries,
+                    updateQueries = updateQueries,
+                    openApp = openApp,
+                    openPackageSettings = openPackageSettings,
+                    app = app,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExpandableHeader(
+    isSelected: () -> Boolean,
+    name: String,
+    usageQueries: Pair<UsageQuery, UsageQuery>,
+) {
+    val selected = isSelected()
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+        AnimatedVisibility(
+            visible = selected,
+            enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
+            exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(
+                    modifier = Modifier.heightIn(min = 32.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column(modifier.padding(top = 6.dp)) {
-                        Row (
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End
+                    Text(
+                        text = name,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+                LineGraphHeader(usageQueries)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExpandableActions(
+    isSelected: () -> Boolean,
+    modifier: Modifier,
+    usageQueries: Pair<UsageQuery, UsageQuery>,
+    updateQueries: (UsageQuery, UsageQuery) -> Unit,
+    openApp: (Activity?, Intent?) -> Unit,
+    openPackageSettings: suspend (Activity?, Int) -> Unit,
+    app: DataUID?,
+) {
+    val selected = isSelected()
+    val haptic = LocalHapticFeedback.current
+    val activity = LocalActivity.current
+    val scope = rememberCoroutineScope()
+
+    AnimatedVisibility(
+        visible = selected && app != null && app != allApp,
+        enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
+        exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
+    ) {
+        Column(modifier.padding(top = 6.dp)) {
+            Row (
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Button(
+                    modifier = Modifier.padding(end = 4.dp),
+                    shape = MaterialTheme.shapes.large,
+                    onClick = {
+                        app?.let {
+                            updateQueries(
+                                usageQueries.first.copy(dataUID = it),
+                                usageQueries.second.copy(dataUID = it),
+                            )
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        }
+                    }
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(painterResource(R.drawable.custom), null)
+                        Text(stringResource(R.string.quick_filter))
+                    }
+                }
+                if (app is DataUIDApp) {
+                    val launchIntent by produceState<Intent?>(null, app.packageName) {
+                        value = withContext(Dispatchers.IO) {
+                            activity?.packageManager?.getLaunchIntentForPackage(app.packageName)
+                        }
+                    }
+                    FilledIconButton(
+                        enabled = launchIntent != null,
+                        onClick = {
+                            openApp(activity, launchIntent)
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        }
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.open_in_new),
+                            stringResource(R.string.open_app)
+                        )
+                    }
+                    FilledIconButton(
+                        onClick = {
+                            scope.launch {
+                                openPackageSettings(activity, app.uid)
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            }
+                        }
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.settings),
+                            stringResource(R.string.settings)
+                        )
+                    }
+                } else if (app == otherUsersApp) {
+                    Button(
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                        shape = MaterialTheme.shapes.large,
+                        onClick = { openLink(activity, "https://github.com/leekleak/traffic-light/wiki/Troubleshooting#network-usage") },
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Button(
-                                modifier = Modifier.padding(end = 4.dp),
-                                shape = MaterialTheme.shapes.large,
-                                onClick = {
-                                    app?.let {
-                                        updateQueries(
-                                            usageQueries.first.copy(dataUID = it),
-                                            usageQueries.second.copy(dataUID = it),
-                                        )
-                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    }
-                                }
-                            ) {
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(painterResource(R.drawable.custom), null)
-                                    Text(stringResource(R.string.quick_filter))
-                                }
-                            }
-                            if (app is DataUIDApp) {
-                                val launchIntent by remember { derivedStateOf {
-                                    activity?.packageManager?.getLaunchIntentForPackage(app.packageName)
-                                } }
-                                FilledIconButton(
-                                    enabled = launchIntent != null,
-                                    onClick = {
-                                        openApp(activity, launchIntent)
-                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    }
-                                ) {
-                                    Icon(
-                                        painterResource(R.drawable.open_in_new),
-                                        stringResource(R.string.open_app)
-                                    )
-                                }
-                                FilledIconButton(
-                                    onClick = {
-                                        scope.launch {
-                                            openPackageSettings(activity, app.uid)
-                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        }
-                                    }
-                                ) {
-                                    Icon(
-                                        painterResource(R.drawable.settings),
-                                        stringResource(R.string.settings)
-                                    )
-                                }
-                            } else if (app == otherUsersApp) {
-                                Button(
-                                    modifier = Modifier.padding(horizontal = 4.dp),
-                                    shape = MaterialTheme.shapes.large,
-                                    onClick = { openLink(activity, "https://github.com/leekleak/traffic-light/wiki/Troubleshooting#network-usage") },
-                                ) {
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(painterResource(R.drawable.help), null)
-                                        Text(stringResource(R.string.help))
-                                    }
-                                }
-                            }
+                            Icon(painterResource(R.drawable.help), null)
+                            Text(stringResource(R.string.help))
                         }
                     }
                 }

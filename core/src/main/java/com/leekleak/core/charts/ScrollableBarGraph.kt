@@ -83,11 +83,11 @@ private fun ScrollableBarGraphContent(
 
     // The canvas has 20dp of horizontal padding on each side.
     val canvasWidth = with(density) { (availableWidth - 40.dp).toPx() }
-    val barWidth by remember(canvasWidth) { derivedStateOf {
+    val barWidth = remember(canvasWidth) {
         var barCount = (canvasWidth / GOOD_BAR_SIZE).roundToInt()
         barCount += if (barCount % 2 == 0) 1 else 0
         canvasWidth / barCount
-    } }
+    }
     val offset = remember(canvasWidth) { Animatable(-barWidth * data.size + canvasWidth) }
 
     val selectorGoal = (canvasWidth)/2 - ((canvasWidth)/2) % barWidth
@@ -111,7 +111,7 @@ private fun ScrollableBarGraphContent(
         }
     }
 
-    val currentSelected by remember(selectorOffsetSnapped.value, offset.value) {
+    val currentSelected by remember(barWidth) {
         derivedStateOf {
             ((selectorOffsetSnapped.value - offset.value) / barWidth).roundToInt()
         }
@@ -238,8 +238,8 @@ private fun ScrollableBarGraphContent(
             scope = this,
             data = data,
             stretch = barAnimation,
-            y1Fractions = animatedFractions1.map { it.value },
-            y2Fractions = animatedFractions2.map { it.value },
+            y1Fractions = animatedFractions1,
+            y2Fractions = animatedFractions2,
             xOffset = offset.value.toInt(),
             xItemSpacing = barWidth,
             maximum = currentMax,

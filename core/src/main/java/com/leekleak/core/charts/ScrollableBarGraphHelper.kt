@@ -56,8 +56,8 @@ internal class ScrollableBarGraphHelper(
     private val scope: DrawScope,
     private val data: List<ScrollableBarData>,
     private val stretch: List<Animatable<Float, *>>,
-    private val y1Fractions: List<Float>,
-    private val y2Fractions: List<Float>,
+    private val y1Fractions: List<Animatable<Float, *>>,
+    private val y2Fractions: List<Animatable<Float, *>>,
     private val xOffset: Int = 0,
     private val xItemSpacing: Float = 30f,
     private val maximum: Long,
@@ -129,8 +129,8 @@ internal class ScrollableBarGraphHelper(
             val x = xItemSpacing * i + xOffset
 
             val barStretch = stretch[i].value
-            val y1f = y1Fractions[i]
-            val y2f = y2Fractions[i]
+            val y1f = y1Fractions[i].value
+            val y2f = y2Fractions[i].value
 
             val yOffset = (y1f + y2f) * gridHeight
             if (yOffset < 1f) continue
