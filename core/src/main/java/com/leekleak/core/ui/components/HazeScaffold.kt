@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -18,23 +19,40 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.leekleak.core.R
 import com.leekleak.core.ui.navigation.Navigator
+import com.leekleak.core.ui.theme.LocalBlurEnabled
+import dev.chrisbanes.haze.HazeInput
+import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.blur.hazeBlur
+import dev.chrisbanes.haze.blur.materials.HazeMaterials
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 
@@ -118,14 +136,65 @@ fun HazeScaffold(
                 enter = slideIn { IntOffset(x = 0, y = -it.height) },
                 exit = slideOut { IntOffset(x = 0, y = -it.height) },
             ) {
-                PageTitle(backAction, hazeState, title, actions)
+                val blurEnabled = LocalBlurEnabled.current
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .then(
+                            when {
+                                hazeState == null -> Modifier
+                                blurEnabled -> Modifier.hazeBlur(
+                                    input = HazeInput.Sources(hazeState),
+                                    style = HazeMaterials.ultraThin().then {
+                                        progressive(HazeProgressive.verticalGradient(startIntensity = 1f, endIntensity = 0f))
+                                    }
+                                )
+                                else -> Modifier.background(colorScheme.surface)
+                            }
+                        )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .statusBarsPadding()
+                            .padding(start = extraStart + contentStartPadding, end = extraEnd + contentEndPadding)
+                            .padding(bottom = 6.dp)
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            modifier = Modifier.height(TOP_BAR_HEIGHT),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (backAction is BackAction.Normal) {
+                                IconButton(onClick = { backAction.navigator.goBack() }) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.arrow_back),
+                                        contentDescription = stringResource(R.string.go_back),
+                                    )
+                                }
+                            }
+                            title?.let {
+                                Text(
+                                    modifier = Modifier.padding(8.dp),
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    overflow = TextOverflow.Ellipsis,
+                                    text = title
+                                )
+                            }
+                        }
+                        Spacer(Modifier.weight(1f))
+                        actions()
+                    }
+                }
             }
         }
     }
 }
 
+val TOP_BAR_HEIGHT: Dp = 52.dp
+
 sealed interface BackAction {
     data object None : BackAction
     data class Normal(val navigator: Navigator) : BackAction
 }
-
