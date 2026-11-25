@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -65,7 +67,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.PlainTooltip
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -109,6 +110,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -125,11 +127,10 @@ import com.leekleak.core.charts.GraphTheme.wifiShape
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.CategoryTitleSmallText
 import com.leekleak.core.ui.components.FancyDialog
+import com.leekleak.core.ui.components.HazeScaffold
 import com.leekleak.core.ui.components.NotificationWarningDialog
-import com.leekleak.core.ui.components.PageTitle
 import com.leekleak.core.ui.components.SearchField
 import com.leekleak.core.ui.components.SlideAnimatedVisibility
-import com.leekleak.core.ui.components.TOP_BAR_HEIGHT
 import com.leekleak.core.ui.components.categoryTitleSmall
 import com.leekleak.core.ui.components.formatSizeValue
 import com.leekleak.core.ui.components.iconToggleButton
@@ -161,8 +162,6 @@ import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.model.DataUID
 import com.leekleak.trafficlight.model.search
 import com.leekleak.trafficlight.ui.theme.backgrounds
-import dev.chrisbanes.haze.hazeSource
-import dev.chrisbanes.haze.rememberHazeState
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.time.LocalDate
@@ -210,12 +209,323 @@ fun DataPlanConfig(
 
     val metric = LocalSizeMetric.current
 
-    Scaffold(
+    HazeScaffold(
         modifier = Modifier.clearFocusOnTap(),
-        bottomBar = {
-            Box(Modifier.fillMaxWidth().navigationBarsPadding()) {
+        title = stringResource(R.string.configure_plan),
+        scrollState = null,
+        backAction = BackAction.Normal(navigator),
+        actions = {
+            IconButton(
+                enabled = newPlan.configured,
+                onClick = { viewModel.setShowDeleteDialog(true) }
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.reset_wrench),
+                    contentDescription = stringResource(R.string.reset),
+                )
+            }
+        },
+    ) { paddingValues ->
+        val layoutDirection = LocalLayoutDirection.current
+        Box(Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = paddingValues.calculateStartPadding(layoutDirection),
+                    top = paddingValues.calculateTopPadding(),
+                    end = paddingValues.calculateEndPadding(layoutDirection),
+                    bottom = paddingValues.calculateBottomPadding() + 72.dp,
+                )
+            ) {
+                item {
+                    val size by remember(newPlan, metric) { derivedStateOf {
+                        newPlan.mainDataSize.getAsUnit(newPlan.mainDataSizeUnit, metric)
+                    } }
+                    PlanSizeConfig (
+                        size = size,
+                        unit = newPlan.mainDataSizeUnit,
+                        onSizeUpdate = { size ->
+                            viewModel.updatePlan { it.copy(mainDataSize = DataSize(size)) }
+                        },
+                        onUnitUpdate = { unit ->
+                            viewModel.updatePlan {
+                                it.copy(
+                                    mainDataSize = DataSize((size * unit.toBits(if (metric) 1000.0 else 1024.0)).toLong()),
+                                    mainDataSizeUnit = unit
+                                )
+                            }
+                        }
+                    )
+                }
+                categoryTitleSmall { stringResource(R.string.type) }
+                typeConfig(
+                    plan = newPlan,
+                ) { plan ->
+                    viewModel.updatePlan { plan }
+                }
+                item {
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        CategoryTitleSmallText(stringResource(R.string.usage))
+                        Spacer(modifier = Modifier.weight(1f))
+
+                    }
+                }
+                item {
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium,
+                        enabled = canEstimate,
+                        onClick = {
+                            viewModel.onCalculateUsage()
+                            haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                        },
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.magic),
+                            contentDescription = null
+                        )
+                        Text(
+                            modifier = Modifier.padding(start = 8.dp),
+                            text = stringResource(R.string.estimate_usage)
+                        )
+                    }
+                    UsageInputPreference(newPlan) { usage -> viewModel.updatePlan { it.copy(mainDataUsed = usage) } }
+                    ExtrasConfig(
+                        newPlan = newPlan,
+                        showAddExtraDialog = dialogs.addExtra,
+                        onShowAddExtraDialogChange = viewModel::setShowAddExtraDialog,
+                    ) { plan -> viewModel.updatePlan { it.copy(extras = plan.extras) } }
+                }
+                categoryTitleSmall { stringResource(R.string.zero_rated_apps) }
+                item {
+                    val suspiciousApps by viewModel.suspiciousApps.collectAsStateWithLifecycle()
+
+                    val excludedApps by remember { derivedStateOf {
+                        suspiciousApps.filter { newPlan.excludedApps.contains(it.uid) }
+                    } }
+                    val includedApps by remember { derivedStateOf {
+                        suspiciousApps.filter { !newPlan.excludedApps.contains(it.uid) }
+                    } }
+
+                    Column(
+                        modifier = Modifier
+                            .padding(vertical = 4.dp)
+                            .card()
+                            .padding(vertical = 8.dp),
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .animateContentSize(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            val brush = Brush.horizontalGradient(0.95f to Color.Black, 1f to Color.Transparent)
+                            AppSelector(
+                                uids = excludedApps,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+                                    .drawWithContent {
+                                        drawContent()
+                                        drawRect(brush = brush, blendMode = BlendMode.DstIn)
+                                    }
+                            ) { uid ->
+                                viewModel.updatePlan {
+                                    it.copy(excludedApps = it.excludedApps.filter { app -> app != uid })
+                                }
+                            }
+                            FilledIconButton (
+                                modifier = Modifier.padding(end = 8.dp),
+                                onClick = {
+                                    viewModel.setShowAppPicker(!dialogs.appPicker)
+                                    haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
+                                },
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.add),
+                                    contentDescription = null
+                                )
+                            }
+                        }
+
+                        AnimatedVisibility(dialogs.appPicker, modifier = Modifier.fillMaxWidth()) {
+                            val textFieldState = rememberTextFieldState()
+                            val searchResults by produceState<List<DataUID>>(initialValue = includedApps, textFieldState.text) {
+                                value = includedApps.search(textFieldState.text.toString(), context)
+                            }
+
+                            Column(
+                                modifier = Modifier.padding(top = 8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                HorizontalDivider()
+                                AppSelector(searchResults, Modifier.fillMaxWidth()) { uid ->
+                                    viewModel.updatePlan {
+                                        it.copy(excludedApps = it.excludedApps +
+                                            (includedApps
+                                                .map { app -> app.uid }
+                                                .filter { app -> app == uid })
+                                        )
+                                    }
+                                }
+                                Box(modifier = Modifier.padding(horizontal = 8.dp)) {
+                                    SearchField(
+                                        textFieldState = textFieldState,
+                                        placeholder = stringResource(R.string.search),
+                                        icon = R.drawable.search
+                                    )
+                                }
+                            }
+                        }
+
+                    }
+                }
+                categoryTitleSmall { stringResource(R.string.notification) }
+                item {
+                    val notificationPermission by viewModel.notificationPermission.collectAsStateWithLifecycle()
+                    val notificationPermissionCallback = rememberLauncherForActivityResult(
+                        ActivityResultContracts.RequestPermission()
+                    ) { granted ->
+                        if (!granted) viewModel.clearPendingNotification()
+                    }
+                    LaunchedEffect(notificationPermission) {
+                        if (notificationPermission) viewModel.onNotificationPermissionGranted()
+                    }
+
+                    fun onNotificationValueChanged(
+                        enabled: Boolean,
+                        pending: PendingNotificationSetting,
+                        apply: (Boolean) -> Unit
+                    ) {
+                        if (enabled && !notificationPermission) {
+                            viewModel.onNotificationToggleRequested(pending)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                notificationPermissionCallback.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            }
+                        } else {
+                            viewModel.clearPendingNotification()
+                            apply(enabled)
+                        }
+                    }
+
+                    SwitchPreference (
+                        title = stringResource(R.string.notification),
+                        summary = stringResource(R.string.plan_notification_description),
+                        icon = R.drawable.usage_notification,
+                        value = newPlan.notification && notificationPermission,
+                        onValueChanged = { enabled ->
+                            onNotificationValueChanged(
+                                enabled,
+                                PendingNotificationSetting.Foreground,
+                                viewModel::onForegroundNotificationValueChanged
+                            )
+                        },
+                    )
+                    SlideAnimatedVisibility(
+                        newPlan.notification &&
+                            notificationPermission &&
+                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
+                    ) {
+                        Row (
+                            modifier = Modifier.height(IntrinsicSize.Min),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            SwitchPreference(
+                                modifier = Modifier.weight(1f),
+                                title = stringResource(R.string.live_notification),
+                                icon = R.drawable.app_badging,
+                                value = newPlan.liveNotification && notificationPermission,
+                                onValueChanged = { enabled ->
+                                    onNotificationValueChanged(
+                                        enabled,
+                                        PendingNotificationSetting.Live,
+                                        viewModel::onLiveNotificationValueChanged
+                                    )
+                                }
+                            )
+                            IconPreference(
+                                title = stringResource(R.string.help),
+                                icon = R.drawable.help,
+                                onClick = { openLink(activity, "https://github.com/leekleak/traffic-light/wiki/Troubleshooting#notifications") },
+                            )
+                        }
+                    }
+                    SwitchPreference(
+                        title = stringResource(R.string.budget_overshoot_warning),
+                        summary = stringResource(R.string.budget_overshoot_warning_description),
+                        icon = R.drawable.warning,
+                        value = newPlan.budgetWarning && notificationPermission,
+                        enabled = newPlan.mainDataSize.byteValue > 0,
+                        onValueChanged = { enabled ->
+                            onNotificationValueChanged(
+                                enabled,
+                                PendingNotificationSetting.Budget,
+                                viewModel::onBudgetNotificationValueChanged
+                            )
+                        }
+                    )
+                    SwitchPreference(
+                        title = stringResource(R.string.safety_status_warning),
+                        summary = stringResource(R.string.safety_status_warning_description),
+                        icon = R.drawable.shield,
+                        value = newPlan.safetyWarning && notificationPermission,
+                        enabled = newPlan.mainDataSize.byteValue > 0,
+                        onValueChanged = { enabled ->
+                            onNotificationValueChanged(
+                                enabled,
+                                PendingNotificationSetting.Safety,
+                                viewModel::onSafetyNotificationValueChanged
+                            )
+                        }
+                    )
+                }
+                categoryTitleSmall { stringResource(R.string.notes) }
+                item {
+                    val noteState = rememberTextFieldState(newPlan.note)
+                    LaunchedEffect(noteState.text) {
+                        viewModel.updatePlan { it.copy(note = noteState.text.toString()) }
+                    }
+                    BasicTextField(
+                        state = noteState,
+                        modifier = Modifier
+                            .padding(vertical = 4.dp)
+                            .fillMaxWidth()
+                            .card()
+                            .padding(12.dp),
+                        textStyle = typography.bodyLarge.copy(color = colorScheme.onSurface),
+                        cursorBrush = SolidColor(colorScheme.onSurface),
+                        decorator = { innerTextField ->
+                            if (noteState.text.isEmpty()) {
+                                Text(
+                                    text = stringResource(R.string.write_your_note_here),
+                                    style = typography.bodyLarge,
+                                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                                )
+                            }
+                            innerTextField()
+                        }
+                    )
+                }
+                categoryTitleSmall { stringResource(R.string.background) }
+                item {
+                    LazyRow(
+                        modifier = Modifier.padding(vertical = 4.dp).card(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(8.dp)
+                    ) {
+                        items(backgrounds.size) { i ->
+                            BackgroundSelector(i, newPlan) {
+                                viewModel.updatePlan { it.copy(uiBackground = i) }
+                            }
+                        }
+                    }
+                }
+            }
+            Box(Modifier.align(Alignment.BottomEnd).navigationBarsPadding()) {
                 FloatingActionButton(
-                    modifier = Modifier.padding(16.dp).align(Alignment.BottomEnd),
+                    modifier = Modifier.padding(16.dp),
                     onClick = {
                         viewModel.save()
                         haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
@@ -229,317 +539,6 @@ fun DataPlanConfig(
                 }
             }
         }
-    ) { paddingValues ->
-        val hazeState = rememberHazeState()
-        LazyColumn(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxSize()
-                .hazeSource(hazeState),
-            contentPadding = paddingValues
-        ) {
-            item {
-                val size by remember(newPlan, metric) { derivedStateOf {
-                    newPlan.mainDataSize.getAsUnit(newPlan.mainDataSizeUnit, metric)
-                } }
-                PlanSizeConfig (
-                    size = size,
-                    unit = newPlan.mainDataSizeUnit,
-                    onSizeUpdate = { size ->
-                        viewModel.updatePlan { it.copy(mainDataSize = DataSize(size)) }
-                    },
-                    onUnitUpdate = { unit ->
-                        viewModel.updatePlan {
-                            it.copy(
-                                mainDataSize = DataSize((size * unit.toBits(if (metric) 1000.0 else 1024.0)).toLong()),
-                                mainDataSizeUnit = unit
-                            )
-                        }
-                    }
-                )
-            }
-            categoryTitleSmall { stringResource(R.string.type) }
-            typeConfig(
-                plan = newPlan,
-            ) { plan ->
-                viewModel.updatePlan { plan }
-            }
-            item {
-                Row(verticalAlignment = Alignment.Bottom) {
-                    CategoryTitleSmallText(stringResource(R.string.usage))
-                    Spacer(modifier = Modifier.weight(1f))
-
-                }
-            }
-            item {
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.medium,
-                    enabled = canEstimate,
-                    onClick = {
-                        viewModel.onCalculateUsage()
-                        haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-                    },
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.magic),
-                        contentDescription = null
-                    )
-                    Text(
-                        modifier = Modifier.padding(start = 8.dp),
-                        text = stringResource(R.string.estimate_usage)
-                    )
-                }
-                UsageInputPreference(newPlan) { usage -> viewModel.updatePlan { it.copy(mainDataUsed = usage) } }
-                ExtrasConfig(
-                    newPlan = newPlan,
-                    showAddExtraDialog = dialogs.addExtra,
-                    onShowAddExtraDialogChange = viewModel::setShowAddExtraDialog,
-                ) { plan -> viewModel.updatePlan { it.copy(extras = plan.extras) } }
-            }
-            categoryTitleSmall { stringResource(R.string.zero_rated_apps) }
-            item {
-                val suspiciousApps by viewModel.suspiciousApps.collectAsStateWithLifecycle()
-
-                val excludedApps by remember { derivedStateOf {
-                    suspiciousApps.filter { newPlan.excludedApps.contains(it.uid) }
-                } }
-                val includedApps by remember { derivedStateOf {
-                    suspiciousApps.filter { !newPlan.excludedApps.contains(it.uid) }
-                } }
-
-                Column(
-                    modifier = Modifier
-                        .padding(vertical = 4.dp)
-                        .card()
-                        .padding(vertical = 8.dp),
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .animateContentSize(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        val brush = Brush.horizontalGradient(0.95f to Color.Black, 1f to Color.Transparent)
-                        AppSelector(
-                            uids = excludedApps,
-                            modifier = Modifier
-                                .weight(1f)
-                                .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
-                                .drawWithContent {
-                                    drawContent()
-                                    drawRect(brush = brush, blendMode = BlendMode.DstIn)
-                                }
-                        ) { uid ->
-                            viewModel.updatePlan {
-                                it.copy(excludedApps = it.excludedApps.filter { app -> app != uid })
-                            }
-                        }
-                        FilledIconButton (
-                            modifier = Modifier.padding(end = 8.dp),
-                            onClick = {
-                                viewModel.setShowAppPicker(!dialogs.appPicker)
-                                haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
-                            },
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.add),
-                                contentDescription = null
-                            )
-                        }
-                    }
-
-                    AnimatedVisibility(dialogs.appPicker, modifier = Modifier.fillMaxWidth()) {
-                        val textFieldState = rememberTextFieldState()
-                        val searchResults by produceState<List<DataUID>>(initialValue = includedApps, textFieldState.text) {
-                            value = includedApps.search(textFieldState.text.toString(), context)
-                        }
-
-                        Column(
-                            modifier = Modifier.padding(top = 8.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            HorizontalDivider()
-                            AppSelector(searchResults, Modifier.fillMaxWidth()) { uid ->
-                                viewModel.updatePlan {
-                                    it.copy(excludedApps = it.excludedApps +
-                                        (includedApps
-                                            .map { app -> app.uid }
-                                            .filter { app -> app == uid })
-                                    )
-                                }
-                            }
-                            Box(modifier = Modifier.padding(horizontal = 8.dp)) {
-                                SearchField(
-                                    textFieldState = textFieldState,
-                                    placeholder = stringResource(R.string.search),
-                                    icon = R.drawable.search
-                                )
-                            }
-                        }
-                    }
-
-                }
-            }
-            categoryTitleSmall { stringResource(R.string.notification) }
-            item {
-                val notificationPermission by viewModel.notificationPermission.collectAsStateWithLifecycle()
-                val notificationPermissionCallback = rememberLauncherForActivityResult(
-                    ActivityResultContracts.RequestPermission()
-                ) { granted ->
-                    if (!granted) viewModel.clearPendingNotification()
-                }
-                LaunchedEffect(notificationPermission) {
-                    if (notificationPermission) viewModel.onNotificationPermissionGranted()
-                }
-
-                fun onNotificationValueChanged(
-                    enabled: Boolean,
-                    pending: PendingNotificationSetting,
-                    apply: (Boolean) -> Unit
-                ) {
-                    if (enabled && !notificationPermission) {
-                        viewModel.onNotificationToggleRequested(pending)
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            notificationPermissionCallback.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        }
-                    } else {
-                        viewModel.clearPendingNotification()
-                        apply(enabled)
-                    }
-                }
-
-                SwitchPreference (
-                    title = stringResource(R.string.notification),
-                    summary = stringResource(R.string.plan_notification_description),
-                    icon = R.drawable.usage_notification,
-                    value = newPlan.notification && notificationPermission,
-                    onValueChanged = { enabled ->
-                        onNotificationValueChanged(
-                            enabled,
-                            PendingNotificationSetting.Foreground,
-                            viewModel::onForegroundNotificationValueChanged
-                        )
-                    },
-                )
-                SlideAnimatedVisibility(
-                    newPlan.notification &&
-                        notificationPermission &&
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA
-                ) {
-                    Row (
-                        modifier = Modifier.height(IntrinsicSize.Min),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        SwitchPreference(
-                            modifier = Modifier.weight(1f),
-                            title = stringResource(R.string.live_notification),
-                            icon = R.drawable.app_badging,
-                            value = newPlan.liveNotification && notificationPermission,
-                            onValueChanged = { enabled ->
-                                onNotificationValueChanged(
-                                    enabled,
-                                    PendingNotificationSetting.Live,
-                                    viewModel::onLiveNotificationValueChanged
-                                )
-                            }
-                        )
-                        IconPreference(
-                            title = stringResource(R.string.help),
-                            icon = R.drawable.help,
-                            onClick = { openLink(activity, "https://github.com/leekleak/traffic-light/wiki/Troubleshooting#notifications") },
-                        )
-                    }
-                }
-                SwitchPreference(
-                    title = stringResource(R.string.budget_overshoot_warning),
-                    summary = stringResource(R.string.budget_overshoot_warning_description),
-                    icon = R.drawable.warning,
-                    value = newPlan.budgetWarning && notificationPermission,
-                    enabled = newPlan.mainDataSize.byteValue > 0,
-                    onValueChanged = { enabled ->
-                        onNotificationValueChanged(
-                            enabled,
-                            PendingNotificationSetting.Budget,
-                            viewModel::onBudgetNotificationValueChanged
-                        )
-                    }
-                )
-                SwitchPreference(
-                    title = stringResource(R.string.safety_status_warning),
-                    summary = stringResource(R.string.safety_status_warning_description),
-                    icon = R.drawable.shield,
-                    value = newPlan.safetyWarning && notificationPermission,
-                    enabled = newPlan.mainDataSize.byteValue > 0,
-                    onValueChanged = { enabled ->
-                        onNotificationValueChanged(
-                            enabled,
-                            PendingNotificationSetting.Safety,
-                            viewModel::onSafetyNotificationValueChanged
-                        )
-                    }
-                )
-            }
-            categoryTitleSmall { stringResource(R.string.notes) }
-            item {
-                val noteState = rememberTextFieldState(newPlan.note)
-                LaunchedEffect(noteState.text) {
-                    viewModel.updatePlan { it.copy(note = noteState.text.toString()) }
-                }
-                BasicTextField(
-                    state = noteState,
-                    modifier = Modifier
-                        .padding(vertical = 4.dp)
-                        .fillMaxWidth()
-                        .card()
-                        .padding(12.dp),
-                    textStyle = typography.bodyLarge.copy(color = colorScheme.onSurface),
-                    cursorBrush = SolidColor(colorScheme.onSurface),
-                    decorator = { innerTextField ->
-                        if (noteState.text.isEmpty()) {
-                            Text(
-                                text = stringResource(R.string.write_your_note_here),
-                                style = typography.bodyLarge,
-                                color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-                            )
-                        }
-                        innerTextField()
-                    }
-                )
-            }
-            categoryTitleSmall { stringResource(R.string.background) }
-            item {
-                LazyRow(
-                    modifier = Modifier.padding(vertical = 4.dp).card(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(8.dp)
-                ) {
-                    items(backgrounds.size) { i ->
-                        BackgroundSelector(i, newPlan) {
-                            viewModel.updatePlan { it.copy(uiBackground = i) }
-                        }
-                    }
-                }
-            }
-        }
-        PageTitle (
-            backAction = BackAction.Normal(navigator),
-            hazeState = hazeState,
-            text = stringResource(R.string.configure_plan),
-            customElement = {
-                IconButton(
-                    enabled = newPlan.configured,
-                    onClick = { viewModel.setShowDeleteDialog(true) }
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.deleted),
-                        contentDescription = stringResource(R.string.delete),
-                    )
-                }
-            }
-        )
     }
 }
 
@@ -1029,7 +1028,6 @@ fun PlanSizeConfig(
 ) {
     Box(
         modifier = Modifier
-            .padding(top = TOP_BAR_HEIGHT)
             .height(172.dp * 1.5f)
             .fillMaxWidth(),
         contentAlignment = Alignment.Center
