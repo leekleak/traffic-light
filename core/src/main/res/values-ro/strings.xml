@@ -16,7 +16,6 @@
     <string name="screen_off_update_description">Permite urmărirea pe Always On Display, dar folosește multă energie.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Date mobile: %1$s</string>
-    <string name="about">Despre</string>
     <string name="speed_in_bits">Arată viteza în biți</string>
     <string name="ui">Interfață</string>
     <string name="auto">Automat</string>
@@ -34,7 +33,6 @@
     <string name="appearance">Aspect</string>
     <string name="total_usage">Utilizare totală</string>
     <string name="behavior">Comportament</string>
-    <string name="shizuku_not_running">Shizuku nu rulează</string>
     <string name="sim_card">Card SIM</string>
     <string name="data_plans">Planuri de date</string>
     <string name="configure_plan">Configurare plan</string>
