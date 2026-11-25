@@ -16,7 +16,6 @@
     <string name="screen_off_update_description">Staat volgen van gebruik toe op de AOD, maar kan invloed hebben op de batterij.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Mobiel: %1$s</string>
-    <string name="about">Over</string>
     <string name="speed_in_bits">Snelheid in bits weergeven</string>
     <string name="force_fallback">Forceer terugval bij snelheid volgen</string>
     <string name="force_fallback_description">Handig wanneer je een foutieve ROM of Ethernet gebruikt</string>
@@ -34,7 +33,6 @@
     <string name="unknown">Onbekend</string>
     <string name="appearance">Uiterlijk</string>
     <string name="behavior">Gedrag</string>
-    <string name="shizuku_not_running">Shizuku loopt niet</string>
     <string name="sim_card">Simkaart</string>
     <string name="data_plans">Databundels</string>
     <string name="configure_plan">Bundel instellen</string>
