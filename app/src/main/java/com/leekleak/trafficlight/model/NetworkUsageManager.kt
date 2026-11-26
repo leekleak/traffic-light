@@ -7,6 +7,7 @@ import com.leekleak.core.util.fromTimestamp
 import com.leekleak.core.util.overlapRatio
 import com.leekleak.core.util.toTimestamp
 import com.leekleak.trafficlight.database.AppUsage
+import com.leekleak.trafficlight.database.AppUsageSummary
 import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DataDirection.Bidirectional
 import com.leekleak.trafficlight.database.DataDirection.Download
@@ -15,7 +16,6 @@ import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HourUsage
 import com.leekleak.trafficlight.database.UsageQuery
-import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.model.AppManager.Companion.otherUsersApp
 import com.leekleak.trafficlight.model.AppManager.Companion.specialUIDs
 import com.leekleak.trafficlight.model.AppManager.Companion.unknownApp
@@ -182,13 +182,13 @@ class NetworkUsageManager(
         query1: UsageQuery,
         query2: UsageQuery,
         subscriberId: String? = null
-    ): List<AppUsage> {
+    ): AppUsageSummary {
         val usage1 = getNetworkDataForType(startStamp, endStamp, subscriberId, query1.dataType)
         val usage2 = getNetworkDataForType(startStamp, endStamp, subscriberId, query2.dataType)
 
         val uids = usage1.map { it.uid }.union(usage2.map { it.uid }).union(specialUIDs).filterNotNull()
 
-        val list = uids.map { uid ->
+        val allRows = uids.map { uid ->
             val uid1 = usage1.find { it.uid == uid } ?: UsageData()
             val uid2 = usage2.find { it.uid == uid } ?: UsageData()
             AppUsage(
@@ -198,21 +198,21 @@ class NetworkUsageManager(
                     usage2 = uid2.forDirection(query2.dataDirection)
                 ),
             )
-        }.toMutableList()
+        }
 
         val totalUsage = DayUsage(
-            usage1 = list.sumOf { it.usage.usage1 },
-            usage2 = list.sumOf { it.usage.usage2 }
+            usage1 = allRows.sumOf { it.usage.usage1 },
+            usage2 = allRows.sumOf { it.usage.usage2 }
         )
 
-        list.sortByDescending { it.usage.totalUsage }
-        list.add(0, AppUsage(
-            app = allApp,
-            usage = totalUsage
-        ))
-        list.sortWith(compareBy { it.app == unknownApp })
-        list.removeAll { it.usage.totalUsage == 0L }
-        return list.distinctBy { it.app.uid }.toList()
+        val apps = allRows
+            .filter { it.usage.totalUsage > 0L }
+            .sortedWith(
+                compareBy<AppUsage> { it.app == unknownApp }
+                    .thenByDescending { it.usage.totalUsage }
+            )
+
+        return AppUsageSummary(apps = apps, total = totalUsage)
     }
 
     suspend fun getAllHourUsage(

@@ -6,7 +6,6 @@ import com.leekleak.core.util.toTimestamp
 import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.UsageQuery
-import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.model.UsageData
 import kotlinx.coroutines.flow.last
@@ -88,7 +87,7 @@ class OverviewLogic(val networkUsageManager: NetworkUsageManager) {
             query1 = query,
             query2 = UsageQuery(DataType.None),
         )
-        return usage.filter { it.app != allApp }.take(3)
+        return usage.apps.take(3)
     }
 
     private fun List<UsageData>.sumForQuery(query: UsageQuery): Long = sumOf { usage ->

@@ -1,8 +1,10 @@
 package com.leekleak.trafficlight.ui.overview
 
 import com.leekleak.core.util.toTimestamp
+import com.leekleak.trafficlight.database.AppUsageSummary
 import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DataType
+import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.DataUID
 import com.leekleak.trafficlight.model.NetworkUsageManager
@@ -95,7 +97,7 @@ class OverviewLogicTest {
 
         coEvery {
             networkUsageManager.getAllAppUsage(capture(startStamp), any(), any(), any())
-        } returns emptyList()
+        } returns AppUsageSummary(emptyList(), DayUsage())
 
         OverviewLogic(networkUsageManager).getTopAppUsage(usageQuery(), OverviewRange.Month)
 

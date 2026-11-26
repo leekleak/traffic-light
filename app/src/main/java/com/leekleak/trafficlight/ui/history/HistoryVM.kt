@@ -18,7 +18,9 @@ import com.leekleak.core.charts.model.ScrollableBarData
 import com.leekleak.core.util.toTimestamp
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.database.AppUsage
+import com.leekleak.trafficlight.database.AppUsageSummary
 import com.leekleak.trafficlight.database.DataType
+import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HistoryPreferenceRepo
 import com.leekleak.trafficlight.database.HourUsage
 import com.leekleak.trafficlight.database.UsageQuery
@@ -58,6 +60,7 @@ data class HistoryUiState(
     val filtersChanged: Boolean = false,
     val forceHourList: Boolean = false,
     val appList: List<AppUsage> = emptyList(),
+    val totalUsage: DayUsage = DayUsage(),
     val hourList: List<HourUsage> = emptyList(),
     val shizukuPermissionGranted: Boolean = false,
     val shizukuRunning: Boolean = false,
@@ -111,19 +114,27 @@ class HistoryVM(
             ).first()
         }
 
+        val appSummary by produceState(
+            initialValue = AppUsageSummary(emptyList(), DayUsage()),
+            refresh, dateParams, query1, query2
+        ) {
+            val (startDate, endDate) = dateParams.getStartEndDates()
+            value = networkUsageManager.getAllAppUsage(
+                startStamp = startDate.atStartOfDay().toTimestamp(),
+                endStamp = endDate.atStartOfDay().toTimestamp(),
+                query1 = query1,
+                query2 = query2,
+            )
+        }
         val appList: List<AppUsage> = if (listParam == ListParam.AppList) {
-            val list by produceState(emptyList(), refresh, dateParams, query1, query2) {
-                val (startDate, endDate) = dateParams.getStartEndDates()
-                value = networkUsageManager.getAllAppUsage(
-                    startStamp = startDate.atStartOfDay().toTimestamp(),
-                    endStamp = endDate.atStartOfDay().toTimestamp(),
-                    query1 = query1,
-                    query2 = query2,
-                )
-            }
-            list
+            appSummary.apps
         } else {
             emptyList()
+        }
+        val totalUsage: DayUsage = if (listParam == ListParam.AppList) {
+            appSummary.total
+        } else {
+            DayUsage()
         }
 
         val hourList: List<HourUsage> = if (listParam == ListParam.HourList) {
@@ -146,6 +157,7 @@ class HistoryVM(
                 (listParam != savedListParam),
             forceHourList = current.forceHourList,
             appList = appList,
+            totalUsage = totalUsage,
             hourList = hourList,
             shizukuPermissionGranted = shizukuPermissionGranted,
             shizukuRunning = shizukuRunning,

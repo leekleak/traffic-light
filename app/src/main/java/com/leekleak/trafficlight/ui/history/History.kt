@@ -88,6 +88,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.leekleak.core.R
 import com.leekleak.core.charts.LineGraph
@@ -96,11 +97,13 @@ import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
 import com.leekleak.core.ui.components.SearchField
 import com.leekleak.core.ui.components.ShizukuStoppedTag
+import com.leekleak.core.ui.components.SlideAnimatedVisibility
 import com.leekleak.core.ui.components.iconToggleButton
 import com.leekleak.core.ui.navigation.LocalNavigationBarPadding
 import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.core.ui.theme.historyItemFont
 import com.leekleak.core.ui.theme.shelfShape
+import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.getName
 import com.leekleak.core.util.openLink
 import com.leekleak.core.util.rememberIs24HourFormat
@@ -160,10 +163,6 @@ fun History(
         actions = {
             if (uiState.showShizukuNotRunning) {
                 ShizukuStoppedTag()
-            } else {
-                HistoryLegendItem(uiState.queries.first, colorScheme.primary, colorScheme.onPrimary)
-                Spacer(Modifier.width(8.dp))
-                HistoryLegendItem(uiState.queries.second, colorScheme.tertiary, colorScheme.onTertiary)
             }
         }
     ) { paddingValues ->
@@ -288,7 +287,7 @@ private fun AppList(
 
     var appSelected by remember { mutableIntStateOf(-1) }
     val totalMaximum = remember(uiState.appList) {
-        uiState.appList.find { it.app.uidQuery == null }?.usage?.totalUsage ?: 0
+        uiState.appList.maxOfOrNull { it.usage.totalUsage } ?: 0
     }
 
     val listState = rememberLazyListState()
@@ -299,9 +298,30 @@ private fun AppList(
             .background(colorScheme.surfaceContainer)
             .fillMaxSize(),
         contentPadding = contentPadding,
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
         state = listState
     ) {
+        item {
+            Row(
+                modifier = Modifier.clip(MaterialTheme.shapes.medium),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                HistoryLegendItem(
+                    usageQuery = uiState.queries.first,
+                    byteUsage = uiState.totalUsage.usage1,
+                    showUsage = uiState.appList.isNotEmpty(),
+                    backgroundColor = colorScheme.primary,
+                    foregroundColor = colorScheme.onPrimary
+                )
+                HistoryLegendItem(
+                    usageQuery = uiState.queries.second,
+                    byteUsage = uiState.totalUsage.usage2,
+                    showUsage = uiState.appList.isNotEmpty(),
+                    backgroundColor = colorScheme.tertiary,
+                    foregroundColor = colorScheme.onTertiary,
+                )
+            }
+        }
         items(uiState.appList, key = { it.app.uid }, contentType = { "app" }) { item ->
             Box(Modifier.animateItem()) {
                 AppItem(
@@ -419,30 +439,50 @@ private fun HourList(
 }
 
 @Composable
-private fun HistoryLegendItem(
-    usageQuery1: UsageQuery,
+private fun RowScope.HistoryLegendItem(
+    usageQuery: UsageQuery,
+    byteUsage: Long,
+    showUsage: Boolean,
     backgroundColor: Color,
     foregroundColor: Color,
 ) {
-    Row(
+    Column(
         modifier = Modifier
-            .background(backgroundColor, MaterialTheme.shapes.medium)
-            .padding(vertical = 4.dp, horizontal = 8.dp)
+            .weight(1f)
+            .height(72.dp)
+            .background(backgroundColor, MaterialTheme.shapes.small)
+            .padding(vertical = 4.dp, horizontal = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Icon(
-            painter = painterResource(usageQuery1.dataType.iconRes),
-            contentDescription = stringResource(usageQuery1.dataType.nameRes),
-            tint = foregroundColor
-        )
-        AnimatedVisibility(usageQuery1.dataType != DataType.None) {
-            Row {
-                Icon(
-                    painter = painterResource(usageQuery1.dataDirection.iconRes),
-                    contentDescription = stringResource(usageQuery1.dataDirection.nameRes),
-                    tint = foregroundColor
-                )
-                usageQuery1.dataUID.GetIcon(Modifier.size(24.dp), foregroundColor)
+        Row(
+            modifier = Modifier
+        ) {
+            Icon(
+                painter = painterResource(usageQuery.dataType.iconRes),
+                contentDescription = stringResource(usageQuery.dataType.nameRes),
+                tint = foregroundColor
+            )
+            AnimatedVisibility(usageQuery.dataType != DataType.None) {
+                Row {
+                    Icon(
+                        painter = painterResource(usageQuery.dataDirection.iconRes),
+                        contentDescription = stringResource(usageQuery.dataDirection.nameRes),
+                        tint = foregroundColor
+                    )
+                    usageQuery.dataUID.GetIcon(Modifier.size(24.dp), foregroundColor)
+                }
             }
+        }
+        SlideAnimatedVisibility(showUsage) {
+            val usage = DataSize(byteUsage)
+            val font = remember { historyItemFont() }
+            Text(
+                text = usage.toString(),
+                color = foregroundColor,
+                fontFamily = font,
+                fontSize = 20.sp
+            )
         }
     }
 }
@@ -892,7 +932,7 @@ private fun ExpandableActions(
     val scope = rememberCoroutineScope()
 
     AnimatedVisibility(
-        visible = selected && app != null && app != allApp,
+        visible = selected && app != null,
         enter = expandVertically(spring(0.7f, Spring.StiffnessMedium)),
         exit = shrinkVertically(spring(0.7f, Spring.StiffnessMedium))
     ) {

@@ -9,7 +9,6 @@ import com.leekleak.trafficlight.database.DataPlanSnapshot
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.TimeInterval
 import com.leekleak.trafficlight.database.UsageQuery
-import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -140,8 +139,8 @@ class DataPlanLogic(val networkUsageManager: NetworkUsageManager) {
             query2 = UsageQuery(DataType.None),
             subscriberId = dataPlan.decryptedID
         )
-        return todayUsage
-            .filter { it.app != allApp && it.app.uid !in dataPlan.excludedApps }
+        return todayUsage.apps
+            .filter { it.app.uid !in dataPlan.excludedApps }
             .take(3)
     }
 }
