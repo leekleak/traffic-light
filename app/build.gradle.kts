@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room3)
+    alias(libs.plugins.androidx.baselineprofile)
     alias(libs.plugins.aboutLibraries)
     alias(libs.plugins.koin)
 }
@@ -104,6 +105,12 @@ aboutLibraries {
     }
 }
 
+baselineProfile {
+    // One profile generated from the play flavor, shared by all flavors.
+    mergeIntoMain = true
+    saveInSrc = true
+}
+
 
 dependencies {
     implementation(project(":core"))
@@ -170,6 +177,9 @@ dependencies {
 
     implementation(libs.aboutlibraries.core)
     implementation(libs.aboutlibraries.compose.core)
+
+    implementation(libs.androidx.profileinstaller)
+    baselineProfile(project(":baselineprofile"))
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)

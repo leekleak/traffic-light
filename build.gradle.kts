@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.androidx.room3) apply false
+    alias(libs.plugins.androidx.baselineprofile) apply false
+    alias(libs.plugins.android.test) apply false
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.aboutLibraries) apply false
     alias(libs.plugins.koin) apply false

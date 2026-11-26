@@ -33,6 +33,9 @@ kotlinxCoroutinesTest = "1.11.0"
 turbine = "1.2.1"
 robolectric = "4.18.1"
 aboutLibraries = "15.3.0"
+benchmark = "1.5.0"
+profileinstaller = "1.4.1"
+uiautomator = "2.3.0"
 
 [libraries]
 
@@ -103,6 +106,11 @@ androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version
 aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutLibraries" }
 aboutlibraries-compose-core = { module = "com.mikepenz:aboutlibraries-compose-core", version.ref = "aboutLibraries" }
 
+# Baseline Profiles
+androidx-benchmark-macro-junit4 = { module = "androidx.benchmark:benchmark-macro-junit4", version.ref = "benchmark" }
+androidx-profileinstaller = { module = "androidx.profileinstaller:profileinstaller", version.ref = "profileinstaller" }
+androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiautomator" }
+
 #Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-test-core = { group = "androidx.test", name = "core", version.ref = "testCore" }
@@ -118,5 +126,7 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 androidx-room3 = { id = "androidx.room3", version.ref = "room3" }
 android-library = { id = "com.android.library", version.ref = "agp" }
+android-test = { id = "com.android.test", version.ref = "agp" }
+androidx-baselineprofile = { id = "androidx.baselineprofile", version.ref = "benchmark" }
 aboutLibraries = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "aboutLibraries" }
 koin = { id = "io.insert-koin.compiler.plugin", version.ref = "koinPlugin" }

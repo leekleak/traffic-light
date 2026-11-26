@@ -1,13 +1,12 @@
 package com.leekleak.trafficlight
 
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.glance.appwidget.GlanceAppWidgetManager
-import androidx.glance.appwidget.setWidgetPreviews
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
 import com.leekleak.trafficlight.database.AppPreferenceRepo
@@ -17,22 +16,17 @@ import com.leekleak.trafficlight.model.PermissionManager
 import com.leekleak.trafficlight.services.notifications.NotificationService
 import com.leekleak.trafficlight.ui.app.App
 import com.leekleak.trafficlight.ui.theme.AppThemeWrapper
-import com.leekleak.trafficlight.widget.WidgetReceiver
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
+import com.leekleak.trafficlight.widget.installWidgetPreviews
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
-import org.koin.java.KoinJavaComponent.injectOrNull
-import kotlin.time.Duration.Companion.seconds
+import org.koin.mp.KoinPlatform
 
 class MainActivity : ComponentActivity() {
 
     private val appPreferenceRepo: AppPreferenceRepo by inject()
     private val dataPlanManager: DataPlanManager by inject()
-    private val playServicesProvider: PlayServicesProvider? by injectOrNull(PlayServicesProvider::class.java)
+    private val playServicesProvider: PlayServicesProvider? by KoinPlatform.getKoin().injectOrNull()
     private val imageLoader: ImageLoader by inject()
     private val permissionManager: PermissionManager by inject()
 
@@ -41,20 +35,13 @@ class MainActivity : ComponentActivity() {
 
         permissionManager.update()
         enableEdgeToEdge()
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            lifecycleScope.launch {
-                withContext(Dispatchers.IO) {
-                    delay(1.seconds) // Apparently if you refresh previews too soon on app launch they'll be ignored
-                    GlanceAppWidgetManager(applicationContext).setWidgetPreviews<WidgetReceiver>()
-                }
-            }
-        }
+        installWidgetPreviews(applicationContext, lifecycleScope)
 
         lifecycleScope.launch {
-            dataPlanManager.activePlansWithNotifications.combine(appPreferenceRepo.notification) { _, _ ->
-            }.collectLatest {
-                NotificationService.startService(applicationContext)
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                dataPlanManager.activePlansWithNotifications
+                    .combine(appPreferenceRepo.notification) { _, _ -> }
+                    .collect { NotificationService.startService(applicationContext) }
             }
         }
 
@@ -65,7 +52,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             setSingletonImageLoaderFactory { imageLoader }
 
-            AppThemeWrapper (appPreferenceRepo) {
+            AppThemeWrapper(appPreferenceRepo) {
                 App(permissionManager = permissionManager)
             }
         }
