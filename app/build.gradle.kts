@@ -106,7 +106,7 @@ aboutLibraries {
 }
 
 baselineProfile {
-    // One profile generated from the play flavor, shared by all flavors.
+    // Baseline generated for full flavor, but should be good for others too.
     mergeIntoMain = true
     saveInSrc = true
 }
