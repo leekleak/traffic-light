@@ -114,7 +114,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -145,9 +144,8 @@ import com.leekleak.core.ui.components.sizeToBytes
 import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.ui.theme.LocalSizeMetric
 import com.leekleak.core.ui.theme.card
-import com.leekleak.core.ui.theme.doHyeonFont
 import com.leekleak.core.ui.theme.googleSans
-import com.leekleak.core.ui.theme.googleSansEmphasized
+import com.leekleak.core.ui.theme.googleSansPlan
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.DataSizeUnit
 import com.leekleak.core.util.clearFocusOnTap
@@ -763,7 +761,7 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
         contentPadding = PaddingValues(vertical = 8.dp, horizontal = 16.dp),
         onDateSelect = { onChange(it, selectedTime, currentMultiplier()) },
         onTimeSelect = { onChange(selectedDate, it, currentMultiplier()) },
-    ) { fontFamily ->
+    ) {
         item {
             Column(
                 modifier = Modifier.width(IntrinsicSize.Max)
@@ -773,10 +771,7 @@ private fun CustomPlanSetup(newPlan: DataPlan, onChange: (date:LocalDate, time: 
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(painterResource(R.drawable.length), null)
-                    Text(
-                        text = stringResource(R.string.length),
-                        fontFamily = fontFamily,
-                    )
+                    Text(stringResource(R.string.length))
                 }
                 Row(
                     modifier = Modifier
@@ -817,10 +812,9 @@ private fun DateAndTimePicker(
     contentPadding: PaddingValues = PaddingValues(0.dp),
     onDateSelect: (date: LocalDate) -> Unit,
     onTimeSelect: (time: LocalTime) -> Unit,
-    extraItems: LazyListScope.(font: FontFamily) -> Unit = {}
+    extraItems: LazyListScope.() -> Unit = {}
 ) {
     val haptic = LocalHapticFeedback.current
-    val fontFamily = remember { googleSans(weight = 600f) }
     var datePickerVisible by remember { mutableStateOf(false) }
     var timePickerVisible by remember { mutableStateOf(false) }
     LazyRow(
@@ -835,10 +829,7 @@ private fun DateAndTimePicker(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(painterResource(R.drawable.day), null)
-                    Text(
-                        text = stringResource(R.string.day),
-                        fontFamily = fontFamily
-                    )
+                    Text(stringResource(R.string.day))
                 }
                 Button(
                     shape = MaterialTheme.shapes.medium,
@@ -858,10 +849,7 @@ private fun DateAndTimePicker(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(painterResource(R.drawable.clock), null)
-                    Text(
-                        text = stringResource(R.string.time),
-                        fontFamily = fontFamily,
-                    )
+                    Text(stringResource(R.string.time))
                 }
                 Button(
                     shape = MaterialTheme.shapes.medium,
@@ -874,7 +862,7 @@ private fun DateAndTimePicker(
                 }
             }
         }
-        extraItems(fontFamily)
+        extraItems()
     }
     if (datePickerVisible) {
         DatePickerDialog(
@@ -966,7 +954,7 @@ fun AppSelector(
                 Text(
                     modifier = Modifier.padding(start = 8.dp),
                     text = stringResource(R.string.no_apps),
-                    fontFamily = googleSansEmphasized(),
+                    fontFamily = googleSansPlan(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = colorScheme.onSurfaceVariant
@@ -1093,7 +1081,7 @@ fun PlanSizeConfig(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally)
             ) {
-                val fontFamilyDoHyeon = remember { doHyeonFont() }
+                val font = remember { googleSansPlan() }
                 BasicTextField(
                     state = fieldState,
                     modifier = Modifier
@@ -1111,7 +1099,7 @@ fun PlanSizeConfig(
                         keyboardType = KeyboardType.Number
                     ),
                     textStyle = TextStyle(
-                        fontFamily = fontFamilyDoHyeon,
+                        fontFamily = font,
                         fontSize = 64.sp,
                         color = colorScheme.onPrimaryContainer,
                         textAlign = TextAlign.End,
@@ -1129,8 +1117,8 @@ fun PlanSizeConfig(
                             onUnitUpdate(if (unit == DataSizeUnit.GB) DataSizeUnit.MB else DataSizeUnit.GB)
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         }
-                        .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 6.dp),
-                    fontFamily = fontFamilyDoHyeon,
+                        .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 2.dp),
+                    fontFamily = font,
                     fontSize = 24.sp,
                     maxLines = 1,
                     color = colorScheme.primaryContainer,

@@ -7,14 +7,6 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import com.leekleak.core.R
 
-fun doHyeonFont(): FontFamily {
-    return FontFamily(
-        Font(
-            R.font.do_hyeon,
-        ),
-    )
-}
-
 fun googleSans(
     @FloatRange(200.0, 1000.0) weight: Float = 400f,
     @FloatRange(25.0, 130.0) width: Float = 100f,
@@ -41,5 +33,6 @@ fun carrierFont(): FontFamily {
     )
 }
 
-fun googleSansEmphasized(): FontFamily = googleSans(weight = 800f, width = 110f, roundness = 50f)
+fun googleSansEmphasized(): FontFamily = googleSans(weight = 750f, width = 105f, roundness = 30f)
+fun googleSansPlan(): FontFamily = googleSans(weight = 650f, width = 95f, roundness = 30f)
 fun historyItemFont() = googleSans(weight = 800f)

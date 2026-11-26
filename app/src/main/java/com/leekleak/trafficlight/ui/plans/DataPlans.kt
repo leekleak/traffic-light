@@ -73,7 +73,6 @@ import com.leekleak.core.ui.components.TrendCard
 import com.leekleak.core.ui.navigation.LocalNavigationBarPadding
 import com.leekleak.core.ui.theme.LocalSizeMetric
 import com.leekleak.core.ui.theme.card
-import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.core.ui.theme.shelfShape
 import com.leekleak.core.util.DataSize
 import com.leekleak.trafficlight.charts.ActivityDay
@@ -557,7 +556,6 @@ private fun LazyListScope.activity(days: List<ActivityDay>, plan: DataPlan) {
         Column(Modifier.animateItem()) {
             CategoryTitleText(stringResource(R.string.activity))
             val metric = LocalSizeMetric.current
-            val font = remember { googleSans(weight = 700f) }
             var selectedEpochDay by rememberSaveable(plan.hashedSubscriberID) {
                 mutableStateOf<Long?>(null)
             }
@@ -587,14 +585,14 @@ private fun LazyListScope.activity(days: List<ActivityDay>, plan: DataPlan) {
                     val usage = DataSize(day.usage).toString(metric = metric)
                     Row(
                         modifier = Modifier.padding(8.dp).fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start)
                     ) {
                         Text(
                             modifier = Modifier
                                 .background(colorScheme.primary, MaterialTheme.shapes.small)
                                 .padding(horizontal = 8.dp, vertical = 4.dp),
                             text = date,
-                            fontFamily = font,
+                            fontWeight = FontWeight.Bold,
                             color = colorScheme.onPrimary,
                         )
                         Text(
@@ -602,7 +600,7 @@ private fun LazyListScope.activity(days: List<ActivityDay>, plan: DataPlan) {
                                 .background(colorScheme.secondary, MaterialTheme.shapes.small)
                                 .padding(horizontal = 8.dp, vertical = 4.dp),
                             text = usage,
-                            fontFamily = font,
+                            fontWeight = FontWeight.Bold,
                             color = colorScheme.onSecondary,
                         )
                     }

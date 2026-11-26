@@ -36,7 +36,6 @@ import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
 import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.ui.theme.card
-import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.trafficlight.R
 import com.mikepenz.aboutlibraries.entity.Library
 import com.mikepenz.aboutlibraries.ui.compose.android.produceLibraries
@@ -49,8 +48,6 @@ fun LibraryLicenseScreen(navigator: Navigator) {
     val libraries by produceLibraries(R.raw.aboutlibraries)
 
     var selectedLib: Library? by remember { mutableStateOf(null) }
-    val font = remember { googleSans() }
-    val fontHeavy = remember { googleSans(weight = 600f) }
 
     val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
@@ -80,7 +77,6 @@ fun LibraryLicenseScreen(navigator: Navigator) {
                         Text(
                             text = lib.name,
                             style = MaterialTheme.typography.titleMedium,
-                            fontFamily = fontHeavy
                         )
                         FlowRow (
                             modifier = Modifier.padding(top = 8.dp),
@@ -99,7 +95,6 @@ fun LibraryLicenseScreen(navigator: Navigator) {
                                         text = it,
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onPrimary,
-                                        fontFamily = googleSans(),
                                     )
                                 }
                             }
@@ -113,7 +108,6 @@ fun LibraryLicenseScreen(navigator: Navigator) {
                                     text = license.name,
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSecondary,
-                                    fontFamily = googleSans(),
                                 )
                             }
                         }
@@ -142,7 +136,6 @@ fun LibraryLicenseScreen(navigator: Navigator) {
                         Text(
                             text = it,
                             style = MaterialTheme.typography.bodySmall,
-                            fontFamily = font
                         )
                     }
                 }

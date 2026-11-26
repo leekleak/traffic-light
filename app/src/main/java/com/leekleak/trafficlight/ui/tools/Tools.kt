@@ -20,6 +20,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -27,19 +28,18 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation3.runtime.rememberNavBackStack
 import com.leekleak.core.R
 import com.leekleak.core.ui.components.BackAction
+import com.leekleak.core.ui.components.CategoryTitleSmallText
 import com.leekleak.core.ui.components.HazeScaffold
+import com.leekleak.core.ui.components.SpeedIconPreview
 import com.leekleak.core.ui.navigation.LocalNavigationBarPadding
 import com.leekleak.core.ui.navigation.Navigator
 import com.leekleak.core.ui.theme.AppTheme
 import com.leekleak.core.ui.theme.card
-import com.leekleak.core.ui.theme.googleSans
-import com.leekleak.core.ui.components.CategoryTitleSmallText
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.ui.navigation.IperfScreenKey
 import com.leekleak.trafficlight.ui.navigation.NotificationSettingsKey
 import com.leekleak.trafficlight.ui.navigation.OverlaySettingsKey
 import com.leekleak.trafficlight.ui.navigation.ToolsKey
-import com.leekleak.core.ui.components.SpeedIconPreview
 
 private val ToolCardMinWidth = 152.dp
 private val ToolGridSpacing = 8.dp
@@ -139,7 +139,7 @@ private fun ToolCard(
     onClick: () -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
-    val font = remember { googleSans(weight = 600f) }
+    //val font = remember { googleSans(weight = 600f) }
 
     Column(
         modifier = modifier
@@ -158,7 +158,7 @@ private fun ToolCard(
             text = title,
             maxLines = 2,
             fontSize = 18.sp,
-            fontFamily = font,
+            fontWeight = FontWeight.SemiBold,
             overflow = TextOverflow.Ellipsis,
         )
     }

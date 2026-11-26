@@ -42,8 +42,8 @@ import androidx.compose.ui.unit.sp
 import com.leekleak.core.R
 import com.leekleak.core.ui.theme.LocalSizeMetric
 import com.leekleak.core.ui.theme.carrierFont
-import com.leekleak.core.ui.theme.doHyeonFont
 import com.leekleak.core.ui.theme.googleSansEmphasized
+import com.leekleak.core.ui.theme.googleSansPlan
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.simIconRes
 import com.leekleak.trafficlight.database.DataPlan
@@ -86,8 +86,8 @@ fun DataPlanCard(
 
 @Composable
 private fun BoxScope.UnconfiguredDataPlanContent(planSnapshot: DataPlanSnapshot) {
-    val fontFamilyGoogleSans = remember { googleSansEmphasized() }
-    val fontFamilyDoHyeon = remember { doHyeonFont() }
+    val fontPlan = remember { googleSansPlan() }
+    val fontSubtitle = remember { googleSansEmphasized() }
 
     val metric = LocalSizeMetric.current
     val formatter = remember { DecimalFormat("0.##") }
@@ -97,13 +97,12 @@ private fun BoxScope.UnconfiguredDataPlanContent(planSnapshot: DataPlanSnapshot)
             metric
         )
         Text(
-            fontFamily = fontFamilyDoHyeon,
             textAlign = TextAlign.Center,
             text = buildAnnotatedString {
                 withStyle(
                     style = SpanStyle(
                         fontSize = 64.sp,
-                        fontFamily = fontFamilyDoHyeon
+                        fontFamily = fontPlan
                     )
                 ) {
                     append(formatter.format(usage))
@@ -111,7 +110,7 @@ private fun BoxScope.UnconfiguredDataPlanContent(planSnapshot: DataPlanSnapshot)
                 withStyle(
                     style = SpanStyle(
                         fontSize = 36.sp,
-                        fontFamily = fontFamilyDoHyeon
+                        fontFamily = fontPlan
                     )
                 ) {
                     appendLine(planSnapshot.mainDataSizeUnit.name)
@@ -119,7 +118,7 @@ private fun BoxScope.UnconfiguredDataPlanContent(planSnapshot: DataPlanSnapshot)
                 withStyle(
                     style = SpanStyle(
                         fontSize = 18.sp,
-                        fontFamily = fontFamilyGoogleSans
+                        fontFamily = fontSubtitle
                     )
                 ) {
                     append(stringResource(R.string.this_month))
@@ -181,8 +180,8 @@ private fun BoxBackground(
 @Composable
 private fun BoxScope.ConfiguredDataPlanContent(plan: DataPlan, planSnapshot: DataPlanSnapshot) {
     val context = LocalContext.current
-    val fontFamilyGoogleSans = remember { googleSansEmphasized() }
-    val fontFamilyDoHyeon = remember { doHyeonFont() }
+    val fontPlan = remember { googleSansPlan() }
+    val fontSubtitle = remember { googleSansEmphasized() }
     val metric = LocalSizeMetric.current
     val usageDataSize = remember(planSnapshot) { DataSize(planSnapshot.mainDataUsed) }
     val usageValue by remember(usageDataSize, metric) {
@@ -196,13 +195,13 @@ private fun BoxScope.ConfiguredDataPlanContent(plan: DataPlan, planSnapshot: Dat
 
     Box (Modifier.align(Alignment.Center)) {
         Text(
-            fontFamily = fontFamilyDoHyeon,
+            fontFamily = fontPlan,
             textAlign = TextAlign.Center,
             text = buildAnnotatedString {
-                withStyle(style = SpanStyle(fontSize = 64.sp, fontFamily = fontFamilyDoHyeon)) {
+                withStyle(style = SpanStyle(fontSize = 64.sp)) {
                     append(formatter.format(usageValue))
                 }
-                withStyle(style = SpanStyle(fontSize = 36.sp, fontFamily = fontFamilyDoHyeon)) {
+                withStyle(style = SpanStyle(fontSize = 36.sp)) {
                     if (plan.mainDataSize.byteValue != 0L) {
                         appendLine("/${data}${plan.mainDataSizeUnit.name}")
                     } else {
@@ -223,7 +222,7 @@ private fun BoxScope.ConfiguredDataPlanContent(plan: DataPlan, planSnapshot: Dat
     ) {
         Text(
             text = plan.resetString(context),
-            fontFamily = fontFamilyGoogleSans
+            fontFamily = fontSubtitle
         )
         if (plan.mainDataSize.byteValue != 0L) {
             LinearWavyProgressIndicator(

@@ -37,7 +37,7 @@ fun CategoryTitleText(text: String, navigator: Navigator? = null) {
         Text(
             modifier = Modifier.padding(horizontal = 8.dp),
             fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.SemiBold,
             text = text
         )
     }

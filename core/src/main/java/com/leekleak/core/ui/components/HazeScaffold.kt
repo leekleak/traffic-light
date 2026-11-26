@@ -177,7 +177,7 @@ fun HazeScaffold(
                                 Text(
                                     modifier = Modifier.padding(8.dp),
                                     fontSize = 24.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.SemiBold,
                                     overflow = TextOverflow.Ellipsis,
                                     text = title
                                 )

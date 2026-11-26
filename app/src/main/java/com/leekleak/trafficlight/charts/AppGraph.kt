@@ -46,7 +46,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.leekleak.core.R
 import com.leekleak.core.ui.theme.googleSans
-import com.leekleak.core.ui.theme.googleSansEmphasized
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.formattedParts
 import com.leekleak.core.util.toSp
@@ -106,7 +105,6 @@ fun AppGraph(
         Modifier.fillMaxWidth().padding(8.dp)
     ) {
         if (data.isEmpty()) {
-            val font = remember { googleSansEmphasized() }
             val height = BarHeight * MaxApps + BarSpacing * (MaxApps - 1)
             Box(Modifier.fillMaxWidth().height(height)) {
                 Text(
@@ -117,7 +115,7 @@ fun AppGraph(
                     text = stringResource(R.string.no_usage_detected),
                     textAlign = TextAlign.Center,
                     color = colorScheme.onSurfaceVariant,
-                    fontFamily = font
+                    style = MaterialTheme.typography.titleMedium,
                 )
             }
             return@BoxWithConstraints
