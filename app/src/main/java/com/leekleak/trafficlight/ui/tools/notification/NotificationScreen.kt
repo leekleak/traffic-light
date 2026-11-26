@@ -424,7 +424,7 @@ private fun NotificationTypeSelector(
         }
     }
 
-    SlideAnimatedVisibility(types[pagerState.currentPage] == SpeedNotificationType.Live) {
+    SlideAnimatedVisibility(types[pagerState.currentPage] == SpeedNotificationType.Live && enabled) {
         InfoCard(
             title = stringResource(R.string.info),
             description = stringResource(R.string.live_speed_notification_warning),
