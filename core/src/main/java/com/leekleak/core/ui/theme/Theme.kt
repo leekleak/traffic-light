@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -106,6 +107,22 @@ inline val shelfShape: RoundedCornerShape
         topEnd = shapes.large.topEnd,
         bottomEnd = CornerSize(0.dp),
         bottomStart = CornerSize(0.dp)
+    )
+
+inline val variableRoundedStart: RoundedCornerShape
+    @Composable get() = RoundedCornerShape(
+        topStart = shapes.medium.topStart,
+        topEnd = shapes.small.topEnd,
+        bottomEnd = shapes.small.bottomEnd,
+        bottomStart = shapes.medium.bottomStart
+    )
+
+inline val variableRoundedEnd: RoundedCornerShape
+    @Composable get() = RoundedCornerShape(
+        topStart = shapes.small.topStart,
+        topEnd = shapes.medium.topEnd,
+        bottomEnd = shapes.medium.bottomEnd,
+        bottomStart = shapes.small.bottomStart
     )
 
 internal val lightScheme = lightColorScheme(

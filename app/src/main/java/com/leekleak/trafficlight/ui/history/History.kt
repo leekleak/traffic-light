@@ -9,6 +9,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -56,6 +57,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
@@ -76,6 +78,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -103,6 +106,8 @@ import com.leekleak.core.ui.navigation.LocalNavigationBarPadding
 import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.core.ui.theme.historyItemFont
 import com.leekleak.core.ui.theme.shelfShape
+import com.leekleak.core.ui.theme.variableRoundedEnd
+import com.leekleak.core.ui.theme.variableRoundedStart
 import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.getName
 import com.leekleak.core.util.openLink
@@ -147,8 +152,6 @@ fun History(
     openApp: (Activity?, Intent?) -> Unit,
     openPackageSettings: suspend (Activity?, Int) -> Unit,
 ) {
-    val haptic = LocalHapticFeedback.current
-
     LifecycleResumeEffect(Unit) {
         refresh()
         onPauseOrDispose {}
@@ -179,99 +182,207 @@ fun History(
             end = 16.dp,
             bottom = paddingValues.calculateBottomPadding()
         )
-        Column (
-            modifier = Modifier
-                .padding(
-                    start = startPadding,
-                    end = endPadding,
-                    top = paddingValues.calculateTopPadding()
-                ),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            ScrollableBarGraph(uiState.usage) {
-                updateDateQuery(
-                    uiState.timespanStartDate.plusDays(it.toLong()),
-                    uiState.dateParams.showMonth
-                )
-            }
+        val isWidescreen = currentWindowAdaptiveInfoV2()
+            .windowSizeClass
+            .isWidthAtLeastBreakpoint(600)
+
+        if (isWidescreen) {
             Row(
-                Modifier
-                    .fillMaxWidth()
-                    .clip(MaterialTheme.shapes.small)
-                    .background(colorScheme.primary)
-                    .padding(horizontal = 4.dp)
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                var showFilter by remember { mutableStateOf(false) }
-                if (showFilter) HistoryFilter(
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(top = paddingValues.calculateTopPadding(), start = startPadding),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    HistoryGraphAndFilters(
+                        uiState = uiState,
+                        appManager = appManager,
+                        updateDateQuery = updateDateQuery,
+                        updateQuery = updateQuery,
+                        updateListQuery = updateListQuery,
+                        persistFilters = persistFilters,
+                        resetFilters = resetFilters,
+                    )
+                    HistoryLegend(uiState)
+                }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(top = paddingValues.calculateTopPadding())
+                ) {
+                    HistoryList(
+                        uiState = uiState,
+                        updateQueries = updateQueries,
+                        openApp = openApp,
+                        openPackageSettings = openPackageSettings,
+                        contentPadding = listContentPadding,
+                    )
+                }
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .padding(
+                        start = startPadding,
+                        end = endPadding,
+                        top = paddingValues.calculateTopPadding()
+                    ),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                HistoryGraphAndFilters(
                     uiState = uiState,
                     appManager = appManager,
+                    updateDateQuery = updateDateQuery,
                     updateQuery = updateQuery,
                     updateListQuery = updateListQuery,
                     persistFilters = persistFilters,
                     resetFilters = resetFilters,
-                ) { showFilter = false }
-                val buttonUnselectedColors = IconButtonDefaults.iconButtonColors(
-                    containerColor = colorScheme.surfaceContainer,
-                    contentColor = colorScheme.onSurfaceVariant
                 )
-                ButtonGroup(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(
-                        4.dp,
-                        Alignment.CenterHorizontally
-                    ),
-                    expandedRatio = 0.05f,
-                    overflowIndicator = {}
+            }
+            HistoryLegend(uiState, Modifier.padding(start = startPadding, end = endPadding))
+            HistoryList(
+                uiState = uiState,
+                updateQueries = updateQueries,
+                openApp = openApp,
+                openPackageSettings = openPackageSettings,
+                contentPadding = listContentPadding,
+            )
+        }
+    }
+}
+
+@Composable
+private fun HistoryGraphAndFilters(
+    uiState: HistoryUiState,
+    appManager: AppManager,
+    updateDateQuery: (day: LocalDate, showMonth: Boolean) -> Unit,
+    updateQuery: (Int, UsageQuery) -> Unit,
+    updateListQuery: (ListParam) -> Unit,
+    persistFilters: () -> Unit,
+    resetFilters: () -> Unit,
+) {
+    val haptic = LocalHapticFeedback.current
+
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        ScrollableBarGraph(uiState.usage) {
+            updateDateQuery(
+                uiState.timespanStartDate.plusDays(it.toLong()),
+                uiState.dateParams.showMonth
+            )
+        }
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clip(MaterialTheme.shapes.small)
+                .background(colorScheme.primary)
+                .padding(horizontal = 4.dp)
+        ) {
+            var showFilter by remember { mutableStateOf(false) }
+            if (showFilter) HistoryFilter(
+                uiState = uiState,
+                appManager = appManager,
+                updateQuery = updateQuery,
+                updateListQuery = updateListQuery,
+                persistFilters = persistFilters,
+                resetFilters = resetFilters,
+            ) { showFilter = false }
+            val buttonUnselectedColors = IconButtonDefaults.iconButtonColors(
+                containerColor = colorScheme.surfaceContainer,
+                contentColor = colorScheme.onSurfaceVariant
+            )
+            ButtonGroup(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(
+                    4.dp,
+                    Alignment.CenterHorizontally
+                ),
+                expandedRatio = 0.05f,
+                overflowIndicator = {}
+            ) {
+                iconToggleButton(
+                    showBadge = uiState.filtersChanged,
+                    selected = showFilter,
+                    onSelect = { showFilter = true },
+                    unselectedColors = buttonUnselectedColors
                 ) {
-                    iconToggleButton(
-                        showBadge = uiState.filtersChanged,
-                        selected = showFilter,
-                        onSelect = { showFilter = true },
-                        unselectedColors = buttonUnselectedColors
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.filter_list),
-                            contentDescription = stringResource(R.string.filter)
-                        )
-                    }
-                    toggleableItem(
-                        onCheckedChange = {
-                            updateDateQuery(uiState.dateParams.day, true)
-                            haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
-                        },
-                        label = uiState.dateParams.day.month.getName(java.time.format.TextStyle.FULL),
-                        checked = !uiState.dateParams.showMonth,
-                        weight = 3f
-                    )
-                    toggleableItem(
-                        onCheckedChange = {
-                            updateDateQuery(uiState.dateParams.day, false)
-                            haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
-                        },
-                        label = uiState.dateParams.day.dayOfMonth.toString(),
-                        checked = uiState.dateParams.showMonth,
-                        weight = 1f
+                    Icon(
+                        painter = painterResource(R.drawable.filter_list),
+                        contentDescription = stringResource(R.string.filter)
                     )
                 }
+                toggleableItem(
+                    onCheckedChange = {
+                        updateDateQuery(uiState.dateParams.day, true)
+                        haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                    },
+                    label = uiState.dateParams.day.month.getName(java.time.format.TextStyle.FULL),
+                    checked = !uiState.dateParams.showMonth,
+                    weight = 3f
+                )
+                toggleableItem(
+                    onCheckedChange = {
+                        updateDateQuery(uiState.dateParams.day, false)
+                        haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                    },
+                    label = uiState.dateParams.day.dayOfMonth.toString(),
+                    checked = uiState.dateParams.showMonth,
+                    weight = 1f
+                )
             }
         }
-        if (uiState.listParam == ListParam.AppList) {
-            AppList(
-                uiState = uiState,
-                updateQueries = updateQueries,
-                openApp = openApp,
-                openPackageSettings = openPackageSettings,
-                contentPadding = listContentPadding,
-            )
-        } else {
-            HourList(
-                uiState = uiState,
-                updateQueries = updateQueries,
-                openApp = openApp,
-                openPackageSettings = openPackageSettings,
-                contentPadding = listContentPadding,
-            )
-        }
+    }
+}
+
+@Composable
+private fun HistoryLegend(uiState: HistoryUiState, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        HistoryLegendItem(
+            usageQuery = uiState.queries.first,
+            byteUsage = uiState.totalUsage.usage1,
+            showUsage = uiState.appList.isNotEmpty(),
+            foregroundColor = colorScheme.primary,
+            shape = variableRoundedStart
+        )
+        HistoryLegendItem(
+            usageQuery = uiState.queries.second,
+            byteUsage = uiState.totalUsage.usage2,
+            showUsage = uiState.appList.isNotEmpty(),
+            foregroundColor = colorScheme.tertiary,
+            shape = variableRoundedEnd
+        )
+    }
+}
+
+@Composable
+private fun HistoryList(
+    uiState: HistoryUiState,
+    updateQueries: (UsageQuery, UsageQuery) -> Unit,
+    openApp: (Activity?, Intent?) -> Unit,
+    openPackageSettings: suspend (Activity?, Int) -> Unit,
+    contentPadding: PaddingValues,
+) {
+    if (uiState.listParam == ListParam.AppList) {
+        AppList(
+            uiState = uiState,
+            updateQueries = updateQueries,
+            openApp = openApp,
+            openPackageSettings = openPackageSettings,
+            contentPadding = contentPadding,
+        )
+    } else {
+        HourList(
+            uiState = uiState,
+            updateQueries = updateQueries,
+            openApp = openApp,
+            openPackageSettings = openPackageSettings,
+            contentPadding = contentPadding,
+        )
     }
 }
 
@@ -301,27 +412,6 @@ private fun AppList(
         verticalArrangement = Arrangement.spacedBy(4.dp),
         state = listState
     ) {
-        item {
-            Row(
-                modifier = Modifier.clip(MaterialTheme.shapes.medium),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                HistoryLegendItem(
-                    usageQuery = uiState.queries.first,
-                    byteUsage = uiState.totalUsage.usage1,
-                    showUsage = uiState.appList.isNotEmpty(),
-                    backgroundColor = colorScheme.primary,
-                    foregroundColor = colorScheme.onPrimary
-                )
-                HistoryLegendItem(
-                    usageQuery = uiState.queries.second,
-                    byteUsage = uiState.totalUsage.usage2,
-                    showUsage = uiState.appList.isNotEmpty(),
-                    backgroundColor = colorScheme.tertiary,
-                    foregroundColor = colorScheme.onTertiary,
-                )
-            }
-        }
         items(uiState.appList, key = { it.app.uid }, contentType = { "app" }) { item ->
             Box(Modifier.animateItem()) {
                 AppItem(
@@ -443,14 +533,15 @@ private fun RowScope.HistoryLegendItem(
     usageQuery: UsageQuery,
     byteUsage: Long,
     showUsage: Boolean,
-    backgroundColor: Color,
     foregroundColor: Color,
+    shape: Shape,
 ) {
     Column(
         modifier = Modifier
             .weight(1f)
-            .height(72.dp)
-            .background(backgroundColor, MaterialTheme.shapes.small)
+            .heightIn(72.dp)
+            .background(colorScheme.background, shape)
+            .border(1.dp, foregroundColor, shape = shape)
             .padding(vertical = 4.dp, horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
