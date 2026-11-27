@@ -87,6 +87,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -102,6 +103,7 @@ import com.leekleak.core.ui.components.ShizukuStoppedTag
 import com.leekleak.core.ui.components.SlideAnimatedVisibility
 import com.leekleak.core.ui.components.iconToggleButton
 import com.leekleak.core.ui.navigation.LocalNavigationBarPadding
+import com.leekleak.core.ui.theme.AppTheme
 import com.leekleak.core.ui.theme.googleSans
 import com.leekleak.core.ui.theme.historyItemFont
 import com.leekleak.core.ui.theme.shelfShape
@@ -112,8 +114,10 @@ import com.leekleak.core.util.getName
 import com.leekleak.core.util.openLink
 import com.leekleak.core.util.rememberIs24HourFormat
 import com.leekleak.core.util.toLocaleHourOnlyString
+import com.leekleak.trafficlight.database.AppUsage
 import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DataType
+import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.DropdownItem
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.AppManager
@@ -131,6 +135,9 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.time.format.TextStyle
+import java.time.temporal.WeekFields
+import java.util.Locale
 import kotlin.time.Duration.Companion.milliseconds
 
 val imageWidth = 32.dp
@@ -1074,5 +1081,55 @@ fun LineGraphHeader(usageQueries: Pair<UsageQuery, UsageQuery>) {
                 )
             }
         }
+    }
+}
+
+private fun sampleHistoryUiState(): HistoryUiState {
+    val today = LocalDate.now()
+    val firstDayOfWeek = WeekFields.of(Locale.getDefault()).firstDayOfWeek
+    val usage = (0 until MAX_DAYS).map { index ->
+        val day = today.minusDays((MAX_DAYS - 1 - index).toLong())
+        ScrollableBarData(
+            label = day.dayOfMonth.toString(),
+            highlight = day.dayOfWeek == firstDayOfWeek,
+            monthLabel = if (day.dayOfMonth == 1) {
+                day.month.getName(TextStyle.FULL_STANDALONE)
+            } else {
+                null
+            },
+            y1 = 1_200_000_000L * ((index * 7) % 9 + 1),
+            y2 = 800_000_000L * ((index * 3) % 5 + 1),
+        )
+    }
+    return HistoryUiState(
+        usage = usage,
+        appList = listOf(
+            AppUsage(allApp, DayUsage(usage1 = 6_400_000_000L, usage2 = 4_200_000_000L)),
+            AppUsage(tetheringApp, DayUsage(usage1 = 1_800_000_000L, usage2 = 320_000_000L)),
+            AppUsage(removedApp, DayUsage(usage1 = 240_000_000L, usage2 = 90_000_000L)),
+            AppUsage(otherUsersApp, DayUsage(usage1 = 96_000_000L, usage2 = 12_000_000L)),
+        ),
+        totalUsage = DayUsage(usage1 = 8_536_000_000L, usage2 = 4_622_000_000L),
+    )
+}
+
+@PreviewLightDark
+@Composable
+private fun HistoryPreview() {
+    AppTheme {
+        History(
+            uiState = sampleHistoryUiState(),
+            appManager = AppManager(LocalContext.current),
+            refresh = {},
+            updateDateQuery = { _, _ -> },
+            updateHourQuery = {},
+            updateQuery = { _, _ -> },
+            updateQueries = { _, _ -> },
+            updateListQuery = {},
+            persistFilters = {},
+            resetFilters = {},
+            openApp = { _, _ -> },
+            openPackageSettings = { _, _ -> },
+        )
     }
 }
