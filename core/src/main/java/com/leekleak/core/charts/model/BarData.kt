@@ -1,7 +1,5 @@
 package com.leekleak.core.charts.model
 
-import java.time.LocalDate
-
 data class BarData(
     val x: String = "",
     val y1: Long = 0L,
@@ -16,7 +14,9 @@ data class BarData(
 }
 
 data class ScrollableBarData(
-    val x: LocalDate,
+    val label: String? = null,
+    val highlight: Boolean = false,
+    val monthLabel: String? = null,
     val y1: Long = 0L,
     val y2: Long = 0L
 ) {

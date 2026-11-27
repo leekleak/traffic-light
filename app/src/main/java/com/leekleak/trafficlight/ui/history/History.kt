@@ -85,9 +85,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -96,6 +94,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.leekleak.core.R
 import com.leekleak.core.charts.LineGraph
 import com.leekleak.core.charts.ScrollableBarGraph
+import com.leekleak.core.charts.model.ScrollableBarData
 import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
 import com.leekleak.core.ui.components.SearchField
@@ -112,8 +111,7 @@ import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.getName
 import com.leekleak.core.util.openLink
 import com.leekleak.core.util.rememberIs24HourFormat
-import com.leekleak.core.util.toDp
-import com.leekleak.core.util.toLocaleHourString
+import com.leekleak.core.util.toLocaleHourOnlyString
 import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DropdownItem
@@ -133,7 +131,6 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
-import java.time.LocalTime
 import kotlin.time.Duration.Companion.milliseconds
 
 val imageWidth = 32.dp
@@ -144,6 +141,7 @@ fun History(
     appManager: AppManager,
     refresh: () -> Unit,
     updateDateQuery: (day: LocalDate, showMonth: Boolean) -> Unit,
+    updateHourQuery: (Int) -> Unit,
     updateQuery: (Int, UsageQuery) -> Unit,
     updateQueries: (UsageQuery, UsageQuery) -> Unit,
     updateListQuery: (ListParam) -> Unit,
@@ -201,6 +199,7 @@ fun History(
                         uiState = uiState,
                         appManager = appManager,
                         updateDateQuery = updateDateQuery,
+                        updateHourQuery = updateHourQuery,
                         updateQuery = updateQuery,
                         updateListQuery = updateListQuery,
                         persistFilters = persistFilters,
@@ -236,6 +235,7 @@ fun History(
                     uiState = uiState,
                     appManager = appManager,
                     updateDateQuery = updateDateQuery,
+                    updateHourQuery = updateHourQuery,
                     updateQuery = updateQuery,
                     updateListQuery = updateListQuery,
                     persistFilters = persistFilters,
@@ -259,19 +259,36 @@ private fun HistoryGraphAndFilters(
     uiState: HistoryUiState,
     appManager: AppManager,
     updateDateQuery: (day: LocalDate, showMonth: Boolean) -> Unit,
+    updateHourQuery: (Int) -> Unit,
     updateQuery: (Int, UsageQuery) -> Unit,
     updateListQuery: (ListParam) -> Unit,
     persistFilters: () -> Unit,
     resetFilters: () -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
+    val is24HourFormat by rememberIs24HourFormat()
+    val hourGraphData = remember(uiState.hourList, is24HourFormat) {
+        uiState.hourList.map { hour ->
+            ScrollableBarData(
+                y1 = hour.usage.usage1,
+                y2 = hour.usage.usage2,
+                label = hour.start.toLocalTime().toLocaleHourOnlyString(is24HourFormat),
+            )
+        }
+    }
+    val hourView = uiState.listParam == ListParam.HourList
+    val showHourGraph = hourView && hourGraphData.isNotEmpty()
 
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        ScrollableBarGraph(uiState.usage) {
-            updateDateQuery(
-                uiState.timespanStartDate.plusDays(it.toLong()),
-                uiState.dateParams.showMonth
-            )
+        ScrollableBarGraph(if (showHourGraph) hourGraphData else uiState.usage) {
+            if (showHourGraph) {
+                uiState.hourList.getOrNull(it)?.let { hour -> updateHourQuery(hour.start.hour) }
+            } else {
+                updateDateQuery(
+                    uiState.timespanStartDate.plusDays(it.toLong()),
+                    uiState.dateParams.showMonth
+                )
+            }
         }
         Row(
             Modifier
@@ -320,7 +337,8 @@ private fun HistoryGraphAndFilters(
                     },
                     label = uiState.dateParams.day.month.getName(java.time.format.TextStyle.FULL),
                     checked = !uiState.dateParams.showMonth,
-                    weight = 3f
+                    weight = 3f,
+                    enabled = !hourView
                 )
                 toggleableItem(
                     onCheckedChange = {
@@ -345,14 +363,14 @@ private fun HistoryLegend(uiState: HistoryUiState, modifier: Modifier = Modifier
         HistoryLegendItem(
             usageQuery = uiState.queries.first,
             byteUsage = uiState.totalUsage.usage1,
-            showUsage = uiState.appList.isNotEmpty(),
+            showUsage = uiState.totalUsage.totalUsage > 0L,
             foregroundColor = colorScheme.primary,
             shape = variableRoundedStart
         )
         HistoryLegendItem(
             usageQuery = uiState.queries.second,
             byteUsage = uiState.totalUsage.usage2,
-            showUsage = uiState.appList.isNotEmpty(),
+            showUsage = uiState.totalUsage.totalUsage > 0L,
             foregroundColor = colorScheme.tertiary,
             shape = variableRoundedEnd
         )
@@ -367,16 +385,10 @@ private fun HistoryList(
     openPackageSettings: suspend (Activity?, Int) -> Unit,
     contentPadding: PaddingValues,
 ) {
-    if (uiState.listParam == ListParam.AppList) {
-        AppList(
-            uiState = uiState,
-            updateQueries = updateQueries,
-            openApp = openApp,
-            openPackageSettings = openPackageSettings,
-            contentPadding = contentPadding,
-        )
+    if (uiState.appFilterActive) {
+        AppListPlaceholder(contentPadding)
     } else {
-        HourList(
+        AppList(
             uiState = uiState,
             updateQueries = updateQueries,
             openApp = openApp,
@@ -435,95 +447,30 @@ private fun AppList(
 }
 
 @Composable
-private fun HourList(
-    uiState: HistoryUiState,
-    updateQueries: (UsageQuery, UsageQuery) -> Unit,
-    openApp: (Activity?, Intent?) -> Unit,
-    openPackageSettings: suspend (Activity?, Int) -> Unit,
-    contentPadding: PaddingValues,
-) {
-    var hourSelected by remember { mutableIntStateOf(-1) }
-    val maximum = remember(uiState.hourList) { uiState.hourList.sumOf { it.usage.totalUsage } }
-    val totalUsage1 = remember(uiState.hourList) { uiState.hourList.sumOf { it.usage.usage1 } }
-    val totalUsage2 = remember(uiState.hourList) { uiState.hourList.sumOf { it.usage.usage2 } }
-    val textMeasurer = rememberTextMeasurer()
-    val font = remember { historyItemFont() }
-    val is24HourFormat by rememberIs24HourFormat()
-    val labelFontSize = MaterialTheme.typography.titleMedium.fontSize
-    val measurement = remember(is24HourFormat, font, labelFontSize) {
-        textMeasurer.measure(
-            text = LocalTime.MIDNIGHT.toLocaleHourString(is24HourFormat, true),
-            style = TextStyle(
-                fontFamily = font,
-                fontSize = labelFontSize,
-            )
-        )
-    }
-    val listState = rememberLazyListState()
-    LazyColumn(
+private fun AppListPlaceholder(contentPadding: PaddingValues) {
+    Box(
         modifier = Modifier
             .padding(top = 8.dp)
             .clip(shelfShape)
             .background(colorScheme.surfaceContainer)
             .fillMaxSize(),
-        contentPadding = contentPadding,
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-        state = listState
+        contentAlignment = Alignment.Center,
     ) {
-        item {
-            Box(Modifier.animateItem()) {
-                val key = -10
-                AppItem(
-                    usageQueries = uiState.queries,
-                    updateQueries = updateQueries,
-                    openApp = openApp,
-                    openPackageSettings = openPackageSettings,
-                    usage1 = totalUsage1,
-                    usage2 = totalUsage2,
-                    name = stringResource(R.string.total_usage),
-                    isSelected = { hourSelected == key },
-                    maximum = maximum,
-                    onClick = {hourSelected = if (key != hourSelected) key else -1}
-                ) {
-                    Box (Modifier
-                        .width(measurement.size.width.toDp + 8.dp)
-                        .height(32.dp)) {
-                        Icon(
-                            modifier = Modifier.align(Alignment.Center),
-                            painter = painterResource(R.drawable.clock),
-                            contentDescription = stringResource(R.string.total_usage)
-                        )
-                    }
-                }
-            }
-        }
-        items(uiState.hourList, key = { it.start.hour }, contentType = { "hour" }) { item ->
-            Box(Modifier.animateItem()) {
-                AppItem(
-                    usageQueries = uiState.queries,
-                    updateQueries = updateQueries,
-                    openApp = openApp,
-                    openPackageSettings = openPackageSettings,
-                    usage1 = item.usage.usage1,
-                    usage2 = item.usage.usage2,
-                    name = item.toString(is24HourFormat),
-                    isSelected = { hourSelected == item.start.hour },
-                    maximum = maximum,
-                    onClick = {hourSelected = if (item.start.hour != hourSelected) item.start.hour else -1}
-                ) {
-                    Box (Modifier
-                        .width(measurement.size.width.toDp + 8.dp)
-                        .height(32.dp)) {
-                        Text(
-                            modifier = Modifier.align(Alignment.Center),
-                            text = item.start.toLocalTime().toLocaleHourString(is24HourFormat, true),
-                            fontFamily = font,
-                            fontSize = MaterialTheme.typography.titleMedium.fontSize,
-                            textAlign = TextAlign.Center,
-                        )
-                    }
-                }
-            }
+        Column(
+            modifier = Modifier.padding(contentPadding),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.filter_list),
+                contentDescription = null,
+                tint = colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = stringResource(R.string.nothing_to_show_for_filter),
+                color = colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }
@@ -646,7 +593,6 @@ fun HistoryFilter(
                         onSelect = { updateListQuery(ListParam.AppList) },
                         text = ListParam.AppList.getString(context),
                         icon = { Icon(painterResource(R.drawable.apps), null) },
-                        enabled = !uiState.forceHourList,
                         selected = uiState.listParam == ListParam.AppList,
                         weight = 1f
                     )

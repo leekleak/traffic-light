@@ -89,6 +89,12 @@ fun LocalTime.toLocaleHourString(is24HourFormat: Boolean, short: Boolean = false
     return format(formatter)
 }
 
+fun LocalTime.toLocaleHourOnlyString(is24HourFormat: Boolean): String {
+    val pattern = if (is24HourFormat) "HH" else "hh a"
+    val formatter = DateTimeFormatter.ofPattern(pattern, Locale.getDefault())
+    return format(formatter)
+}
+
 fun DayOfWeek.getName(style: TextStyle) =
     this.getDisplayName(style, Locale.getDefault()).replaceFirstChar(Char::titlecase)
 

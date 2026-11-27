@@ -4,6 +4,7 @@ import android.app.usage.NetworkStats
 import android.app.usage.NetworkStatsManager
 import com.leekleak.core.charts.model.ScrollableBarData
 import com.leekleak.core.util.fromTimestamp
+import com.leekleak.core.util.getName
 import com.leekleak.core.util.overlapRatio
 import com.leekleak.core.util.toTimestamp
 import com.leekleak.trafficlight.database.AppUsage
@@ -30,6 +31,9 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.TextStyle
+import java.time.temporal.WeekFields
+import java.util.Locale
 
 data class UsageData(
     val upload: Long = 0,
@@ -68,6 +72,21 @@ class NetworkUsageManager(
                 uid == query.dataUID.uid || query.dataUID.uidQuery == null ->
                     usage.forDirection(query.dataDirection)
                 else -> 0L
+            }
+        }
+    }
+
+    suspend fun totalUsage(
+        query: UsageQuery,
+        startStamp: Long,
+        endStamp: Long,
+        subscriberId: String? = null,
+    ): Long {
+        return getNetworkDataForType(startStamp, endStamp, subscriberId, query.dataType).sumOf { usage ->
+            if (usage.uid == query.dataUID.uid || query.dataUID.uidQuery == null) {
+                usage.forDirection(query.dataDirection)
+            } else {
+                0L
             }
         }
     }
@@ -273,10 +292,21 @@ class NetworkUsageManager(
     ): Flow<List<ScrollableBarData>> = flow {
         val data: MutableList<ScrollableBarData> = mutableListOf()
         val range = startDate.toEpochDay() until endDate.toEpochDay()
+        val firstDayOfWeek = WeekFields.of(Locale.getDefault()).firstDayOfWeek
 
         for (i in range) {
             val now = LocalDate.ofEpochDay(i)
-            data.add(ScrollableBarData(now))
+            data.add(
+                ScrollableBarData(
+                    label = now.dayOfMonth.toString(),
+                    highlight = now.dayOfWeek == firstDayOfWeek,
+                    monthLabel = if (now.dayOfMonth == 1 || i == range.first) {
+                        now.month.getName(TextStyle.FULL_STANDALONE)
+                    } else {
+                        null
+                    },
+                )
+            )
         }
         coroutineScope {
             data.indices.map { i ->

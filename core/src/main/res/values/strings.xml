@@ -106,6 +106,7 @@
     <string name="bidirectional">Bidirectional</string>
     <string name="app_list">App list</string>
     <string name="hour_list">Hour list</string>
+    <string name="nothing_to_show_for_filter">Nothing to show for the selected filter</string>
     <string name="quick_filter">Quick filter</string>
     <string name="persist">Persist</string>
     <string name="open_app">Open app</string>

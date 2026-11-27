@@ -26,11 +26,6 @@ import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.toPath
 import com.leekleak.core.charts.model.ScrollableBarData
 import com.leekleak.core.util.DataSize
-import com.leekleak.core.util.getName
-import java.time.LocalDate
-import java.time.format.TextStyle
-import java.time.temporal.WeekFields
-import java.util.Locale
 import kotlin.math.max
 
 internal data class ScrollableBarGraphMetrics(
@@ -98,10 +93,10 @@ internal class ScrollableBarGraphHelper(
             val x2 = x1 + xItemSpacing
             val error = 64.dp.toPx()
 
-            if ((data[i].x.dayOfMonth == 1 || i == 0) && data[i].x != LocalDate.MIN) {
+            data[i].monthLabel?.let {
                 monthList.add(
                     MonthObject(
-                        data[i].x.month.getName(TextStyle.FULL_STANDALONE),
+                        it,
                         x1,
                         if (x1 <= 0) -1 else if (x1 >= size.width) 1 else 0
                     )
@@ -207,35 +202,26 @@ internal class ScrollableBarGraphHelper(
     internal fun drawTextLabelsOverXAndYAxis(color: Color, background: Color, textMeasurer: TextMeasurer) {
         scope.run {
             val monthPadding = 4.dp.toPx().toLong()
-            val firstDayValue = WeekFields.of(Locale.getDefault()).firstDayOfWeek.value
             for (i in visibleIndices) {
+                val label = data[i].label ?: continue
                 val xBottomLabel = xItemSpacing * (i + 0.5f)
-                if (data[i].x != LocalDate.MIN) {
-                    if (data[i].x.dayOfWeek.value == firstDayValue) {
-                        drawRoundRect(
-                            color = onBackgroundColor,
-                            topLeft = Offset(
-                                xItemSpacing * i + xOffset,
-                                size.height - 12.sp.toPx()
-                            ),
-                            size = Size(xItemSpacing, 16.sp.toPx()),
-                            cornerRadius = CornerRadius(8.dp.toPx())
-                        )
-                        drawContext.canvas.nativeCanvas.drawText(
-                            data[i].x.dayOfMonth.toString(),
-                            xBottomLabel + xOffset,
-                            size.height,
-                            textPaint(background)
-                        )
-                    } else {
-                        drawContext.canvas.nativeCanvas.drawText(
-                            data[i].x.dayOfMonth.toString(),
-                            xBottomLabel + xOffset,
-                            size.height,
-                            textPaint(color)
-                        )
-                    }
+                if (data[i].highlight) {
+                    drawRoundRect(
+                        color = onBackgroundColor,
+                        topLeft = Offset(
+                            xItemSpacing * i + xOffset,
+                            size.height - 12.sp.toPx()
+                        ),
+                        size = Size(xItemSpacing, 16.sp.toPx()),
+                        cornerRadius = CornerRadius(8.dp.toPx())
+                    )
                 }
+                drawContext.canvas.nativeCanvas.drawText(
+                    label,
+                    xBottomLabel + xOffset,
+                    size.height,
+                    textPaint(if (data[i].highlight) background else color)
+                )
             }
 
             var lastVisibility = 1

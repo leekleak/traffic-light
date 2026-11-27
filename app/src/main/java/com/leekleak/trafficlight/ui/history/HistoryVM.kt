@@ -46,19 +46,17 @@ private data class HistoryInputs(
     val query2: UsageQuery = UsageQuery(DataType.Wifi),
     val listParam: ListParam = ListParam.AppList,
     val dateParams: DateParams = DateParams(LocalDate.now(), showMonth = false),
-) {
-    val forceHourList: Boolean
-        get() = (query1.dataUID.uidQuery != null) || (query2.dataUID.uidQuery != null)
-}
+    val selectedHour: Int = 22,
+)
 
 data class HistoryUiState(
-    val usage: List<ScrollableBarData> = List(MAX_DAYS) { ScrollableBarData(LocalDate.MIN) },
+    val usage: List<ScrollableBarData> = List(MAX_DAYS) { ScrollableBarData() },
     val query1: UsageQuery = UsageQuery(DataType.Mobile),
     val query2: UsageQuery = UsageQuery(DataType.Wifi),
     val listParam: ListParam = ListParam.AppList,
     val dateParams: DateParams = DateParams(LocalDate.now(), showMonth = false),
+    val selectedHour: Int = 22,
     val filtersChanged: Boolean = false,
-    val forceHourList: Boolean = false,
     val appList: List<AppUsage> = emptyList(),
     val totalUsage: DayUsage = DayUsage(),
     val hourList: List<HourUsage> = emptyList(),
@@ -68,6 +66,9 @@ data class HistoryUiState(
 ) {
     val queries: Pair<UsageQuery, UsageQuery>
         get() = query1 to query2
+
+    val appFilterActive: Boolean
+        get() = query1.dataUID.uidQuery != null || query2.dataUID.uidQuery != null
 
     val showShizukuNotRunning: Boolean
         get() = BuildConfig.SHIZUKU && shizukuPermissionGranted && !shizukuRunning
@@ -92,6 +93,8 @@ class HistoryVM(
         val query2 = current.query2
         val listParam = current.listParam
         val dateParams = current.dateParams
+        val selectedHour = current.selectedHour
+        val appFiltered = query1.dataUID.uidQuery != null || query2.dataUID.uidQuery != null
         val refresh by refreshTrigger.collectAsState()
 
         val savedQuery1 by prefs.query1.collectAsState(UsageQuery(DataType.Mobile))
@@ -102,7 +105,7 @@ class HistoryVM(
         val shizukuRunning by permissionManager.shizukuRunning.collectAsState()
 
         val usage by produceState(
-            initialValue = List(MAX_DAYS) { ScrollableBarData(LocalDate.MIN) },
+            initialValue = List(MAX_DAYS) { ScrollableBarData() },
             refresh, query1, query2,
         ) {
             val (startDate, endDate) = getDatesForTimespan()
@@ -116,26 +119,48 @@ class HistoryVM(
 
         val appSummary by produceState(
             initialValue = AppUsageSummary(emptyList(), DayUsage()),
-            refresh, dateParams, query1, query2
+            refresh, dateParams, query1, query2, listParam, selectedHour
         ) {
-            val (startDate, endDate) = dateParams.getStartEndDates()
-            value = networkUsageManager.getAllAppUsage(
-                startStamp = startDate.atStartOfDay().toTimestamp(),
-                endStamp = endDate.atStartOfDay().toTimestamp(),
-                query1 = query1,
-                query2 = query2,
-            )
+            value = when {
+                appFiltered -> {
+                    val (startStamp, endStamp) = if (listParam == ListParam.HourList) {
+                        val spanStart = dateParams.day.atTime(selectedHour, 0)
+                        spanStart.toTimestamp() to spanStart.plusHours(2).toTimestamp()
+                    } else {
+                        val (startDate, endDate) = dateParams.getStartEndDates()
+                        startDate.atStartOfDay().toTimestamp() to endDate.atStartOfDay().toTimestamp()
+                    }
+                    AppUsageSummary(
+                        apps = emptyList(),
+                        total = DayUsage(
+                            date = dateParams.day,
+                            usage1 = networkUsageManager.totalUsage(query1, startStamp, endStamp),
+                            usage2 = networkUsageManager.totalUsage(query2, startStamp, endStamp),
+                        ),
+                    )
+                }
+                listParam == ListParam.HourList -> {
+                    val spanStart = dateParams.day.atTime(selectedHour, 0)
+                    networkUsageManager.getAllAppUsage(
+                        startStamp = spanStart.toTimestamp(),
+                        endStamp = spanStart.plusHours(2).toTimestamp(),
+                        query1 = query1,
+                        query2 = query2,
+                    )
+                }
+                else -> {
+                    val (startDate, endDate) = dateParams.getStartEndDates()
+                    networkUsageManager.getAllAppUsage(
+                        startStamp = startDate.atStartOfDay().toTimestamp(),
+                        endStamp = endDate.atStartOfDay().toTimestamp(),
+                        query1 = query1,
+                        query2 = query2,
+                    )
+                }
+            }
         }
-        val appList: List<AppUsage> = if (listParam == ListParam.AppList) {
-            appSummary.apps
-        } else {
-            emptyList()
-        }
-        val totalUsage: DayUsage = if (listParam == ListParam.AppList) {
-            appSummary.total
-        } else {
-            DayUsage()
-        }
+        val appList: List<AppUsage> = if (appFiltered) emptyList() else appSummary.apps
+        val totalUsage: DayUsage = appSummary.total
 
         val hourList: List<HourUsage> = if (listParam == ListParam.HourList) {
             val list by produceState(emptyList(), refresh, dateParams, query1, query2) {
@@ -152,10 +177,10 @@ class HistoryVM(
             query2 = query2,
             listParam = listParam,
             dateParams = dateParams,
+            selectedHour = selectedHour,
             filtersChanged = (query1 != savedQuery1) ||
                 (query2 != savedQuery2) ||
                 (listParam != savedListParam),
-            forceHourList = current.forceHourList,
             appList = appList,
             totalUsage = totalUsage,
             hourList = hourList,
@@ -179,15 +204,12 @@ class HistoryVM(
             }
         }
         inputs
-            .map { it.forceHourList }
+            .map { it.listParam == ListParam.HourList }
             .distinctUntilChanged()
-            .onEach { forced ->
-                if (forced) {
+            .onEach { hourView ->
+                if (hourView) {
                     inputs.update {
-                        it.copy(
-                            listParam = ListParam.HourList,
-                            dateParams = it.dateParams.copy(showMonth = false),
-                        )
+                        it.copy(dateParams = it.dateParams.copy(showMonth = false))
                     }
                 }
             }
@@ -225,14 +247,18 @@ class HistoryVM(
         day: LocalDate = inputs.value.dateParams.day,
         showMonth: Boolean = inputs.value.dateParams.showMonth,
     ) {
-        inputs.update { it.copy(dateParams = DateParams(day, showMonth)) }
+        inputs.update {
+            val month = showMonth && it.listParam != ListParam.HourList
+            it.copy(dateParams = DateParams(day, month))
+        }
+    }
+
+    fun updateHourQuery(hour: Int) {
+        inputs.update { it.copy(selectedHour = hour) }
     }
 
     fun updateListQuery(newList: ListParam = inputs.value.listParam) {
-        inputs.update {
-            if (it.forceHourList) it.copy(listParam = ListParam.HourList)
-            else it.copy(listParam = newList)
-        }
+        inputs.update { it.copy(listParam = newList) }
     }
 
     fun persistFilters() {

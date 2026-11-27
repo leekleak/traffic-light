@@ -74,9 +74,12 @@ class OverviewLogic(val networkUsageManager: NetworkUsageManager) {
         }
         val end = if (range == OverviewRange.Week) start.plusWeeks(1) else start.plusMonths(1)
         val elapsedEnd = minOf(LocalDate.now().plusDays(1), end)
+
         val elapsed = networkUsageManager.daysUsage(start, elapsedEnd, query)
             .last()
-            .map { GraphPoint((it.y1 + it.y2).toFloat(), it.x.atStartOfDay()) }
+            .mapIndexed { i, bar ->
+                GraphPoint((bar.y1 + bar.y2).toFloat(), start.plusDays(i.toLong()).atStartOfDay())
+            }
         return elapsed
     }
 

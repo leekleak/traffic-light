@@ -64,6 +64,7 @@ val navigationModule = module {
             appManager = get(),
             refresh = viewModel::refresh,
             updateDateQuery = viewModel::updateDateQuery,
+            updateHourQuery = viewModel::updateHourQuery,
             updateQuery = viewModel::updateQuery,
             updateQueries = viewModel::updateQueries,
             updateListQuery = viewModel::updateListQuery,

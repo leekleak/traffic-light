@@ -90,6 +90,11 @@ private fun ScrollableBarGraphContent(
     }
     val offset = remember(canvasWidth) { Animatable(-barWidth * data.size + canvasWidth) }
 
+    LaunchedEffect(data.size, barWidth, canvasWidth) {
+        val minOffset = canvasWidth - barWidth * data.size
+        offset.snapTo(minOffset)
+    }
+
     val selectorGoal = (canvasWidth)/2 - ((canvasWidth)/2) % barWidth
 
     val metric = LocalSizeMetric.current
