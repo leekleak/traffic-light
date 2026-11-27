@@ -41,6 +41,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroup
@@ -49,7 +51,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ModalBottomSheet
@@ -123,7 +125,6 @@ import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.DropdownItem
 import com.leekleak.trafficlight.database.UsageQuery
-import com.leekleak.trafficlight.model.AppManager
 import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.model.AppManager.Companion.otherUsersApp
 import com.leekleak.trafficlight.model.AppManager.Companion.removedApp
@@ -148,11 +149,11 @@ val imageWidth = 32.dp
 @Composable
 fun History(
     uiState: HistoryUiState,
-    appManager: AppManager,
     refresh: () -> Unit,
     updateDateQuery: (day: LocalDate, showMonth: Boolean) -> Unit,
     updateHourQuery: (Int) -> Unit,
     updateQuery: (Int, UsageQuery) -> Unit,
+    updateQueryUID: (Int, Int) -> Unit,
     updateQueries: (UsageQuery, UsageQuery) -> Unit,
     updateListQuery: (ListParam) -> Unit,
     persistFilters: () -> Unit,
@@ -165,6 +166,16 @@ fun History(
         onPauseOrDispose {}
     }
 
+    var showFilter by remember { mutableStateOf(false) }
+    if (showFilter) HistoryFilter(
+        uiState = uiState,
+        updateQuery = updateQuery,
+        updateQueryUID = updateQueryUID,
+        updateListQuery = updateListQuery,
+        persistFilters = persistFilters,
+        resetFilters = resetFilters,
+    ) { showFilter = false }
+
     HazeScaffold(
         title = stringResource(R.string.history),
         scrollState = null,
@@ -173,6 +184,14 @@ fun History(
         actions = {
             if (uiState.showShizukuNotRunning) {
                 ShizukuStoppedTag()
+            }
+            IconButton(onClick = { showFilter = true }) {
+                BadgedBox({ if (uiState.filtersChanged) Badge() }) {
+                    Icon(
+                        painter = painterResource(R.drawable.filter_list),
+                        contentDescription = stringResource(R.string.filter)
+                    )
+                }
             }
         }
     ) { paddingValues ->
@@ -211,13 +230,8 @@ fun History(
                 ) {
                     HistoryGraphAndFilters(
                         uiState = uiState,
-                        appManager = appManager,
                         updateDateQuery = updateDateQuery,
                         updateHourQuery = updateHourQuery,
-                        updateQuery = updateQuery,
-                        updateListQuery = updateListQuery,
-                        persistFilters = persistFilters,
-                        resetFilters = resetFilters,
                     )
                     HistoryLegend(uiState)
                 }
@@ -259,13 +273,8 @@ fun History(
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         HistoryGraphAndFilters(
                             uiState = uiState,
-                            appManager = appManager,
                             updateDateQuery = updateDateQuery,
                             updateHourQuery = updateHourQuery,
-                            updateQuery = updateQuery,
-                            updateListQuery = updateListQuery,
-                            persistFilters = persistFilters,
-                            resetFilters = resetFilters,
                         )
                         HistoryLegend(uiState)
                         Spacer(Modifier.height(12.dp))
@@ -293,13 +302,8 @@ fun History(
 @Composable
 private fun HistoryGraphAndFilters(
     uiState: HistoryUiState,
-    appManager: AppManager,
     updateDateQuery: (day: LocalDate, showMonth: Boolean) -> Unit,
     updateHourQuery: (Int) -> Unit,
-    updateQuery: (Int, UsageQuery) -> Unit,
-    updateListQuery: (ListParam) -> Unit,
-    persistFilters: () -> Unit,
-    resetFilters: () -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
     val is24HourFormat by rememberIs24HourFormat()
@@ -333,19 +337,6 @@ private fun HistoryGraphAndFilters(
                 .background(colorScheme.primary)
                 .padding(horizontal = 4.dp)
         ) {
-            var showFilter by remember { mutableStateOf(false) }
-            if (showFilter) HistoryFilter(
-                uiState = uiState,
-                appManager = appManager,
-                updateQuery = updateQuery,
-                updateListQuery = updateListQuery,
-                persistFilters = persistFilters,
-                resetFilters = resetFilters,
-            ) { showFilter = false }
-            val buttonUnselectedColors = IconButtonDefaults.iconButtonColors(
-                containerColor = colorScheme.surfaceContainer,
-                contentColor = colorScheme.onSurfaceVariant
-            )
             ButtonGroup(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(
@@ -355,17 +346,6 @@ private fun HistoryGraphAndFilters(
                 expandedRatio = 0.05f,
                 overflowIndicator = {}
             ) {
-                iconToggleButton(
-                    showBadge = uiState.filtersChanged,
-                    selected = showFilter,
-                    onSelect = { showFilter = true },
-                    unselectedColors = buttonUnselectedColors
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.filter_list),
-                        contentDescription = stringResource(R.string.filter)
-                    )
-                }
                 toggleableItem(
                     onCheckedChange = {
                         updateDateQuery(uiState.dateParams.day, true)
@@ -528,8 +508,8 @@ private fun RowScope.HistoryLegendItem(
 @Composable
 fun HistoryFilter(
     uiState: HistoryUiState,
-    appManager: AppManager,
     updateQuery: (Int, UsageQuery) -> Unit,
+    updateQueryUID: (Int, Int) -> Unit,
     updateListQuery: (ListParam) -> Unit,
     persistFilters: () -> Unit,
     resetFilters: () -> Unit,
@@ -559,15 +539,17 @@ fun HistoryFilter(
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     HistoryItemSettings(
-                        appManager = appManager,
+                        appDirectory = uiState.appDirectory,
                         updateQuery = updateQuery,
+                        updateQueryUID = updateQueryUID,
                         title = stringResource(R.string.primary),
                         n = 1,
                         query = uiState.queries.first
                     )
                     HistoryItemSettings(
-                        appManager = appManager,
+                        appDirectory = uiState.appDirectory,
                         updateQuery = updateQuery,
+                        updateQueryUID = updateQueryUID,
                         title = stringResource(R.string.secondary),
                         n = 2,
                         query = uiState.queries.second
@@ -656,15 +638,15 @@ fun HistoryFilter(
 
 @Composable
 fun RowScope.HistoryItemSettings(
-    appManager: AppManager,
+    appDirectory: List<DataUID>,
     updateQuery: (Int, UsageQuery) -> Unit,
+    updateQueryUID: (Int, Int) -> Unit,
     title: String,
     n: Int,
     query: UsageQuery
 ) {
     val hapticFeedback = LocalHapticFeedback.current
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
 
     Column (modifier = Modifier.weight(1f)) {
         Text(
@@ -712,12 +694,10 @@ fun RowScope.HistoryItemSettings(
 
         if (showAppPicker) {
             AppSearchDialog (
-                appManager,
+                apps = appDirectory,
                 onSelect = { uid ->
-                    scope.launch {
-                        updateQuery(n, query.copy(dataUID = appManager.getAppForUID(uid)))
-                        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                    }
+                    updateQueryUID(n, uid)
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                 }
             ){
                 showAppPicker = false
@@ -729,7 +709,7 @@ fun RowScope.HistoryItemSettings(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, FlowPreview::class)
 private fun AppSearchDialog(
-    appManager: AppManager,
+    apps: List<DataUID>,
     onSelect: (uid: Int) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -761,13 +741,12 @@ private fun AppSearchDialog(
             }
         }
 
-        val includedApps by produceState(emptyList()) { value = listOf(allApp, tetheringApp, removedApp).plus(appManager.getAllApps()) }
-        val searchResults by produceState(initialValue = includedApps, includedApps) {
+        val searchResults by produceState(initialValue = apps, apps) {
             snapshotFlow { textFieldState.text.toString() }
                 .debounce(150.milliseconds)
                 .collect { text ->
                     value = withContext(Dispatchers.Default) {
-                        includedApps.search(text, context)
+                        apps.search(text, context)
                     }
                 }
         }
@@ -1113,11 +1092,11 @@ private fun HistoryPreview() {
     AppTheme {
         History(
             uiState = sampleHistoryUiState(),
-            appManager = AppManager(LocalContext.current),
             refresh = {},
             updateDateQuery = { _, _ -> },
             updateHourQuery = {},
             updateQuery = { _, _ -> },
+            updateQueryUID = { _, _ -> },
             updateQueries = { _, _ -> },
             updateListQuery = {},
             persistFilters = {},

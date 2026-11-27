@@ -25,6 +25,10 @@ import com.leekleak.trafficlight.database.HistoryPreferenceRepo
 import com.leekleak.trafficlight.database.HourUsage
 import com.leekleak.trafficlight.database.UsageQuery
 import com.leekleak.trafficlight.model.AppManager
+import com.leekleak.trafficlight.model.AppManager.Companion.allApp
+import com.leekleak.trafficlight.model.AppManager.Companion.removedApp
+import com.leekleak.trafficlight.model.AppManager.Companion.tetheringApp
+import com.leekleak.trafficlight.model.DataUID
 import com.leekleak.trafficlight.model.NetworkUsageManager
 import com.leekleak.trafficlight.model.PermissionManager
 import kotlinx.coroutines.Dispatchers
@@ -58,6 +62,7 @@ data class HistoryUiState(
     val selectedHour: Int = 22,
     val filtersChanged: Boolean = false,
     val appList: List<AppUsage> = emptyList(),
+    val appDirectory: List<DataUID> = emptyList(),
     val totalUsage: DayUsage = DayUsage(),
     val hourList: List<HourUsage> = emptyList(),
     val shizukuPermissionGranted: Boolean = false,
@@ -171,6 +176,10 @@ class HistoryVM(
             emptyList()
         }
 
+        val appDirectory by produceState(initialValue = emptyList<DataUID>(), refresh) {
+            value = listOf(allApp, tetheringApp, removedApp).plus(appManager.getAllApps())
+        }
+
         HistoryUiState(
             usage = usage,
             query1 = query1,
@@ -182,6 +191,7 @@ class HistoryVM(
                 (query2 != savedQuery2) ||
                 (listParam != savedListParam),
             appList = appList,
+            appDirectory = appDirectory,
             totalUsage = totalUsage,
             hourList = hourList,
             shizukuPermissionGranted = shizukuPermissionGranted,
@@ -241,6 +251,19 @@ class HistoryVM(
     
     fun updateQueries(query1: UsageQuery, query2: UsageQuery) {
         inputs.update { it.copy(query1 = query1, query2 = query2) }
+    }
+
+    fun updateQueryUID(@IntRange(1, 2) n: Int, uid: Int) {
+        viewModelScope.launch {
+            val dataUID = appManager.getAppForUID(uid)
+            inputs.update {
+                when (n) {
+                    1 -> it.copy(query1 = it.query1.copy(dataUID = dataUID))
+                    2 -> it.copy(query2 = it.query2.copy(dataUID = dataUID))
+                    else -> throw IllegalArgumentException("Invalid query index: $n")
+                }
+            }
+        }
     }
 
     fun updateDateQuery(

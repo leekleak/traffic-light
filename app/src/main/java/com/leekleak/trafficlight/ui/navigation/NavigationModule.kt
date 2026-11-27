@@ -61,11 +61,11 @@ val navigationModule = module {
         val uiState by viewModel.uiState
         History(
             uiState = uiState,
-            appManager = get(),
             refresh = viewModel::refresh,
             updateDateQuery = viewModel::updateDateQuery,
             updateHourQuery = viewModel::updateHourQuery,
             updateQuery = viewModel::updateQuery,
+            updateQueryUID = viewModel::updateQueryUID,
             updateQueries = viewModel::updateQueries,
             updateListQuery = viewModel::updateListQuery,
             persistFilters = viewModel::persistFilters,
