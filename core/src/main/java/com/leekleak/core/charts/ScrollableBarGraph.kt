@@ -48,11 +48,13 @@ const val GOOD_BAR_SIZE = 92f
 @Composable
 fun ScrollableBarGraph(
     data: List<ScrollableBarData>,
+    monthSelected: Boolean = false,
     onSelect: (i: Int) -> Unit,
 ) {
     BoxWithConstraints {
         ScrollableBarGraphContent(
             data = data,
+            monthSelected = monthSelected,
             onSelect = onSelect,
             availableWidth = maxWidth,
         )
@@ -62,6 +64,7 @@ fun ScrollableBarGraph(
 @Composable
 private fun ScrollableBarGraphContent(
     data: List<ScrollableBarData>,
+    monthSelected: Boolean,
     onSelect: (i: Int) -> Unit,
     availableWidth: Dp,
 ) {
@@ -262,7 +265,8 @@ private fun ScrollableBarGraphContent(
             onMaximumChange = {
                 new -> currentMax = DataSize(new).getComparisonValue(metric)
             },
-            metric = metric
+            metric = metric,
+            monthSelected = monthSelected
         )
 
         barGraphHelper.drawBars(cornerRadius)

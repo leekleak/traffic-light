@@ -17,8 +17,13 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,6 +32,7 @@ import androidx.graphics.shapes.toPath
 import com.leekleak.core.charts.model.ScrollableBarData
 import com.leekleak.core.util.DataSize
 import kotlin.math.max
+import kotlin.math.roundToInt
 
 internal data class ScrollableBarGraphMetrics(
     val gridHeight: Float,
@@ -44,7 +50,8 @@ data class DoubleBar (
 internal data class MonthObject (
     val name: String,
     var xOffset: Float,
-    val visible: Int // -1 off to the left, 0 visible, 1 off to the right
+    val visible: Int, // -1 off to the left, 0 visible, 1 off to the right
+    val startIndex: Int
 )
 
 internal class ScrollableBarGraphHelper(
@@ -65,9 +72,11 @@ internal class ScrollableBarGraphHelper(
     private val padding: Float,
     private val onBarVisibilityChanged: (i: Int, visible: Boolean) -> Unit,
     private val onMaximumChange: (maximum: Long) -> Unit,
-    private val metric: Boolean = false
+    private val metric: Boolean = false,
+    private val monthSelected: Boolean = false
 ) {
     private val visibleIndices = mutableListOf<Int>()
+    private val selectedIndex = ((selectorOffset - xOffset) / xItemSpacing).roundToInt()
     internal val metrics = scope.buildMetrics()
 
     private fun DrawScope.textPaint(color: Color): Paint {
@@ -96,9 +105,10 @@ internal class ScrollableBarGraphHelper(
             data[i].monthLabel?.let {
                 monthList.add(
                     MonthObject(
-                        it,
-                        x1,
-                        if (x1 <= 0) -1 else if (x1 >= size.width) 1 else 0
+                        name = it,
+                        xOffset = x1,
+                        visible = if (x1 <= 0) -1 else if (x1 >= size.width) 1 else 0,
+                        startIndex = i
                     )
                 )
             }
@@ -148,7 +158,7 @@ internal class ScrollableBarGraphHelper(
         return ScrollableBarGraphMetrics(
             gridHeight = gridHeight,
             gridWidth = gridWidth,
-            data,
+            data = data,
             rectList = rectList,
             monthList = monthList
         )
@@ -220,15 +230,27 @@ internal class ScrollableBarGraphHelper(
                     label,
                     xBottomLabel + xOffset,
                     size.height,
-                    textPaint(if (data[i].highlight) background else color)
+                    textPaint(if (data[i].highlight) background else color).apply {
+                        if (!monthSelected && i == selectedIndex) flags = flags or Paint.UNDERLINE_TEXT_FLAG
+                    }
                 )
             }
 
             var lastVisibility = 1
             var lastOffset: Float = Float.MAX_VALUE
             for (i in metrics.monthList.size-1 downTo 0) {
-                val text = metrics.monthList[i].name
-                val result = textMeasurer.measure(text)
+                val month = metrics.monthList[i]
+                val text = month.name
+                val monthEndIndex = if (i == metrics.monthList.lastIndex) data.size else metrics.monthList[i + 1].startIndex
+                val result = textMeasurer.measure(
+                    if (monthSelected && selectedIndex in month.startIndex until monthEndIndex) {
+                        buildAnnotatedString {
+                            withStyle(SpanStyle(textDecoration = TextDecoration.Underline)) { append(text) }
+                        }
+                    } else {
+                        AnnotatedString(text)
+                    }
+                )
                 val yOffset = (-result.size.height).toFloat() + 8.dp.toPx()
 
                 val snap = lastVisibility != -1 && metrics.monthList[i].visible == -1

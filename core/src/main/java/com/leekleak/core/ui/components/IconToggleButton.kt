@@ -40,7 +40,10 @@ fun ButtonGroupScope.iconToggleButton(
             val haptic = LocalHapticFeedback.current
             val source = remember { MutableInteractionSource() }
             val press by source.collectIsPressedAsState()
-            val cornerRadius by animateDpAsState(if (press || selected) 12.dp else 24.dp)
+
+            // Values grabbed from ShapeTokens
+            val cornerRadius by animateDpAsState(if (press || selected) 8.dp else 16.dp)
+
             val containerColor by animateColorAsState(targetValue =
                 if (selected) selectedColors?.containerColor ?: colorScheme.primaryContainer
                 else unselectedColors?.containerColor ?: colorScheme.surfaceContainerHigh

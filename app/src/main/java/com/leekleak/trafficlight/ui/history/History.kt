@@ -320,7 +320,10 @@ private fun HistoryGraphAndFilters(
     val showHourGraph = hourView && hourGraphData.isNotEmpty()
 
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        ScrollableBarGraph(if (showHourGraph) hourGraphData else uiState.usage) {
+        ScrollableBarGraph(
+            if (showHourGraph) hourGraphData else uiState.usage,
+            monthSelected = uiState.dateParams.showMonth,
+        ) {
             if (showHourGraph) {
                 uiState.hourList.getOrNull(it)?.let { hour -> updateHourQuery(hour.start.hour) }
             } else {
@@ -330,42 +333,35 @@ private fun HistoryGraphAndFilters(
                 )
             }
         }
-        Row(
-            Modifier
+        ButtonGroup(
+            modifier = Modifier
                 .fillMaxWidth()
                 .clip(MaterialTheme.shapes.small)
                 .background(colorScheme.primary)
-                .padding(horizontal = 4.dp)
+                .padding(horizontal = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+            expandedRatio = 0.05f,
+            overflowIndicator = {}
         ) {
-            ButtonGroup(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(
-                    4.dp,
-                    Alignment.CenterHorizontally
-                ),
-                expandedRatio = 0.05f,
-                overflowIndicator = {}
-            ) {
-                toggleableItem(
-                    onCheckedChange = {
-                        updateDateQuery(uiState.dateParams.day, true)
-                        haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
-                    },
-                    label = uiState.dateParams.day.month.getName(TextStyle.FULL),
-                    checked = !uiState.dateParams.showMonth,
-                    weight = 3f,
-                    enabled = !hourView
-                )
-                toggleableItem(
-                    onCheckedChange = {
-                        updateDateQuery(uiState.dateParams.day, false)
-                        haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
-                    },
-                    label = uiState.dateParams.day.dayOfMonth.toString(),
-                    checked = uiState.dateParams.showMonth,
-                    weight = 1f
-                )
-            }
+            iconToggleButton(
+                onSelect = {
+                    updateDateQuery(uiState.dateParams.day, true)
+                    haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                },
+                text = uiState.dateParams.day.month.getName(TextStyle.FULL),
+                selected = uiState.dateParams.showMonth,
+                weight = 3f,
+                enabled = !hourView,
+            )
+            iconToggleButton(
+                onSelect = {
+                    updateDateQuery(uiState.dateParams.day, false)
+                    haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                },
+                text = uiState.dateParams.day.dayOfMonth.toString(),
+                selected = !uiState.dateParams.showMonth,
+                weight = 1f
+            )
         }
     }
 }
