@@ -16,7 +16,6 @@
     <string name="screen_off_update_description">ڕێگە دەدات بە بەدواداچوونی بەکارهێنان لەسەر شاشەی هەمیشە داگیرساو (AOD)، بەڵام کاریگەری لەسەر پاتری دەبێت.</string>
     <string name="wi_fi">وای فای: %1$s</string>
     <string name="mobile">مۆبایل: %1$s</string>
-    <string name="about">دەربارە</string>
     <string name="speed_in_bits">خێرایی بە بیت پیشان بدە</string>
     <string name="force_fallback">بەدواداچوونی خێراییی جێگرەوە بسەپێنە.</string>
     <string name="force_fallback_description">بەسوودە لە کاتی بەکارهێنانی ڕۆمێکی پڕکێشە یان ئیسەرنێت</string>
@@ -34,7 +33,6 @@
     <string name="unknown">نەزانراو</string>
     <string name="appearance">ڕووکار</string>
     <string name="behavior">ڕەفتار</string>
-    <string name="shizuku_not_running">شیزوکو کار ناکات</string>
     <string name="sim_card">سیم کارد</string>
     <string name="data_plans">پلانەکانی داتا</string>
     <string name="configure_plan">پلان ڕێکبخە</string>

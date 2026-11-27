@@ -16,7 +16,6 @@
     <string name="screen_off_update_description">Permette il monitoraggio nell\'Always-On Display, ma incide sul consumo della batteria.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Dati Mobili: %1$s</string>
-    <string name="about">A riguardo</string>
     <string name="speed_in_bits">Mostra velocità in bit</string>
     <string name="force_fallback">Forza il monitoraggio di riserva</string>
     <string name="force_fallback_description">Utile quando si usa una ROM buggata o con Ethernet</string>
@@ -34,7 +33,6 @@
     <string name="unknown">Sconosciuto</string>
     <string name="appearance">Aspetto</string>
     <string name="behavior">Comportamento</string>
-    <string name="shizuku_not_running">Shizuku non è in esecuzione</string>
     <string name="sim_card">Scheda SIM</string>
     <string name="data_plans">Piani Dati</string>
     <string name="configure_plan">Configura Piano</string>

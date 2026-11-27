@@ -16,7 +16,6 @@
     <string name="screen_off_update_description">Permite el seguimiento en la pantalla siempre encendida (AOD), pero afecta a la batería.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Datos Móviles: %1$s</string>
-    <string name="about">Acerca de</string>
     <string name="speed_in_bits">Mostrar la velocidad en bits</string>
     <string name="force_fallback">Forzar método alternativo de seguimiento</string>
     <string name="force_fallback_description">Útil cuando se usa una ROM con errores o conexión por ethernet</string>
@@ -34,7 +33,6 @@
     <string name="unknown">Desconocido</string>
     <string name="appearance">Apariencia</string>
     <string name="behavior">Comportamiento</string>
-    <string name="shizuku_not_running">Shizuku no está en ejecución.</string>
     <string name="sim_card">Tarjeta SIM</string>
     <string name="data_plans">Planes de datos</string>
     <string name="configure_plan">Configurar Plan</string>

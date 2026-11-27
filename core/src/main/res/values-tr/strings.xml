@@ -16,7 +16,6 @@
     <string name="screen_off_update_description">Always-on-Display\'de takibe olanak sağlar ama pil tüketimini arttırır.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Mobil: %1$s</string>
-    <string name="about">Hakkında</string>
     <string name="speed_in_bits">Hızı bit olarak göster</string>
     <string name="force_fallback">Yedek hız takip yöntemini zorla</string>
     <string name="force_fallback_description">Hatalı ROM veya ethernet kullanırken yardımcı olur</string>
@@ -34,7 +33,6 @@
     <string name="unknown">Bilinmeyen</string>
     <string name="appearance">Görünüm</string>
     <string name="behavior">Davranış</string>
-    <string name="shizuku_not_running">Shizuku aktif değil</string>
     <string name="sim_card">SIM kart</string>
     <string name="data_plans">Veri Planları</string>
     <string name="configure_plan">Plan Ayarla</string>

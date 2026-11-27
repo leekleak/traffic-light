@@ -15,7 +15,6 @@
     <string name="screen_off_update">وقتی صفحه خاموشه آپدیت کن</string>
     <string name="wi_fi">وای فای: %1$s</string>
     <string name="mobile">موبایل: %1$s</string>
-    <string name="about">درباره</string>
     <string name="speed_in_bits">نمایش سرعت به صورت بیت</string>
     <string name="light">روشن</string>
     <string name="dark">تیره</string>
@@ -39,7 +38,6 @@
     <string name="base_1024">پایه 1024</string>
     <string name="base_1000">پایه 1000</string>
     <string name="donate">حمایت</string>
-    <string name="shizuku_not_running">Shizuku اجرا شده نیست</string>
     <string name="sim_card">سیم کارت</string>
     <string name="data_plans">بسته‌ اینترنت</string>
     <string name="configure_plan">پیکربندی بسته</string>

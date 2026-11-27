@@ -15,7 +15,6 @@
     <string name="screen_off_update">熄屏更新</string>
     <string name="screen_off_update_description">允许在熄屏显示时跟踪，但会增加耗电。</string>
     <string name="mobile">流量: %1$s</string>
-    <string name="about">关于</string>
     <string name="speed_in_bits">网速使用 bit 单位</string>
     <string name="force_fallback">开启备用网速监测</string>
     <string name="force_fallback_description">适用于有问题的系统或有线连接</string>
@@ -34,7 +33,6 @@
     <string name="unknown">未知</string>
     <string name="appearance">外观</string>
     <string name="behavior">行为</string>
-    <string name="shizuku_not_running">Shizuku未运行</string>
     <string name="sim_card">SIM卡</string>
     <string name="data_plans">数据计划</string>
     <string name="configure_plan">配置计划</string>

@@ -12,7 +12,6 @@
     <string name="settings">Настройки</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Сотовая связь: %1$s</string>
-    <string name="about">О приложении</string>
     <string name="speed_in_bits">Показывать скорость в битах</string>
     <string name="light">Светлая</string>
     <string name="dark">Тёмная</string>
@@ -34,7 +33,6 @@
     <string name="unknown">Неизвестно</string>
     <string name="appearance">Внешний вид</string>
     <string name="behavior">Поведение</string>
-    <string name="shizuku_not_running">Shizuku не запущен</string>
     <string name="sim_card">SIM карта</string>
     <string name="data_plans">Тарифные планы</string>
     <string name="configure_plan">Настроить план</string>

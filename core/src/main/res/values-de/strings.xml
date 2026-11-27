@@ -16,7 +16,6 @@
     <string name="screen_off_update_description">Ermöglicht die Nachverfolgung der Nutzung auf dem AOD, wirkt sich jedoch auf den Akku aus.</string>
     <string name="wi_fi">WLAN: %1$s</string>
     <string name="mobile">Mobilfunk: %1$s</string>
-    <string name="about">Über</string>
     <string name="speed_in_bits">Geschwindigkeit in Bits anzeigen</string>
     <string name="force_fallback">Erzwungene Rückfallgeschwindigkeit verfolgen</string>
     <string name="force_fallback_description">Hilfreich bei Verwendung eines fehlerhaften ROMs oder Ethernet</string>
@@ -34,7 +33,6 @@
     <string name="unknown">Unbekannt</string>
     <string name="appearance">Aussehen</string>
     <string name="behavior">Verhalten</string>
-    <string name="shizuku_not_running">Shizuku läuft nicht</string>
     <string name="sim_card">SIM-Karte</string>
     <string name="data_plans">Datenpläne</string>
     <string name="configure_plan">Plan konfigurieren</string>

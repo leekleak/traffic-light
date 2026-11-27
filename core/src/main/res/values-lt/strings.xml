@@ -16,7 +16,6 @@
     <string name="screen_off_update_description">Leidžia sekti duomenų naudojimą \"AOD\" režime.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Mobilieji: %1$s</string>
-    <string name="about">Apie</string>
     <string name="speed_in_bits">Greitį matuoti bitais</string>
     <string name="force_fallback">Priverstinai naudoti atsarginį skaičiavimo metodą</string>
     <string name="force_fallback_description">Naudinga jei jūsų sitema turi klaidų arba esate prisijungę prie laidinio interneto</string>
@@ -34,7 +33,6 @@
     <string name="unknown">Nežinoma</string>
     <string name="appearance">Išvaizda</string>
     <string name="behavior">Elgsena</string>
-    <string name="shizuku_not_running">Shizuku nepaleistas</string>
     <string name="sim_card">SIM kortelė</string>
     <string name="data_plans">Duomenų Planai</string>
     <string name="configure_plan">Konfigūruoti planą</string>

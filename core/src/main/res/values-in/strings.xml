@@ -16,7 +16,6 @@
     <string name="screen_off_update_description">Izinkan pemantauan penggunaan pada AOD, tetapi berdampak pada daya baterai.</string>
     <string name="wi_fi">Wi-Fi: %1$s</string>
     <string name="mobile">Seluler: %1$s</string>
-    <string name="about">Tentang</string>
     <string name="speed_in_bits">Tampilkan kecepatan dalam bits</string>
     <string name="force_fallback">Paksa pelacakan kecepatan cadangan</string>
     <string name="force_fallback_description">Berguna saat menggunakan ROM yang bermasalah atau koneksi ethernet</string>
@@ -34,7 +33,6 @@
     <string name="unknown">Tidak diketahui</string>
     <string name="appearance">Tampilan</string>
     <string name="behavior">Perilaku</string>
-    <string name="shizuku_not_running">Shizuku tidak berjalan</string>
     <string name="sim_card">Kartu SIM</string>
     <string name="data_plans">Paket Data</string>
     <string name="configure_plan">Atur Paket</string>
