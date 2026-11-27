@@ -35,6 +35,8 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -63,6 +65,7 @@ import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -165,7 +168,6 @@ fun History(
     HazeScaffold(
         title = stringResource(R.string.history),
         scrollState = null,
-        hazeState = null,
         backAction = BackAction.None,
         extraPadding = LocalNavigationBarPadding.current,
         actions = {
@@ -190,6 +192,11 @@ fun History(
         val isWidescreen = currentWindowAdaptiveInfoV2()
             .windowSizeClass
             .isWidthAtLeastBreakpoint(600)
+        val appSelected = remember { mutableIntStateOf(-1) }
+        val totalMaximum = remember(uiState.appList) {
+            uiState.appList.maxOfOrNull { it.usage.totalUsage } ?: 0
+        }
+        val listState = rememberLazyListState()
 
         if (isWidescreen) {
             Row(
@@ -219,44 +226,66 @@ fun History(
                         .weight(1f)
                         .padding(top = paddingValues.calculateTopPadding())
                 ) {
-                    HistoryList(
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = listContentPadding,
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        state = listState
+                    ) {
+                        historyAppItems(
+                            uiState = uiState,
+                            updateQueries = updateQueries,
+                            openApp = openApp,
+                            openPackageSettings = openPackageSettings,
+                            appSelected = appSelected,
+                            totalMaximum = totalMaximum,
+                        )
+                    }
+                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = startPadding,
+                    end = endPadding,
+                    top = paddingValues.calculateTopPadding(),
+                    bottom = paddingValues.calculateBottomPadding()
+                ),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                state = listState
+            ) {
+                item(key = "header", contentType = "header") {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        HistoryGraphAndFilters(
+                            uiState = uiState,
+                            appManager = appManager,
+                            updateDateQuery = updateDateQuery,
+                            updateHourQuery = updateHourQuery,
+                            updateQuery = updateQuery,
+                            updateListQuery = updateListQuery,
+                            persistFilters = persistFilters,
+                            resetFilters = resetFilters,
+                        )
+                        HistoryLegend(uiState)
+                        Spacer(Modifier.height(12.dp))
+                    }
+                }
+                if (uiState.appFilterActive) {
+                    item(key = "placeholder", contentType = "placeholder") {
+                        AppListPlaceholder()
+                    }
+                } else {
+                    historyAppItems(
                         uiState = uiState,
                         updateQueries = updateQueries,
                         openApp = openApp,
                         openPackageSettings = openPackageSettings,
-                        contentPadding = listContentPadding,
+                        appSelected = appSelected,
+                        totalMaximum = totalMaximum,
                     )
                 }
             }
-        } else {
-            Column(
-                modifier = Modifier
-                    .padding(
-                        start = startPadding,
-                        end = endPadding,
-                        top = paddingValues.calculateTopPadding()
-                    ),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                HistoryGraphAndFilters(
-                    uiState = uiState,
-                    appManager = appManager,
-                    updateDateQuery = updateDateQuery,
-                    updateHourQuery = updateHourQuery,
-                    updateQuery = updateQuery,
-                    updateListQuery = updateListQuery,
-                    persistFilters = persistFilters,
-                    resetFilters = resetFilters,
-                )
-            }
-            HistoryLegend(uiState, Modifier.padding(start = startPadding, end = endPadding))
-            HistoryList(
-                uiState = uiState,
-                updateQueries = updateQueries,
-                openApp = openApp,
-                openPackageSettings = openPackageSettings,
-                contentPadding = listContentPadding,
-            )
         }
     }
 }
@@ -342,7 +371,7 @@ private fun HistoryGraphAndFilters(
                         updateDateQuery(uiState.dateParams.day, true)
                         haptic.performHapticFeedback(HapticFeedbackType.ToggleOn)
                     },
-                    label = uiState.dateParams.day.month.getName(java.time.format.TextStyle.FULL),
+                    label = uiState.dateParams.day.month.getName(TextStyle.FULL),
                     checked = !uiState.dateParams.showMonth,
                     weight = 3f,
                     enabled = !hourView
@@ -384,87 +413,50 @@ private fun HistoryLegend(uiState: HistoryUiState, modifier: Modifier = Modifier
     }
 }
 
-@Composable
-private fun HistoryList(
+private fun LazyListScope.historyAppItems(
     uiState: HistoryUiState,
     updateQueries: (UsageQuery, UsageQuery) -> Unit,
     openApp: (Activity?, Intent?) -> Unit,
     openPackageSettings: suspend (Activity?, Int) -> Unit,
-    contentPadding: PaddingValues,
+    appSelected: MutableIntState,
+    totalMaximum: Long,
 ) {
-    if (uiState.appFilterActive) {
-        AppListPlaceholder(contentPadding)
-    } else {
-        AppList(
-            uiState = uiState,
-            updateQueries = updateQueries,
-            openApp = openApp,
-            openPackageSettings = openPackageSettings,
-            contentPadding = contentPadding,
-        )
-    }
-}
-
-@Composable
-private fun AppList(
-    uiState: HistoryUiState,
-    updateQueries: (UsageQuery, UsageQuery) -> Unit,
-    openApp: (Activity?, Intent?) -> Unit,
-    openPackageSettings: suspend (Activity?, Int) -> Unit,
-    contentPadding: PaddingValues,
-) {
-    val context = LocalContext.current
-
-    var appSelected by remember { mutableIntStateOf(-1) }
-    val totalMaximum = remember(uiState.appList) {
-        uiState.appList.maxOfOrNull { it.usage.totalUsage } ?: 0
-    }
-
-    val listState = rememberLazyListState()
-    LazyColumn(
-        modifier = Modifier
-            .padding(top = 8.dp)
-            .clip(shelfShape)
-            .background(colorScheme.surfaceContainer)
-            .fillMaxSize(),
-        contentPadding = contentPadding,
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        state = listState
-    ) {
-        items(uiState.appList, key = { it.app.uid }, contentType = { "app" }) { item ->
-            Box(Modifier.animateItem()) {
-                AppItem(
-                    usageQueries = uiState.queries,
-                    updateQueries = updateQueries,
-                    openApp = openApp,
-                    openPackageSettings = openPackageSettings,
-                    app = item.app,
-                    usage1 = item.usage.usage1,
-                    usage2 = item.usage.usage2,
-                    name = item.app.getName(context),
-                    isSelected = { appSelected == item.app.uid },
-                    maximum = totalMaximum,
-                    onClick = {appSelected = if (appSelected != item.app.uid) item.app.uid else -1}
-                ) {
-                    item.app.GetIcon(Modifier.size(imageWidth))
+    items(uiState.appList, key = { it.app.uid }, contentType = { "app" }) { item ->
+        Box(Modifier.animateItem()) {
+            AppItem(
+                usageQueries = uiState.queries,
+                updateQueries = updateQueries,
+                openApp = openApp,
+                openPackageSettings = openPackageSettings,
+                app = item.app,
+                usage1 = item.usage.usage1,
+                usage2 = item.usage.usage2,
+                isSelected = { appSelected.intValue == item.app.uid },
+                maximum = totalMaximum,
+                onClick = {
+                    appSelected.intValue =
+                        if (appSelected.intValue != item.app.uid) item.app.uid else -1
                 }
+            ) {
+                item.app.GetIcon(Modifier.size(imageWidth))
             }
         }
     }
 }
 
 @Composable
-private fun AppListPlaceholder(contentPadding: PaddingValues) {
+private fun LazyItemScope.AppListPlaceholder() {
     Box(
         modifier = Modifier
             .padding(top = 8.dp)
             .clip(shelfShape)
             .background(colorScheme.surfaceContainer)
-            .fillMaxSize(),
+            .fillMaxWidth()
+            .fillParentMaxHeight(),
         contentAlignment = Alignment.Center,
     ) {
         Column(
-            modifier = Modifier.padding(contentPadding),
+            modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
@@ -883,16 +875,18 @@ fun AppItem(
     updateQueries: (UsageQuery, UsageQuery) -> Unit,
     openApp: (Activity?, Intent?) -> Unit,
     openPackageSettings: suspend (Activity?, Int) -> Unit,
-    app: DataUID? = null,
+    app: DataUID,
     usage1: Long,
     usage2: Long,
-    name: String,
     isSelected: () -> Boolean,
     maximum: Long,
     onClick: () -> Unit = {},
     icon: @Composable (() -> Unit)
 ) {
     val haptic = LocalHapticFeedback.current
+    val context = LocalContext.current
+
+    val name = app.getName(context)
 
     Column(
         modifier = modifier
