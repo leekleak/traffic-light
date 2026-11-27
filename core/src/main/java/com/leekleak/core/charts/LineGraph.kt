@@ -56,7 +56,7 @@ fun LineGraph(
 
     Canvas(modifier = Modifier
         .fillMaxWidth()
-        .height(32.dp)
+        .height(36.dp)
         .clip(MaterialTheme.shapes.extraSmall)
     ) {
         /**

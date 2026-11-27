@@ -18,9 +18,7 @@ import com.leekleak.core.charts.model.ScrollableBarData
 import com.leekleak.core.util.toTimestamp
 import com.leekleak.trafficlight.BuildConfig
 import com.leekleak.trafficlight.database.AppUsage
-import com.leekleak.trafficlight.database.AppUsageSummary
 import com.leekleak.trafficlight.database.DataType
-import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HistoryPreferenceRepo
 import com.leekleak.trafficlight.database.HourUsage
 import com.leekleak.trafficlight.database.UsageQuery
@@ -63,7 +61,6 @@ data class HistoryUiState(
     val filtersChanged: Boolean = false,
     val appList: List<AppUsage> = emptyList(),
     val appDirectory: List<DataUID> = emptyList(),
-    val totalUsage: DayUsage = DayUsage(),
     val hourList: List<HourUsage> = emptyList(),
     val shizukuPermissionGranted: Boolean = false,
     val shizukuRunning: Boolean = false,
@@ -122,29 +119,14 @@ class HistoryVM(
             ).first()
         }
 
-        val appSummary by produceState(
-            initialValue = AppUsageSummary(emptyList(), DayUsage()),
-            refresh, dateParams, query1, query2, listParam, selectedHour
-        ) {
-            value = when {
-                appFiltered -> {
-                    val (startStamp, endStamp) = if (listParam == ListParam.HourList) {
-                        val spanStart = dateParams.day.atTime(selectedHour, 0)
-                        spanStart.toTimestamp() to spanStart.plusHours(2).toTimestamp()
-                    } else {
-                        val (startDate, endDate) = dateParams.getStartEndDates()
-                        startDate.atStartOfDay().toTimestamp() to endDate.atStartOfDay().toTimestamp()
-                    }
-                    AppUsageSummary(
-                        apps = emptyList(),
-                        total = DayUsage(
-                            date = dateParams.day,
-                            usage1 = networkUsageManager.totalUsage(query1, startStamp, endStamp),
-                            usage2 = networkUsageManager.totalUsage(query2, startStamp, endStamp),
-                        ),
-                    )
-                }
-                listParam == ListParam.HourList -> {
+        val appList: List<AppUsage> = if (appFiltered) {
+            emptyList()
+        } else {
+            val list by produceState(
+                initialValue = emptyList(),
+                refresh, dateParams, query1, query2, listParam, selectedHour
+            ) {
+                value = if (listParam == ListParam.HourList) {
                     val spanStart = dateParams.day.atTime(selectedHour, 0)
                     networkUsageManager.getAllAppUsage(
                         startStamp = spanStart.toTimestamp(),
@@ -152,8 +134,7 @@ class HistoryVM(
                         query1 = query1,
                         query2 = query2,
                     )
-                }
-                else -> {
+                } else {
                     val (startDate, endDate) = dateParams.getStartEndDates()
                     networkUsageManager.getAllAppUsage(
                         startStamp = startDate.atStartOfDay().toTimestamp(),
@@ -163,9 +144,8 @@ class HistoryVM(
                     )
                 }
             }
+            list
         }
-        val appList: List<AppUsage> = if (appFiltered) emptyList() else appSummary.apps
-        val totalUsage: DayUsage = appSummary.total
 
         val hourList: List<HourUsage> = if (listParam == ListParam.HourList) {
             val list by produceState(emptyList(), refresh, dateParams, query1, query2) {
@@ -176,7 +156,7 @@ class HistoryVM(
             emptyList()
         }
 
-        val appDirectory by produceState(initialValue = emptyList<DataUID>(), refresh) {
+        val appDirectory by produceState(initialValue = emptyList(), refresh) {
             value = listOf(allApp, tetheringApp, removedApp).plus(appManager.getAllApps())
         }
 
@@ -192,7 +172,6 @@ class HistoryVM(
                 (listParam != savedListParam),
             appList = appList,
             appDirectory = appDirectory,
-            totalUsage = totalUsage,
             hourList = hourList,
             shizukuPermissionGranted = shizukuPermissionGranted,
             shizukuRunning = shizukuRunning,

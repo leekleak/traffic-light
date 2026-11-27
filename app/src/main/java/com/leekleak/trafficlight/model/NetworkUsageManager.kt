@@ -8,7 +8,6 @@ import com.leekleak.core.util.getName
 import com.leekleak.core.util.overlapRatio
 import com.leekleak.core.util.toTimestamp
 import com.leekleak.trafficlight.database.AppUsage
-import com.leekleak.trafficlight.database.AppUsageSummary
 import com.leekleak.trafficlight.database.DataDirection
 import com.leekleak.trafficlight.database.DataDirection.Bidirectional
 import com.leekleak.trafficlight.database.DataDirection.Download
@@ -17,6 +16,7 @@ import com.leekleak.trafficlight.database.DataType
 import com.leekleak.trafficlight.database.DayUsage
 import com.leekleak.trafficlight.database.HourUsage
 import com.leekleak.trafficlight.database.UsageQuery
+import com.leekleak.trafficlight.model.AppManager.Companion.allApp
 import com.leekleak.trafficlight.model.AppManager.Companion.otherUsersApp
 import com.leekleak.trafficlight.model.AppManager.Companion.specialUIDs
 import com.leekleak.trafficlight.model.AppManager.Companion.unknownApp
@@ -72,21 +72,6 @@ class NetworkUsageManager(
                 uid == query.dataUID.uid || query.dataUID.uidQuery == null ->
                     usage.forDirection(query.dataDirection)
                 else -> 0L
-            }
-        }
-    }
-
-    suspend fun totalUsage(
-        query: UsageQuery,
-        startStamp: Long,
-        endStamp: Long,
-        subscriberId: String? = null,
-    ): Long {
-        return getNetworkDataForType(startStamp, endStamp, subscriberId, query.dataType).sumOf { usage ->
-            if (usage.uid == query.dataUID.uid || query.dataUID.uidQuery == null) {
-                usage.forDirection(query.dataDirection)
-            } else {
-                0L
             }
         }
     }
@@ -201,7 +186,7 @@ class NetworkUsageManager(
         query1: UsageQuery,
         query2: UsageQuery,
         subscriberId: String? = null
-    ): AppUsageSummary {
+    ): List<AppUsage> {
         val usage1 = getNetworkDataForType(startStamp, endStamp, subscriberId, query1.dataType)
         val usage2 = getNetworkDataForType(startStamp, endStamp, subscriberId, query2.dataType)
 
@@ -231,7 +216,11 @@ class NetworkUsageManager(
                     .thenByDescending { it.usage.totalUsage }
             )
 
-        return AppUsageSummary(apps = apps, total = totalUsage)
+        return if (totalUsage.totalUsage > 0L) {
+            listOf(AppUsage(allApp, totalUsage)).plus(apps)
+        } else {
+            apps
+        }
     }
 
     suspend fun getAllHourUsage(

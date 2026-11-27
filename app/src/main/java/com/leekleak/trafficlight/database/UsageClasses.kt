@@ -18,11 +18,6 @@ data class AppUsage(
     val usage: DayUsage,
 )
 
-data class AppUsageSummary(
-    val apps: List<AppUsage>,
-    val total: DayUsage,
-)
-
 data class HourUsage(
     val start: LocalDateTime,
     val end: LocalDateTime,

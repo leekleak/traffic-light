@@ -9,7 +9,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +24,6 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
@@ -82,8 +80,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -95,7 +91,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.leekleak.core.R
 import com.leekleak.core.charts.LineGraph
@@ -105,16 +100,11 @@ import com.leekleak.core.ui.components.BackAction
 import com.leekleak.core.ui.components.HazeScaffold
 import com.leekleak.core.ui.components.SearchField
 import com.leekleak.core.ui.components.ShizukuStoppedTag
-import com.leekleak.core.ui.components.SlideAnimatedVisibility
 import com.leekleak.core.ui.components.iconToggleButton
 import com.leekleak.core.ui.navigation.LocalNavigationBarPadding
 import com.leekleak.core.ui.theme.AppTheme
 import com.leekleak.core.ui.theme.googleSans
-import com.leekleak.core.ui.theme.historyItemFont
 import com.leekleak.core.ui.theme.shelfShape
-import com.leekleak.core.ui.theme.variableRoundedEnd
-import com.leekleak.core.ui.theme.variableRoundedStart
-import com.leekleak.core.util.DataSize
 import com.leekleak.core.util.getName
 import com.leekleak.core.util.openLink
 import com.leekleak.core.util.rememberIs24HourFormat
@@ -266,7 +256,7 @@ fun History(
                     top = paddingValues.calculateTopPadding(),
                     bottom = paddingValues.calculateBottomPadding()
                 ),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
                 state = listState
             ) {
                 item(key = "header", contentType = "header") {
@@ -277,7 +267,6 @@ fun History(
                             updateHourQuery = updateHourQuery,
                         )
                         HistoryLegend(uiState)
-                        Spacer(Modifier.height(12.dp))
                     }
                 }
                 if (uiState.appFilterActive) {
@@ -367,25 +356,16 @@ private fun HistoryGraphAndFilters(
 }
 
 @Composable
-private fun HistoryLegend(uiState: HistoryUiState, modifier: Modifier = Modifier) {
+private fun HistoryLegend(uiState: HistoryUiState) {
     Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = imageWidth + 16.dp, end = 8.dp, bottom = 6.dp, top = 6.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        HistoryLegendItem(
-            usageQuery = uiState.queries.first,
-            byteUsage = uiState.totalUsage.usage1,
-            showUsage = uiState.totalUsage.totalUsage > 0L,
-            foregroundColor = colorScheme.primary,
-            shape = variableRoundedStart
-        )
-        HistoryLegendItem(
-            usageQuery = uiState.queries.second,
-            byteUsage = uiState.totalUsage.usage2,
-            showUsage = uiState.totalUsage.totalUsage > 0L,
-            foregroundColor = colorScheme.tertiary,
-            shape = variableRoundedEnd
-        )
+        LegendIcons(uiState.queries.first)
+        LegendIcons(uiState.queries.second)
     }
 }
 
@@ -451,51 +431,25 @@ private fun LazyItemScope.AppListPlaceholder() {
 }
 
 @Composable
-private fun RowScope.HistoryLegendItem(
+private fun LegendIcons(
     usageQuery: UsageQuery,
-    byteUsage: Long,
-    showUsage: Boolean,
-    foregroundColor: Color,
-    shape: Shape,
 ) {
-    Column(
-        modifier = Modifier
-            .weight(1f)
-            .heightIn(72.dp)
-            .background(colorScheme.background, shape)
-            .border(1.dp, foregroundColor, shape = shape)
-            .padding(vertical = 4.dp, horizontal = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Row(
-            modifier = Modifier
-        ) {
+        Icon(
+            painter = painterResource(usageQuery.dataType.iconRes),
+            contentDescription = stringResource(usageQuery.dataType.nameRes),
+        )
+
+        AnimatedVisibility(usageQuery.dataDirection != DataDirection.Bidirectional) {
             Icon(
-                painter = painterResource(usageQuery.dataType.iconRes),
-                contentDescription = stringResource(usageQuery.dataType.nameRes),
-                tint = foregroundColor
+                painter = painterResource(usageQuery.dataDirection.iconRes),
+                contentDescription = stringResource(usageQuery.dataDirection.nameRes),
             )
-            AnimatedVisibility(usageQuery.dataType != DataType.None) {
-                Row {
-                    Icon(
-                        painter = painterResource(usageQuery.dataDirection.iconRes),
-                        contentDescription = stringResource(usageQuery.dataDirection.nameRes),
-                        tint = foregroundColor
-                    )
-                    usageQuery.dataUID.GetIcon(Modifier.size(24.dp), foregroundColor)
-                }
-            }
         }
-        SlideAnimatedVisibility(showUsage) {
-            val usage = DataSize(byteUsage)
-            val font = remember { historyItemFont() }
-            Text(
-                text = usage.toString(),
-                color = foregroundColor,
-                fontFamily = font,
-                fontSize = 20.sp
-            )
+        AnimatedVisibility(usageQuery.dataUID != allApp) {
+            usageQuery.dataUID.GetIcon(Modifier.size(24.dp))
         }
     }
 }
@@ -866,18 +820,18 @@ fun AppItem(
     Column(
         modifier = modifier
             .clip(MaterialTheme.shapes.small)
-            .background(colorScheme.surface)
             .clickable {
                 onClick()
                 haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
             }
     ) {
         Row(
-            modifier = Modifier.padding(4.dp),
-            verticalAlignment = Alignment.Top,
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            icon()
+            Box(modifier = Modifier.padding(start = 4.dp)) {
+                icon()
+            }
             Column {
                 ExpandableHeader(isSelected = isSelected, name = name, usageQueries = usageQueries)
                 val graphUsage1 = if (usageQueries.first.dataType != DataType.None) usage1 else null
@@ -1078,7 +1032,6 @@ private fun sampleHistoryUiState(): HistoryUiState {
             AppUsage(removedApp, DayUsage(usage1 = 240_000_000L, usage2 = 90_000_000L)),
             AppUsage(otherUsersApp, DayUsage(usage1 = 96_000_000L, usage2 = 12_000_000L)),
         ),
-        totalUsage = DayUsage(usage1 = 8_536_000_000L, usage2 = 4_622_000_000L),
     )
 }
 

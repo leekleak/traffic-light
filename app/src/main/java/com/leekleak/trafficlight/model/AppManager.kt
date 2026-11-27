@@ -10,10 +10,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
@@ -207,15 +205,11 @@ class DataUIDSpecial(
     override fun getName(context: Context): String = context.getString(stringResource)
 
     @Composable
-    override fun GetIcon(
-        modifier: Modifier,
-        tint: Color
-    ) {
+    override fun GetIcon(modifier: Modifier) {
         Icon(
             modifier = modifier,
             painter = painterResource(drawableResource),
             contentDescription = getName(LocalContext.current),
-            tint = tint
         )
     }
 }
@@ -228,7 +222,7 @@ class DataUIDApp(
     override val uidQuery: Int = uid
     override fun getName(context: Context): String = label
     @Composable
-    override fun GetIcon(modifier: Modifier, tint: Color) {
+    override fun GetIcon(modifier: Modifier) {
         Image(
             modifier = modifier,
             painter = rememberAsyncImagePainter(AppIcon(packageName)),
@@ -242,15 +236,11 @@ class DataUIDService(uid: Int) : DataUID(uid, "") {
     override fun getName(context: Context): String = context.getString(R.string.system_service, uid)
 
     @Composable
-    override fun GetIcon(
-        modifier: Modifier,
-        tint: Color
-    ) {
+    override fun GetIcon(modifier: Modifier) {
         Icon(
             modifier = modifier,
             painter = painterResource(R.drawable.manufacturing),
             contentDescription = getName(LocalContext.current),
-            tint = tint
         )
     }
 }
@@ -262,7 +252,7 @@ abstract class DataUID(
     abstract val uidQuery: Int?
     abstract fun getName(context: Context): String
     @Composable
-    abstract fun GetIcon(modifier: Modifier = Modifier, tint: Color = LocalContentColor.current)
+    abstract fun GetIcon(modifier: Modifier = Modifier)
 }
 
 data class AppIcon(val packageName: String)
