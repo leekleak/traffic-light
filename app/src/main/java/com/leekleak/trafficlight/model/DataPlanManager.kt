@@ -26,7 +26,6 @@ class DataPlanManager(
     private val dao: DataPlanDao,
     private val networkUsageManager: NetworkUsageManager,
 ) {
-    val plans: Flow<List<DataPlan>> = dao.allPlansFlow
     val activePlans: Flow<List<DataPlan>> = dao.activePlansFlow
     val activePlansWithNotifications: Flow<List<DataPlan>> = dao.getActivePlansWithNotificationsFlow()
     val activePlanNotificationsCount: Flow<Int> = dao.getActivePlansWithNotificationsCountFlow()

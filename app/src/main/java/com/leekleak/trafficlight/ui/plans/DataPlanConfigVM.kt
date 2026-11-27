@@ -38,10 +38,10 @@ data class PlanConfigDialogs(
 )
 
 class DataPlanConfigVM (
-    val appManager: AppManager,
-    val dataPlanManager: DataPlanManager,
-    val appPreferenceRepo: AppPreferenceRepo,
-    val shizukuServicesProvider: ShizukuServicesProvider,
+    private val appManager: AppManager,
+    private val dataPlanManager: DataPlanManager,
+    private val appPreferenceRepo: AppPreferenceRepo,
+    private val shizukuServicesProvider: ShizukuServicesProvider,
     permissionManager: PermissionManager,
     @InjectedParam initialPlan: DataPlan,
 ): ViewModel() {
